@@ -1,0 +1,21 @@
+version: '2'
+services:
+  huellapositiva_database:
+    image: postgres
+    ports:
+      - "5432:5432"
+    restart: on-failure
+    environment:
+      POSTGRES_DB: huellapositiva
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+volumes:
+  postgres-data:
+
+networks:
+  internal:

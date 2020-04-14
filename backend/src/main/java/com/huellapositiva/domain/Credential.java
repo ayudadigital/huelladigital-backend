@@ -27,7 +27,7 @@ public class Credential {
     @Column(name = "hashed_password", nullable = false)
     private String hashedPassword;
 
-    @ManyToMany(cascade= CascadeType.ALL, fetch= FetchType.EAGER)
+    @ManyToMany(fetch= FetchType.EAGER)
     @JoinTable(name="credential_roles",
             joinColumns = {@JoinColumn(name="credential_id", referencedColumnName="id")},
             inverseJoinColumns = {@JoinColumn(name="role_id", referencedColumnName="id")}

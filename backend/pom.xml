@@ -396,14 +396,14 @@
       <properties>
         <test.type>it</test.type>
         <test.include.pattern>**/integration/*.java</test.include.pattern>
-        <test.exclude.pattern>**/e2e/*.java</test.exclude.pattern>
+        <test.exclude.pattern>**/api/*.java</test.exclude.pattern>
       </properties>
     </profile>
     <profile>
       <id>acceptance-test</id>
       <properties>
         <test.type>at</test.type>
-        <test.include.pattern>**/e2e/*.java</test.include.pattern>
+        <test.include.pattern>**/api/*.java</test.include.pattern>
         <test.exclude.pattern>**/integration/*.java</test.exclude.pattern>
       </properties>
     </profile>

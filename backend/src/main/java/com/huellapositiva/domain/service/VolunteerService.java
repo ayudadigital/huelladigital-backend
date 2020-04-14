@@ -6,7 +6,6 @@ import com.huellapositiva.domain.Role;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.Volunteer;
 import com.huellapositiva.domain.exception.RoleNotFound;
-import com.huellapositiva.domain.repository.CredentialRepository;
 import com.huellapositiva.domain.repository.RoleRepository;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import lombok.AllArgsConstructor;
@@ -31,7 +30,7 @@ public class VolunteerService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public void registerVolunteer(RegisterVolunteerRequestDto dto) {
+    public Integer registerVolunteer(RegisterVolunteerRequestDto dto) {
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString())
                 .orElseThrow(() -> new RoleNotFound("Role VOLUNTEER not found."));
         String hashedPassword = passwordEncoder.encode(dto.getPassword());
@@ -43,6 +42,7 @@ public class VolunteerService {
         Volunteer volunteer = Volunteer.builder()
                 .credential(credential)
                 .build();
-        volunteerRepository.save(volunteer);
+        volunteer = volunteerRepository.save(volunteer);
+        return volunteer.getId();
     }
 }

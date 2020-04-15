@@ -20,6 +20,14 @@ choose the `backend` folder in this repository. The project should be imported c
 
 Don't worry the project should build and the tests run. It's complaining because of the dependency tree but it's working.
 
+We are using Lombok project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
+
+Go to `Settings > Build, Execution, Deployment > Compiler > Annotation Processors` and select `Enable annotation processing`.
+
+Then go to `Settings > Plugins` and search for `Lombok` in the Marketplace tab. Install the first one and restart the IDE.
+
+From now, no more warnings should be displayed in the `Project` window.
+
 From the terminal you can build the project with `mvn package`. From the IDE you may run the tests with the right mouse button on the `src/test` folder.
 
 

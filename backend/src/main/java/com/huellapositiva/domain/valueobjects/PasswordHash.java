@@ -1,4 +1,4 @@
-package com.huellapositiva.domain;
+package com.huellapositiva.domain.valueobjects;
 
 public class PasswordHash {
     private String hash;

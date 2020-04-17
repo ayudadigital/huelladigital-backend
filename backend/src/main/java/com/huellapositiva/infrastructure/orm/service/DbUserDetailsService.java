@@ -1,7 +1,7 @@
-package com.huellapositiva.domain.service;
+package com.huellapositiva.infrastructure.orm.service;
 
-import com.huellapositiva.domain.Credential;
-import com.huellapositiva.infrastructure.orm.JpaCredentialRepository;
+import com.huellapositiva.infrastructure.orm.model.Credential;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

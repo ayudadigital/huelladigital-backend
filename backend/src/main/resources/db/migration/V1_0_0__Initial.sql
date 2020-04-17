@@ -1,8 +1,19 @@
+CREATE TABLE email_confirmation
+(
+    id              SERIAL PRIMARY KEY NOT NULL,
+    email           VARCHAR NOT NULL ,
+    hash            VARCHAR NOT NULL UNIQUE ,
+    created_on      TIMESTAMP
+);
+
 CREATE TABLE credentials
 (
     id              SERIAL          PRIMARY KEY NOT NULL,
     email           VARCHAR         UNIQUE,
-    hashed_password VARCHAR         NOT NULL
+    hashed_password VARCHAR         NOT NULL,
+    email_confirmed BOOLEAN         NOT NULL,
+    email_confirmation_id INTEGER   NOT NULL,
+    FOREIGN KEY (email_confirmation_id) REFERENCES email_confirmation(id)
 );
 
 CREATE TABLE roles
@@ -29,3 +40,5 @@ CREATE TABLE volunteer
 
 INSERT INTO roles VALUES (1, 'ADMIN');
 INSERT INTO roles VALUES (2, 'VOLUNTEER');
+
+

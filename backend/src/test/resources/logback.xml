@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.ticparabien.hotelcovid19" level="INFO"/>
+    <logger name="com.huellapositiva" level="INFO"/>
 
     <!-- To see more logs set one of these to DEBUG -> Careful too spammy but you will learn a lot about Spring -->
     <logger name="org.springframework" level="INFO"/>

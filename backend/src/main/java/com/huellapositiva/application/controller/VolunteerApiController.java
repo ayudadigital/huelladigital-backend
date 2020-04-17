@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/volunteers")
+@RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
 
     @Autowired

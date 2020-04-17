@@ -1,6 +1,6 @@
-package com.huellapositiva.infrastructure.orm;
+package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.domain.Volunteer;
+import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

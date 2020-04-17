@@ -12,12 +12,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 
 @Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
-@EnableJdbcHttpSession
+//@EnableJdbcHttpSession
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
@@ -33,15 +32,16 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/volunteers").permitAll()
-                .antMatchers("/api/**").authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll();
+                .antMatchers(HttpMethod.POST, "/api/v1/volunteers").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
+                .antMatchers("/api/**").authenticated();
+//                .and()
+//                .formLogin()
+//                .loginPage("/login")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .permitAll();
     }
 
     @Autowired

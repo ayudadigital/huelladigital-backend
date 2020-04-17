@@ -1,5 +1,8 @@
-package com.huellapositiva.domain;
+package com.huellapositiva.domain.valueobjects;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public class Email {
     private String email;
 

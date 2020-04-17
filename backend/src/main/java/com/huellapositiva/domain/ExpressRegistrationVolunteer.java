@@ -2,9 +2,9 @@ package com.huellapositiva.domain;
 
 public class ExpressRegistrationVolunteer {
     private Email email;
-    private Password password;
+    private PasswordHash password;
 
-    public ExpressRegistrationVolunteer(Email email, Password password) {
+    public ExpressRegistrationVolunteer(Email email, PasswordHash password) {
         this.email = email;
         this.password = password;
     }
@@ -14,6 +14,6 @@ public class ExpressRegistrationVolunteer {
     }
 
     public String getHashedPassword() {
-        return this.password.hash();
+        return this.password.toString();
     }
 }

@@ -1,22 +1,20 @@
 package com.huellapositiva.domain;
 
-import jdk.jshell.spi.ExecutionControl;
-
 public class Password {
-    private String hashedPassword;
     private String password;
 
-    private Password(String password, String hashedPassword) {
+    private Password(String password) {
         this.password = password;
-        this.hashedPassword = hashedPassword;
     }
 
-    public static Password from(String password, String hashedPassword) {
+    public static Password from(String password) {
         // TODO: validate password security requiments
-        return new Password(password, hashedPassword);
+        return new Password(password);
     }
 
-    public String hash() {
-        return hashedPassword;
+    @Override
+    public String toString() {
+        return password;
     }
 }
+

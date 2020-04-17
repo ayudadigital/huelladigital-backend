@@ -21,10 +21,11 @@ public class VolunteerService {
 
     public Integer registerVolunteer(RegisterVolunteerRequestDto dto) {
         Email email = Email.from(dto.getEmail());
-        String hashedPassword = passwordEncoder.encode(dto.getPassword());
-        Password password = Password.from(dto.getPassword(), hashedPassword);
+        Password password = Password.from(dto.getPassword());
+        PasswordHash hash = new PasswordHash(passwordEncoder.encode(password.toString()));
+
         ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(
-                                                            email, password);
+                                                            email, hash);
         return volunteerRepository.save(expressVolunteer);
     }
 }

@@ -1,16 +1,38 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.domain.Volunteer;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import com.huellapositiva.domain.*;
+import com.huellapositiva.domain.exception.RoleNotFound;
+import com.huellapositiva.infrastructure.orm.JpaRoleRepository;
+import com.huellapositiva.infrastructure.orm.JpaVolunteerRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.Collections;
 
-@Repository
-public interface VolunteerRepository extends JpaRepository<Volunteer, Integer> {
+@Component
+@Transactional
+@AllArgsConstructor
+public class VolunteerRepository {
 
-    @Query("FROM Volunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH c.roles WHERE v.id = :id")
-    Optional<Volunteer> findByIdWithCredentialsAndRoles(@Param("id") Integer id);
+    @Autowired
+    private final JpaVolunteerRepository volunteerRepository;
+
+    @Autowired
+    private final JpaRoleRepository jpaRoleRepository;
+
+    public Integer save(ExpressRegistrationVolunteer expressVolunteer) {
+        Role role = jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())
+                .orElseThrow(() -> new RoleNotFound("Role VOLUNTEER not found."));
+        Credential credential = Credential.builder()
+                .email(expressVolunteer.getEmail())
+                .hashedPassword(expressVolunteer.getHashedPassword())
+                .roles(Collections.singleton(role))
+                .build();
+        Volunteer volunteer = Volunteer.builder()
+                .credential(credential)
+                .build();
+        return volunteerRepository.save(volunteer).getId();
+    }
 }

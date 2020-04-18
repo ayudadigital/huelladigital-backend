@@ -1,0 +1,17 @@
+{
+  "extends": ["tslint:recommended"],
+  "linterOptions": {
+    "exclude": ["config/**/*.js", "node_modules/**/*.ts"]
+  },
+  "rules": {
+    "quotemark": [true, "single", "jsx-double"],
+    "object-literal-sort-keys": false,
+    "interface-name": [true, "never-prefix"],
+    "no-console": {
+      "severity": "warning"
+    },
+    "ordered-imports": false,
+    "member-ordering": false,
+    "semicolon": [true, "always"]
+  }
+}

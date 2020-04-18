@@ -19,6 +19,9 @@ public class VolunteerService {
     private final VolunteerRepository volunteerRepository;
 
     @Autowired
+    private final EmailConfirmationRepository emailConfirmationRepository;
+
+    @Autowired
     private final PasswordEncoder passwordEncoder;
 
     public Integer registerVolunteer(RegisterVolunteerRequestDto dto) {

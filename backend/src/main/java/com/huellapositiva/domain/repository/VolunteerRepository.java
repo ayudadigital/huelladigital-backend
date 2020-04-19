@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.domain.*;
-import com.huellapositiva.domain.exception.RoleNotFound;
+import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -32,7 +32,7 @@ public class VolunteerRepository {
 
     public Integer save(ExpressRegistrationVolunteer expressVolunteer) {
         Role role = jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())
-                .orElseThrow(() -> new RoleNotFound("Role VOLUNTEER not found."));
+                .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email(expressVolunteer.getEmail())
                 .hash(expressVolunteer.getConfirmationToken())

@@ -47,7 +47,7 @@ public class TestData {
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
-    public void createCredential( String email, UUID token){
+    public Credential createCredential( String email, UUID token){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).get();
 
@@ -59,6 +59,6 @@ public class TestData {
                 .roles(Collections.singleton(role))
                 .build();
 
-        jpaCredentialRepository.save(credential);
+        return jpaCredentialRepository.save(credential);
     }
 }

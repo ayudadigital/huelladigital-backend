@@ -11,7 +11,6 @@ public class Email {
     }
 
     public static Email from(String email) {
-        // TODO: validate email
         return new Email(email);
     }
 
@@ -20,3 +19,5 @@ public class Email {
         return email;
     }
 }
+
+

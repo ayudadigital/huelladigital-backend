@@ -59,17 +59,18 @@ class EmailConfirmationActionShould {
         // GIVEN
         String email = "foo@huellapositiva.com";
         UUID hash = UUID.randomUUID();
-        testData.createCredential(email, hash);
+        Credential credential = testData.createCredential(email, hash);
 
         // WHEN
         EmailConfirmationAction action = new EmailConfirmationAction(jpaEmailConfirmationRepository, credentialRepository);
         action.execute(hash);
 
         // THEN
-        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findById(1).get();
+        Integer emailConfirmationId = credential.getEmailConfirmation().getId();
+        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findById(emailConfirmationId).get();
         assertThat(emailConfirmation.getEmail(), is(email));
         assertThat(emailConfirmation.getHash(), is(hash.toString()));
-        Credential credential = emailConfirmation.getCredential();
+        credential = emailConfirmation.getCredential();
         assertThat(credential.getEmailConfirmed(), is(true));
     }
 

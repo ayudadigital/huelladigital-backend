@@ -44,6 +44,9 @@
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.language>java</sonar.language>
     <sonar.version>3.7.0.1746</sonar.version>
+    <sonar.projectKey>tpbapps_huellapositiva</sonar.projectKey>
+    <sonar.organization>tpbapps</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
   </properties>
 

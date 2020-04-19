@@ -14,23 +14,14 @@ cfg.commitValidation.enabled = false
  * @param nextReleaseNumber String Release number to be used as tag
  */
 def buildAndPublishDockerImages(String nextReleaseNumber="") {
-    echo "ToDo"
-    /*
     if (nextReleaseNumber == "") {
         nextReleaseNumber = sh (script: "kd get-next-release-number .", returnStdout: true).trim().substring(1)
     }
-    dir ('backend') {
-        sh """
-        cat .env_test.dist |grep -v "^tag" > .env
-        export tag_app="${nextReleaseNumber}"
-        docker-compose build
-        """
+    def customImage = docker.build("${env.DOCKER_ORGANIZATION}/${cfg.projectName}:${nextReleaseNumber}", "--pull --no-cache backend")
+    customImage.push()
+    if (nextReleaseNumber != "beta") {
+        customImage.push('latest')
     }
-    docker.withRegistry("", 'hotelcovid-docker-credentials') {
-        docker.image("ticparabien/hospitalizados-hoteles-app:${nextReleaseNumber}").push()
-        docker.image("ticparabien/hospitalizados-hoteles-desktop:${nextReleaseNumber}").push()
-    }
-    */
 }
 
 pipeline {
@@ -40,8 +31,7 @@ pipeline {
         stage ('Initialize') {
             steps  {
                 jplStart(cfg)
-                sh "cat backend/.env_test.dist > backend/.env"
-                sh "devcontrol backend prepare"
+                deletedir("backend/target")
             }
         }
         stage('Build') {
@@ -71,22 +61,10 @@ pipeline {
                 }
             }
         }
-    //    stage('Sonar') {
-    //       withSonarQubeEnv(credentialsId: 'sonar-token', installationName: 'sonar-tpb') {
-    //            sh 'mvn sonar:sonar'
-    //        }
-    //    }
-    //    stage('Snyk dependencies') {
-    //      snykSecurity failOnIssues: false, organisation: 'ibai.eus', projectName: 'hospitalizacion-hoteles', snykInstallation: 'snyk-latest', snykTokenId: 'snyk-tpb'
-    //    }
-        stage('Package JAR') {
-            steps {
-                sh "devcontrol backend package"
-            }
-        }
         stage("Docker Publish") {
             when { branch "develop" }
             steps {
+                sh "devcontrol backend package"
                 buildAndPublishDockerImages("beta")
             }
         }

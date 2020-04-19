@@ -93,11 +93,7 @@ EOF
             cd "${rootdir}/backend"
             backendActions=${param[1]}
             case ${backendActions} in
-                "prepare")
-                    docker-compose pull
-                    docker-compose build
-                    ;;
-                "build")                executeWithDockerMaven "mvn clean compile" ;;
+                "build")                executeWithDockerMaven "mvn compile" ;;
                 "unit-tests")           executeWithDockerMaven "mvn test" ;;
                 "integration-tests")    executeWithDockerMaven "mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false" ;;
                 "acceptance-tests")     executeWithDockerMaven "mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false" ;;

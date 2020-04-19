@@ -40,6 +40,13 @@ class EmailConfirmationControllerShould {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void confirm_email_with_non_existing_hash_should_return_404() throws Exception {
+        mvc.perform(get(baseUri + '/' + "00000000-0000-0000-0000-000000000000")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 }
 
 

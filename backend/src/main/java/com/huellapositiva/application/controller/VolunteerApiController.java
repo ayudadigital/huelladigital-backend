@@ -5,6 +5,7 @@ import com.huellapositiva.domain.service.VolunteerService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +18,7 @@ public class VolunteerApiController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerPatient(@RequestBody RegisterVolunteerRequestDto dto) {
+    public void registerVolunteer(@Validated @RequestBody RegisterVolunteerRequestDto dto) {
         volunteerService.registerVolunteer(dto);
     }
 }

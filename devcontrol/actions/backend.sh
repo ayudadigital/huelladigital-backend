@@ -5,23 +5,6 @@ set -eu
 # Initialize
 rootdir="$(pwd)"
 
-# @description Execute one command using the maven docker image
-#
-# @example
-#   executeWithDockerMaven "clean compile"
-#
-# @arg $1 Command to execute
-#
-# @exitcode 0 operation successsful
-#
-function executeWithDockerMaven() {
-    if [ "$1" == "" ]; then
-        echo >&2 "[ERROR] executeWithDockerMaven: Empty argument"
-    fi
-    cd "${rootdir}/backend"
-    docker run -i --rm --workdir="$(pwd)" -v "$(pwd)":"$(pwd)":consistent -u "$(id -u):$(id -g)" maven:3.6.3-jdk-11 $1
-}
-
 # @description Set of actions for the backend
 #
 # @example
@@ -29,6 +12,7 @@ function executeWithDockerMaven() {
 #   backend unit-tests
 #   backend integration-tests
 #   backend acceptance-test
+#   backend sonar
 #   backend package
 #
 # @arg $1 Task: "brief", "help" or "exec"
@@ -65,6 +49,10 @@ $ devcontrol backend acceptance-tests # Execute acceptance test suite
 
 [...]
 
+$ devcontrol backend sonar # Execute sonar analysis
+
+[...]
+
 $ devcontrol backend package # Make "jar" package
 
 [...]
@@ -93,14 +81,12 @@ EOF
             cd "${rootdir}/backend"
             backendActions=${param[1]}
             case ${backendActions} in
-                "build")                executeWithDockerMaven "mvn compile" ;;
-                "unit-tests")           executeWithDockerMaven "mvn test" ;;
-                "integration-tests")    executeWithDockerMaven "mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false" ;;
-                "acceptance-tests")     executeWithDockerMaven "mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false" ;;
-                "sonar")
-                    executeWithDockerMaven "mvn sonar:sonar -Dsonar.login=${sonarcloud_login}"
-                    ;;
-                "package")              executeWithDockerMaven "mvn package spring-boot:repackage -DskipTests" ;;
+                "build")                mvn compile ;;
+                "unit-tests")           mvn test ;;
+                "integration-tests")    mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
+                "acceptance-tests")     mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
+                "sonar")                mvn sonar:sonar -Dsonar.login=${sonarcloud_login} ;;
+                "package")              mvn package spring-boot:repackage -DskipTests ;;
                 *)
                     echo "ERROR - Unknown action [${backendActions}], use [start] or [stop]"
                     echo

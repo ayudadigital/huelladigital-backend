@@ -35,26 +35,41 @@ pipeline {
             }
         }
         stage('Build') {
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 sh "devcontrol backend build"
             }
         }
         stage('Unit tests') {
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 sh "devcontrol backend unit-tests"
             }
         }
         stage('Integration tests') {
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 sh "devcontrol backend integration-tests"
             }
         }
         stage('Acceptance Tests') {
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 sh "devcontrol backend acceptance-tests"
             }
         }
         stage('Sonar') {
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
                     sh "devcontrol backend sonar"
@@ -63,6 +78,9 @@ pipeline {
         }
         stage("Docker Publish") {
             when { branch "develop" }
+            agent {
+                docker { image 'maven:3.6.3-jdk-11' }
+            }
             steps {
                 sh "devcontrol backend package"
                 buildAndPublishDockerImages("beta")

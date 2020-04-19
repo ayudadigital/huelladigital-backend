@@ -19,7 +19,7 @@ function executeWithDockerMaven() {
         echo >&2 "[ERROR] executeWithDockerMaven: Empty argument"
     fi
     cd "${rootdir}/backend"
-    docker run -ti --rm --workdir="$(pwd)" -v "$(pwd)":"$(pwd)":consistent -u "$(id -u):$(id -g)" maven:3.6.3-jdk-11 $1
+    docker run -i --rm --workdir="$(pwd)" -v "$(pwd)":"$(pwd)":consistent -u "$(id -u):$(id -g)" maven:3.6.3-jdk-11 $1
 }
 
 # @description Set of actions for the backend

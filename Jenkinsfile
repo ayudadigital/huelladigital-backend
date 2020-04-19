@@ -31,7 +31,7 @@ pipeline {
         stage ('Initialize') {
             steps  {
                 jplStart(cfg)
-                deletedir("backend/target")
+                sh "rm -rf backend/target"
             }
         }
         stage('Build') {
@@ -81,9 +81,6 @@ pipeline {
         always {
             jplPostBuild(cfg)
         }
-        cleanup {
-            deleteDir()
-        }        
     }
 
     options {

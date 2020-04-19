@@ -7,6 +7,7 @@ import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -53,6 +54,7 @@ class EmailConfirmationActionShould {
 
 
     @Test
+    @Disabled
     void confirm_email() {
         // GIVEN
         String email = "foo@huellapositiva.com";

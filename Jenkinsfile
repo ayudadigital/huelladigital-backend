@@ -14,7 +14,7 @@ cfg.commitValidation.enabled = false
  * @param nextReleaseNumber String Release number to be used as tag
  */
 def buildAndPublishDockerImages(String nextReleaseNumber='') {
-    if (nextReleaseNumber == '' {
+    if (nextReleaseNumber == '') {
         nextReleaseNumber = sh (script: 'kd get-next-release-number .', returnStdout: true).trim().substring(1)
     }
     docker.withRegistry('', 'docker-token') {
@@ -31,6 +31,7 @@ pipeline {
 
     stages {
         stage ('Initialize') {
+            agent { label 'docker' }
             steps  {
                 jplStart(cfg)
                 sh 'rm -rf backend/target'
@@ -38,73 +39,81 @@ pipeline {
         }
         stage('Build') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
                 sh 'bin/devcontrol.sh backend build'
-                stash name: 'target', includes: 'backend/target/*'
             }
         }
         stage('Unit tests') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
-                unstash 'target'
                 sh 'bin/devcontrol.sh backend unit-tests'
-                stash name: 'target', includes: 'backend/target/*'
             }
         }
         stage('Integration tests') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
-                unstash 'target'
                 sh 'bin/devcontrol.sh backend integration-tests'
-                stash name: 'target', includes: 'backend/target/*'
             }
         }
         stage('Acceptance Tests') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
-                unstash 'target'
                 sh 'bin/devcontrol.sh backend acceptance-tests'
-                stash name: 'target', includes: 'backend/target/*'
             }
         }
         stage('Sonar') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
-                    unstash 'target'
                     sh 'bin/devcontrol.sh backend sonar'
-                    stash name: 'target', includes: 'backend/target/*'
                 }
             }
         }
         stage('Package JAR') {
             agent {
-                docker { image 'maven:3.6.3-jdk-11' }
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
             }
             steps {
-                unstash 'target'
                 sh 'bin/devcontrol.sh backend package'
-                stash name: 'packagefile', includes: 'backend/target/*.jar'
             }
         }
         stage("Docker Publish") {
+            agent { label 'docker' }
             when { branch "develop" }
             steps {
-                unstash 'packagefile'
                 buildAndPublishDockerImages('beta')
             }
         }
         stage ('Make release') {
+            agent { label 'docker' }
             when { branch 'release/new' }
             steps {
                 buildAndPublishDockerImages()

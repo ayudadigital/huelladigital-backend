@@ -39,7 +39,7 @@ pipeline {
                 docker { image 'maven:3.6.3-jdk-11' }
             }
             steps {
-                sh "devcontrol backend build"
+                sh "bin/devcontrol.sh backend build"
             }
         }
         stage('Unit tests') {
@@ -47,7 +47,7 @@ pipeline {
                 docker { image 'maven:3.6.3-jdk-11' }
             }
             steps {
-                sh "devcontrol backend unit-tests"
+                sh "bin/devcontrol.sh backend unit-tests"
             }
         }
         stage('Integration tests') {
@@ -55,7 +55,7 @@ pipeline {
                 docker { image 'maven:3.6.3-jdk-11' }
             }
             steps {
-                sh "devcontrol backend integration-tests"
+                sh "bin/devcontrol.sh backend integration-tests"
             }
         }
         stage('Acceptance Tests') {
@@ -63,7 +63,7 @@ pipeline {
                 docker { image 'maven:3.6.3-jdk-11' }
             }
             steps {
-                sh "devcontrol backend acceptance-tests"
+                sh "bin/devcontrol.sh backend acceptance-tests"
             }
         }
         stage('Sonar') {
@@ -72,7 +72,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
-                    sh "devcontrol backend sonar"
+                    sh "bin/devcontrol.sh backend sonar"
                 }
             }
         }
@@ -82,7 +82,7 @@ pipeline {
                 docker { image 'maven:3.6.3-jdk-11' }
             }
             steps {
-                sh "devcontrol backend package"
+                sh "bin/devcontrol.sh backend package"
                 buildAndPublishDockerImages("beta")
             }
         }

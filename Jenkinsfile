@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('github.com/tpbtools/jenkins-pipeline-library@v4.0.0') _
+@Library('github.com/ayudadigital/jenkins-pipeline-library@v4.0.0') _
 
 // Initialize global config
 cfg = jplConfig('huellapositiva', 'java', '', [email: env.CI_NOTIFY_EMAIL_TARGETS])

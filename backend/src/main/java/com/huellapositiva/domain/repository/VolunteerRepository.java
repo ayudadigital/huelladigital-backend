@@ -22,7 +22,7 @@ import java.util.Collections;
 public class VolunteerRepository {
 
     @Autowired
-    private final JpaVolunteerRepository volunteerRepository;
+    private final JpaVolunteerRepository jpaVolunteerRepository;
 
     @Autowired
     private final JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
@@ -48,6 +48,6 @@ public class VolunteerRepository {
         Volunteer volunteer = Volunteer.builder()
                 .credential(credential)
                 .build();
-        return volunteerRepository.save(volunteer).getId();
+        return jpaVolunteerRepository.save(volunteer).getId();
     }
 }

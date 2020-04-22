@@ -4,7 +4,7 @@ import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.EmailBuilder;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.Password;
+import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.domain.PhysicalEmail;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class RegisterVolunteerAction {
 
     public void execute(RegisterVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail());
-        volunteerService.registerVolunteer(Password.from(dto.getPassword()), emailConfirmation);
+        volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         PhysicalEmail physicalEmail = EmailBuilder.createEmailAddressConfirmation(emailConfirmation);
 //                .builder()
 //                .from("noreply@huellapositiva.com")

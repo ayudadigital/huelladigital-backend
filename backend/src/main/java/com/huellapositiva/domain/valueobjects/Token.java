@@ -3,10 +3,10 @@ package com.huellapositiva.domain.valueobjects;
 import java.util.UUID;
 
 public class Token {
-    private UUID token;
+    private UUID value;
 
     private Token(UUID token) {
-        this.token = token;
+        this.value = token;
     }
 
     public static Token createToken() {
@@ -15,6 +15,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return token.toString();
+        return value.toString();
     }
 }

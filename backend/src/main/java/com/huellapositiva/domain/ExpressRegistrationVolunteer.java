@@ -13,7 +13,7 @@ public class ExpressRegistrationVolunteer {
     }
 
     public String getEmail() {
-        return this.confirmation.getEmail();
+        return this.confirmation.getEmailAddress();
     }
 
     public String getHashedPassword() {

@@ -6,21 +6,21 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class EmailConfirmation {
-    private final Email email;
+    private final EmailAddress emailAddress;
     private final Token token;
 
-    private EmailConfirmation(Email email, Token token) {
-        this.email = email;
+    private EmailConfirmation(EmailAddress emailAddress, Token token) {
+        this.emailAddress = emailAddress;
         this.token = token;
     }
 
     public static EmailConfirmation from(String email) {
         return new EmailConfirmation(
-                Email.from(email), Token.createToken());
+                EmailAddress.from(email), Token.createToken());
     }
 
-    public String getEmail(){
-        return email.toString();
+    public String getEmailAddress(){
+        return emailAddress.toString();
     }
 
     public String getToken() {

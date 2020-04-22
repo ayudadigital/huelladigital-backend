@@ -23,7 +23,7 @@ import static org.hamcrest.core.Is.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
-class EmailConfirmationActionShould {
+class EmailAddressConfirmationActionShould {
 
     @Autowired
     private MockMvc mvc;
@@ -41,17 +41,6 @@ class EmailConfirmationActionShould {
     void beforeEach() {
         testData.resetData();
     }
-
-    // Confirmar un email
-    // El email ya está confirmado / ¿Deberíamos borrar el token si ya se confirmó?
-    // El hash existe
-    // El hash NO existe
-    // Esta asociado a usuario
-    // El hash existe pero no está asociado a usuario
-    // El hash ya está consumido
-
-    // Estadísticas de usuarios que no consiguieron validar su email
-
 
     @Test
     @Disabled

@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.*;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
@@ -21,11 +20,9 @@ public class VolunteerService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public Integer registerVolunteer(RegisterVolunteerRequestDto dto) {
-        Password password = Password.from(dto.getPassword());
+    public Integer registerVolunteer(Password password, EmailConfirmation emailConfirmation) {
         PasswordHash hash = new PasswordHash(passwordEncoder.encode(password.toString()));
-        EmailConfirmation confirmation = EmailConfirmation.from(dto.getEmail());
-        ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, confirmation);
+        ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
         return volunteerRepository.save(expressVolunteer);
     }
 }

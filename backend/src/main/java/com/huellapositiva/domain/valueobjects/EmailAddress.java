@@ -3,15 +3,15 @@ package com.huellapositiva.domain.valueobjects;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public class Email {
+public class EmailAddress {
     private String email;
 
-    private Email(String email) {
+    private EmailAddress(String email) {
         this.email = email;
     }
 
-    public static Email from(String email) {
-        return new Email(email);
+    public static EmailAddress from(String email) {
+        return new EmailAddress(email);
     }
 
     @Override

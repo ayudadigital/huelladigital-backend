@@ -15,12 +15,12 @@ class EmailTemplateShould {
 
 
     @Test
-    void throw_an_exception_if_receive_a_empty_text(){
-        assertThrows(EmptyTemplateException.class,()->EmailTemplate.createEmailTemplate(""));
+    void throw_an_exception_if_receive_a_empty_text() {
+        assertThrows(EmptyTemplateException.class, () -> EmailTemplate.createEmailTemplate(""));
     }
 
     @Test
-    void receive_a_template_and_parse_it(){
+    void receive_a_template_and_parse_it() {
         //GIVEN
         TemplateService templateService = new TemplateService();
         EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate();
@@ -30,8 +30,8 @@ class EmailTemplateShould {
         //THEN
         String template = "Te acabas de registrar en huellapositiva.com\n" +
                 "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
-                "<a href=\""+ emailConfirmation.getToken() +"\">Clic aquí</a>";
+                "<a href=\"" + emailConfirmation.getToken() + "\">Clic aquí</a>";
 
-        assertThat(emailTemplate.getParsedTemplate(), is (template));
+        assertThat(emailTemplate.getParsedTemplate(), is(template));
     }
 }

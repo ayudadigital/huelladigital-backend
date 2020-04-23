@@ -20,17 +20,21 @@ class EmailShould {
         EmailConfirmation emailConfirmation = EmailConfirmation.from("");
         EmailTemplate emailTemplate = EmailTemplate.createEmailTemplate("template-body");
         //WHEN +THEN
-        assertThrows(EmailNotValidException.class,()-> Email.createFrom(emailConfirmation, emailTemplate));
+        assertThrows(EmailNotValidException.class, () -> Email.createFrom(emailConfirmation, emailTemplate));
+    }
+
+    @Test
+    void create_a_valid_email_object() {
+        //GIVEN
+        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com");
+        EmailTemplate emailTemplate = EmailTemplate.createEmailTemplate("template-body");
+        //WHEN
+        Email email = Email.createFrom(emailConfirmation, emailTemplate);
+        //THEN
+        assertThat(email.getFrom(), is("noreply@huellapositiva.com"));
+        assertThat(email.getTo(), is(emailConfirmation.getEmailAddress()));
+        assertThat(email.getSubject(), is("Confirmación de la cuenta en huellapositiva"));
+        assertThat(email.getBody(), is(emailTemplate.getParsedTemplate()));
     }
 
 }
-
-//        assertThat(emailTemplate.getParsedTemplate(), is (template));
-
-
-//                .builder()
-//                .from("noreply@huellapositiva.com")
-//                .to(dto.getEmail())
-//                .subject("Confirmación de la cuenta en huellapositiva")
-//                .body("Bienvenido a huella positiva, por favor confirme su email haciendo click aquí")
-//                .build();

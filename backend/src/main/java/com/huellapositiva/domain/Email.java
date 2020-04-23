@@ -19,18 +19,17 @@ public class Email {
     private String body;
 
     public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate) {
-        if (emailConfirmation.getEmailAddress().isEmpty()){
+        if (emailConfirmation.getEmailAddress().isEmpty()) {
             throw new EmailNotValidException("Error when build the email, the email address is empty");
         }
 
-//             Email.builder()
-//                .from("noreply@huellapositiva.com")
-//                .to(emailConfirmation.getEmailAddress())
-//                .subject("Confirmación de la cuenta en huellapositiva")
-//                .body(emailTemplate.getParsedTemplate())
-//                .build();
+        return Email.builder()
+                .from("noreply@huellapositiva.com")
+                .to(emailConfirmation.getEmailAddress())
+                .subject("Confirmación de la cuenta en huellapositiva")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
 
-        return new Email() ;
     }
-    //
+
 }

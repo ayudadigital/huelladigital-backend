@@ -61,4 +61,5 @@ class EmailAddressConfirmationActionShould {
         assertThat(credential.getEmailConfirmed(), is(true));
     }
 
+
 }

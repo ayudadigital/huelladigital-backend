@@ -4,6 +4,7 @@ import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -13,21 +14,21 @@ public class TemplateService {
 
     public EmailTemplate getEmailConfirmationTemplate() {
         String template = "";
-        char[] array = new char[100];
-        try{
-            FileReader input = new FileReader("/emailConfirmation.txt");
-            System.out.println(input.read(array));
-            /*BufferedReader in = new BufferedReader(new FileReader("emailConfirmation.txt"));
+        String absolutePath = new File(".").getAbsolutePath();
+        absolutePath += "/src/main/resources/templates/emails/emailConfirmation.txt";
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(absolutePath));
             String linea = in.readLine();
             while (linea != null){
                 template = template + linea + '\n';
                 linea = in.readLine();
             }
-            in.close();*/
-        }
-        catch(IOException ex){
+            template = template.substring(0, template.lastIndexOf("\n"));
+            in.close();
+        } catch(IOException ex){
             System.out.println(ex);
         }
         return (EmailTemplate.createEmailTemplate(template));
     }
+
 }

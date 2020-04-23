@@ -40,8 +40,8 @@ class EmailTemplateShould {
         emailTemplate.parse(emailConfirmation);
         //THEN
         String template = "Te acabas de registrar en huellapositiva.com\n" +
-                "    Para confirmar tu correo electrónico, haz clic en el enlace\n" +
-                "    <a href=\""+ emailConfirmation.getToken() +"\">Clic aquí</a>";
+                "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
+                "<a href=\""+ emailConfirmation.getToken() +"\">Clic aquí</a>";
 
         assertThat(emailTemplate.getParsedTemplate(), is (template));
     }

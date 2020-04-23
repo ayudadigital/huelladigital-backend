@@ -1,3 +1,0 @@
-Te acabas de registrar en huellapositiva.com
-Para confirmar tu correo electrónico, haz clic en el enlace
-<a href=\"${URL}\">Clic aquí</a>

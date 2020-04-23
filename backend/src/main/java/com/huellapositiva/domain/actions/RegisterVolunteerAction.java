@@ -26,7 +26,7 @@ public class RegisterVolunteerAction {
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate();
         emailTemplate = emailTemplate.parse(emailConfirmation);
-        Email email = Email.createFrom(emailConfirmation,emailTemplate);
+        Email email = Email.createFrom(emailConfirmation, emailTemplate);
         emailService.sendEmail(email);
     }
 }

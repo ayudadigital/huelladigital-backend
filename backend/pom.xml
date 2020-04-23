@@ -45,8 +45,8 @@
     <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.language>java</sonar.language>
     <sonar.version>3.7.0.1746</sonar.version>
-    <sonar.projectKey>tpbapps_huellapositiva</sonar.projectKey>
-    <sonar.organization>tpbapps</sonar.organization>
+    <sonar.projectKey>ayudadigital_huelladigital</sonar.projectKey>
+    <sonar.organization>ayudadigital</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
   </properties>
@@ -92,6 +92,10 @@
     <dependency>
       <groupId>org.springframework.session</groupId>
       <artifactId>spring-session-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -238,6 +242,10 @@
             <exclude>**/e2e/*.java</exclude>
           </excludes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.springframework.boot</groupId>

@@ -8,7 +8,7 @@ public class TemplateService {
 
 
     public EmailTemplate getEmailConfirmationTemplate() {
-        return new EmailTemplate("Te acabas de registrar en huellapositiva.com\n" +
+        return EmailTemplate.createEmailTemplate("Te acabas de registrar en huellapositiva.com\n" +
                 "    Para confirmar tu correo electrónico, haz clic en el enlace\n" +
                 "    <a href=\"${URL}\">Clic aquí</a>");
     }

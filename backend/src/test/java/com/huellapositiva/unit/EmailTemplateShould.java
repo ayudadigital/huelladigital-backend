@@ -11,22 +11,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-/*TO DO
-* llega la plantilla, parsea la plantilla
-* no se encuentra la plantilla
-* se encuentra pero no se puede parsear
- */
-
 class EmailTemplateShould {
 
 
     @Test
     void throw_an_exception_if_receive_a_empty_text(){
-        //GIVEN
-
-        //WHEN
-
-        //THEN
         assertThrows(EmptyTemplateException.class,()->EmailTemplate.createEmailTemplate(""));
     }
 

@@ -1,12 +1,10 @@
 package com.huellapositiva.domain.valueobjects;
 
-import com.huellapositiva.domain.exception.EmptyTemplateException;
-
 public class EmailTemplate {
     private final String originalTemplate;
     private String parsedTemplate;
 
-    private EmailTemplate(String template) {
+    public EmailTemplate(String template) {
         this.originalTemplate = template;
     }
 
@@ -15,16 +13,17 @@ public class EmailTemplate {
         this.parsedTemplate = parsedTemplate;
     }
 
-    public static EmailTemplate createEmailTemplate(String template) {
-        if (template.isEmpty()) {
-            throw new EmptyTemplateException("Empty template not allowed");
-        }
-        return new EmailTemplate(template);
-    }
-
     public EmailTemplate parse(EmailConfirmation emailConfirmation) {
         parsedTemplate = originalTemplate.replace("${URL}", emailConfirmation.getToken());
         return new EmailTemplate(originalTemplate, parsedTemplate);
+    }
+
+    public static EmailTemplate parseAuxiliarTemplate(EmailConfirmation emailConfirmation){
+        String originalTemplate = "Te acabas de registrar en huellapositiva.com\n" +
+                "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
+                "<a href=\"${URL}\">Clic aquí</a>";
+        EmailTemplate emailTemplate = new EmailTemplate(originalTemplate);
+        return emailTemplate.parse(emailConfirmation);
     }
 
     public String getParsedTemplate() {

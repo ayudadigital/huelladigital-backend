@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.domain.exception.TemplateNotAvailableException;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
@@ -24,8 +25,14 @@ public class RegisterVolunteerAction {
     public void execute(RegisterVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail());
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
-        EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate();
-        emailTemplate = emailTemplate.parse(emailConfirmation);
+        EmailTemplate emailTemplate;
+        try{
+            emailTemplate = templateService.getEmailConfirmationTemplate();
+            emailTemplate = emailTemplate.parse(emailConfirmation);
+
+        }catch(TemplateNotAvailableException ex){
+            emailTemplate = EmailTemplate.parseAuxiliarTemplate(emailConfirmation);
+        }
         Email email = Email.createFrom(emailConfirmation, emailTemplate);
         emailService.sendEmail(email);
     }

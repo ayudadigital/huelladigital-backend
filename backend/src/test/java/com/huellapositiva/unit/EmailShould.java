@@ -2,10 +2,8 @@ package com.huellapositiva.unit;
 
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.domain.exception.EmailNotValidException;
-import com.huellapositiva.domain.exception.EmptyTemplateException;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
-import com.huellapositiva.infrastructure.TemplateService;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,7 +16,7 @@ class EmailShould {
     void not_allow_empty_fields() {
         //GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from("");
-        EmailTemplate emailTemplate = EmailTemplate.createEmailTemplate("template-body");
+        EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN +THEN
         assertThrows(EmailNotValidException.class, () -> Email.createFrom(emailConfirmation, emailTemplate));
     }
@@ -27,7 +25,7 @@ class EmailShould {
     void create_a_valid_email_object() {
         //GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com");
-        EmailTemplate emailTemplate = EmailTemplate.createEmailTemplate("template-body");
+        EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN
         Email email = Email.createFrom(emailConfirmation, emailTemplate);
         //THEN

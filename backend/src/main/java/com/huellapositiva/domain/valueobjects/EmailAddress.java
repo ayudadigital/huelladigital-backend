@@ -4,7 +4,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class EmailAddress {
-    private String email;
+    private final String email;
 
     private EmailAddress(String email) {
         this.email = email;

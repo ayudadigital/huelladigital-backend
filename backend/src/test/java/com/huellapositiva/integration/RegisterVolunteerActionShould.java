@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-public class RegisterVolunteerActionShould {
+class RegisterVolunteerActionShould {
 
     @Autowired
     private RegisterVolunteerAction registerVolunteerAction;
@@ -34,7 +34,7 @@ public class RegisterVolunteerActionShould {
     }
 
     @Test
-    public void registering_a_volunteer_should_send_email_to_confirm_email_address(){
+    void registering_a_volunteer_should_send_email_to_confirm_email_address(){
         //GIVEN
         RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
 

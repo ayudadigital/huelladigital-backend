@@ -2,40 +2,31 @@ package com.huellapositiva.infrastructure;
 
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
-import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
+@Slf4j
 @Service
 public class TemplateService {
 
-    private String getContentFile(String absolutePath) {
-        Logger logger = Logger.getLogger("TemplateService");
-        try (
-                FileReader fileReader = new FileReader(absolutePath);
-                BufferedReader bufferedReader = new BufferedReader(fileReader)
-        ) {
-            String line = bufferedReader.readLine();
-            StringBuilder template = new StringBuilder();
-            while (line != null) {
-                template.append(line).append("\n");
-                line = bufferedReader.readLine();
-            }
-            int lastLineIndex = template.toString().lastIndexOf('\n');
-            template = new StringBuilder(template.substring(0, lastLineIndex));
-            return template.toString();
+    private String getFileContent(String relativePath) {
+        try {
+            File file = ResourceUtils.getFile(relativePath);
+            return String.join("\n", Files.readAllLines(file.toPath()));
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Error: " + ex);
+            log.error("Failed to open file {}", relativePath, ex);
             throw new TemplateNotAvailableException(ex);
         }
     }
 
     public EmailTemplate getEmailConfirmationTemplate() {
-        String absolutePath = new File(".").getAbsolutePath();
-        absolutePath += "/src/main/resources/templates/emails/emailConfirmation.txt";
-        String template = getContentFile(absolutePath);
+        String relativePath = "classpath:templates/emails/emailConfirmation.txt";
+        String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
 }

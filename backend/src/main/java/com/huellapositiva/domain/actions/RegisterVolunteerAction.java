@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
-import com.huellapositiva.domain.exception.TemplateNotAvailableException;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
@@ -11,6 +10,9 @@ import com.huellapositiva.domain.Email;
 import com.huellapositiva.infrastructure.TemplateService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -26,13 +28,11 @@ public class RegisterVolunteerAction {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail());
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         EmailTemplate emailTemplate;
-        try{
-            emailTemplate = templateService.getEmailConfirmationTemplate();
-            emailTemplate = emailTemplate.parse(emailConfirmation);
-
-        }catch(TemplateNotAvailableException ex){
-            emailTemplate = EmailTemplate.parseAuxiliarTemplate(emailConfirmation);
-        }
+        emailTemplate = templateService.getEmailConfirmationTemplate();
+        Map<String, String> variables = new HashMap<>();
+        String url = "https://plataforma.huellapositiva.com/api/v1/email-confirmation/" + emailConfirmation.getToken();
+        variables.put("CONFIRMATION_URL", url );
+        emailTemplate = emailTemplate.parse(variables);
         Email email = Email.createFrom(emailConfirmation, emailTemplate);
         emailService.sendEmail(email);
     }

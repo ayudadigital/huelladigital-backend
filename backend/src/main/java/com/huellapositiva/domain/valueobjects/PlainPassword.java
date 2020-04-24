@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class PlainPassword {
-    private String value;
+    private final String value;
 
     private PlainPassword(String password) {
         this.value = password;

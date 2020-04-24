@@ -1,11 +1,15 @@
 package com.huellapositiva.domain.valueobjects;
 
+import com.huellapositiva.domain.exception.EmailNotValidException;
+
+import java.util.Map;
+
 public class EmailTemplate {
     private final String originalTemplate;
     private String parsedTemplate;
 
     public EmailTemplate(String template) {
-        this.originalTemplate = template;
+       this(template, template);
     }
 
     private EmailTemplate(String template, String parsedTemplate) {
@@ -13,17 +17,14 @@ public class EmailTemplate {
         this.parsedTemplate = parsedTemplate;
     }
 
-    public EmailTemplate parse(EmailConfirmation emailConfirmation) {
-        parsedTemplate = originalTemplate.replace("${URL}", emailConfirmation.getToken());
+    public EmailTemplate parse(Map<String, String> variables) {
+        for (Map.Entry<String,String> entry : variables.entrySet()) {
+            parsedTemplate = parsedTemplate.replace("${" + entry.getKey() + "}", entry.getValue());
+        }
+        if (parsedTemplate.contains("${")){
+            throw new EmailNotValidException("Failed to parse template " + originalTemplate + " with keys " + variables.keySet());
+        }
         return new EmailTemplate(originalTemplate, parsedTemplate);
-    }
-
-    public static EmailTemplate parseAuxiliarTemplate(EmailConfirmation emailConfirmation){
-        String originalTemplate = "Te acabas de registrar en huellapositiva.com\n" +
-                "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
-                "<a href=\"${URL}\">Clic aquí</a>";
-        EmailTemplate emailTemplate = new EmailTemplate(originalTemplate);
-        return emailTemplate.parse(emailConfirmation);
     }
 
     public String getParsedTemplate() {

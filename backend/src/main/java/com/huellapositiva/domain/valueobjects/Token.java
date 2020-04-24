@@ -3,7 +3,7 @@ package com.huellapositiva.domain.valueobjects;
 import java.util.UUID;
 
 public class Token {
-    private UUID value;
+    private final UUID value;
 
     private Token(UUID token) {
         this.value = token;

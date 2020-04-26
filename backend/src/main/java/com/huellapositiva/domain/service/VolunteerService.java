@@ -1,10 +1,9 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.*;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.Password;
+import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +20,9 @@ public class VolunteerService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public Integer registerVolunteer(RegisterVolunteerRequestDto dto) {
-        Password password = Password.from(dto.getPassword());
-        PasswordHash hash = new PasswordHash(passwordEncoder.encode(password.toString()));
-        EmailConfirmation confirmation = EmailConfirmation.from(dto.getEmail());
-        ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, confirmation);
+    public Integer registerVolunteer(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
+        PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
+        ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
         return volunteerRepository.save(expressVolunteer);
     }
 }

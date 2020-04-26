@@ -7,7 +7,6 @@ import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,7 +22,7 @@ import static org.hamcrest.core.Is.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
-class EmailConfirmationActionShould {
+class EmailAddressConfirmationActionShould {
 
     @Autowired
     private MockMvc mvc;
@@ -42,19 +41,7 @@ class EmailConfirmationActionShould {
         testData.resetData();
     }
 
-    // Confirmar un email
-    // El email ya está confirmado / ¿Deberíamos borrar el token si ya se confirmó?
-    // El hash existe
-    // El hash NO existe
-    // Esta asociado a usuario
-    // El hash existe pero no está asociado a usuario
-    // El hash ya está consumido
-
-    // Estadísticas de usuarios que no consiguieron validar su email
-
-
     @Test
-    @Disabled
     void confirm_email() {
         // GIVEN
         String email = "foo@huellapositiva.com";
@@ -73,5 +60,6 @@ class EmailConfirmationActionShould {
         credential = emailConfirmation.getCredential();
         assertThat(credential.getEmailConfirmed(), is(true));
     }
+
 
 }

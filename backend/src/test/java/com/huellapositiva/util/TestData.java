@@ -38,7 +38,7 @@ public class TestData {
         jpaEmailConfirmationRepository.deleteAll();
     }
 
-    public EmailConfirmation createEmailConfirmation(UUID token){
+    private EmailConfirmation createEmailConfirmation(UUID token){
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email("foo@huellapositiva.com")
                 .hash(token.toString())

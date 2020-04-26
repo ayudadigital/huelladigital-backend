@@ -126,7 +126,7 @@ pipeline {
                 }
             }
             steps {
-                sshagent (credentials: [jpl-ssh-credentials]) {
+                sshagent (credentials: ['jpl-ssh-credentials']) {
                     sh "bin/deploy.sh dev"
                 }
             }

@@ -29,7 +29,7 @@ class RegisterVolunteerActionShould {
         String template = "Te acabas de registrar en huellapositiva.com\n" +
                           "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
                           "<a href=\"${CONFIRMATION_URL}\">Clic aquí</a>\n";
-        when(templateService.getEmailConfirmationTemplate()).thenReturn(new EmailTemplate(template));
+        when(templateService.getEmailConfirmationTemplate(any())).thenReturn(new EmailTemplate(template));
 
         registerVolunteerAction.execute(RegisterVolunteerRequestDto.builder()
                .email("foo@huellapositiva.com")

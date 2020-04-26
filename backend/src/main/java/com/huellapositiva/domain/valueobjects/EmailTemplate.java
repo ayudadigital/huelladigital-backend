@@ -2,7 +2,6 @@ package com.huellapositiva.domain.valueobjects;
 
 import com.huellapositiva.domain.exception.EmailNotValidException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class EmailTemplate {
@@ -10,7 +9,7 @@ public class EmailTemplate {
     private String parsedTemplate;
 
     public EmailTemplate(String template) {
-       this(template, template);
+       this(template, "");
     }
 
     private EmailTemplate(String template, String parsedTemplate) {
@@ -19,6 +18,7 @@ public class EmailTemplate {
     }
 
     public EmailTemplate parse(Map<String, String> variables) {
+        this.parsedTemplate = originalTemplate;
         for (Map.Entry<String,String> entry : variables.entrySet()) {
             parsedTemplate = parsedTemplate.replace("${" + entry.getKey() + "}", entry.getValue());
         }
@@ -32,12 +32,7 @@ public class EmailTemplate {
         return parsedTemplate;
     }
 
-    public EmailTemplate parseEmailConfirmation(EmailConfirmation emailConfirmation) {
-        Map<String, String> variables = new HashMap<>();
-        String url = emailConfirmation.getUrl();
-        variables.put("CONFIRMATION_URL", url );
-        return this.parse(variables);
-    }
+
 }
 
 

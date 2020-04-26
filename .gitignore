@@ -1,2 +1,5 @@
 node_modules
 /backend/?
+platform/products/backend/.env
+platform/config.ini
+/platform/products/backend/data

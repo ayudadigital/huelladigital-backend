@@ -1,0 +1,16 @@
+version: '2.4'
+
+services:
+  haproxy:
+    image: ayudadigital/gp-haproxy:2.0.0
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./data/usr/local/etc/haproxy:/usr/local/etc/haproxy
+      - ./data/etc/letsencrypt:/etc/letsencrypt
+
+networks:
+    default:
+      external:
+        name: platform_services

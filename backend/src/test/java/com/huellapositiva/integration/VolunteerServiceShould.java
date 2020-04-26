@@ -1,6 +1,8 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.domain.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
@@ -54,7 +56,7 @@ class VolunteerServiceShould {
                 .password(password)
                 .build();
 
-        Integer volunteerId = volunteerService.registerVolunteer(dto);
+        Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         Volunteer volunteer = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get();
         Credential credential = volunteer.getCredential();

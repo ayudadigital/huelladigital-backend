@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.valueobjects;
 
 public class PasswordHash {
-    private String hash;
+    private final String hash;
 
     public PasswordHash(String hash) {
         this.hash = hash;

@@ -1,3 +1,9 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ayudadigital_huelladigital&metric=alert_status)](https://sonarcloud.io/dashboard?id=ayudadigital_huelladigital)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ayudadigital_huelladigital&metric=coverage)](https://sonarcloud.io/dashboard?id=ayudadigital_huelladigital)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ayudadigital_huelladigital&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=ayudadigital_huelladigital)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ayudadigital_huelladigital&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=ayudadigital_huelladigital)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ayudadigital_huelladigital&metric=security_rating)](https://sonarcloud.io/dashboard?id=ayudadigital_huelladigital)
+
 # Backend: Huella Positiva
 
 The backend is being developed with:

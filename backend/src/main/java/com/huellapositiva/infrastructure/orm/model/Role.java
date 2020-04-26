@@ -1,6 +1,5 @@
 package com.huellapositiva.infrastructure.orm.model;
 
-import com.huellapositiva.infrastructure.orm.model.Credential;
 import lombok.*;
 
 import javax.persistence.*;

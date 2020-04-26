@@ -4,8 +4,8 @@ import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 
 public class ExpressRegistrationVolunteer {
-    private EmailConfirmation confirmation;
-    private PasswordHash password;
+    private final EmailConfirmation confirmation;
+    private final PasswordHash password;
 
     public ExpressRegistrationVolunteer(PasswordHash password, EmailConfirmation confirmation) {
         this.confirmation = confirmation;
@@ -13,7 +13,7 @@ public class ExpressRegistrationVolunteer {
     }
 
     public String getEmail() {
-        return this.confirmation.getEmail();
+        return this.confirmation.getEmailAddress();
     }
 
     public String getHashedPassword() {

@@ -31,7 +31,7 @@ class VolunteerRepositoryTest {
     @Test
     void saving_volunteer_should_throw_role_not_found_if_role_doesnt_exist() {
         // GIVEN
-        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com");
+        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "");
         PasswordHash passwordHash = new PasswordHash("123456");
         ExpressRegistrationVolunteer expressRegistrationVolunteer = new ExpressRegistrationVolunteer(passwordHash, emailConfirmation);
         when(jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())).thenReturn(Optional.empty());

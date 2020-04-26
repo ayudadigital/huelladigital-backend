@@ -6,17 +6,19 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class EmailConfirmation {
+    private final String emailConfirmationBaseUrl;
     private final EmailAddress emailAddress;
     private final Token token;
 
-    private EmailConfirmation(EmailAddress emailAddress, Token token) {
+    private EmailConfirmation(EmailAddress emailAddress, Token token, String emailConfirmationBaseUrl) {
         this.emailAddress = emailAddress;
         this.token = token;
+        this.emailConfirmationBaseUrl = emailConfirmationBaseUrl;
     }
 
-    public static EmailConfirmation from(String email) {
+    public static EmailConfirmation from(String email, String emailConfirmationBaseUrl) {
         return new EmailConfirmation(
-                EmailAddress.from(email), Token.createToken());
+                EmailAddress.from(email), Token.createToken(), emailConfirmationBaseUrl);
     }
 
     public String getEmailAddress(){
@@ -25,5 +27,9 @@ public class EmailConfirmation {
 
     public String getToken() {
         return token.toString();
+    }
+
+    public String getUrl() {
+        return emailConfirmationBaseUrl + getToken();
     }
 }

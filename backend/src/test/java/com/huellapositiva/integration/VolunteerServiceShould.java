@@ -56,7 +56,7 @@ class VolunteerServiceShould {
                 .password(password)
                 .build();
 
-        Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail()));
+        Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         Volunteer volunteer = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get();
         Credential credential = volunteer.getCredential();

@@ -15,7 +15,7 @@ class EmailShould {
     @Test
     void not_allow_empty_fields() {
         //GIVEN
-        EmailConfirmation emailConfirmation = EmailConfirmation.from("");
+        EmailConfirmation emailConfirmation = EmailConfirmation.from("", "");
         EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN +THEN
         assertThrows(EmailNotValidException.class, () -> Email.createFrom(emailConfirmation, emailTemplate));
@@ -24,7 +24,7 @@ class EmailShould {
     @Test
     void create_a_valid_email_object() {
         //GIVEN
-        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com");
+        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "");
         EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN
         Email email = Email.createFrom(emailConfirmation, emailTemplate);

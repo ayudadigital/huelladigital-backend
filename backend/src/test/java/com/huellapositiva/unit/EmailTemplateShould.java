@@ -19,7 +19,7 @@ class EmailTemplateShould {
         // GIVEN
         TemplateService templateService = new TemplateService();
         EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate();
-        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@fuu.com");
+        EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@fuu.com", "");
         Map<String, String> variables = new HashMap<>();
         String url = "https://plataforma.huellapositiva.com/api/v1/email-confirmation/" + emailConfirmation.getToken();
         variables.put("CONFIRMATION_URL", url );

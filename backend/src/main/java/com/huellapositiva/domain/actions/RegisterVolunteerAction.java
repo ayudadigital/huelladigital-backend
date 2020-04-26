@@ -8,15 +8,14 @@ import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.infrastructure.TemplateService;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
-@AllArgsConstructor
 public class RegisterVolunteerAction {
+
+    @Value("${huellapositiva.api.v1.confirmation-email}")
+    private String emailConfirmationBaseUrl;
 
     private final VolunteerService volunteerService;
 
@@ -24,15 +23,18 @@ public class RegisterVolunteerAction {
 
     private final TemplateService templateService;
 
+    public RegisterVolunteerAction(VolunteerService volunteerService, EmailService emailService, TemplateService templateService) {
+        this.volunteerService = volunteerService;
+        this.emailService = emailService;
+        this.templateService = templateService;
+    }
+
     public void execute(RegisterVolunteerRequestDto dto) {
-        EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail());
+        EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         EmailTemplate emailTemplate;
         emailTemplate = templateService.getEmailConfirmationTemplate();
-        Map<String, String> variables = new HashMap<>();
-        String url = "https://plataforma.huellapositiva.com/api/v1/email-confirmation/" + emailConfirmation.getToken();
-        variables.put("CONFIRMATION_URL", url );
-        emailTemplate = emailTemplate.parse(variables);
+        emailTemplate = emailTemplate.parseEmailConfirmation(emailConfirmation);
         Email email = Email.createFrom(emailConfirmation, emailTemplate);
         emailService.sendEmail(email);
     }

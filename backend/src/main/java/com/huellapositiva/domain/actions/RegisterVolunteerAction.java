@@ -32,9 +32,7 @@ public class RegisterVolunteerAction {
     public void execute(RegisterVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
-        EmailTemplate emailTemplate;
-        emailTemplate = templateService.getEmailConfirmationTemplate();
-        emailTemplate = emailTemplate.parseEmailConfirmation(emailConfirmation);
+        EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
         Email email = Email.createFrom(emailConfirmation, emailTemplate);
         emailService.sendEmail(email);
     }

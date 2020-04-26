@@ -2,7 +2,7 @@
 
 env=$1
 
-ssh -t -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no master@${env}.huelladigital.ayudadigital.org << EOF
+echo """
 set -eu
 set -o pipefail
 cd platform/huelladigital
@@ -12,5 +12,7 @@ git checkout .
 git fetch -pv
 git pull
 cd platform/products/backend
-exit
-EOF
+docker-compose pull app
+docker-compose up -d app
+exit 0
+""" | ssh -t -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no master@${env}.huelladigital.ayudadigital.org bash -

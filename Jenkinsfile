@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('github.com/ayudadigital/jenkins-pipeline-library@v4.0.0') _
+@Library('github.com/ayudadigital/jenkins-pipeline-library@v5.0.0') _
 
 // Initialize global config
 cfg = jplConfig('huelladigital', 'java', '', [email: env.CI_NOTIFY_EMAIL_TARGETS])
@@ -27,7 +27,7 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
 }
 
 pipeline {
-    agent { label 'docker' }
+    agent none
 
     stages {
         stage ('Initialize') {
@@ -107,9 +107,28 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
-            when { branch "develop" }
+            when {
+                anyOf {
+                    branch "develop"
+                    branch "feature/platform"
+                }
+            }
             steps {
                 buildAndPublishDockerImages('beta')
+            }
+        }
+        stage("Remote deploy") {
+            agent { label 'docker' }
+            when {
+                anyOf {
+                    branch "develop"
+                    branch "feature/platform"
+                }
+            }
+            steps {
+                sshagent (credentials: [jpl-ssh-credentials]) {
+                    sh "bin/deploy.sh dev"
+                }
             }
         }
         stage ('Make release') {

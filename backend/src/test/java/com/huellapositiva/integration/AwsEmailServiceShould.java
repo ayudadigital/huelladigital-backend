@@ -1,15 +1,18 @@
 package com.huellapositiva.integration;
 
+import cloud.localstack.docker.LocalstackDockerExtension;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+@ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "ses" })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {"huellapositiva.feature.email.enabled=true"})
 class AwsEmailServiceShould {

@@ -2,7 +2,7 @@
 
 env=$1
 
-ssh -t -t master@${env}.huelladigital.ayudadigital.org << EOF
+ssh -t -t -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no master@${env}.huelladigital.ayudadigital.org << EOF
 set -eu
 set -o pipefail
 cd platform/huelladigital

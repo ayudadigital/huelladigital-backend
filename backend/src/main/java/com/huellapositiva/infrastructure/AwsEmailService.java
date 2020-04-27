@@ -26,20 +26,15 @@ public class AwsEmailService implements EmailService{
                             .withBody(new Body()
                                     .withHtml(new Content()
                                             .withCharset("UTF-8").withData(email.getBody())))
-                            /*.withText(new Content()
-                                    .withCharset("UTF-8").withData(email)))*/
                             .withSubject(new Content()
                                     .withCharset("UTF-8").withData(email.getSubject())))
                     .withSource(email.getFrom());
-                    // Comment or remove the next line if you are not using a
-                    // configuration set
-                    // .withConfigurationSetName(CONFIGSET);
-
             awsSesClient.sendEmail(request);
-            return true;
         } catch(Exception ex) {
-            log.error("The email was not sent. Error message:", ex);
+            log.error("Email from {} with subject {} could not sent.", email.getFrom(), email.getSubject(), ex);
             return false;
         }
+
+        return true;
     }
 }

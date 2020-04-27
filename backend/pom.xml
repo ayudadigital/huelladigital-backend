@@ -50,6 +50,7 @@
     <sonar.organization>ayudadigital</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+    <system.rules.version>1.17.2</system.rules.version>
   </properties>
 
   <parent>
@@ -144,6 +145,11 @@
       <artifactId>localstack-utils</artifactId>
       <version>0.2.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+      <version>${system.rules.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->

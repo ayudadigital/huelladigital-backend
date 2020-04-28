@@ -60,20 +60,17 @@ pipeline {
             }
         }
         stage('Integration tests') {
-            agent {
-                docker {
-                    image 'maven:3.6.3-jdk-11'
-                    label 'docker'
-                }
-            }
-            script {
-                docker.image('docker:dind').withRun('--privileged -v $WORKSPACE:$WORKSPACE --workdir $WORKSPACE') { c ->
-                    sh """
-                    sleep 5
-                    docker exec ${c.id} apk add openjdk11-jdk maven bash
-                    docker exec ${c.id} chmod 777 /var/run/docker.sock
-                    docker exec ${c.id} -u \$(id -u):\$(id -g) devcontrol backend integration-tests
-                    """
+            agent { label 'docker'}
+            steps {
+                script {
+                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
+                        sh """
+                        sleep 5
+                        docker exec ${c.id} apk add openjdk11-jdk maven bash
+                        docker exec ${c.id} chmod 777 /var/run/docker.sock
+                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
+                        """
+                    }
                 }
             }
         }

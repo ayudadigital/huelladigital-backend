@@ -111,24 +111,14 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
-            when {
-                anyOf {
-                    branch "develop"
-                    branch "feature/platform"
-                }
-            }
+            when { branch 'develop' }
             steps {
                 buildAndPublishDockerImages('beta')
             }
         }
         stage("Remote deploy") {
             agent { label 'docker' }
-            when {
-                anyOf {
-                    branch "develop"
-                    branch "feature/platform"
-                }
-            }
+            when { branch 'develop' }
             steps {
                 sshagent (credentials: ['jpl-ssh-credentials']) {
                     sh "bin/deploy.sh dev"

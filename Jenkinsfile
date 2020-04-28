@@ -66,8 +66,15 @@ pipeline {
                     label 'docker'
                 }
             }
-            steps {
-                sh 'bin/devcontrol.sh backend integration-tests'
+            script {
+                docker.image('docker:dind').withRun('--privileged -v $WORKSPACE:$WORKSPACE --workdir $WORKSPACE') { c ->
+                    sh """
+                    sleep 5
+                    docker exec ${c.id} apk add openjdk11-jdk maven bash
+                    docker exec ${c.id} chmod 777 /var/run/docker.sock
+                    docker exec ${c.id} -u \$(id -u):\$(id -g) devcontrol backend integration-tests
+                    """
+                }
             }
         }
         stage('Acceptance Tests') {

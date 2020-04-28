@@ -17,11 +17,11 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-//@ActiveProfiles("localstack")
-//@ExtendWith(AwsEnvVariablesExtension.class)
-//@ExtendWith(LocalstackDockerExtension.class)
-//@LocalstackDockerProperties(services = { "ses" })
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {"huellapositiva.feature.email.enabled=true"})
+@ActiveProfiles("localstack")
+@ExtendWith(AwsEnvVariablesExtension.class)
+@ExtendWith(LocalstackDockerExtension.class)
+@LocalstackDockerProperties(services = { "ses" })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {"huellapositiva.feature.email.enabled=true"})
 class AwsEmailServiceShould {
 
     private final static String emailAddress = "test@huellapositiva.com";

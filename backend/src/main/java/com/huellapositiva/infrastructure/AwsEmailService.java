@@ -17,9 +17,9 @@ public class AwsEmailService implements EmailService{
     private AmazonSimpleEmailService awsSesClient;
 
     @Override
-    public boolean sendEmail(Email email) {
-        try {
-            SendEmailRequest request = new SendEmailRequest()
+    public void sendEmail(Email email) {
+        throw new RuntimeException();
+            /*SendEmailRequest request = new SendEmailRequest()
                     .withDestination(
                             new Destination().withToAddresses(email.getTo()))
                     .withMessage(new Message()
@@ -29,12 +29,8 @@ public class AwsEmailService implements EmailService{
                             .withSubject(new Content()
                                     .withCharset("UTF-8").withData(email.getSubject())))
                     .withSource(email.getFrom());
-            awsSesClient.sendEmail(request);
-        } catch(Exception ex) {
-            log.error("Email from {} with subject {} could not sent.", email.getFrom(), email.getSubject(), ex);
-            return false;
-        }
+            awsSesClient.sendEmail(request);*/
 
-        return true;
+
     }
 }

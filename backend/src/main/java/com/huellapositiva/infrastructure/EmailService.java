@@ -4,5 +4,5 @@ import com.huellapositiva.domain.Email;
 
 public interface EmailService {
 
-    boolean sendEmail (Email email);
+    void sendEmail (Email email);
 }

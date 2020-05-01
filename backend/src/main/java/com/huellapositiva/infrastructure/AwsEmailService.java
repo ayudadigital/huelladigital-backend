@@ -18,8 +18,7 @@ public class AwsEmailService implements EmailService{
 
     @Override
     public void sendEmail(Email email) {
-        throw new RuntimeException();
-            /*SendEmailRequest request = new SendEmailRequest()
+            SendEmailRequest request = new SendEmailRequest()
                     .withDestination(
                             new Destination().withToAddresses(email.getTo()))
                     .withMessage(new Message()
@@ -29,8 +28,6 @@ public class AwsEmailService implements EmailService{
                             .withSubject(new Content()
                                     .withCharset("UTF-8").withData(email.getSubject())))
                     .withSource(email.getFrom());
-            awsSesClient.sendEmail(request);*/
-
-
+            awsSesClient.sendEmail(request);
     }
 }

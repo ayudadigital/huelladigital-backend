@@ -1,4 +1,4 @@
-package com.huellapositiva.domain.exception;
+package com.huellapositiva.application.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

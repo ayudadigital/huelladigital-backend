@@ -1,6 +1,6 @@
 #!groovy
 
-@Library('github.com/ayudadigital/jenkins-pipeline-library@v4.0.0') _
+@Library('github.com/ayudadigital/jenkins-pipeline-library@v5.0.0') _
 
 // Initialize global config
 cfg = jplConfig('huelladigital', 'java', '', [email: env.CI_NOTIFY_EMAIL_TARGETS])
@@ -27,7 +27,7 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
 }
 
 pipeline {
-    agent { label 'docker' }
+    agent none
 
     stages {
         stage ('Initialize') {
@@ -60,14 +60,18 @@ pipeline {
             }
         }
         stage('Integration tests') {
-            agent {
-                docker {
-                    image 'maven:3.6.3-jdk-11'
-                    label 'docker'
-                }
-            }
+            agent { label 'docker'}
             steps {
-                sh 'bin/devcontrol.sh backend integration-tests'
+                script {
+                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
+                        sh """
+                        sleep 5
+                        docker exec ${c.id} apk add openjdk11-jdk maven bash
+                        docker exec ${c.id} chmod 777 /var/run/docker.sock
+                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
+                        """
+                    }
+                }
             }
         }
         stage('Acceptance Tests') {
@@ -107,9 +111,18 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
-            when { branch "develop" }
+            when { branch 'develop' }
             steps {
                 buildAndPublishDockerImages('beta')
+            }
+        }
+        stage("Remote deploy") {
+            agent { label 'docker' }
+            when { branch 'develop' }
+            steps {
+                sshagent (credentials: ['jpl-ssh-credentials']) {
+                    sh "bin/deploy.sh dev"
+                }
             }
         }
         stage ('Make release') {

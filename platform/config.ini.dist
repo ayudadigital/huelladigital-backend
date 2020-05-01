@@ -1,0 +1,32 @@
+# services
+# 
+# Put here the services you want to execute  
+#
+# services catalog:
+services=()
+
+# products
+#
+# Fill with the desired products
+#
+# products catalog:
+# - backend
+products=(backend)
+
+# directories
+#
+# Assets directories to be created
+#
+assets=( \
+  products/backend/data/router/etc/letsencrypt \
+  products/backend/data/router/usr/local/etc/haproxy \
+  products/backend/data/db/var/lib/postgresql/data \
+)
+
+# dist files
+#
+# Create config files from dist ones if it doesn't exist 
+#
+distfiles=( \
+  products/backend/.env.dist \
+)

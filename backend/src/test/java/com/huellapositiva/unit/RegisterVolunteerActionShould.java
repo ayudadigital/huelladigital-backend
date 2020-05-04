@@ -23,6 +23,7 @@ class RegisterVolunteerActionShould {
     VolunteerService volunteerService;
     @Mock
     EmailService emailService;
+
     @Test
     void send_confirmation_email() {
         RegisterVolunteerAction registerVolunteerAction = new RegisterVolunteerAction(volunteerService,emailService, templateService);

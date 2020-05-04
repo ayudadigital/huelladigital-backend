@@ -2,13 +2,12 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.domain.*;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
+import com.huellapositiva.infrastructure.orm.model.*;
+import com.huellapositiva.infrastructure.orm.model.FailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Role;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,6 +29,9 @@ public class VolunteerRepository {
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
 
+    @Autowired
+    private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
+
     public Integer save(ExpressRegistrationVolunteer expressVolunteer) {
         Role role = jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
@@ -49,5 +51,13 @@ public class VolunteerRepository {
                 .credential(credential)
                 .build();
         return jpaVolunteerRepository.save(volunteer).getId();
+    }
+
+
+    public Integer saveFailEmail(com.huellapositiva.domain.FailEmailConfirmation failEmailConfirmation){
+        FailEmailConfirmation email = FailEmailConfirmation.builder()
+                .email(failEmailConfirmation.getEmailAddress())
+                .build();
+        return jpaFailEmailConfirmationRepository.save(email).getId();
     }
 }

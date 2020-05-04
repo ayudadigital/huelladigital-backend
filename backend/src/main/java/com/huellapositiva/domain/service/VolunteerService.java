@@ -25,4 +25,10 @@ public class VolunteerService {
         ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
         return volunteerRepository.save(expressVolunteer);
     }
+
+    public Integer registerFailSendEmailConfirmation(EmailConfirmation emailConfirmation){
+        FailEmailConfirmation failEmailConfirmation = new FailEmailConfirmation(emailConfirmation);
+
+        return volunteerRepository.saveFailEmail(failEmailConfirmation);
+    }
 }

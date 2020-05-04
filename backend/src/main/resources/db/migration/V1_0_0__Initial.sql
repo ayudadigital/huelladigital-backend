@@ -6,6 +6,13 @@ CREATE TABLE email_confirmation
     created_on      TIMESTAMP
 );
 
+CREATE TABLE fail_email_confirmation
+(
+    id              SERIAL PRIMARY KEY NOT NULL,
+    email           VARCHAR NOT NULL ,
+    created_on      TIMESTAMP
+);
+
 CREATE TABLE credentials
 (
     id              SERIAL          PRIMARY KEY NOT NULL,

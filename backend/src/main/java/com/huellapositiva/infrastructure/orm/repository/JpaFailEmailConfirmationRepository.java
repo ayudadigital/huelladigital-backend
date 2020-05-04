@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface JpaFailEmailConfirmationRepository extends JpaRepository<FailEmailConfirmation, Integer> {
 
-    @Query("FROM FailEmailConfirmation ec LEFT JOIN FETCH ec.email WHERE ec.email = :email")
+    @Query("FROM FailEmailConfirmation ec WHERE ec.email = :email")
     Optional<FailEmailConfirmation> findByEmail(@Param("email") String email);
 }

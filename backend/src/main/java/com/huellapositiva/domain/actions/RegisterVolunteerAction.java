@@ -38,7 +38,7 @@ public class RegisterVolunteerAction {
             emailService.sendEmail(email);
         } catch (Exception ex) {
             // Guarda el email en una base de datos.
-            // Guarda la excepción entera con la traza.
+            // Guarda la excepción entera con la traza.  --> ex.printStackTrace();
             volunteerService.registerFailSendEmailConfirmation(emailConfirmation);
             throw ex;
         }

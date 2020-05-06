@@ -1,6 +1,6 @@
 import React from 'react';
-import './VolunteerLogin.scss';
-import { FormLoginVolunteer } from '../../components/molecules/FormLoginVolunteer';
+import './styles.scss';
+import { FormLoginVolunteer } from '../../components/organisms/Forms/FormLoginVolunteer';
 import { Link } from 'react-router-dom';
 import { ROUTE } from '../../utils/routes';
 

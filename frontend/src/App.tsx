@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.scss';
+import './styles/scss/index.scss';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import VolunteerRegister from './pages/VolunteerRegister/VolunteerRegister';
 import VolunteerLogin from './pages/VolunteerLogin/VolunteerLogin';

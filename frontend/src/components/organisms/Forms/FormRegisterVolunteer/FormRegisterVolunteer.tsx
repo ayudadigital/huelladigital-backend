@@ -1,10 +1,10 @@
 import * as React from 'react';
-import './FormRegisterVolunteer.scss';
-import { FieldForm } from '../../atoms/FieldForm';
-import { SubmitButton } from '../../atoms/SubmitButton';
+import '../styles.scss';
+import { FieldForm } from '../../../molecules/FieldForm';
+import { SubmitButton } from '../../../atoms/SubmitButton';
 
 export const FormRegisterVolunteer: React.FC<{}> = () => (
-  <form className="FormRegisterVolunteer">
+  <form className="ContainerForm">
     <h1>Registro de voluntario</h1>
     <FieldForm title={'Email'} type={'email'} name={'email'}/>
     <FieldForm title={'Contraseña'} type={'password'} name={'password'}/>

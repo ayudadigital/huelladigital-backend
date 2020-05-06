@@ -1,5 +1,5 @@
 import React from 'react';
-import './Home.scss';
+import './styles.scss';
 import { LinkButton } from '../../components/atoms/LinkButton/LinkButton';
 import { ROUTE } from '../../utils/routes';
 

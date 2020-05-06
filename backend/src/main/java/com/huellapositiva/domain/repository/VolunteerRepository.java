@@ -54,10 +54,5 @@ public class VolunteerRepository {
     }
 
 
-    public Integer saveFailEmail(com.huellapositiva.domain.FailEmailConfirmation failEmailConfirmation){
-        FailEmailConfirmation email = FailEmailConfirmation.builder()
-                .email(failEmailConfirmation.getEmailAddress())
-                .build();
-        return jpaFailEmailConfirmationRepository.save(email).getId();
-    }
+    
 }

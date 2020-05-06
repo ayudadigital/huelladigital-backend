@@ -1,10 +1,19 @@
 import * as React from 'react';
 import { withA11y } from '@storybook/addon-a11y';
 import { FieldForm } from './FieldForm';
+import { withKnobs, text , select} from '@storybook/addon-knobs';
 
 export default {
   title: 'Molecules | Field Form',
-  decorators: [withA11y],
+  decorators: [withA11y, withKnobs],
 };
 
-export const email = () => <FieldForm name={'text'} title={'Label'} type={'text'} value={'irrelevant text'}/>;
+export const fieldForm = () => {
+  const label = 'TYPE';
+  const options = ['text', 'email', 'password'];
+  const defaultValue = 'text';
+
+  return <FieldForm name={'text'}
+                    title={text('LABEL', 'Label text')}
+                    type={select(label, options, defaultValue)}/>;
+};

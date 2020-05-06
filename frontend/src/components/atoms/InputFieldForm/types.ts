@@ -1,5 +1,5 @@
 export interface InputFieldFormProps {
-  type: inputTypes;
+  type: inputTypes | string;
   name: string;
   value?: string;
 }

@@ -21,8 +21,12 @@ public class FailEmailConfirmation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "email_address")
+    private String emailAddress;
+    
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "volunteer")
+    private Volunteer volunteer;
 
     @CreationTimestamp
     @Column(name = "created_on")

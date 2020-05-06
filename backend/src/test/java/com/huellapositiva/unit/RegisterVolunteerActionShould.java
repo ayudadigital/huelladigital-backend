@@ -78,6 +78,6 @@ class RegisterVolunteerActionShould {
         }
 
         //THEN
-        verify(issueService).registerFailSendEmailConfirmation(any());
+        verify(issueService).registerFailSendEmailConfirmation(any(),any());
     }
 }

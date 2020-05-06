@@ -44,7 +44,7 @@ public class RegisterVolunteerAction {
 
     public void execute(RegisterVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
-        volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
             Email email = Email.createFrom(emailConfirmation, emailTemplate);
@@ -52,7 +52,7 @@ public class RegisterVolunteerAction {
         } catch (RuntimeException ex) {
             // Guarda el email en una base de datos.
             // Guarda la excepción entera con la traza.  --> ex.printStackTrace();
-            issueService.registerFailSendEmailConfirmation(emailConfirmation);
+            issueService.registerFailSendEmailConfirmation(emailConfirmation,volunteerId);
             throw ex;
         }
     }

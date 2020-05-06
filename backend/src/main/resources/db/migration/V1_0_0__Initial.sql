@@ -6,12 +6,7 @@ CREATE TABLE email_confirmation
     created_on      TIMESTAMP
 );
 
-CREATE TABLE fail_email_confirmation
-(
-    id              SERIAL PRIMARY KEY NOT NULL,
-    email           VARCHAR NOT NULL ,
-    created_on      TIMESTAMP
-);
+
 
 CREATE TABLE credentials
 (
@@ -47,5 +42,14 @@ CREATE TABLE volunteer
 
 INSERT INTO roles VALUES (1, 'ADMIN');
 INSERT INTO roles VALUES (2, 'VOLUNTEER');
+
+CREATE TABLE fail_email_confirmation
+(
+    id              SERIAL PRIMARY KEY NOT NULL,
+    email_address   VARCHAR NOT NULL ,
+    created_on      TIMESTAMP,
+    volunteer_id    INTEGER NOT NULL,
+    FOREIGN KEY (volunteer_id) REFERENCES volunteer(id)
+);
 
 

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import React from 'react';
-import './LinkButton.scss';
+import './styles.scss';
 
 interface LinkButtonProps {
   path: string;

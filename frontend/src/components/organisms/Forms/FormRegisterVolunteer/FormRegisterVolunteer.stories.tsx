@@ -4,9 +4,7 @@ import { FormRegisterVolunteer } from './FormRegisterVolunteer';
 
 export default {
   title: 'Organisms | Forms ',
-  decorators: [withA11y,
-    (storyFn:()=>HTMLDivElement) => <div style={{ height: '80vh' }}>{storyFn()}</div>
-  ],
+  decorators: [withA11y]
 };
 
 export const RegisterVolunteer = () => <FormRegisterVolunteer/>;

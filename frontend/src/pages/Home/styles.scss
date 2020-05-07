@@ -1,7 +1,5 @@
 .Home {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-content: space-around;
-  height: 80vh;
+  place-self: center;
 }

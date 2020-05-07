@@ -4,9 +4,7 @@ import { FormLoginVolunteer } from './index';
 
 export default {
   title: 'Organisms | Forms',
-  decorators: [withA11y,
-    (storyFn:()=>HTMLDivElement) => <div style={{ height: '60vh' }}>{storyFn()}</div>
-  ],
+  decorators: [withA11y]
 };
 
 

@@ -10,8 +10,6 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Router>
-        <section className="section">
-          <div className="container">
             <Switch>
               <Route exact path={ROUTE.home}>
                 <Home/>
@@ -23,8 +21,6 @@ const App: React.FC = () => {
                 <VolunteerRegister/>
               </Route>
             </Switch>
-          </div>
-        </section>
       </Router>
     </div>
   );

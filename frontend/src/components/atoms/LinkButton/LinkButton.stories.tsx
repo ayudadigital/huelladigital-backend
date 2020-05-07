@@ -11,5 +11,6 @@ export default {
   ],
 };
 
-export const withText = () => <LinkButton text={text('TEXT', 'Button')} path={text('LINK TO', '/#')}/>;
+export const withText = () => <LinkButton text={text('TEXT', 'Button', 'button-link')}
+                                          path={text('LINK TO', '/#', 'button-link')}/>;
 

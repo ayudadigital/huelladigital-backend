@@ -105,6 +105,21 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void registering_volunteer_fail_sending_email_confirmation_should_return_500() throws Exception {
+        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
+                .email("foo@huellapositiva.com")
+                .password("1234567")
+                .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+        mvc.perform(post(baseUri)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
 
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")

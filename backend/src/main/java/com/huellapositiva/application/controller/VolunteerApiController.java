@@ -1,6 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @AllArgsConstructor
@@ -19,14 +21,15 @@ public class VolunteerApiController {
     private IssueService issueService;
 
     @PostMapping
-    @ResponseStatus
-    public HttpStatus registerVolunteer(@Validated @RequestBody RegisterVolunteerRequestDto dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public void registerVolunteer(@Validated @RequestBody RegisterVolunteerRequestDto dto) {
         try{
             registerVolunteerAction.execute(dto);
+        }catch(PasswordNotAllowed pna){
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Provide simio", pna);
         }catch (Exception ex){
             issueService.registerVolunteerIssue(dto.getEmail(),ex);
-            return HttpStatus.INTERNAL_SERVER_ERROR;
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, "Provide interno", ex);
         }
-        return HttpStatus.CREATED;
     }
 }

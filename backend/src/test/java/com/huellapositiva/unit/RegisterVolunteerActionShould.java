@@ -36,7 +36,7 @@ class RegisterVolunteerActionShould {
     @BeforeEach
     void beforeEach() {
         registerVolunteerAction = new RegisterVolunteerAction(
-                volunteerService, emailService, templateService, issueService);
+                volunteerService, emailService, templateService);
     }
 
     @Test
@@ -53,31 +53,5 @@ class RegisterVolunteerActionShould {
                .build());
 
         verify(emailService).sendEmail(any());
-    }
-
-    @Test
-    void registering_volunteer_throws_exception_in_case_of_failure_sending_confirmation_email(){
-        //GIVEN
-        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
-        lenient().doThrow(RuntimeException.class).when(emailService).sendEmail(any());
-
-        //THEN
-        Assert.assertThrows(RuntimeException.class, () -> registerVolunteerAction.execute(dto));
-    }
-
-    @Test
-    void registering_a_volunteer_failure_send_email_confirmation_should_save_email_address_in_db(){
-        //GIVEN
-        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
-        lenient().doThrow(RuntimeException.class).when(emailService).sendEmail(any());
-
-        try {
-            registerVolunteerAction.execute(dto);
-        } catch (Exception ex) {
-
-        }
-
-        //THEN
-        verify(issueService).registerFailSendEmailConfirmation(any(),any());
     }
 }

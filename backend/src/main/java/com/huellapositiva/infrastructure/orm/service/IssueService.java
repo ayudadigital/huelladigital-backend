@@ -18,15 +18,15 @@ public class IssueService {
     private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
 
     public Integer registerFailSendEmailConfirmation(EmailConfirmation emailConfirmation, Integer volunteerId){
-        /*TODO:buscar voluntario por ID*/
         return saveFailEmail(emailConfirmation/*,volunteerId*/);
     }
     public Integer saveFailEmail(EmailConfirmation failEmailConfirmation) {
         FailEmailConfirmation email = FailEmailConfirmation.builder()
                 .emailAddress(failEmailConfirmation.getEmailAddress())
-                /*.volunteerId(volunteerId)*/
                 .build();
         return jpaFailEmailConfirmationRepository.save(email).getId();
     }
 
+    public void registerVolunteerIssue(String email, Exception ex) {
+    }
 }

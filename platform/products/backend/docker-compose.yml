@@ -27,6 +27,7 @@ services:
       DATASOURCE_USERNAME: ${DATASOURCE_USERNAME}
       DATASOURCE_PASSWORD: ${DATASOURCE_PASSWORD}
       PROFILE: ${PROFILE}
+      BASE_URI: ${BASE_URI}
     ports:
       - 8080:8080
     restart: unless-stopped

@@ -2,6 +2,8 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.domain.actions.RegisterVolunteerAction;
+import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +12,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,6 +37,9 @@ class VolunteerControllerShould {
 
     @Autowired
     private MockMvc mvc;
+
+    @SpyBean
+    private RegisterVolunteerAction registerVolunteerAction;
 
     @BeforeEach
     void beforeEach() {
@@ -70,9 +77,10 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_with_short_password_should_return_400() throws Exception {
+        String shortPassword = "12345";
         RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
                 .email("foo@huellapositiva.com")
-                .password("12345")
+                .password(shortPassword)
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
@@ -111,6 +119,7 @@ class VolunteerControllerShould {
                 .email("foo@huellapositiva.com")
                 .password("1234567")
                 .build();
+        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
 
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(baseUri)

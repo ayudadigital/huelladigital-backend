@@ -7,18 +7,13 @@ import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterVolunteerActionShould {

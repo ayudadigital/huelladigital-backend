@@ -2,7 +2,6 @@ package com.huellapositiva.infrastructure.orm.service;
 
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.model.FailEmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,8 @@ public class IssueService {
     @Autowired
     private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
 
-    public Integer registerFailSendEmailConfirmation(EmailConfirmation emailConfirmation, Integer volunteerId){
-        return saveFailEmail(emailConfirmation/*,volunteerId*/);
+    public Integer registerFailSendEmailConfirmation(EmailConfirmation emailConfirmation){
+        return saveFailEmail(emailConfirmation);
     }
     public Integer saveFailEmail(EmailConfirmation failEmailConfirmation) {
         FailEmailConfirmation email = FailEmailConfirmation.builder()

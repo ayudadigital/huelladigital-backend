@@ -2,6 +2,7 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.Email;
+import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
@@ -32,8 +33,12 @@ public class RegisterVolunteerAction {
     public void execute(RegisterVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
-        EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-        Email email = Email.createFrom(emailConfirmation, emailTemplate);
-        emailService.sendEmail(email);
+        try {
+            EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
+            Email email = Email.createFrom(emailConfirmation, emailTemplate);
+            emailService.sendEmail(email);
+        } catch (Exception ex) {
+            throw new EmailException(ex);
+        }
     }
 }

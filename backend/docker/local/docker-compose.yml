@@ -14,6 +14,42 @@ services:
     networks:
       - internal
 
+  localstack:
+    container_name: "localstack-huellapositiva-local"
+    image: localstack/localstack
+    ports:
+      - "4579:4579"
+    environment:
+      - SERVICES=ses:4579
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - internal
+
+  setup-aws-resources:
+    image: mesosphere/aws-cli
+    volumes:
+      - ./dev_env:/project/dev_env
+    environment:
+      - AWS_ACCESS_KEY_ID=dummyaccess
+      - AWS_SECRET_ACCESS_KEY=dummysecret
+      - AWS_DEFAULT_REGION=eu-west-1
+    entrypoint: /bin/sh -c
+    command: >
+      "
+        set -e;
+        until aws ses verify-email-identity --email-address noreply@huellapositiva.com --endpoint-url=http://localstack:4579 --region $${AWS_DEFAULT_REGION} --no-sign-request; do
+          >&2 echo 'AWS SES is unavailable - sleeping'
+          sleep 1;
+        done;
+        echo 'Verified email address.';
+      "
+    networks:
+      - internal
+    depends_on:
+      - localstack
+
 volumes:
   postgres-data:
 

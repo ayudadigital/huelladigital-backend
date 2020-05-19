@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
+import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,9 @@ class VolunteerControllerShould {
     private static final String baseUri = "/api/v1/volunteers";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
 
     @Autowired
     private TestData testData;

@@ -24,6 +24,9 @@ public class FailEmailConfirmation {
     @Column(name = "email_address")
     private String emailAddress;
 
+    @Column(name = "exception_trace")
+    private String exceptionTrace;
+
     @CreationTimestamp
     @Column(name = "created_on")
     private Date createdOn;

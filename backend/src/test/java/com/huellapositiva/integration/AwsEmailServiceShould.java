@@ -7,14 +7,15 @@ import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityRequest;
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.*;
+
 
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
@@ -30,6 +31,7 @@ class AwsEmailServiceShould {
     @Autowired
     private AmazonSimpleEmailService sesClient;
 
+    @Disabled
     @Test
     void send_an_email() {
         VerifyEmailIdentityRequest request = new VerifyEmailIdentityRequest().withEmailAddress(emailAddress);
@@ -41,8 +43,6 @@ class AwsEmailServiceShould {
                 .body("test body")
                 .build();
 
-        boolean result = awsEmailService.sendEmail(email);
-
-        assertThat(result, is(true));
+        assertThatCode(() -> awsEmailService.sendEmail(email)).doesNotThrowAnyException();
     }
 }

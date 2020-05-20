@@ -13,6 +13,7 @@ import java.util.UUID;
 @RequestMapping("/api/v1/email-confirmation")
 public class EmailConfirmationApiController {
 
+
     @Autowired
     private EmailConfirmationAction emailConfirmationAction;
 

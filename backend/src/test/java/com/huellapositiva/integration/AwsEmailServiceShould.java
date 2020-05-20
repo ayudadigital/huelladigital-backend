@@ -42,6 +42,6 @@ class AwsEmailServiceShould {
                 .body("test body")
                 .build();
 
-        //assertThatCode(() -> awsEmailService.sendEmail(email)).doesNotThrowAnyException();
+        assertThatCode(() -> awsEmailService.sendEmail(email)).doesNotThrowAnyException();
     }
 }

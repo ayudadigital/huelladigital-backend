@@ -22,7 +22,4 @@ public class Volunteer {
     @JoinColumn(name = "credential_id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Credential credential;
-
-    @OneToOne(mappedBy = "fail_email_confirmation")
-    private FailEmailConfirmation failEmailConfirmation;
 }

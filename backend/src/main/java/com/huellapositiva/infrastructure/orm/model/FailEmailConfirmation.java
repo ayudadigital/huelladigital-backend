@@ -23,10 +23,9 @@ public class FailEmailConfirmation {
 
     @Column(name = "email_address")
     private String emailAddress;
-    
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "volunteer")
-    private Volunteer volunteer;
+
+    @Column(name = "exception_trace")
+    private String exceptionTrace;
 
     @CreationTimestamp
     @Column(name = "created_on")

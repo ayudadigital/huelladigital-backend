@@ -1,5 +1,5 @@
 import React from 'react';
-import './index.scss';
+import './styles/scss/index.scss';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import VolunteerRegister from './pages/VolunteerRegister/VolunteerRegister';
 import VolunteerLogin from './pages/VolunteerLogin/VolunteerLogin';
@@ -10,8 +10,6 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Router>
-        <section className="section">
-          <div className="container">
             <Switch>
               <Route exact path={ROUTE.home}>
                 <Home/>
@@ -23,8 +21,6 @@ const App: React.FC = () => {
                 <VolunteerRegister/>
               </Route>
             </Switch>
-          </div>
-        </section>
       </Router>
     </div>
   );

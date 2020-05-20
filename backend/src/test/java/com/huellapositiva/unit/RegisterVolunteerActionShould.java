@@ -6,14 +6,14 @@ import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
+import com.huellapositiva.infrastructure.orm.service.IssueService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterVolunteerActionShould {
@@ -23,13 +23,24 @@ class RegisterVolunteerActionShould {
     VolunteerService volunteerService;
     @Mock
     EmailService emailService;
+    @Mock
+    IssueService issueService;
+
+    private RegisterVolunteerAction registerVolunteerAction;
+
+    @BeforeEach
+    void beforeEach() {
+        registerVolunteerAction = new RegisterVolunteerAction(
+                volunteerService, emailService, templateService);
+    }
+
     @Test
     void send_confirmation_email() {
-        RegisterVolunteerAction registerVolunteerAction = new RegisterVolunteerAction(volunteerService,emailService, templateService);
+
         String template = "Te acabas de registrar en huellapositiva.com\n" +
                           "Para confirmar tu correo electrónico, haz clic en el enlace\n" +
                           "<a href=\"${CONFIRMATION_URL}\">Clic aquí</a>\n";
-        when(templateService.getEmailConfirmationTemplate(any())).thenReturn(new EmailTemplate(template));
+        lenient().when(templateService.getEmailConfirmationTemplate(any())).thenReturn(new EmailTemplate(template));
 
         registerVolunteerAction.execute(RegisterVolunteerRequestDto.builder()
                .email("foo@huellapositiva.com")

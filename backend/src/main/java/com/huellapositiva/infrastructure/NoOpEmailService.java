@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(name = "huellapositiva.feature.email.enabled", havingValue = "false")
 public class NoOpEmailService implements EmailService {
     @Override
-    public boolean sendEmail(Email email) {
-        return true;
+    public void sendEmail(Email email) {
+        // Do nothing because it's no operational
     }
 }

@@ -1,0 +1,11 @@
+.SubmitButton {
+  min-height: 40px;
+  border-radius: 5px;
+  background: #EABD00;
+  font-size: 1rem;
+  outline: none;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

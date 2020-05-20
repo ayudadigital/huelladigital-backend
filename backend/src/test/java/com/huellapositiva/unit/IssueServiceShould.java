@@ -6,13 +6,18 @@ import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
+import com.huellapositiva.util.TestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -22,6 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Import(TestData.class)
 class IssueServiceShould {
 
     @SpyBean
@@ -33,12 +39,21 @@ class IssueServiceShould {
     @Autowired
     JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
 
+    @Autowired
+    TestData testData;
+
     private static final String baseUri = "/api/v1/volunteers";
 
     @Autowired
     private MockMvc mvc;
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
+
 
     @Test
     void verify_save_a_email() {
@@ -53,7 +68,7 @@ class IssueServiceShould {
         }
 
         //THEN
-        assertThat(failEmailConfirmationRepository.findByEmail(dto.getEmail()).get().getEmailAddress(), is(dto.getEmail()));
+        assertThat(Objects.requireNonNull(failEmailConfirmationRepository.findByEmail(dto.getEmail()).orElse(null)).getEmailAddress(), is(dto.getEmail()));
     }
 
     @Test
@@ -70,6 +85,6 @@ class IssueServiceShould {
                 .accept(MediaType.APPLICATION_JSON));
 
         //THEN
-        assertThat(failEmailConfirmationRepository.findByEmail(dto.getEmail()).get().getEmailAddress(), is(dto.getEmail()));
+        assertThat(Objects.requireNonNull(failEmailConfirmationRepository.findByEmail(dto.getEmail()).orElse(null)).getEmailAddress(), is(dto.getEmail()));
     }
 }

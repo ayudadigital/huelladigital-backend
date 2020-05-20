@@ -6,6 +6,7 @@ import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,6 +41,7 @@ class IssueServiceShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    @Disabled
     @Test
     void verify_save_a_email() {
         //GIVEN
@@ -56,6 +58,7 @@ class IssueServiceShould {
         assertThat(failEmailConfirmationRepository.findByEmail(dto.getEmail()).get().getEmailAddress(), is(dto.getEmail()));
     }
 
+    @Disabled
     @Test
     void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
         //GIVEN

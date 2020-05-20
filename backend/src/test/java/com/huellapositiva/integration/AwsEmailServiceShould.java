@@ -16,7 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-@ActiveProfiles("localstack")
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "ses" })

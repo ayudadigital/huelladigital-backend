@@ -17,7 +17,7 @@ public class EmailConfig {
     private AwsSesProperties awsSesProperties;
 
     @Bean
-    @Profile({"!localstack"})
+    @Profile({"dev", "prod"})
     public AmazonSimpleEmailService getAwsSesClient(){
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withRegion(awsSesProperties.getRegion())
@@ -25,7 +25,7 @@ public class EmailConfig {
     }
 
     @Bean
-    @Profile("localstack")
+    @Profile("!dev & !prod")
     public AmazonSimpleEmailService getLocalstackAwsSesClient(){
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsSesProperties.getAccessKey(), awsSesProperties.getSecretKey());
         return AmazonSimpleEmailServiceClientBuilder.standard()

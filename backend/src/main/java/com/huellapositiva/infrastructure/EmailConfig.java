@@ -6,11 +6,13 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
+@ConditionalOnProperty(name = "huellapositiva.feature.email.enabled", havingValue = "false")
 public class EmailConfig {
 
     @Autowired

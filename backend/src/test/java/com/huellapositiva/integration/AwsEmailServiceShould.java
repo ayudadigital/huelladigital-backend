@@ -7,6 +7,7 @@ import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityRequest;
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ class AwsEmailServiceShould {
     @Autowired
     private AmazonSimpleEmailService sesClient;
 
+    @Disabled
     @Test
     void send_an_email() {
         VerifyEmailIdentityRequest request = new VerifyEmailIdentityRequest().withEmailAddress(emailAddress);

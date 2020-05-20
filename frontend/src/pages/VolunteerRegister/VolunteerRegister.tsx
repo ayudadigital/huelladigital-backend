@@ -1,6 +1,6 @@
 import React from 'react';
-import './VolunteerRegister.scss';
-import { FormRegisterVolunteer } from '../../components/molecules/FormRegisterVolunteer';
+import './styles.scss';
+import { FormRegisterVolunteer } from '../../components/organisms/Forms/FormRegisterVolunteer';
 import { Link } from 'react-router-dom';
 import { ROUTE } from '../../utils/routes';
 

@@ -36,7 +36,7 @@ public class SendEmailAddressConfirmationAction {
         Credential credential = jpaCredentialRepository.findByEmail(dto.getEmailAddress())
                 .orElseThrow(() -> new UserNotFoundException("Email address not found"));
 
-        if (credential.getEmailConfirmed()) {
+        if (Boolean.TRUE.equals(credential.getEmailConfirmed())) {
             throw new EmailAlreadyValidatedException("Email already validated");
         }
 

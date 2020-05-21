@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
 
+import java.util.Arrays;
+
 @Service
 @AllArgsConstructor
 public class IssueService {
@@ -15,12 +17,12 @@ public class IssueService {
     @Autowired
     private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
 
-    public Integer registerVolunteerIssue(String email, Exception ex) {
+    public void registerVolunteerIssue(String email, Exception ex) {
         FailEmailConfirmation failEmailConfirmation = FailEmailConfirmation.builder()
                 .emailAddress(email)
-                .exceptionTrace(ex.getStackTrace().toString())
+                .exceptionTrace(Arrays.toString(ex.getStackTrace()))
                 .build();
 
-        return jpaFailEmailConfirmationRepository.save(failEmailConfirmation).getId();
+        jpaFailEmailConfirmationRepository.save(failEmailConfirmation);
     }
 }

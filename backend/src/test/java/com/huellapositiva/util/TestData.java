@@ -1,13 +1,10 @@
 package com.huellapositiva.util;
 
+import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.model.Role;
-import com.huellapositiva.domain.Roles;
-import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import com.huellapositiva.infrastructure.orm.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +26,9 @@ public class TestData {
     private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
 
     @Autowired
+    private JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
+
+    @Autowired
     private JpaRoleRepository roleRepository;
 
     public void resetData() {
@@ -36,6 +36,7 @@ public class TestData {
         jpaCredentialRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
+        failEmailConfirmationRepository.deleteAll();
     }
 
     private EmailConfirmation createEmailConfirmation(UUID token){
@@ -49,7 +50,7 @@ public class TestData {
 
     public Credential createCredential( String email, UUID token){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
-        Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).get();
+        Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
 
         Credential credential = Credential.builder()
                 .email(email)

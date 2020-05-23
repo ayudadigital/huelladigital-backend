@@ -252,12 +252,11 @@
         <configuration>
           <argLine>${surefireArgLine}</argLine>
           <includes>
-            <include>**/**Test.java</include>
-            <include>**/**Should.java</include>
+            <include>**/unit/*.java</include>
           </includes>
           <excludes>
             <exclude>**/integration/*.java</exclude>
-            <exclude>**/e2e/*.java</exclude>
+            <exclude>**/api/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>

@@ -2,9 +2,11 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +15,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,13 +40,17 @@ class VolunteerControllerShould {
     @Autowired
     JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
 
+
     @Autowired
     private TestData testData;
 
     @Autowired
     private MockMvc mvc;
 
-    @SpyBean
+    @MockBean
+    IssueService issueService;
+
+    @MockBean
     private RegisterVolunteerAction registerVolunteerAction;
 
     @BeforeEach
@@ -87,6 +95,7 @@ class VolunteerControllerShould {
                 .password(shortPassword)
                 .build();
 
+        doThrow(new PasswordNotAllowed("to short")).when(registerVolunteerAction).execute(dto);
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(baseUri)
                 .content(body)
@@ -125,6 +134,7 @@ class VolunteerControllerShould {
                 .build();
         doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
 
+
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(baseUri)
                 .content(body)
@@ -158,6 +168,23 @@ class VolunteerControllerShould {
                 "username@yahoo.c",
                 "username@yahoo.corporate"
         );
+    }
+
+    @Test
+    void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
+        //GIVEN
+        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
+
+        //WHEN
+        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
+        String body = objectMapper.writeValueAsString(dto);
+        mvc.perform(post(baseUri)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON));
+
+        //THEN
+        verify(issueService).registerVolunteerIssue(any(), any());
     }
 
 }

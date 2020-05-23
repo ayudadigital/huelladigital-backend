@@ -25,9 +25,6 @@ import static org.hamcrest.core.Is.is;
 class EmailAddressConfirmationActionShould {
 
     @Autowired
-    private MockMvc mvc;
-
-    @Autowired
     private TestData testData;
 
     @Autowired

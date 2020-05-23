@@ -36,6 +36,10 @@ From now, no more warnings should be displayed in the `Project` window.
 
 From the terminal you can build the project with `mvn package`. From the IDE you may run the tests with the right mouse button on the `src/test` folder.
 
+## Run the Backend
+
+Open a new terminal with `mvn clean compile spring-boot:run` to launch the backend on port 8080. Remember don't close the terminal if you need use the API.
+
 
 
 

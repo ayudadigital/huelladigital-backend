@@ -14,15 +14,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class RegisterVolunteerAction {
+    private final VolunteerService volunteerService;
+
+    private final EmailService emailService;
+
+    private final TemplateService templateService;
 
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    private final VolunteerService volunteerService;
-
-    private EmailService emailService;
-
-    private final TemplateService templateService;
+    @Value("${huellapositiva.feature.email.from}")
+    private String from;
 
     public RegisterVolunteerAction(VolunteerService volunteerService, EmailService emailService, TemplateService templateService) {
         this.volunteerService = volunteerService;
@@ -35,7 +37,7 @@ public class RegisterVolunteerAction {
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-            Email email = Email.createFrom(emailConfirmation, emailTemplate);
+            Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (Exception ex) {
             throw new EmailException(ex);

@@ -16,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
-//@EnableJdbcHttpSession
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean

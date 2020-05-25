@@ -16,6 +16,8 @@ import java.util.UUID;
 @Transactional
 public class TestData {
 
+    public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
+
     @Autowired
     private JpaVolunteerRepository volunteerRepository;
 
@@ -39,7 +41,7 @@ public class TestData {
         failEmailConfirmationRepository.deleteAll();
     }
 
-    private EmailConfirmation createEmailConfirmation(UUID token){
+    private EmailConfirmation createEmailConfirmation(UUID token) {
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email("foo@huellapositiva.com")
                 .hash(token.toString())
@@ -48,7 +50,7 @@ public class TestData {
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
-    public Credential createCredential( String email, UUID token){
+    public Credential createCredential(String email, UUID token) {
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
 

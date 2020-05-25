@@ -1,10 +1,12 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
+import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
@@ -22,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -36,6 +39,8 @@ class VolunteerControllerShould {
     private static final String baseUri = "/api/v1/volunteers";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
+    private static final String DEFAULT_PASSWORD = "plain-password";
 
     @Autowired
     JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
@@ -53,6 +58,9 @@ class VolunteerControllerShould {
     @MockBean
     private RegisterVolunteerAction registerVolunteerAction;
 
+    @Autowired
+    private JpaCredentialRepository credentialRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -60,8 +68,8 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_should_return_201() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+                .email(DEFAULT_EMAIL)
                 .password("password")
                 .build();
 
@@ -75,8 +83,8 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_without_password_should_return_400() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+                .email(DEFAULT_EMAIL)
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
@@ -90,8 +98,8 @@ class VolunteerControllerShould {
     @Test
     void registering_volunteer_with_short_password_should_return_400() throws Exception {
         String shortPassword = "12345";
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+                .email(DEFAULT_EMAIL)
                 .password(shortPassword)
                 .build();
 
@@ -106,7 +114,7 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_without_email_should_return_400() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .password("password")
                 .build();
 
@@ -128,8 +136,8 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_fail_sending_email_confirmation_should_return_500() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+                .email(DEFAULT_EMAIL)
                 .password("1234567")
                 .build();
         doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
@@ -147,7 +155,7 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
     void registering_volunteer_with_malformed_email_should_return_400(String malformedEmail) throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .email(malformedEmail)
                 .password("password")
                 .build();
@@ -173,20 +181,43 @@ class VolunteerControllerShould {
     @Test
     void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
         //GIVEN
-        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
 
         //WHEN
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(baseUri)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
 
         //THEN
         verify(issueService).registerVolunteerIssue(any(), any());
     }
 
+    @Test
+    void validate_user_correctly_and_send_token() throws Exception {
+
+        //GIVEN
+        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String body = objectMapper.writeValueAsString(dto);
+
+        //WHEN
+        String jsonResponse = mvc.perform(post(baseUri + "/login")
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        //THEN
+        System.out.println("Printline: " + jsonResponse);
+        assertThat(jsonResponse).isNotEmpty();
+    }
 }
 
 

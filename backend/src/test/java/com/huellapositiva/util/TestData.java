@@ -4,9 +4,11 @@ import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -31,6 +33,9 @@ public class TestData {
     @Autowired
     private JpaRoleRepository roleRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public void resetData() {
         volunteerRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
@@ -49,12 +54,16 @@ public class TestData {
     }
 
     public Credential createCredential( String email, UUID token){
+        return createCredential(email, token, "defaultPassword");
+    }
+
+    public Credential createCredential( String email, UUID token, String plainPassword){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
 
         Credential credential = Credential.builder()
                 .email(email)
-                .hashedPassword("xxx")
+                .hashedPassword(passwordEncoder.encode(plainPassword))
                 .emailConfirmed(false)
                 .emailConfirmation(emailConfirmation)
                 .roles(Collections.singleton(role))
@@ -62,4 +71,15 @@ public class TestData {
 
         return jpaCredentialRepository.save(credential);
     }
+
+    public Volunteer createVolunteer(String email, String password) {
+        Credential credential = createCredential(email, UUID.randomUUID(), password);
+
+        Volunteer volunteer = Volunteer.builder().credential(credential).build();
+
+        return volunteerRepository.save(volunteer);
+    }
+
+
+
 }

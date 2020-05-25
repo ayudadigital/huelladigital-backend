@@ -1,12 +1,11 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
-import com.huellapositiva.infrastructure.orm.service.IssueService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +22,6 @@ class RegisterVolunteerActionShould {
     VolunteerService volunteerService;
     @Mock
     EmailService emailService;
-    @Mock
-    IssueService issueService;
 
     private RegisterVolunteerAction registerVolunteerAction;
 
@@ -42,7 +39,7 @@ class RegisterVolunteerActionShould {
                           "<a href=\"${CONFIRMATION_URL}\">Clic aquí</a>\n";
         lenient().when(templateService.getEmailConfirmationTemplate(any())).thenReturn(new EmailTemplate(template));
 
-        registerVolunteerAction.execute(RegisterVolunteerRequestDto.builder()
+        registerVolunteerAction.execute(CredentialsVolunteerRequestDto.builder()
                .email("foo@huellapositiva.com")
                .password("123456")
                .build());

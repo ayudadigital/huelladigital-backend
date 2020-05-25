@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.Email;
 import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.domain.service.VolunteerService;
@@ -30,7 +30,7 @@ public class RegisterVolunteerAction {
         this.templateService = templateService;
     }
 
-    public void execute(RegisterVolunteerRequestDto dto) {
+    public void execute(CredentialsVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         try {

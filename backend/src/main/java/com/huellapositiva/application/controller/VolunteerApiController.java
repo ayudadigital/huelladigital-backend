@@ -1,5 +1,6 @@
 package com.huellapositiva.application.controller;
 
+import com.auth0.jwt.JWT;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
@@ -25,10 +26,9 @@ public class VolunteerApiController {
     private IssueService issueService;
     @Autowired
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private final JwtUtil jwtUtil;
 
-    @PostMapping
+
+    @PostMapping(value = "/register")
     @ResponseStatus(HttpStatus.CREATED)
     public void registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
         try {
@@ -41,12 +41,12 @@ public class VolunteerApiController {
         }
     }
 
-    @PostMapping(value = "/login")
-    @ResponseStatus(HttpStatus.OK)
-    public String loginVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
-
-        return jwtUtil.generateToken(dto.getEmail());
-    }
+//    @PostMapping(value = "/login")
+//    @ResponseStatus(HttpStatus.OK)
+//    public String loginVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+//        authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+//
+//        return JWT.create().withSubject();
+//    }
 }

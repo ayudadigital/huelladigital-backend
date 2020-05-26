@@ -1,5 +1,7 @@
 package com.huellapositiva.infrastructure;
 
+import com.huellapositiva.infrastructure.security.JwtAuthenticationFilter;
+import com.huellapositiva.infrastructure.security.JwtAuthorizationFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,15 +12,20 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import static com.huellapositiva.infrastructure.security.SecurityConstants.LOGIN_URL;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
 
 @Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 //@EnableJdbcHttpSession
 class SecurityConfig extends WebSecurityConfigurerAdapter {
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -32,18 +39,16 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/**").permitAll()
+                //.antMatchers("/").permitAll()
+                .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+                .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers("/api/**")
-                .authenticated()
+                //.antMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
                 .and()
-                .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .permitAll();
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean()))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean()))
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Autowired
@@ -56,6 +61,5 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
 }
 

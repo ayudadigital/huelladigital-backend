@@ -10,17 +10,17 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Router>
-            <Switch>
-              <Route exact path={ROUTE.home}>
-                <Home/>
-              </Route>
-              <Route exact path={ROUTE.volunteer.login}>
-                <VolunteerLogin/>
-              </Route>
-              <Route path={ROUTE.volunteer.register}>
-                <VolunteerRegister/>
-              </Route>
-            </Switch>
+        <Switch>
+          <Route exact path={ROUTE.home}>
+            <Home />
+          </Route>
+          <Route exact path={ROUTE.volunteer.login}>
+            <VolunteerLogin />
+          </Route>
+          <Route path={ROUTE.volunteer.register}>
+            <VolunteerRegister />
+          </Route>
+        </Switch>
       </Router>
     </div>
   );

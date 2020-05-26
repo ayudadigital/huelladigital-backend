@@ -1,10 +1,7 @@
-.ContainerForm{
+.ContainerForm {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-content: center;
-
-  min-width: 200px;
   width: 100%;
-  max-width: 400px;
 }

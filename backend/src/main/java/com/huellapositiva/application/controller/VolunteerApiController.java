@@ -1,17 +1,13 @@
 package com.huellapositiva.application.controller;
 
-import com.auth0.jwt.JWT;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
-import com.huellapositiva.infrastructure.utils.JwtUtil;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,9 +20,6 @@ public class VolunteerApiController {
     private RegisterVolunteerAction registerVolunteerAction;
     @Autowired
     private IssueService issueService;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
 
     @PostMapping(value = "/register")
     @ResponseStatus(HttpStatus.CREATED)
@@ -41,12 +34,4 @@ public class VolunteerApiController {
         }
     }
 
-//    @PostMapping(value = "/login")
-//    @ResponseStatus(HttpStatus.OK)
-//    public String loginVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
-//        authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
-//
-//        return JWT.create().withSubject();
-//    }
 }

@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
+import static com.huellapositiva.infrastructure.security.SecurityConstants.TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -213,17 +214,17 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
-                .getContentAsString();
+                .getHeader("Authorization");
 
         //THEN
-        assertThat(jsonResponse).matches(regexToken);
+        assertThat(jsonResponse.replace(TOKEN_PREFIX, "")).matches(regexToken);
     }
 
     @Test
-    void invalid_user_should_return_400() throws Exception {
+    void invalid_user_should_return_401() throws Exception {
         //GIVEN
         Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, "invalid_password");
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, "invalidPassword");
         String body = objectMapper.writeValueAsString(dto);
 
         //WHEN
@@ -231,7 +232,7 @@ class VolunteerControllerShould {
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
 
         //THEN
 

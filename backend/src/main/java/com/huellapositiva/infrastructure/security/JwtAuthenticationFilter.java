@@ -2,10 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,16 +34,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest req,
                                                 HttpServletResponse res) throws AuthenticationException {
         try {
-            System.out.println(req.getReader().readLine());
-
-            //Revisar la construcción del objetos con las credenciales
-            Volunteer creds = new ObjectMapper()
-                    .readValue(req.getInputStream(), Volunteer.class);
+            VolunteerCredentialsDto reqUserCredentials = new ObjectMapper()
+                    .readValue(req.getInputStream(), VolunteerCredentialsDto.class);
 
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            creds.getCredential().getEmail(),
-                            creds.getCredential().getHashedPassword(),
+                            reqUserCredentials.getEmail(),
+                            reqUserCredentials.getPassword(),
                             new ArrayList<>())
             );
         } catch (IOException e) {

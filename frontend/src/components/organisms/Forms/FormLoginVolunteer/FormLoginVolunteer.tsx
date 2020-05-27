@@ -2,6 +2,8 @@ import React from 'react';
 import '../styles.scss';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
+import { LinkText } from '../../../atoms/LinkText/LinkText';
+import { ROUTE } from '../../../../utils/routes';
 
 export const FormLoginVolunteer: React.FC<{}> = () => {
   return (
@@ -10,7 +12,10 @@ export const FormLoginVolunteer: React.FC<{}> = () => {
       <FieldForm title={'Email'} type={'email'} name={'email'} />
       <FieldForm title={'Contraseña'} type={'password'} name={'password'} />
       <SubmitButton text={'Acceder'} />
-      <p>¿Ya tiene cuenta? Iniciar sesión</p>
+      <p>
+        ¿No tiene una cuenta?
+        <LinkText to={ROUTE.volunteer.register} text={'Registrate'} />
+      </p>
     </form>
   );
 };

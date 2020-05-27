@@ -9,19 +9,12 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   type = 'text',
   name = '',
   value,
-  getData,
+  onChange,
 }) => {
-  const handleInput = (event: any) => {
-    event.preventDefault();
-    const inputName = event.target.name;
-    const inputValue = event.target.value;
-    getData([inputName, inputValue]);
-  };
-
   return (
     <div className="FieldForm">
       <Label text={title} />
-      <InputFieldForm type={type} name={name} value={value} onChangeValue={handleInput} />
+      <InputFieldForm type={type} name={name} value={value} onChange={onChange} />
     </div>
   );
 };

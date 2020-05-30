@@ -15,7 +15,7 @@ The backend is being developed with:
 ## Setup the local development environment
 
 We are using mostly IntelliJ IDE to develop the project. Currently using
-IntelliJ 2019.3.
+**IntelliJ 2019.3.**
 
 First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version. This is not necessarily a project.
 
@@ -26,7 +26,7 @@ choose the `backend` folder in this repository. The project should be imported c
 
 Don't worry the project should build and the tests run. It's complaining because of the dependency tree but it's working.
 
-We are using Lombok project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
+We are using **Lombok** project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
 
 Go to `Settings > Build, Execution, Deployment > Compiler > Annotation Processors` and select `Enable annotation processing`.
 
@@ -34,12 +34,22 @@ Then go to `Settings > Plugins` and search for `Lombok` in the Marketplace tab. 
 
 From now, no more warnings should be displayed in the `Project` window.
 
-From the terminal you can build the project with `mvn package`. From the IDE you may run the tests with the right mouse button on the `src/test` folder.
+⚠️ **Before running the the backend locally or launch the tests, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
 
-## Run the Backend
+You can up with the IDE or from terminal with `docker-compose up -d` but you must be in the directory of docker-compose file.
+
+## Build the project
+
+From the terminal you can build the project with `mvn package`.
+
+## Run the API
 
 Open a new terminal with `mvn clean compile spring-boot:run` to launch the backend on port 8080. Remember don't close the terminal if you need use the API.
 
+Notice that the platform can also be run directly from the IDE by just right clicking in the `Application.java`or `App.java` file which might be more convenient in some cases.
 
+## Run the tests
 
+The docker daemon must already be running in your system in order to run the integrations tests that require it.
 
+From the IDE you may run the tests with the right mouse button on the `src/test` folder.

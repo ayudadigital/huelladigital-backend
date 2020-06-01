@@ -1,5 +1,6 @@
 package com.huellapositiva.util;
 
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;

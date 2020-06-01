@@ -10,11 +10,18 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   name = '',
   value,
   onChange,
+  onBlur,
 }) => {
   return (
     <div className="FieldForm">
       <Label text={title} />
-      <InputFieldForm type={type} name={name} value={value} onChange={onChange} />
+      <InputFieldForm
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+      />
     </div>
   );
 };

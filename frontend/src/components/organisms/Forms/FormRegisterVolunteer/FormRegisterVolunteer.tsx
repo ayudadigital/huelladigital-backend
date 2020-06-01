@@ -29,6 +29,15 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     client.registerVolunteer(exampleJsonToApi);
   };
 
+  const checkPassword = () => {
+    if (data.password === data.passwordRepeated) {
+      console.log('Are the same!');
+      console.log({ password: data.password, repeated: data.passwordRepeated });
+    } else {
+      console.log('ERROR');
+    }
+  };
+
   return (
     <form className="ContainerForm" method="POST" onSubmit={handleSubmit}>
       <h1>Registro de voluntario</h1>
@@ -49,6 +58,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         type={'password'}
         name={'repeatedPassword'}
         onChange={(event) => setData({ ...data, passwordRepeated: event.target.value })}
+        onBlur={checkPassword}
       />
       <SubmitButton text={'Acceder'} />
       <p>

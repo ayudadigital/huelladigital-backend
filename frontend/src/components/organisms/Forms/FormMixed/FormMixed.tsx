@@ -2,8 +2,8 @@ import * as React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { ROUTE } from '../../../../utils/routes';
 import { FormRegisterOrganization } from '../FormRegisterOrganization/FormRegisterOrganization';
-import { FormRegisterVolunteer } from '../FormRegisterVolunteer/FormRegisterVolunteer';
-import { LinkText } from '../../../atoms/LinkText/LinkText';
+import { FormRegisterVolunteer } from '../FormRegisterVolunteer';
+import { LinkText } from '../../../atoms/LinkText';
 
 import './styles.scss';
 

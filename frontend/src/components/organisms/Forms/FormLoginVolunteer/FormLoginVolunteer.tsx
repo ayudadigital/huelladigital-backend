@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles.scss';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
-import { LinkText } from '../../../atoms/LinkText/LinkText';
+import { LinkText } from '../../../atoms/LinkText';
 import { ROUTE } from '../../../../utils/routes';
 
 export const FormLoginVolunteer: React.FC<{}> = () => {

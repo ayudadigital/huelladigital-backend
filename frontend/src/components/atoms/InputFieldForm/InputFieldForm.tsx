@@ -9,11 +9,13 @@ export const InputFieldForm: React.FC<InputFieldFormProps> = ({
   onChange,
 }) => {
   const checkPassword = (pass: String, passrepeated: String) => {
+    //check password length
     if (checkLength(pass)) {
       console.log('añadir color verde');
     } else {
       console.log('añadir color rojo');
     }
+    // check if the passwords are the same
   };
 
   const checkLength = (password: String) => {

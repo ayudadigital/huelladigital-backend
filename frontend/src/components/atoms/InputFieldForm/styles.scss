@@ -5,4 +5,10 @@
   font-size: 1rem;
   border-radius: 5px;
   border: 1px solid lightgray;
+  &.correct {
+    border: 3px green solid;
+  }
+  &.incorrect {
+    border: 3px red solid;
+  }
 }

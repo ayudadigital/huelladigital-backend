@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './styles.scss';
 import { InputFieldFormProps } from './types';
+import { ChangeEvent, useState } from 'react';
 
 export const InputFieldForm: React.FC<InputFieldFormProps> = ({
   type,
@@ -8,31 +9,29 @@ export const InputFieldForm: React.FC<InputFieldFormProps> = ({
   value,
   onChange,
 }) => {
-  const checkPassword = (pass: String, passrepeated: String) => {
-    //check password length
-    if (checkLength(pass)) {
-      console.log('añadir color verde');
-    } else {
-      console.log('añadir color rojo');
-    }
-    // check if the passwords are the same
-  };
+  const [check, setCheck] = useState('');
 
-  const checkLength = (password: String) => {
-    const minLenght: number = 5;
-    let comprobar: boolean = false;
-    if (password.length >= minLenght) comprobar = true;
-    return comprobar;
+  const checkLength = (event: ChangeEvent<HTMLInputElement>) => {
+    const minLenght: number = 6;
+    let password = event.target.value;
+    let type = event.target.type;
+    if (type === 'password' && password.length >= minLenght) {
+      setCheck('correct');
+    } else {
+      setCheck('incorrect');
+    }
   };
 
   return (
     <input
-      className="InputFieldForm"
+      className={`InputFieldForm ${check}`}
       aria-label={'input-form'}
       type={type}
       name={name}
       value={value}
-      onChange={onChange}
+      onChange={(onChange) => {
+        checkLength(onChange);
+      }}
     />
   );
 };

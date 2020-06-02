@@ -3,6 +3,7 @@ import '../styles.scss';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
 
+
 export const FormRegisterOrganization: React.FC<{}> = () => (
   <form className="ContainerForm">
     <h1>Registro de organización</h1>

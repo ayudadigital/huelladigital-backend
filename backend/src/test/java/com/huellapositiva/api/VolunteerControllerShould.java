@@ -24,13 +24,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.TOKEN_PREFIX;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -218,7 +218,7 @@ class VolunteerControllerShould {
                 .getHeader("Authorization");
 
         //THEN
-        assertThat(jsonResponse.replace(TOKEN_PREFIX, "")).matches(regexToken);
+        assertThat(jsonResponse.replace(ACCESS_TOKEN_PREFIX, "")).matches(regexToken);
     }
 
     @Test
@@ -286,6 +286,10 @@ class VolunteerControllerShould {
                 .header("Authorization", authorization)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+    @Test
+    void refresh_token(){
+
     }
 }
 

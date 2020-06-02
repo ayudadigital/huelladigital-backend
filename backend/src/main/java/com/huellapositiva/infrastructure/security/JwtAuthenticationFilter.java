@@ -4,13 +4,13 @@ import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
 import com.huellapositiva.infrastructure.orm.service.DbUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -26,11 +26,12 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
-    @Autowired
-    private DbUserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
         setFilterProcessesUrl(LOGIN_URL);
     }
 

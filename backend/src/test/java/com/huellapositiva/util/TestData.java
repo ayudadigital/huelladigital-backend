@@ -81,6 +81,28 @@ public class TestData {
         return volunteerRepository.save(volunteer);
     }
 
+    public Credential createFakeCredential( String email, UUID token, String plainPassword){
+        EmailConfirmation emailConfirmation = createEmailConfirmation(token);
+        Role role = roleRepository.findByName(Roles.ORGANIZATION.toString()).orElse(null);
+
+        Credential credential = Credential.builder()
+                .email(email)
+                .hashedPassword(passwordEncoder.encode(plainPassword))
+                .emailConfirmed(false)
+                .emailConfirmation(emailConfirmation)
+                .roles(Collections.singleton(role))
+                .build();
+
+        return jpaCredentialRepository.save(credential);
+    }
+
+    public Volunteer createFakeRoleVolunteer(String email, String password) {
+        Credential credential = createFakeCredential(email, UUID.randomUUID(), password);
+
+        Volunteer volunteer = Volunteer.builder().credential(credential).build();
+
+        return volunteerRepository.save(volunteer);
+    }
 
 
 }

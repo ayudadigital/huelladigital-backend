@@ -24,6 +24,10 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
+    public SecurityConfig() {
+
+    }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -34,16 +38,15 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests()
+        http.csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
                 .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/test").hasRole("VOLUNTEER")
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean()))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean()))
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), userDetailsService))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

@@ -1,6 +1,5 @@
 package com.huellapositiva.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
@@ -22,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.stream.Stream;
 
@@ -243,7 +241,7 @@ class VolunteerControllerShould {
 
 
     @Test
-    void grant_access_when_token_is_valid() throws Exception {
+    void grant_access_when_token_contains_valid_role() throws Exception {
         //GIVEN
         Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -268,6 +266,26 @@ class VolunteerControllerShould {
         //THEN
         assertThat(response).isEqualTo("OK");
 
+    }
+    @Test
+    void deny_access_when_token_contains_invalid_role() throws Exception {
+        //GIVEN
+        Volunteer volunteer = testData.createFakeRoleVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String body = objectMapper.writeValueAsString(dto);
+        String authorization = mvc.perform(post(loginUri)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getHeader("Authorization");
+
+        //WHEN + THEN
+        mvc.perform(get("/api/v1/test")
+                .header("Authorization", authorization)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }
 

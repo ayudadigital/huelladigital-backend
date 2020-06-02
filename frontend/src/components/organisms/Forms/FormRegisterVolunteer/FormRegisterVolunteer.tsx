@@ -1,37 +1,31 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
 import { ROUTE } from '../../../../utils/routes';
 import { LinkText } from '../../../atoms/LinkText';
 import Client from '../FormUtils/client';
 import '../styles.scss';
-import { stateValidateTypes } from '../../../atoms/InputFieldForm/types';
-
-interface dataInterface {
-  email: string | React.ChangeEvent<HTMLInputElement>;
-  password: string | React.ChangeEvent<HTMLInputElement>;
-  passwordRepeated: string | React.ChangeEvent<HTMLInputElement>;
-}
+import { CheckInterface, DataInterface } from './types';
 
 export const FormRegisterVolunteer: React.FC<{}> = () => {
-  const [data, setData] = useState<dataInterface>({
+  const [data, setData] = useState<DataInterface>({
     email: '',
     password: '',
     passwordRepeated: '',
   });
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const exampleJsonToApi = {
+    const volunteerDTO = {
       email: data.email,
       password: data.password,
     };
     const client = new Client();
-    client.registerVolunteer(exampleJsonToApi);
+    client.registerVolunteer(volunteerDTO);
   };
 
 
-  const [check, setCheck] = useState<{ email: stateValidateTypes, password: stateValidateTypes, passwordRepeated: stateValidateTypes }>({
+  const [check, setCheck] = useState<CheckInterface>({
     email: '',
     password: '',
     passwordRepeated: '',
@@ -102,7 +96,6 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         type={'password'}
         name={'repeatedPassword'}
         onChange={(event) => {
-          checkLength(event);
           setData({ ...data, passwordRepeated: event.target.value });
         }}
         onBlur={checkPassword}

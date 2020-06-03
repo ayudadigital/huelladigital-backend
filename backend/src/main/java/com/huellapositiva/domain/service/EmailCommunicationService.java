@@ -43,7 +43,7 @@ public class EmailCommunicationService {
             Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (Exception ex) {
-            //issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
+            // TODO: issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
             throw new EmailException(ex);
         }
     }

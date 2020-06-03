@@ -30,7 +30,7 @@ public class VolunteerApiController {
             registerVolunteerAction.execute(dto);
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length", pna);
-        } catch (EmailException ex) {
+        } catch (EmailException ex) { // TODO: get rid of this catch block
             log.error("Failed to send email:", ex);
             issueService.registerVolunteerIssue(dto.getEmail(), ex);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to send email confirmation", ex);

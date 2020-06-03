@@ -36,6 +36,7 @@ public class RegisterVolunteerAction {
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         new EmailCommunicationService(emailService, templateService)
                 .sendRegistrationConfirmationEmail(emailConfirmation);
+        // TODO: communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
     }
 
 }

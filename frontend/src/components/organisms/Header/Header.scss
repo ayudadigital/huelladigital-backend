@@ -1,0 +1,15 @@
+.Header{
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 170px;
+    padding: 0 50px;
+    background: linear-gradient(rgba(126, 37, 78, 0.45), rgba(126, 37, 78, 0.45)), url(https://huellapositiva.com/wp-content/uploads/2020/03/remi-walle-UOwvwZ9Dy6w-unsplash.jpg)
+    no-repeat center;
+    background-size: 'auto, cover';
+
+    img {
+        width: 220px;
+        align-self: center;
+        justify-self: center;
+    }
+}

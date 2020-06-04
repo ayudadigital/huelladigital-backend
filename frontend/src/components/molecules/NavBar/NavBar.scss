@@ -1,0 +1,23 @@
+.NavBar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    a {
+        margin: 0 20px;
+        text-decoration: none;
+        text-transform: uppercase;
+        color: white;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 14px;
+        line-height: 160%;
+        letter-spacing: 1px;
+        font-family: "Open Sans",sans-serif;
+
+        &:hover {
+            color: #EABD00;
+            border-bottom: 3px solid #EABD00;
+        }
+    }
+}

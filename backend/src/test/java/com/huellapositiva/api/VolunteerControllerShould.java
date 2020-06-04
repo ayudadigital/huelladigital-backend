@@ -126,23 +126,6 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void registering_volunteer_fail_sending_email_confirmation_should_return_500() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
-                .password("1234567")
-                .build();
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-
-
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(baseUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-    }
-
 
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
@@ -168,23 +151,6 @@ class VolunteerControllerShould {
                 "username@yahoo.c",
                 "username@yahoo.corporate"
         );
-    }
-
-    @Test
-    void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
-        //GIVEN
-        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
-
-        //WHEN
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(baseUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
-
-        //THEN
-        verify(issueService).registerVolunteerIssue(any(), any());
     }
 
 }

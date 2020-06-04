@@ -7,15 +7,16 @@ import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class EmailCommunicationService {
-
-    @Value("${huellapositiva.feature.email.from}")
-    private String from;
 
     @Autowired
     private final EmailService emailService;
@@ -24,27 +25,19 @@ public class EmailCommunicationService {
     private final TemplateService templateService;
 
     @Autowired
-    private IssueService issueService;
+    private final IssueService issueService;
 
-    public EmailCommunicationService(EmailService emailService, TemplateService templateService) {
-        this.emailService = emailService;
-        this.templateService = templateService;
-    }
-
-    public EmailCommunicationService(EmailService emailService, TemplateService templateService, IssueService issueService) {
-        this.emailService = emailService;
-        this.templateService = templateService;
-        this.issueService = issueService;
-    }
+    @Value("${huellapositiva.feature.email.from}")
+    private String from;
 
     public void sendRegistrationConfirmationEmail(EmailConfirmation emailConfirmation) {
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
             Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
             emailService.sendEmail(email);
-        } catch (Exception ex) {
-            // TODO: issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
-            throw new EmailException(ex);
+        } catch (RuntimeException ex) {
+            log.error("Failed to send email:", ex);
+            issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
         }
     }
 }

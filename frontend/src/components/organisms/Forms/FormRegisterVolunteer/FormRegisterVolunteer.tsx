@@ -80,6 +80,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           setData({ ...data, email: event.target.value });
         }}
         stateValidate={check.email}
+        messageInfoUser={'El email introducido es inválido'}
       />
       <FieldForm
         title={'Contraseña'}
@@ -90,6 +91,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           setData({ ...data, password: event.target.value });
         }}
         stateValidate={check.password}
+        messageInfoUser={'Contraseña demasiado corta, se necesitan más de 6 carácteres'}
       />
       <FieldForm
         title={'Repetir contraseña'}
@@ -100,8 +102,9 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         }}
         onBlur={checkPassword}
         stateValidate={check.passwordRepeated}
+        messageInfoUser={'Las contraseñas no coinciden'}
       />
-      <SubmitButton text={'Enviar'}/>
+      <SubmitButton text={'Registrarse'}/>
       <p>
         ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
       </p>

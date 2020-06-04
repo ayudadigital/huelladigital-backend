@@ -34,9 +34,9 @@ Then go to `Settings > Plugins` and search for `Lombok` in the Marketplace tab. 
 
 From now, no more warnings should be displayed in the `Project` window.
 
-⚠️ **Before running the the backend locally or launch the tests, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
+⚠️ **Before running the the backend locally, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
 
-You can up with the IDE or from terminal with `docker-compose up -d` but you must be in the directory of docker-compose file.
+You can run the docker compose file from the IDE or from the terminal with `docker-compose up -d` but you must be in the directory of docker-compose file.
 
 ## Build the project
 

@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
     @Autowired

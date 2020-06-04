@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
@@ -22,9 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

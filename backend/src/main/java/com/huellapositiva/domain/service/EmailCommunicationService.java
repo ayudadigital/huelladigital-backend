@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.domain.Email;
-import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.EmailService;

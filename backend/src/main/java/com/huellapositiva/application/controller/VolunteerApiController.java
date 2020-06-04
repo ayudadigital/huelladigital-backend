@@ -3,8 +3,6 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.exception.EmailException;
-import com.huellapositiva.infrastructure.orm.service.IssueService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +14,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
     @Autowired

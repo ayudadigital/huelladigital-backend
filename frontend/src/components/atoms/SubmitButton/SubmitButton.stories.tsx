@@ -9,3 +9,4 @@ export default {
 };
 
 export const withText = () => <SubmitButton text={text('TEXT', 'Button')}/>;
+export const disabled = () => <SubmitButton text={text('TEXT', 'Button')} disabled={true}/>;

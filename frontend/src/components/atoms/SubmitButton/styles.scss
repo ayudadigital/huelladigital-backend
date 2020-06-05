@@ -11,4 +11,9 @@
   &:hover {
     opacity: 0.8;
   }
+
+  &:disabled{
+    color: #7a7a7a;
+    background: lightgrey;
+  }
 }

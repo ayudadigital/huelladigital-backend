@@ -5,6 +5,7 @@ import VolunteerRegister from './pages/VolunteerRegister/VolunteerRegister';
 import VolunteerLogin from './pages/VolunteerLogin/VolunteerLogin';
 import { Home } from './pages/Home/Home';
 import { ROUTE } from './utils/routes';
+import { EmailConfirmation } from './pages/EmailConfirmation';
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,9 @@ const App: React.FC = () => {
           </Route>
           <Route path={ROUTE.volunteer.register}>
             <VolunteerRegister />
+          </Route>
+          <Route path={ROUTE.email.confirmation}>
+            <EmailConfirmation/>
           </Route>
         </Switch>
       </Router>

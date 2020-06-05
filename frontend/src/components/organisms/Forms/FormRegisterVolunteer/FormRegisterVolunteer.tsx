@@ -22,6 +22,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     };
     const client = new Client();
     client.registerVolunteer(volunteerDTO);
+    window.open(`http://localhost:3000${ROUTE.email.confirmation}`);
   };
 
 
@@ -30,7 +31,6 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     password: '',
     passwordRepeated: '',
   });
-
   const checkPassword = () => {
     if (data.password === data.passwordRepeated) {
       setCheck({ ...check, passwordRepeated: 'correct' });
@@ -38,7 +38,6 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
       setCheck({ ...check, passwordRepeated: 'incorrect' });
     }
   };
-
   const checkLength: (event: ChangeEvent<HTMLInputElement>) => void = (event: ChangeEvent<HTMLInputElement>) => {
     const minLength: number = 6;
     const regexEmail = new RegExp(
@@ -67,6 +66,14 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     }
   };
 
+  const [stateSubmit, setStateSubmit] = useState(true);
+  const handleStateSubmitButton = () => {
+    if (check.email === 'correct' && check.password === 'correct' && check.passwordRepeated === 'correct') {
+      setStateSubmit(false);
+    } else {
+      setStateSubmit(true);
+    }
+  };
 
   return (
     <form className="ContainerForm" method="POST" onSubmit={handleSubmit}>
@@ -79,6 +86,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           checkLength(event);
           setData({ ...data, email: event.target.value });
         }}
+        onBlur={handleStateSubmitButton}
         stateValidate={check.email}
         messageInfoUser={'El email introducido es inválido'}
       />
@@ -90,6 +98,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           checkLength(event);
           setData({ ...data, password: event.target.value });
         }}
+        onBlur={handleStateSubmitButton}
         stateValidate={check.password}
         messageInfoUser={'Contraseña demasiado corta, se necesitan más de 6 carácteres'}
       />
@@ -100,11 +109,14 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         onChange={(event) => {
           setData({ ...data, passwordRepeated: event.target.value });
         }}
-        onBlur={checkPassword}
+        onBlur={() => {
+          checkPassword();
+          handleStateSubmitButton();
+        }}
         stateValidate={check.passwordRepeated}
         messageInfoUser={'Las contraseñas no coinciden'}
       />
-      <SubmitButton text={'Registrarse'}/>
+      <SubmitButton text={'Registrarse'} disabled={stateSubmit}/>
       <p>
         ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
       </p>

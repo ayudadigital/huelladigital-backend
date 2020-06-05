@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
-import java.util.UUID;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
@@ -68,13 +67,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis()+accessExpirationTime))
-                .sign(HMAC512(SECRET.getBytes()));
+                .sign(HMAC512(ACCESS_TOKEN_SECRET.getBytes()));
         res.addHeader(ACCESS_HEADER_STRING, ACCESS_TOKEN_PREFIX + token);
 
         String refreshToken = JWT.create()
-                .withSubject(UUID.randomUUID().toString())
+                .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-                .sign(HMAC512(SECRET.getBytes()));
+                .sign(HMAC512(REFRESH_TOKEN_SECRET.getBytes()));
         res.addHeader(REFRESH_HEADER_STRING, REFRESH_TOKEN_PREFIX + refreshToken);
     }
 }

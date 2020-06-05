@@ -306,11 +306,9 @@ class VolunteerControllerShould {
                 .andReturn()
                 .getResponse()
                 .getHeader("Authorization");
+        Thread.sleep(6000);
 
-        Thread.sleep(5010);
-
-        //WHEN
-        //THEN
+        //WHEN + THEN
         mvc.perform(get("/api/v1/test")
                 .header("Authorization", authorization)
                 .accept(MediaType.APPLICATION_JSON))
@@ -334,16 +332,22 @@ class VolunteerControllerShould {
                 .getResponse();
         String accessToken = response.getHeader("Authorization");
         String refreshToken = response.getHeader("Refresh");
+        Thread.sleep(6000);
 
-        Thread.sleep(5010);
-
-        //WHEN + THEN
-        mvc.perform(get("/api/v1/auth/refresh")
-                .header("Refresh", refreshToken)
+        //WHEN
+        response = mvc.perform(get("/api/v1/test")
                 .header("Authorization", accessToken)
+                .header("Refresh", refreshToken)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse();
+        String newAccessToken = response.getHeader("Authorization");
 
+        //THEN
+        assertThat(newAccessToken)
+                .isNotEqualTo(accessToken)
+                .isNotNull();
     }
 }
 

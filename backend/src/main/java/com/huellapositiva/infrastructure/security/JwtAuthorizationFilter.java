@@ -26,42 +26,42 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         this.userDetailsService = userDetailsService;
     }
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws IOException, ServletException {
-        String header = req.getHeader(ACCESS_HEADER_STRING);
-        if (header == null || !header.startsWith(ACCESS_TOKEN_PREFIX)) {
+        String accessHeader = req.getHeader(ACCESS_HEADER_STRING);
+        if (accessHeader == null || !accessHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
             chain.doFilter(req, res);
             return;
         }
 
+        UsernamePasswordAuthenticationToken authentication = null;
         try {
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(req);
+            authentication = getAuthentication(accessHeader);
+        } catch(TokenExpiredException ex) {
+            String newAccessToken = JwtTokenRefresher.getNewToken(req, res);
+            if (newAccessToken != null) {
+                authentication = getAuthentication(newAccessToken);
+                res.addHeader(ACCESS_HEADER_STRING, newAccessToken);
+            }
+        }
+        if (authentication != null) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(req, res);
-        } catch(TokenExpiredException teex) {
-            res.setStatus(401);
         }
     }
 
+    private UsernamePasswordAuthenticationToken getAuthentication(String accessToken) {
+        String user = JWT.require(Algorithm.HMAC512(ACCESS_TOKEN_SECRET.getBytes()))
+                .build()
+                .verify(accessToken.replace(ACCESS_TOKEN_PREFIX, ""))
+                .getSubject();
 
-    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
-        String token = request.getHeader(ACCESS_HEADER_STRING);
-        if (token != null) {
-            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
-                    .build()
-                    .verify(token.replace(ACCESS_TOKEN_PREFIX, ""))
-                    .getSubject();
-
-            if (user != null) {
-                UserDetails details = userDetailsService.loadUserByUsername(user);
-                return new UsernamePasswordAuthenticationToken(user, null, details.getAuthorities());
-            }
-            return null;
+        if (user != null) {
+            UserDetails details = userDetailsService.loadUserByUsername(user);
+            return new UsernamePasswordAuthenticationToken(user, null, details.getAuthorities());
         }
         return null;
     }
-
 }

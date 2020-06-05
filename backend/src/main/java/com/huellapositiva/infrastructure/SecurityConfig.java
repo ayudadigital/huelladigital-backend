@@ -24,7 +24,6 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
     public SecurityConfig() {
-
     }
 
     @Bean
@@ -40,7 +39,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
                 .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
-                .antMatchers(HttpMethod.GET, REGENERATE_ACCESS_TOKEN_URL).permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/test").hasRole("VOLUNTEER")
                 .anyRequest().authenticated()

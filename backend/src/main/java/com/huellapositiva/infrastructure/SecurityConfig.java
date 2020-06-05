@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -20,6 +21,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Value("${cors.allow.origin}")
+    private String origin;
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -31,8 +35,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedOrigins(origin)
                         .maxAge(3600);
             }
         };

@@ -30,21 +30,19 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     password: '',
     passwordRepeated: '',
   });
-
-  const checkPassword = () => {
+  const checkPasswordsAreTheSame = () => {
     const passwordsAreEquals = data.password === data.passwordRepeated;
     const passwordIsNotEmpty = data.password !== '';
     const passwordsAreNotEmpty = passwordIsNotEmpty && data.passwordRepeated !== '';
     if (passwordsAreEquals && passwordsAreNotEmpty) {
-      setCheck({ ...check, passwordRepeated: 'correct' });    
+      setCheck({ ...check, passwordRepeated: 'correct' });
     } else {
       if (passwordIsNotEmpty){
         setCheck({ ...check, passwordRepeated: 'incorrect' });
       }
     }
   };
-
-  const checkLength: (event: ChangeEvent<HTMLInputElement>) => void = (event: ChangeEvent<HTMLInputElement>) => {
+  const checkIsAllowedValue: (event: ChangeEvent<HTMLInputElement>) => void = (event: ChangeEvent<HTMLInputElement>) => {
     const minLength: number = 6;
     const regexEmail = new RegExp(
       /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/,
@@ -80,40 +78,38 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
       setSubmitState(true);
     }
   };
-  
+
   useEffect(() => {
     handleSubmitStateButton();
-  })
-  
+  });
+
   useEffect(() => {
-    checkPassword()
-  }, [data.passwordRepeated, data.password])
-  
+    checkPasswordsAreTheSame();
+  }, [data.passwordRepeated, data.password]);
+
   return (
     <form className="ContainerForm" method="POST" onSubmit={handleSubmit}>
-      
+
       <h1>Registro de voluntario</h1>
       <FieldForm
         title={'Email'}
         type={'email'}
         name={'email'}
         onChange={(event) => {
-          checkLength(event);
+          checkIsAllowedValue(event);
           setData({ ...data, email: event.target.value });
         }}
-        onBlur={handleSubmitStateButton}
         stateValidate={check.email}
-        messageInfoUser={'El email introducido es inválido'}
+        messageInfoUser={'El email introducido no es válido'}
       />
       <FieldForm
         title={'Contraseña'}
         type={'password'}
         name={'password'}
         onChange={(event) => {
-          checkLength(event);
+          checkIsAllowedValue(event);
           setData({ ...data, password: event.target.value });
         }}
-        onBlur={checkPassword}
         stateValidate={check.password}
         messageInfoUser={'Contraseña demasiado corta, se necesitan más de 6 carácteres'}
       />
@@ -124,7 +120,6 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         onChange={(event) => {
           setData({ ...data, passwordRepeated: event.target.value });
         }}
-        onBlur={checkPassword}
         stateValidate={check.passwordRepeated}
         messageInfoUser={'Las contraseñas no coinciden'}
       />

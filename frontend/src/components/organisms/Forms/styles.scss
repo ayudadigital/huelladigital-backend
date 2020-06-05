@@ -1,7 +1,31 @@
 .ContainerForm {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  align-content: center;
-  width: 100%;
+  padding: 5%;
+
+  h1 {
+    text-align: center;
+  }
+
+  p:nth-last-child() {
+    text-align: center;
+  }
+
+  button {
+    max-width: initial;
+    width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .ContainerForm {
+    button {
+      max-width: 300px;
+      max-height: 50px;
+    }
+
+    h1 {
+      text-align: left;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
 import { ROUTE } from '../../../../utils/routes';
@@ -25,19 +25,25 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     window.open(`http://localhost:3000${ROUTE.email.confirmation}`);
   };
 
-
   const [check, setCheck] = useState<CheckInterface>({
     email: '',
     password: '',
     passwordRepeated: '',
   });
+
   const checkPassword = () => {
-    if (data.password === data.passwordRepeated) {
-      setCheck({ ...check, passwordRepeated: 'correct' });
+    const passwordsAreEquals = data.password === data.passwordRepeated;
+    const passwordIsNotEmpty = data.password !== '';
+    const passwordsAreNotEmpty = passwordIsNotEmpty && data.passwordRepeated !== '';
+    if (passwordsAreEquals && passwordsAreNotEmpty) {
+      setCheck({ ...check, passwordRepeated: 'correct' });    
     } else {
-      setCheck({ ...check, passwordRepeated: 'incorrect' });
+      if (passwordIsNotEmpty){
+        setCheck({ ...check, passwordRepeated: 'incorrect' });
+      }
     }
   };
+
   const checkLength: (event: ChangeEvent<HTMLInputElement>) => void = (event: ChangeEvent<HTMLInputElement>) => {
     const minLength: number = 6;
     const regexEmail = new RegExp(
@@ -66,17 +72,26 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
     }
   };
 
-  const [stateSubmit, setStateSubmit] = useState(true);
-  const handleStateSubmitButton = () => {
+  const [submitState, setSubmitState] = useState(true);
+  const handleSubmitStateButton = () => {
     if (check.email === 'correct' && check.password === 'correct' && check.passwordRepeated === 'correct') {
-      setStateSubmit(false);
+      setSubmitState(false);
     } else {
-      setStateSubmit(true);
+      setSubmitState(true);
     }
   };
-
+  
+  useEffect(() => {
+    handleSubmitStateButton();
+  })
+  
+  useEffect(() => {
+    checkPassword()
+  }, [data.passwordRepeated, data.password])
+  
   return (
     <form className="ContainerForm" method="POST" onSubmit={handleSubmit}>
+      
       <h1>Registro de voluntario</h1>
       <FieldForm
         title={'Email'}
@@ -86,7 +101,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           checkLength(event);
           setData({ ...data, email: event.target.value });
         }}
-        onBlur={handleStateSubmitButton}
+        onBlur={handleSubmitStateButton}
         stateValidate={check.email}
         messageInfoUser={'El email introducido es inválido'}
       />
@@ -98,7 +113,7 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
           checkLength(event);
           setData({ ...data, password: event.target.value });
         }}
-        onBlur={handleStateSubmitButton}
+        onBlur={checkPassword}
         stateValidate={check.password}
         messageInfoUser={'Contraseña demasiado corta, se necesitan más de 6 carácteres'}
       />
@@ -109,14 +124,11 @@ export const FormRegisterVolunteer: React.FC<{}> = () => {
         onChange={(event) => {
           setData({ ...data, passwordRepeated: event.target.value });
         }}
-        onBlur={() => {
-          checkPassword();
-          handleStateSubmitButton();
-        }}
+        onBlur={checkPassword}
         stateValidate={check.passwordRepeated}
         messageInfoUser={'Las contraseñas no coinciden'}
       />
-      <SubmitButton text={'Registrarse'} disabled={stateSubmit}/>
+      <SubmitButton text={'Registrarse'} disabled={submitState}/>
       <p>
         ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
       </p>

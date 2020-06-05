@@ -1,18 +1,9 @@
 .VolunteerRegister{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
   & .header{
     display: flex;
     flex-direction: row;
     justify-content: space-around;
   }
 
-  & .container {
-    display: flex;
-    width: 100%;
-    max-width: 600px;
-    justify-content: center;
-  }
+  & .container {}
 }

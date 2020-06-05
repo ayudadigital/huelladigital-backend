@@ -3,6 +3,7 @@ package com.huellapositiva.infrastructure.security;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Random;
 import java.util.UUID;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -29,6 +29,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private AuthenticationManager authenticationManager;
 
     private final UserDetailsService userDetailsService;
+
+    @Value("${huellapositiva.security.jwt.expiration-time}")
+    private long accessExpirationTime;
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
@@ -64,8 +67,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis()+ACCESS_EXPIRATION_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis()+accessExpirationTime))
                 .sign(HMAC512(SECRET.getBytes()));
         res.addHeader(ACCESS_HEADER_STRING, ACCESS_TOKEN_PREFIX + token);
+
+        String refreshToken = JWT.create()
+                .withSubject(UUID.randomUUID().toString())
+                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
+                .sign(HMAC512(SECRET.getBytes()));
+        res.addHeader(REFRESH_HEADER_STRING, REFRESH_TOKEN_PREFIX + refreshToken);
     }
 }

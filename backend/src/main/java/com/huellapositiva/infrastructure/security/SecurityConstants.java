@@ -10,4 +10,5 @@ public class SecurityConstants {
     public static final String REFRESH_HEADER_STRING = "Refresh";
     public static final String SIGN_UP_URL = "/api/v1/volunteers/register";
     public static final String LOGIN_URL = "/api/v1/volunteers/login";
+    public static final String REGENERATE_ACCESS_TOKEN_URL = "/api/v1/auth/refresh";
 }

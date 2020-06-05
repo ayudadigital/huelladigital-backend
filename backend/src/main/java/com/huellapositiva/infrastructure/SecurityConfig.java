@@ -17,8 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.LOGIN_URL;
-import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 
 @Slf4j
 @EnableWebSecurity
@@ -41,6 +40,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
                 .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
+                .antMatchers(HttpMethod.GET, REGENERATE_ACCESS_TOKEN_URL).permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/test").hasRole("VOLUNTEER")
                 .anyRequest().authenticated()

@@ -20,11 +20,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
 import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.REFRESH_TOKEN_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -200,7 +202,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void validate_user_correctly_and_send_token() throws Exception {
+    void validate_user_correctly_and_send_tokens() throws Exception {
         //GIVEN
         Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -208,17 +210,19 @@ class VolunteerControllerShould {
         String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
 
         //WHEN
-        String jsonResponse = mvc.perform(post(loginUri)
+        MockHttpServletResponse response = mvc.perform(post(loginUri)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse()
-                .getHeader("Authorization");
+                .getResponse();
+        String accessToken = response.getHeader("Authorization");
+        String refreshToken = response.getHeader("Refresh");
 
         //THEN
-        assertThat(jsonResponse.replace(ACCESS_TOKEN_PREFIX, "")).matches(regexToken);
+        assertThat(accessToken.replace(ACCESS_TOKEN_PREFIX, "")).matches(regexToken);
+        assertThat(refreshToken.replace(REFRESH_TOKEN_PREFIX, "")).matches(regexToken);
     }
 
     @Test
@@ -267,6 +271,7 @@ class VolunteerControllerShould {
         assertThat(response).isEqualTo("OK");
 
     }
+
     @Test
     void deny_access_when_token_contains_invalid_role() throws Exception {
         //GIVEN
@@ -287,8 +292,57 @@ class VolunteerControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
+
     @Test
-    void refresh_token(){
+    void return_401_when_token_has_expired() throws Exception {
+        //GIVEN
+        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String body = objectMapper.writeValueAsString(dto);
+        String authorization = mvc.perform(post(loginUri)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andReturn()
+                .getResponse()
+                .getHeader("Authorization");
+
+        Thread.sleep(5010);
+
+        //WHEN
+        //THEN
+        mvc.perform(get("/api/v1/test")
+                .header("Authorization", authorization)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+    }
+
+    @Test
+    void generate_new_access_token() throws Exception {
+        //GIVEN
+        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String body = objectMapper.writeValueAsString(dto);
+
+        MockHttpServletResponse response = mvc.perform(post(loginUri)
+                .content(body)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse();
+        String accessToken = response.getHeader("Authorization");
+        String refreshToken = response.getHeader("Refresh");
+
+        Thread.sleep(5010);
+
+        //WHEN + THEN
+        mvc.perform(get("/api/v1/auth/refresh")
+                .header("Refresh", refreshToken)
+                .header("Authorization", accessToken)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
     }
 }

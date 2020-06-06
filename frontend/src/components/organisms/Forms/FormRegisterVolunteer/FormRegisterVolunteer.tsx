@@ -7,7 +7,7 @@ import Client from '../FormUtils/client';
 import '../styles.scss';
 import { CheckInterface, DataInterface } from './types';
 
-export const FormRegisterVolunteer: React.FC<{}> = () => {
+export const FormRegisterVolunteer: React.FC = () => {
   const [data, setData] = useState<DataInterface>({
     email: '',
     password: '',

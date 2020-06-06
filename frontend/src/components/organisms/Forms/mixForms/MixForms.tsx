@@ -1,8 +1,8 @@
 import * as React from 'react';
+import { useState } from 'react';
 import './MixForms.scss';
 import { FormRegisterVolunteer } from '../FormRegisterVolunteer';
 import { FormLoginVolunteer } from '../FormLoginVolunteer';
-import { useState } from 'react';
 
 export const MixForms: React.FC<{}> = () => {
   const [focus, setFocus] = useState(true);

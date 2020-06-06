@@ -2,7 +2,6 @@ import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
 import { ROUTE } from '../../../../utils/routes';
-import { LinkText } from '../../../atoms/LinkText';
 import Client from '../FormUtils/client';
 import '../styles.scss';
 import { CheckInterface, DataInterface } from './types';
@@ -123,9 +122,6 @@ export const FormRegisterVolunteer: React.FC = () => {
         messageInfoUser={'Las contraseñas no coinciden'}
       />
         <SubmitButton text={'Registrarse'} disabled={submitState} to={ROUTE.email.confirmation}/>
-      <p aria-label={'redirect-text'}>
-        ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
-      </p>
     </form>
   );
 };

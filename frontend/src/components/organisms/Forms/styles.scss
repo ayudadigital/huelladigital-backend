@@ -8,15 +8,9 @@
     font-size: 1.5rem;
   }
 
-  p {
+  p[aria-label=redirect-text]{
     margin-top: 50px;
     text-align: center;
-  }
-
-  a {
-    display: flex;
-    justify-content: center;
-    align-content: center;
   }
 
   button {
@@ -25,7 +19,7 @@
   }
 }
 
-@media (min-width: 992px) {
+@media (min-width: 750px) {
   .ContainerForm {
     button {
       max-width: 300px;

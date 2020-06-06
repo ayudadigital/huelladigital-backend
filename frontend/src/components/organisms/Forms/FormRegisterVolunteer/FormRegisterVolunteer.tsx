@@ -22,6 +22,7 @@ export const FormRegisterVolunteer: React.FC = () => {
     };
     const client = new Client();
     client.registerVolunteer(volunteerDTO);
+    window.location.replace(`http://localhost:3000${ROUTE.email.confirmation}`);
   };
 
   const [check, setCheck] = useState<CheckInterface>({
@@ -123,7 +124,7 @@ export const FormRegisterVolunteer: React.FC = () => {
         messageInfoUser={'Las contraseñas no coinciden'}
       />
         <SubmitButton text={'Registrarse'} disabled={submitState} to={ROUTE.email.confirmation}/>
-      <p>
+      <p aria-label={'redirect-text'}>
         ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
       </p>
     </form>

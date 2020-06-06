@@ -13,6 +13,12 @@
     text-align: center;
   }
 
+  a {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+  }
+
   button {
     max-width: initial;
     width: 100%;

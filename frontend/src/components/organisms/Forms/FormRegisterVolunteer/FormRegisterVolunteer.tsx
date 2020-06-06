@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { FieldForm } from '../../../molecules/FieldForm';
 import { SubmitButton } from '../../../atoms/SubmitButton';
 import { ROUTE } from '../../../../utils/routes';
@@ -22,7 +22,6 @@ export const FormRegisterVolunteer: React.FC = () => {
     };
     const client = new Client();
     client.registerVolunteer(volunteerDTO);
-    window.open(`http://localhost:3000${ROUTE.email.confirmation}`);
   };
 
   const [check, setCheck] = useState<CheckInterface>({
@@ -37,7 +36,7 @@ export const FormRegisterVolunteer: React.FC = () => {
     if (passwordsAreEquals && passwordsAreNotEmpty) {
       setCheck({ ...check, passwordRepeated: 'correct' });
     } else {
-      if (passwordIsNotEmpty){
+      if (passwordIsNotEmpty) {
         setCheck({ ...check, passwordRepeated: 'incorrect' });
       }
     }
@@ -123,7 +122,7 @@ export const FormRegisterVolunteer: React.FC = () => {
         stateValidate={check.passwordRepeated}
         messageInfoUser={'Las contraseñas no coinciden'}
       />
-      <SubmitButton text={'Registrarse'} disabled={submitState}/>
+        <SubmitButton text={'Registrarse'} disabled={submitState} to={ROUTE.email.confirmation}/>
       <p>
         ¿Ya tiene cuenta? <LinkText to={ROUTE.volunteer.login} text={'Iniciar sesión'}/>
       </p>

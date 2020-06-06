@@ -90,7 +90,6 @@ export const FormRegisterVolunteer: React.FC = () => {
   return (
     <form className="ContainerForm" method="POST" onSubmit={handleSubmit}>
 
-      <h1>Registro de voluntario</h1>
       <FieldForm
         title={'Email'}
         type={'email'}

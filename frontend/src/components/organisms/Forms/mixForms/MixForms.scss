@@ -1,0 +1,22 @@
+.mixForms {
+
+  .focusButton {
+    display: flex;
+    flex-direction: row;
+
+    button {
+      height: 50px;
+      width: 100%;
+      border: none;
+
+      color: #7a7a7a;
+      background: lightgrey;
+      border-top: 8px solid darkgrey;
+
+      &:disabled {
+        background: white;
+        border-top: 8px solid #EABD00;
+      }
+    }
+  }
+}

@@ -8,7 +8,6 @@ import { ROUTE } from '../../../../utils/routes';
 export const FormLoginVolunteer: React.FC<{}> = () => {
   return (
     <form className="ContainerForm" method="POST" id="form">
-      <h1>Acceso de voluntario</h1>
       <FieldForm title={'Email'} type={'email'} name={'email'} />
       <FieldForm title={'Contraseña'} type={'password'} name={'password'} />
       <SubmitButton text={'Acceder'} />

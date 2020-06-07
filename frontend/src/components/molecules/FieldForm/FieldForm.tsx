@@ -25,7 +25,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
         onBlur={onBlur}
         stateValidate={stateValidate}
       />
-      {stateValidate === 'incorrect' && <p>{messageInfoUser}</p>}
+      {stateValidate === 'incorrect' && <p aria-label={'message-error'}>{messageInfoUser}</p>}
     </div>
   );
 };

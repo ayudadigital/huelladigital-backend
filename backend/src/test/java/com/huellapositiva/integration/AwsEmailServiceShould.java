@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "ses" })
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE, properties = {"huellapositiva.feature.email.enabled=true"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"huellapositiva.feature.email.enabled=true"})
 class AwsEmailServiceShould {
 
     private final static String emailAddress = "test@huellapositiva.com";

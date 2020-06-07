@@ -4,23 +4,11 @@ describe('Volunteer should', () => {
     cy.visit('/');
   });
 
-  it('visit the registration page', () => {
-    cy.visit('/volunteer-register');
-    cy.get('form');
-    cy.get('h1').should('contain', 'Registro');
-  });
-
-  it('visit the login page', () => {
-    cy.visit('/volunteer-login');
-    cy.get('form');
-    cy.get('h1').should('contain', 'Acceso');
-  });
-
   it('verify resend to email confirmation page when the form is good way', () => {
     const {email, password} = {email: 'test@test.com', password: 'aLongPassword'};
 
-    cy.visit('/volunteer-register');
-
+    cy.visit('/');
+    cy.get('button[aria-label=register-button]').click();
     cy.get('input[name=email]').type(`${email}`);
     cy.get('input[name=password]').type(`${password}`);
     cy.get('input[name=repeatedPassword]').type(`${password}`);

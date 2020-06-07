@@ -21,7 +21,6 @@ export const FormRegisterVolunteer: React.FC = () => {
     };
     const client = new Client();
     client.registerVolunteer(volunteerDTO);
-    window.location.replace(`http://localhost:3000${ROUTE.email.confirmation}`);
   };
 
   const [check, setCheck] = useState<CheckInterface>({

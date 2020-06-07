@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure;
 
 import com.huellapositiva.infrastructure.security.JwtAuthenticationFilter;
 import com.huellapositiva.infrastructure.security.JwtAuthorizationFilter;
+import com.huellapositiva.infrastructure.security.JwtTokenRefresher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +27,9 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
-    public SecurityConfig() {
-    }
+
+    @Autowired
+    private JwtTokenRefresher jwtTokenRefresher;
 
     @Value("${cors.allow.origin}")
     private String origin;
@@ -52,17 +54,19 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Value("${huellapositiva.security.jwt.expiration-time}")
+    private long accessExpirationTime;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
                 .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
-                .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/test").hasRole("VOLUNTEER")
+                .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), userDetailsService))
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, accessExpirationTime))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), userDetailsService, jwtTokenRefresher))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,16 +26,16 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
     private final UserDetailsService userDetailsService;
 
-    @Value("${huellapositiva.security.jwt.expiration-time}")
-    private long accessExpirationTime;
+    private final long accessExpirationTime;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, long accessExpirationTime) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.accessExpirationTime =accessExpirationTime;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -54,7 +55,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             user.getAuthorities())
             );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to authenticate user.", e);
         }
     }
 
@@ -66,7 +67,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis()+accessExpirationTime))
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpirationTime))
                 .sign(HMAC512(ACCESS_TOKEN_SECRET.getBytes()));
         res.addHeader(ACCESS_HEADER_STRING, ACCESS_TOKEN_PREFIX + token);
 

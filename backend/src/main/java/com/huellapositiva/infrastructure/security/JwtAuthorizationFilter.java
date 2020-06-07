@@ -3,6 +3,7 @@ package com.huellapositiva.infrastructure.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,15 +16,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
+    private final JwtTokenRefresher jwtTokenRefresher;
+
+    private List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/");
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtTokenRefresher jwtTokenRefresher) {
         super(authenticationManager);
         this.userDetailsService = userDetailsService;
+        this.jwtTokenRefresher = jwtTokenRefresher;
     }
 
     @Override
@@ -32,24 +39,26 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                                     FilterChain chain) throws IOException, ServletException {
         String accessHeader = req.getHeader(ACCESS_HEADER_STRING);
         if (accessHeader == null || !accessHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
-            chain.doFilter(req, res);
+            if (nonAuthenticatedUrls.stream().anyMatch(url -> req.getRequestURI().startsWith(url))) {
+                chain.doFilter(req, res);
+            } else {
+                res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            }
             return;
         }
 
         UsernamePasswordAuthenticationToken authentication = null;
         try {
             authentication = getAuthentication(accessHeader);
-        } catch(TokenExpiredException ex) {
-            String newAccessToken = JwtTokenRefresher.getNewToken(req, res);
-            if (newAccessToken != null) {
-                authentication = getAuthentication(newAccessToken);
-                res.addHeader(ACCESS_HEADER_STRING, newAccessToken);
-            }
+        } catch (TokenExpiredException ex) {
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
-        if (authentication != null) {
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            chain.doFilter(req, res);
-        }
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        chain.doFilter(req, res);
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String accessToken) {
@@ -62,6 +71,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             UserDetails details = userDetailsService.loadUserByUsername(user);
             return new UsernamePasswordAuthenticationToken(user, null, details.getAuthorities());
         }
+        // FIXME Fail if cannot extract authentication from token
         return null;
     }
 }

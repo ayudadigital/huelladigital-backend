@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,12 +13,13 @@ import java.util.Date;
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 
+@Component
 public class JwtTokenRefresher {
 
     @Value("${huellapositiva.security.jwt.expiration-time}")
-    private static long accessExpirationTime;
+    private long accessExpirationTime;
 
-    public static String getNewToken(HttpServletRequest req , HttpServletResponse res) {
+    public String getNewToken(HttpServletRequest req , HttpServletResponse res) {
         String refreshToken = req.getHeader("Refresh");
 
         if (refreshToken == null) {

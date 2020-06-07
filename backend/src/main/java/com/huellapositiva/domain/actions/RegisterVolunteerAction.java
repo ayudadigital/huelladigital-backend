@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;

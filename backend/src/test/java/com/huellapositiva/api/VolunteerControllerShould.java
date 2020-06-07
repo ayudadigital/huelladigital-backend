@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
+import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
@@ -11,6 +12,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmation
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -19,18 +21,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
-import static com.huellapositiva.infrastructure.security.SecurityConstants.REFRESH_TOKEN_PREFIX;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,7 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class VolunteerControllerShould {
 
-    private static final String registerUri = "/api/v1/volunteers/register";
     private static final String loginUri = "/api/v1/volunteers/login";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -79,7 +81,7 @@ class VolunteerControllerShould {
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -93,7 +95,7 @@ class VolunteerControllerShould {
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -110,7 +112,7 @@ class VolunteerControllerShould {
 
         doThrow(new PasswordNotAllowed("to short")).when(registerVolunteerAction).execute(dto);
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -124,7 +126,7 @@ class VolunteerControllerShould {
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -133,29 +135,11 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_null_should_return_400() throws Exception {
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
-
-    @Test
-    void registering_volunteer_fail_sending_email_confirmation_should_return_500() throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
-                .email(DEFAULT_EMAIL)
-                .password("1234567")
-                .build();
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-
-
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-    }
-
 
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
@@ -166,7 +150,7 @@ class VolunteerControllerShould {
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
+        mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -181,24 +165,6 @@ class VolunteerControllerShould {
                 "username@yahoo.c",
                 "username@yahoo.corporate"
         );
-    }
-
-    @Test
-    void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
-        //GIVEN
-        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-
-        //WHEN
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(registerUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-
-        //THEN
-        verify(issueService).registerVolunteerIssue(any(), any());
     }
 
     @Test
@@ -260,22 +226,18 @@ class VolunteerControllerShould {
 
         //WHEN
         String response = mvc.perform(get("/api/v1/test")
-                .header("Authorization", authorization)
+                .header(AUTHORIZATION, authorization)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
-        //THEN
-        assertThat(response).isEqualTo("OK");
-
     }
 
     @Test
     void deny_access_when_token_contains_invalid_role() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createFakeRoleVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ORGANIZATION);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String body = objectMapper.writeValueAsString(dto);
         String authorization = mvc.perform(post(loginUri)
@@ -284,13 +246,21 @@ class VolunteerControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
-                .getHeader("Authorization");
+                .getHeader(AUTHORIZATION);
 
         //WHEN + THEN
         mvc.perform(get("/api/v1/test")
-                .header("Authorization", authorization)
+                .header(AUTHORIZATION, authorization)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deny_access_when_do_not_provide_any_authorization() throws Exception {
+        //WHEN + THEN
+        mvc.perform(get("/api/v1/test")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -305,17 +275,17 @@ class VolunteerControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andReturn()
                 .getResponse()
-                .getHeader("Authorization");
+                .getHeader(AUTHORIZATION);
         Thread.sleep(6000);
 
         //WHEN + THEN
         mvc.perform(get("/api/v1/test")
-                .header("Authorization", authorization)
+                .header(AUTHORIZATION, authorization)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
-
     }
 
+    @Disabled("We need to enable endpoint to refresh token")
     @Test
     void generate_new_access_token() throws Exception {
         //GIVEN
@@ -335,9 +305,9 @@ class VolunteerControllerShould {
         Thread.sleep(6000);
 
         //WHEN
-        response = mvc.perform(get("/api/v1/test")
-                .header("Authorization", accessToken)
-                .header("Refresh", refreshToken)
+        response = mvc.perform(get("/api/v1/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(refreshToken)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()

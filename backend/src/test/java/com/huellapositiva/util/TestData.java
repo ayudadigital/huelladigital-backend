@@ -56,12 +56,16 @@ public class TestData {
     }
 
     public Credential createCredential(String email, UUID token) {
-        return createCredential(email, token, "defaultPassword");
+        return createCredential(email, token, "defaultPassword", Roles.VOLUNTEER);
     }
 
-    public Credential createCredential(String email, UUID token, String plainPassword){
+    public Credential createCredential(String email, UUID token,  Roles userRole) {
+        return createCredential(email, token, "defaultPassword", userRole);
+    }
+
+    public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
-        Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
+        Role role = roleRepository.findByName(userRole.toString()).orElse(null);
 
         Credential credential = Credential.builder()
                 .email(email)
@@ -75,30 +79,11 @@ public class TestData {
     }
 
     public Volunteer createVolunteer(String email, String password) {
-        Credential credential = createCredential(email, UUID.randomUUID(), password);
-
-        Volunteer volunteer = Volunteer.builder().credential(credential).build();
-
-        return volunteerRepository.save(volunteer);
+        return createVolunteer(email, password, Roles.VOLUNTEER);
     }
 
-    public Credential createFakeCredential( String email, UUID token, String plainPassword){
-        EmailConfirmation emailConfirmation = createEmailConfirmation(token);
-        Role role = roleRepository.findByName(Roles.ORGANIZATION.toString()).orElse(null);
-
-        Credential credential = Credential.builder()
-                .email(email)
-                .hashedPassword(passwordEncoder.encode(plainPassword))
-                .emailConfirmed(false)
-                .emailConfirmation(emailConfirmation)
-                .roles(Collections.singleton(role))
-                .build();
-
-        return jpaCredentialRepository.save(credential);
-    }
-
-    public Volunteer createFakeRoleVolunteer(String email, String password) {
-        Credential credential = createFakeCredential(email, UUID.randomUUID(), password);
+    public Volunteer createVolunteer(String email, String password, Roles role) {
+        Credential credential = createCredential(email, UUID.randomUUID(), password, role);
 
         Volunteer volunteer = Volunteer.builder().credential(credential).build();
 

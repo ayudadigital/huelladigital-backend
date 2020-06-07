@@ -11,22 +11,20 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.validation.constraints.NotNull;
+
 @Slf4j
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/volunteers")
-public class VolunteerApiController {
+@RequestMapping("/api/v1")
+public class JwtController {
 
     @Autowired
     private final RegisterVolunteerAction registerVolunteerAction;
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
-        try {
-            registerVolunteerAction.execute(dto);
-        } catch (PasswordNotAllowed pna) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length", pna);
-        }
+    @PostMapping("/refresh")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void refreshJwtToken(@RequestHeader("Refresh") String refreshToken) {
+
     }
 }

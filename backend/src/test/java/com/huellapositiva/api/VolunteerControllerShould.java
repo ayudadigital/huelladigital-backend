@@ -285,7 +285,6 @@ class VolunteerControllerShould {
                 .andExpect(status().isUnauthorized());
     }
 
-    @Disabled("We need to enable endpoint to refresh token")
     @Test
     void generate_new_access_token() throws Exception {
         //GIVEN
@@ -300,25 +299,36 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
-        String accessToken = response.getHeader("Authorization");
+        String accessToken = response.getHeader(AUTHORIZATION);
         String refreshToken = response.getHeader("Refresh");
-        Thread.sleep(6000);
 
         //WHEN
         response = mvc.perform(get("/api/v1/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(refreshToken)
+                .header("Refresh", refreshToken)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andReturn()
                 .getResponse();
-        String newAccessToken = response.getHeader("Authorization");
+        String newAccessToken = response.getHeader(AUTHORIZATION);
 
         //THEN
         assertThat(newAccessToken)
                 .isNotEqualTo(accessToken)
                 .isNotNull();
     }
+
+    @Test
+    void fail_to_generate_new_access_token_if_refresh_token_is_malformed() throws Exception {
+        //WHEN
+        mvc.perform(get("/api/v1/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Refresh", "malformed JWT string")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+
 }
 
 

@@ -18,26 +18,30 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     private final UserDetailsService userDetailsService;
 
     private final JwtTokenRefresher jwtTokenRefresher;
 
-    private List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/");
+    private List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/", "/api/v1/refresh");
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtTokenRefresher jwtTokenRefresher) {
+    private final JwtProperties jwtProperties;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtTokenRefresher jwtTokenRefresher, JwtProperties jwtProperties) {
         super(authenticationManager);
         this.userDetailsService = userDetailsService;
         this.jwtTokenRefresher = jwtTokenRefresher;
+        this.jwtProperties = jwtProperties;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws IOException, ServletException {
-        String accessHeader = req.getHeader(ACCESS_HEADER_STRING);
+        String accessHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
         if (accessHeader == null || !accessHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
             if (nonAuthenticatedUrls.stream().anyMatch(url -> req.getRequestURI().startsWith(url))) {
                 chain.doFilter(req, res);
@@ -48,7 +52,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication = null;
+        UsernamePasswordAuthenticationToken authentication;
         try {
             authentication = getAuthentication(accessHeader);
         } catch (TokenExpiredException ex) {
@@ -62,14 +66,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String accessToken) {
-        String user = JWT.require(Algorithm.HMAC512(ACCESS_TOKEN_SECRET.getBytes()))
+        String username = JWT.require(Algorithm.HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()))
                 .build()
                 .verify(accessToken.replace(ACCESS_TOKEN_PREFIX, ""))
                 .getSubject();
 
-        if (user != null) {
-            UserDetails details = userDetailsService.loadUserByUsername(user);
-            return new UsernamePasswordAuthenticationToken(user, null, details.getAuthorities());
+        if (username != null) {
+            UserDetails details = userDetailsService.loadUserByUsername(username);
+            return new UsernamePasswordAuthenticationToken(username, null, details.getAuthorities());
         }
         // FIXME Fail if cannot extract authentication from token
         return null;

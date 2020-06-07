@@ -3,7 +3,7 @@ package com.huellapositiva.infrastructure.security;
 import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -30,12 +29,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final UserDetailsService userDetailsService;
 
-    private final long accessExpirationTime;
+    private JwtProperties jwtProperties;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, long accessExpirationTime) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtProperties jwtProperties) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
-        this.accessExpirationTime =accessExpirationTime;
+        this.jwtProperties = jwtProperties;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -67,14 +67,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpirationTime))
-                .sign(HMAC512(ACCESS_TOKEN_SECRET.getBytes()));
-        res.addHeader(ACCESS_HEADER_STRING, ACCESS_TOKEN_PREFIX + token);
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessToken().getExpirationTime()))
+                .sign(HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()));
+        res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + token);
 
         String refreshToken = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-                .sign(HMAC512(REFRESH_TOKEN_SECRET.getBytes()));
-        res.addHeader(REFRESH_HEADER_STRING, REFRESH_TOKEN_PREFIX + refreshToken);
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshToken().getExpirationTime()))
+                .sign(HMAC512(jwtProperties.getRefreshToken().getSecret().getBytes()));
+        res.addHeader(REFRESH_HEADER_STRING, refreshToken);
     }
 }

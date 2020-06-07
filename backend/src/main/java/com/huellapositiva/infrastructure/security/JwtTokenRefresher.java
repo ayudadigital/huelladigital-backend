@@ -2,8 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,13 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
-import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.REFRESH_TOKEN_PREFIX;
 
 @Component
 public class JwtTokenRefresher {
 
-    @Value("${huellapositiva.security.jwt.expiration-time}")
-    private long accessExpirationTime;
+    @Autowired
+    private JwtProperties jwtProperties;
 
     public String getNewToken(HttpServletRequest req , HttpServletResponse res) {
         String refreshToken = req.getHeader("Refresh");
@@ -27,7 +27,7 @@ public class JwtTokenRefresher {
             return null;
         }
 
-        Date expirationDate = JWT.require(Algorithm.HMAC512(REFRESH_TOKEN_SECRET.getBytes()))
+        Date expirationDate = JWT.require(Algorithm.HMAC512(jwtProperties.getRefreshToken().getSecret().getBytes()))
                 .build()
                 .verify(refreshToken.replace(REFRESH_TOKEN_PREFIX, ""))
                 .getExpiresAt();
@@ -37,15 +37,15 @@ public class JwtTokenRefresher {
             return null;
         }
 
-        String user = JWT.require(Algorithm.HMAC512(REFRESH_TOKEN_SECRET.getBytes()))
+        String user = JWT.require(Algorithm.HMAC512(jwtProperties.getRefreshToken().getSecret().getBytes()))
                 .build()
                 .verify(refreshToken.replace(REFRESH_TOKEN_PREFIX, ""))
                 .getSubject();
 
         String newAccessToken = JWT.create()
                 .withSubject(user)
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpirationTime))
-                .sign(HMAC512(ACCESS_TOKEN_SECRET.getBytes()));
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessToken().getExpirationTime()))
+                .sign(HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()));
 
         return ACCESS_TOKEN_PREFIX + newAccessToken;
     }

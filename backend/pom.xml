@@ -295,6 +295,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler.version}</version>
         <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
           <release>${java.version}</release>
           <annotationProcessorPaths>
             <path>

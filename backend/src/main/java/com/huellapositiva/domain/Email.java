@@ -15,7 +15,7 @@ public class Email {
     private String body;
 
     public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
-        if (emailConfirmation.getEmailAddress().isEmpty()) {
+        if (emailConfirmation.isEmailAddressEmpty()) {
             throw new EmailNotValidException("Error when build the email, the email address is empty");
         }
 

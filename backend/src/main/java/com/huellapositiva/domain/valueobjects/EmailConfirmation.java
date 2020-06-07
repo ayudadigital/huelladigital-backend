@@ -21,6 +21,10 @@ public class EmailConfirmation {
                 EmailAddress.from(email), Token.createToken(), emailConfirmationBaseUrl);
     }
 
+    public boolean isEmailAddressEmpty(){
+        return emailAddress.toString().isEmpty();
+    }
+
     public String getEmailAddress(){
         return emailAddress.toString();
     }

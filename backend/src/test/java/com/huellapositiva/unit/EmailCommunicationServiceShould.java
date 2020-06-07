@@ -33,4 +33,14 @@ public class EmailCommunicationServiceShould {
         //THEN
         verify(issueService).registerVolunteerIssue(any(), any());
     }
+
+    @Test
+    void fail_on_registering_a_volunteer_with_no_email(){
+        final String noEmail = "";
+        EmailConfirmation emailConfirmation = EmailConfirmation.from(noEmail, "hello");
+
+        communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
+
+        verify(issueService).registerVolunteerIssue(any(), any());
+    }
 }

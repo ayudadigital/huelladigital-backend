@@ -14,13 +14,13 @@ public class Email {
     private String to;
     private String body;
 
-    public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate) {
+    public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
         if (emailConfirmation.getEmailAddress().isEmpty()) {
             throw new EmailNotValidException("Error when build the email, the email address is empty");
         }
 
         return Email.builder()
-                .from("noreply@huellapositiva.com")
+                .from(from)
                 .to(emailConfirmation.getEmailAddress())
                 .subject("Confirmación de la cuenta en huellapositiva")
                 .body(emailTemplate.getParsedTemplate())

@@ -17,14 +17,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SendEmailAddressConfirmationAction {
+    private final EmailService emailService;
+
+    private final TemplateService templateService;
+
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    private final EmailService emailService;
-    private final TemplateService templateService;
-
-    private final JpaCredentialRepository jpaCredentialRepository;
+    @Value("${huellapositiva.feature.email.from}")
+    private String from;
 
     public SendEmailAddressConfirmationAction(EmailService emailService, TemplateService templateService, JpaCredentialRepository jpaCredentialRepository) {
         this.emailService = emailService;
@@ -43,7 +46,7 @@ public class SendEmailAddressConfirmationAction {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmailAddress(), emailConfirmationBaseUrl);
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-            Email email = Email.createFrom(emailConfirmation, emailTemplate);
+            Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (Exception ex) {
             throw new EmailException(ex);

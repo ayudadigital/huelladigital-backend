@@ -1,6 +1,5 @@
 package com.huellapositiva.util;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
@@ -18,6 +17,8 @@ import java.util.UUID;
 @TestComponent
 @Transactional
 public class TestData {
+
+    public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
     @Autowired
     private JpaVolunteerRepository volunteerRepository;
@@ -45,7 +46,7 @@ public class TestData {
         failEmailConfirmationRepository.deleteAll();
     }
 
-    private EmailConfirmation createEmailConfirmation(UUID token){
+    private EmailConfirmation createEmailConfirmation(UUID token) {
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email("foo@huellapositiva.com")
                 .hash(token.toString())
@@ -54,11 +55,11 @@ public class TestData {
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
-    public Credential createCredential( String email, UUID token){
+    public Credential createCredential(String email, UUID token) {
         return createCredential(email, token, "defaultPassword");
     }
 
-    public Credential createCredential( String email, UUID token, String plainPassword){
+    public Credential createCredential(String email, UUID token, String plainPassword){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
 

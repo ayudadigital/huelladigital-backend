@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
@@ -22,9 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,23 +123,6 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void registering_volunteer_fail_sending_email_confirmation_should_return_500() throws Exception {
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
-                .email("foo@huellapositiva.com")
-                .password("1234567")
-                .build();
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-
-
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(baseUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
-    }
-
 
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
@@ -168,23 +148,6 @@ class VolunteerControllerShould {
                 "username@yahoo.c",
                 "username@yahoo.corporate"
         );
-    }
-
-    @Test
-    void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() throws Exception {
-        //GIVEN
-        RegisterVolunteerRequestDto dto = new RegisterVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
-
-        //WHEN
-        doThrow(new EmailException()).when(registerVolunteerAction).execute(dto);
-        String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(baseUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
-
-        //THEN
-        verify(issueService).registerVolunteerIssue(any(), any());
     }
 
 }

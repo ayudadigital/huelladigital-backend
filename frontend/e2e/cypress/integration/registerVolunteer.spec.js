@@ -5,7 +5,8 @@ describe('Volunteer should', () => {
   });
 
   it('verify resend to email confirmation page when the form is good way', () => {
-    const {email, password} = {email: 'test@test.com', password: 'aLongPassword'};
+    const randomEmail = (Math.random() * 1000).toString();
+    const {email, password} = {email: `test${randomEmail}@test.com`, password: 'aLongPassword'};
 
     cy.visit('/');
     cy.get('button[aria-label=register-button]').click();

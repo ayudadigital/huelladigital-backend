@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { render, RenderResult } from '@testing-library/react';
-import { EmailConfirmation} from './index';
+import { EmailConfirmation } from './index';
+import { BrowserRouter } from 'react-router-dom';
 
 describe('EmailConfirmation', () => {
   it('should display the default message', () => {
     const renderResult: RenderResult = render(
-      <EmailConfirmation/>,
+      <BrowserRouter>
+        <EmailConfirmation/>,
+      </BrowserRouter>,
     );
-    expect(renderResult.queryByText('Hello from EmailConfirmation!')).toBeTruthy();
+    expect(renderResult.queryByText('reenviar correo', { exact: false })).toBeTruthy();
   });
 });

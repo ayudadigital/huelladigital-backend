@@ -69,7 +69,7 @@ class EmailAddressConfirmationControllerShould {
                 .getHeader(HttpHeaders.AUTHORIZATION);
 
         // WHEN + THEN
-        mvc.perform(get(baseUri + "/resend")
+        mvc.perform(get(baseUri + "/resend-email-confirmation")
                 .header(HttpHeaders.AUTHORIZATION, authorization)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

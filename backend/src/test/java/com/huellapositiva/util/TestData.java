@@ -66,7 +66,6 @@ public class TestData {
     public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(userRole.toString()).orElse(null);
-
         Credential credential = Credential.builder()
                 .email(email)
                 .hashedPassword(passwordEncoder.encode(plainPassword))

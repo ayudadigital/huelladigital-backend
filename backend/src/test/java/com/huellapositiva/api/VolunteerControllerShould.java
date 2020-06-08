@@ -5,14 +5,12 @@ import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.exception.EmailException;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,7 +19,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,9 +27,7 @@ import java.util.stream.Stream;
 
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VolunteerControllerShould {
 
     private static final String loginUri = "/api/v1/volunteers/login";
-
+    private static final String testJwtUri = "/api/v1/test-jwt-authorization";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
     private static final String DEFAULT_PASSWORD = "plain-password";
@@ -216,7 +211,7 @@ class VolunteerControllerShould {
         Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String body = objectMapper.writeValueAsString(dto);
-        String authorization = mvc.perform(post(loginUri)
+        String accessToken = mvc.perform(post(loginUri)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -225,8 +220,8 @@ class VolunteerControllerShould {
                 .getHeader("Authorization");
 
         //WHEN
-        String response = mvc.perform(get("/api/v1/test")
-                .header(AUTHORIZATION, authorization)
+        String response = mvc.perform(get(testJwtUri)
+                .header(AUTHORIZATION, accessToken)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
@@ -237,10 +232,10 @@ class VolunteerControllerShould {
     @Test
     void deny_access_when_token_contains_invalid_role() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ORGANIZATION);
+        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ADMIN);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String body = objectMapper.writeValueAsString(dto);
-        String authorization = mvc.perform(post(loginUri)
+        String accessToken = mvc.perform(post(loginUri)
                 .content(body)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -249,8 +244,8 @@ class VolunteerControllerShould {
                 .getHeader(AUTHORIZATION);
 
         //WHEN + THEN
-        mvc.perform(get("/api/v1/test")
-                .header(AUTHORIZATION, authorization)
+        mvc.perform(get(testJwtUri)
+                .header(AUTHORIZATION, accessToken)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -258,7 +253,7 @@ class VolunteerControllerShould {
     @Test
     void deny_access_when_do_not_provide_any_authorization() throws Exception {
         //WHEN + THEN
-        mvc.perform(get("/api/v1/test")
+        mvc.perform(get(testJwtUri)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
@@ -279,7 +274,7 @@ class VolunteerControllerShould {
         Thread.sleep(6000);
 
         //WHEN + THEN
-        mvc.perform(get("/api/v1/test")
+        mvc.perform(get(testJwtUri)
                 .header(AUTHORIZATION, authorization)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());

@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
@@ -65,15 +67,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
+        final String authorities = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         String token = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessToken().getExpirationTime()))
+                .withClaim("CLAIM_TOKEN", authorities)
                 .sign(HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()));
         res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + token);
 
         String refreshToken = JWT.create()
                 .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshToken().getExpirationTime()))
+                .withClaim("CLAIM_TOKEN", authorities)
                 .sign(HMAC512(jwtProperties.getRefreshToken().getSecret().getBytes()));
         res.addHeader(REFRESH_HEADER_STRING, refreshToken);
     }

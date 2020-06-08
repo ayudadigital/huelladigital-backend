@@ -1,9 +1,12 @@
-type typeRoute = { home: string; volunteer: { login: string; register: string } };
+type typeRoute = {
+  home: string;
+  email: { confirmation: string; resendConfirmation: string };
+};
 
 export const ROUTE: typeRoute = {
   home: '/',
-  volunteer: {
-    register: '/volunteer-register',
-    login: '/volunteer-login',
+  email: {
+    confirmation: '/email-confirmation-register',
+    resendConfirmation: '/resend-email-confirmation',
   },
 };

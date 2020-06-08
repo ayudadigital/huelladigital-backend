@@ -1,14 +1,14 @@
 .InputFieldForm{
-  width: calc(100% - 22px);
+  border-radius: 5px;
   height: 30px;
+  border: 1px solid lightgrey;
   padding: 10px 10px;
   font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid lightgray;
+
   &.correct {
-    border: 3px green solid;
+    border: 2px green solid;
   }
   &.incorrect {
-    border: 3px red solid;
+    border: 2px red solid;
   }
 }

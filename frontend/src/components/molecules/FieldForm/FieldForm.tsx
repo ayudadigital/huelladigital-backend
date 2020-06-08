@@ -12,6 +12,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
                                                       onChange,
                                                       onBlur,
                                                       stateValidate,
+                                                      messageInfoUser
                                                     }) => {
   return (
     <div className="FieldForm">
@@ -24,6 +25,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
         onBlur={onBlur}
         stateValidate={stateValidate}
       />
+      {stateValidate === 'incorrect' && <p aria-label={'message-error'}>{messageInfoUser}</p>}
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { render, RenderResult } from '@testing-library/react';
-import { WrapperPages} from './';
+import { ImageSupersAccess} from './';
 
-describe('WrapperPages', () => {
+describe('ImageSupersAccess', () => {
   xit('should display the default message', () => {
     const renderResult: RenderResult = render(
-      <WrapperPages/>,
+      <ImageSupersAccess/>,
     );
-    expect(renderResult.queryByText('Hello from WrapperPages!')).toBeTruthy();
+    expect(renderResult.queryByText('Hello from ImageSupersAccess!')).toBeTruthy();
   });
 });

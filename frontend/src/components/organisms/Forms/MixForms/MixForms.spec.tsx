@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { render, RenderResult , fireEvent} from '@testing-library/react';
+import { fireEvent, render, RenderResult } from '@testing-library/react';
 import { MixForms } from './';
 import { BrowserRouter } from 'react-router-dom';
 

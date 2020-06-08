@@ -5,11 +5,11 @@ import { FormRegisterVolunteer } from '../FormRegisterVolunteer';
 import { FormLoginVolunteer } from '../FormLoginVolunteer';
 
 export const MixForms: React.FC<{}> = () => {
-  const [focus, setFocus] = useState(true);
+  const [activeLogin, setActiveLogin] = useState(true);
   const [stateButton, setStateButton] = useState(false);
 
   const handleFocus = () => {
-    setFocus(!focus);
+    setActiveLogin(!activeLogin);
     setStateButton(!stateButton);
   };
 
@@ -20,7 +20,7 @@ export const MixForms: React.FC<{}> = () => {
         <button aria-label={'register-button'} onClick={handleFocus} disabled={stateButton}>Registrarse</button>
       </div>
       {
-        focus ? <FormLoginVolunteer/> : <FormRegisterVolunteer/>
+        activeLogin ? <FormLoginVolunteer/> : <FormRegisterVolunteer/>
       }
     </div>
   );

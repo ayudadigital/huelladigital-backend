@@ -20,11 +20,12 @@ export const FormLoginVolunteer: React.FC<{}> = () => {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    // Add here all the logic when user login
+    // TODO: Add here all the logic when user login
   }
 
   useEffect(() => {
     handleStateButton();
+    // eslint-disable-next-line
   }, [data]);
 
   return (

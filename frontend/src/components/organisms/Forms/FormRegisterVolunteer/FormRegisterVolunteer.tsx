@@ -83,6 +83,7 @@ export const FormRegisterVolunteer: React.FC = () => {
 
   useEffect(() => {
     checkPasswordsAreTheSame();
+    // eslint-disable-next-line
   }, [data.passwordRepeated, data.password]);
 
   return (

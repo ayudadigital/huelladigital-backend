@@ -27,7 +27,7 @@ public class EmailConfirmationApiController {
         emailConfirmationAction.execute(hash);
     }
 
-    @GetMapping("/resend")
+    @GetMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendConfirmEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
 

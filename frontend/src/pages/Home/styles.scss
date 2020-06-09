@@ -9,8 +9,22 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  justify-self: center;
-
-  width: 100%;
-  max-width: 500px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px 0;
 }
+
+@media (min-width: 576px) {
+  .Home {
+    padding: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .Home {
+    padding: 0;
+    background-size: 50%;
+  }
+}
+

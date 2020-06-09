@@ -5,7 +5,11 @@
 * Browsers: last 4 version
 */
 
+$bg:url('./assets/register.svg');
+
 .Home {
+  background: $bg no-repeat top center;
+  background-size: 100%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -24,7 +28,7 @@
 @media (min-width: 992px) {
   .Home {
     padding: 0;
-    background-size: 50%;
+    background-size: 45%;
   }
 }
 

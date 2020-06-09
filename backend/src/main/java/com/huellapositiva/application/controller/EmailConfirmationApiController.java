@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.UUID;
 
 @RestController
@@ -26,6 +27,7 @@ public class EmailConfirmationApiController {
         emailConfirmationAction.execute(hash);
     }
 
+    @RolesAllowed({"VOLUNTEER"})
     @PostMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendConfirmEmail() {

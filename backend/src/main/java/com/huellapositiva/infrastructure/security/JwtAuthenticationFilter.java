@@ -1,6 +1,5 @@
 package com.huellapositiva.infrastructure.security;
 
-import com.auth0.jwt.JWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 import java.util.stream.Collectors;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -33,11 +31,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private JwtProperties jwtProperties;
 
+    private JwtUtils jwtUtils;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtProperties jwtProperties) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtProperties jwtProperties, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtProperties = jwtProperties;
+        this.jwtUtils = jwtUtils;
         setFilterProcessesUrl(LOGIN_URL);
     }
 
@@ -67,22 +68,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
-        final String authorities = auth.getAuthorities().stream()
+        String authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
+        String username = ((User) auth.getPrincipal()).getUsername();
 
-        String token = JWT.create()
-                .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessToken().getExpirationTime()))
-                .withClaim("CLAIM_TOKEN", authorities)
-                .sign(HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()));
-        res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + token);
-
-        String refreshToken = JWT.create()
-                .withSubject(((User) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshToken().getExpirationTime()))
-                .withClaim("CLAIM_TOKEN", authorities)
-                .sign(HMAC512(jwtProperties.getRefreshToken().getSecret().getBytes()));
+        String accessToken = jwtUtils.createAccessToken(username, authorities);
+        res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + accessToken);
+        String refreshToken = jwtUtils.createRefreshToken(username, authorities);
         res.addHeader(REFRESH_HEADER_STRING, refreshToken);
     }
 }

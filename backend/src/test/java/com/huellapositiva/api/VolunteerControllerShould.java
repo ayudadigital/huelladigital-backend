@@ -296,6 +296,7 @@ class VolunteerControllerShould {
                 .getResponse();
         String accessToken = response.getHeader(AUTHORIZATION);
         String refreshToken = response.getHeader("Refresh");
+        Thread.sleep(6000);
 
         //WHEN
         response = mvc.perform(get("/api/v1/refresh")

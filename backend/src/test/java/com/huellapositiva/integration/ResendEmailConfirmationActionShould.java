@@ -7,6 +7,7 @@ import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -52,6 +53,11 @@ public class ResendEmailConfirmationActionShould {
 
     @MockBean
     EmailCommunicationService communicationService;
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
 
     @Test
     void update_hash_and_resend_email() throws Exception {

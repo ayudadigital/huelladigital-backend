@@ -52,7 +52,7 @@ public class ResendEmailConfirmationActionShould {
     private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
 
     @MockBean
-    EmailCommunicationService communicationService;
+    private EmailCommunicationService communicationService;
 
     @BeforeEach
     void beforeEach() {

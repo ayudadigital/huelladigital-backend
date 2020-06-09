@@ -1,7 +1,5 @@
 package com.huellapositiva.infrastructure.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.http.HttpHeaders;
@@ -9,7 +7,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -26,19 +23,14 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCES
 import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
-    private final UserDetailsService userDetailsService;
 
-    private final JwtTokenRefresher jwtTokenRefresher;
+    private final List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/", "/api/v1/refresh");
 
-    private List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/", "/api/v1/refresh");
+    private final JwtUtils jwtUtils;
 
-    private final JwtProperties jwtProperties;
-
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtTokenRefresher jwtTokenRefresher, JwtProperties jwtProperties) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
         super(authenticationManager);
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenRefresher = jwtTokenRefresher;
-        this.jwtProperties = jwtProperties;
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -72,10 +64,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String accessToken) {
-        DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(jwtProperties.getAccessToken().getSecret().getBytes()))
-                .build()
-                .verify(accessToken.replace(ACCESS_TOKEN_PREFIX, ""));
-
+        DecodedJWT decodedJWT = jwtUtils.decodeAccessToken(accessToken);
 
         if (decodedJWT.getSubject() != null) {
             Collection<SimpleGrantedAuthority> authorities =

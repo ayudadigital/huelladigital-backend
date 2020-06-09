@@ -53,9 +53,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    private JwtProperties jwtProperties;
-
-    @Autowired
     private JwtUtils jwtUtils;
 
     @Override
@@ -67,8 +64,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtProperties, jwtUtils))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), userDetailsService, jwtTokenRefresher, jwtProperties))
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtUtils))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtUtils))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
@@ -83,4 +80,3 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 }
-

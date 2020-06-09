@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
+import com.huellapositiva.infrastructure.exception.RequestAuthenticationUserException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
-import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -29,15 +29,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final UserDetailsService userDetailsService;
 
-    private JwtProperties jwtProperties;
+    private final JwtUtils jwtUtils;
 
-    private JwtUtils jwtUtils;
-
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtProperties jwtProperties, JwtUtils jwtUtils) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtils jwtUtils) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
-        this.jwtProperties = jwtProperties;
         this.jwtUtils = jwtUtils;
         setFilterProcessesUrl(LOGIN_URL);
     }
@@ -58,7 +54,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             user.getAuthorities())
             );
         } catch (IOException e) {
-            throw new RuntimeException("Failed to authenticate user.", e);
+            throw new RequestAuthenticationUserException("Failed to authenticate user.", e);
         }
     }
 

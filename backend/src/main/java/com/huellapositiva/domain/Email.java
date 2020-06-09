@@ -9,10 +9,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class Email {
-    private String subject;
-    private String from;
-    private String to;
-    private String body;
+    private final String subject;
+    private final String from;
+    private final String to;
+    private final String body;
 
     public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
         if (emailConfirmation.getEmailAddress().isEmpty()) {

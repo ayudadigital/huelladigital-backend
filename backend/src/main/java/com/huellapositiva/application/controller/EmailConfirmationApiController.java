@@ -15,7 +15,7 @@ public class EmailConfirmationApiController {
 
 
     @Autowired
-    private EmailConfirmationAction emailConfirmationAction;
+    private final EmailConfirmationAction emailConfirmationAction;
 
     @GetMapping("/{hash}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -1,8 +1,8 @@
 package com.huellapositiva.infrastructure;
 
 public class VolunteerCredentialsDto {
-    private String email;
-    private String password;
+    private final String email;
+    private final String password;
 
     public VolunteerCredentialsDto() {
         this.email = "";

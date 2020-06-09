@@ -4,7 +4,6 @@ import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,10 +15,10 @@ import java.util.UUID;
 public class EmailConfirmationApiController {
 
     @Autowired
-    private EmailConfirmationAction emailConfirmationAction;
+    private final EmailConfirmationAction emailConfirmationAction;
 
     @Autowired
-    private ResendEmailConfirmationAction resendEmailConfirmationAction;
+    private final ResendEmailConfirmationAction resendEmailConfirmationAction;
 
     @GetMapping("/{hash}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -27,10 +26,9 @@ public class EmailConfirmationApiController {
         emailConfirmationAction.execute(hash);
     }
 
-    @GetMapping("/resend-email-confirmation")
+    @PostMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resendConfirmEmail(@RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-
-        resendEmailConfirmationAction.execute(token);
+    public void resendConfirmEmail() {
+        resendEmailConfirmationAction.execute();
     }
 }

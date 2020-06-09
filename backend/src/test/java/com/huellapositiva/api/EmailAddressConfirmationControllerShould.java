@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.domain.Roles;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,12 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
+import static com.huellapositiva.util.TestUtils.withMockUser;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,20 +64,11 @@ class EmailAddressConfirmationControllerShould {
     @Test
     void resend_email_should_return_204() throws Exception {
         //GIVEN
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
-        String authorization = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andReturn()
-                .getResponse()
-                .getHeader(HttpHeaders.AUTHORIZATION);
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID());
 
         // WHEN + THEN
-        mvc.perform(get(baseUri + "/resend-email-confirmation")
-                .header(HttpHeaders.AUTHORIZATION, authorization)
+        mvc.perform(post(baseUri + "/resend-email-confirmation")
+                .with(user(withMockUser(DEFAULT_EMAIL, Roles.VOLUNTEER)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

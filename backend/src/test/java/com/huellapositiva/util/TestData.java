@@ -7,6 +7,7 @@ import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -33,6 +34,9 @@ public class TestData {
     @Autowired
     private JpaRoleRepository roleRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public void resetData() {
         volunteerRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
@@ -51,12 +55,16 @@ public class TestData {
     }
 
     public Credential createCredential(String email, UUID token) {
+        return createCredential(email, "password", token);
+    }
+
+    public Credential createCredential(String email, String plainPassword, UUID token) {
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(Roles.VOLUNTEER.toString()).orElse(null);
 
         Credential credential = Credential.builder()
                 .email(email)
-                .hashedPassword("xxx")
+                .hashedPassword(passwordEncoder.encode(plainPassword))
                 .emailConfirmed(false)
                 .emailConfirmation(emailConfirmation)
                 .roles(Collections.singleton(role))

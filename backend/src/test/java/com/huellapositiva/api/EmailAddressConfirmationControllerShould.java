@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.util.TestData;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,6 +37,11 @@ class EmailAddressConfirmationControllerShould {
 
     @Autowired
     private TestData testData;
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
 
     @Test
     void confirm_email_should_return_204() throws Exception {

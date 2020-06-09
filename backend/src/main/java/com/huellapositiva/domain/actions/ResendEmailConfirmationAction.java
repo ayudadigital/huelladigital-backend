@@ -3,9 +3,9 @@ package com.huellapositiva.domain.actions;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.huellapositiva.domain.service.EmailCommunicationService;
+import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.Token;
 import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.security.JwtProperties;
@@ -52,10 +52,8 @@ public class ResendEmailConfirmationAction {
             if (updateOperation != 1) {
                 throw new RuntimeException("No modifying anything hash or you have modified several hashes");
             }
-            EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
 
-            com.huellapositiva.domain.valueobjects.EmailConfirmation emailConfirmationValueObject = com.huellapositiva.domain.valueobjects.EmailConfirmation.from(emailConfirmation.getEmail(), emailConfirmationBaseUrl);
+            EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);
             communicationService.sendRegistrationConfirmationEmail(emailConfirmationValueObject);
         }
     }

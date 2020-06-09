@@ -3,6 +3,7 @@ import './styles.scss';
 import { WrapperPages } from '../../components/templates/WrapperPages';
 import { MixForms } from '../../components/organisms/Forms/MixForms';
 import register from './assets/register.svg';
+import { Footer } from '../../components/organisms/Footer';
 
 const bgStyle = {
   background: `url(${register}) no-repeat top center`,
@@ -16,7 +17,7 @@ export const Home: React.FC<{}> = () => {
       <section className={'Home'} style={bgStyle}>
         <MixForms />
       </section>
-      <footer />
+      <Footer />
     </WrapperPages>
   );
 };

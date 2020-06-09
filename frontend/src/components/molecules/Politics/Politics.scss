@@ -1,0 +1,16 @@
+ul.Politics {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  list-style: none;
+    a {
+      text-decoration: none;
+      color: #EABD00;
+      transform: scale(1);
+      transition: all 0.3s linear;
+      &:hover {
+        transform: scale(0.5);
+        color: #7a7a7a;
+      }
+    }
+}

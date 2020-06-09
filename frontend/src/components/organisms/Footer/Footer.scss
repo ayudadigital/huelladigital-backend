@@ -1,0 +1,27 @@
+.Footer {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  padding: 20px 0;
+  color: #FFF;
+  img {
+    width: 80%;
+  }
+  p {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    text-align: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .Footer {
+    grid-template-columns: repeat(auto-fit, 25%);
+    .Social {
+      grid-column: 1/-1;
+    }
+    ul {
+      justify-content: flex-start;
+    }
+  }
+}

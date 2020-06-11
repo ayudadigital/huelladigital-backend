@@ -1,10 +1,8 @@
 package com.huellapositiva.infrastructure;
 
-import com.huellapositiva.infrastructure.response.HttpResponseUtils;
 import com.huellapositiva.infrastructure.security.JwtAuthenticationFilter;
 import com.huellapositiva.infrastructure.security.JwtAuthorizationFilter;
-import com.huellapositiva.infrastructure.security.JwtTokenRefresher;
-import com.huellapositiva.infrastructure.security.JwtUtils;
+import com.huellapositiva.infrastructure.security.JwtService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,16 +21,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.LOGIN_URL;
-import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
-
 @Slf4j
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private JwtTokenRefresher jwtTokenRefresher;
 
     @Value("${cors.allow.origin}")
     private String origin;
@@ -58,22 +50,19 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService userDetailsService;
 
     @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private HttpResponseUtils httpResponse;
+    private JwtService jwtService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
-                .antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/refresh").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers(HttpMethod.POST, LOGIN_URL).permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtUtils))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtUtils, httpResponse))
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

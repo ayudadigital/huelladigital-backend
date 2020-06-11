@@ -1,8 +1,7 @@
 package com.huellapositiva.infrastructure.security;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.huellapositiva.infrastructure.response.HttpResponseUtils;
+import com.huellapositiva.application.exception.InvalidJwtTokenException;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,67 +14,54 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
-import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
-
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private final List<String> nonAuthenticatedUrls = List.of(SIGN_UP_URL, "/api/v1/email-confirmation/", "/api/v1/refresh");
+    private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
-    private final JwtUtils jwtUtils;
+    private final List<String> nonAuthenticatedUrls = List.of("/api/v1/volunteers/register", "/api/v1/email-confirmation/", "/api/v1/refresh");
 
-    private final HttpResponseUtils httpResponse;
+    private final JwtService jwtService;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils, HttpResponseUtils httpResponse) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
         super(authenticationManager);
-        this.jwtUtils = jwtUtils;
-        this.httpResponse = httpResponse;
+        this.jwtService = jwtService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    FilterChain chain) throws IOException, ServletException {
-        String accessHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (accessHeader == null || !accessHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
+        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
             if (nonAuthenticatedUrls.stream().anyMatch(url -> req.getRequestURI().startsWith(url))) {
                 chain.doFilter(req, res);
             } else {
-                httpResponse.setUnauthorized(res);
+                res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
             return;
         }
 
         UsernamePasswordAuthenticationToken authentication;
         try {
-            authentication = getAuthentication(accessHeader);
-        } catch (TokenExpiredException ex) {
-            httpResponse.setUnauthorized(res);
+            authentication = getAuthentication(authHeader);
+        } catch (InvalidJwtTokenException e) {
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
-        }
-        if(authentication == null){
-            httpResponse.setForbidden(res);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(req, res);
     }
 
-    private UsernamePasswordAuthenticationToken getAuthentication(String accessToken) {
-        DecodedJWT decodedJWT = jwtUtils.decodeAccessToken(accessToken);
-
-        if (decodedJWT.getSubject() != null) {
-            Collection<SimpleGrantedAuthority> authorities =
-                    Arrays.stream(decodedJWT.getClaim("CLAIM_TOKEN").asString().split(","))
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
-            return new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(), null, authorities);
-        }
-        // FIXME Fail if cannot extract authentication from token
-        return null;
+    private UsernamePasswordAuthenticationToken getAuthentication(String authHeader) throws InvalidJwtTokenException {
+        String jwtToken = authHeader.replace(ACCESS_TOKEN_PREFIX, "");
+        Pair<String, List<String>> userDetails = jwtService.getUserDetails(jwtToken);
+        Collection<SimpleGrantedAuthority> authorities = userDetails.getSecond().stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                .collect(Collectors.toList());
+        return new UsernamePasswordAuthenticationToken(userDetails.getFirst(), null, authorities);
     }
 }

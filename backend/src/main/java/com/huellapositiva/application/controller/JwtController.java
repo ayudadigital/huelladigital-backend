@@ -1,21 +1,15 @@
 package com.huellapositiva.application.controller;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.huellapositiva.infrastructure.response.HttpResponseUtils;
-import com.huellapositiva.infrastructure.security.JwtUtils;
+import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.exception.InvalidJwtTokenException;
+import com.huellapositiva.infrastructure.security.JwtService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-
-import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCESS_TOKEN_PREFIX;
 
 @Slf4j
 @RestController
@@ -24,33 +18,16 @@ import static com.huellapositiva.infrastructure.security.SecurityConstants.ACCES
 public class JwtController {
 
     @Autowired
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
 
-    @Autowired
-    private final HttpResponseUtils httpResponse;
-
-    @GetMapping("/refresh")
-    public void refreshJwtToken(@RequestHeader("Refresh") String refreshToken, HttpServletResponse res) {
-        if (refreshToken == null) {
-            httpResponse.setUnauthorized(res);
-            return;
-        }
-
-        DecodedJWT decodedRefreshToken;
+    @PostMapping("/refresh")
+    public JwtResponseDto refreshJwtToken(@RequestBody String refreshToken, HttpServletResponse res) {
         try {
-            decodedRefreshToken = jwtUtils.decodeRefreshToken(refreshToken);
-        } catch (TokenExpiredException ex) {
-            httpResponse.setUnauthorized(res);
-            return;
-        } catch (Exception ex) {
-            log.error("Failed to verify refresh token: " + refreshToken, ex);
-            httpResponse.setUnauthorized(res);
-            return;
+            return jwtService.refresh(refreshToken);
+        } catch (InvalidJwtTokenException e) {
+            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
         }
-
-        String newAccessToken = jwtUtils.createAccessToken(decodedRefreshToken.getSubject(), decodedRefreshToken.getClaim("CLAIM_TOKEN").asString());
-        res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + newAccessToken);
-        res.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
-
 }

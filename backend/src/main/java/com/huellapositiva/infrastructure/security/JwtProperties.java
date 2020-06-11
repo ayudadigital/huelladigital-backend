@@ -11,16 +11,15 @@ public class JwtProperties {
 
     private AccessToken accessToken;
     private RefreshToken refreshToken;
+    private String secret;
 
     @Data
     public static class AccessToken {
-        private String secret;
         private long expirationTime;
     }
 
     @Data
     public static class RefreshToken {
-        private String secret;
         private long expirationTime;
     }
 }

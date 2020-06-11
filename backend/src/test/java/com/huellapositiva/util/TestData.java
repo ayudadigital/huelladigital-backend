@@ -6,6 +6,7 @@ import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.*;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.UUID;
 
+@AllArgsConstructor
 @TestComponent
 @Transactional
 public class TestData {
@@ -21,22 +23,22 @@ public class TestData {
     public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
     @Autowired
-    private JpaVolunteerRepository volunteerRepository;
+    private final JpaVolunteerRepository volunteerRepository;
 
     @Autowired
-    private JpaCredentialRepository jpaCredentialRepository;
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
-    private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
+    private final JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
 
     @Autowired
-    private JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
+    private final JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
 
     @Autowired
-    private JpaRoleRepository roleRepository;
+    private final JpaRoleRepository roleRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public void resetData() {
         volunteerRepository.deleteAll();
@@ -51,20 +53,15 @@ public class TestData {
                 .email("foo@huellapositiva.com")
                 .hash(token.toString())
                 .build();
-
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
     public Credential createCredential(String email, UUID token) {
-        return createCredential(email, token, "defaultPassword", Roles.VOLUNTEER);
+        return createCredential(email, "defaultPassword", token);
     }
 
     public Credential createCredential(String email, String plainPassword, UUID token) {
         return createCredential(email, token, plainPassword, Roles.VOLUNTEER);
-    }
-
-    public Credential createCredential(String email, UUID token,  Roles userRole) {
-        return createCredential(email, token, "defaultPassword", userRole);
     }
 
     public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){

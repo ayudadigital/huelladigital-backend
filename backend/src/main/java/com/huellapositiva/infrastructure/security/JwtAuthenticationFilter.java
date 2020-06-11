@@ -1,13 +1,12 @@
 package com.huellapositiva.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.infrastructure.VolunteerCredentialsDto;
-import com.huellapositiva.infrastructure.exception.RequestAuthenticationUserException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,59 +18,51 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
-
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final AuthenticationManager authenticationManager;
 
     private final UserDetailsService userDetailsService;
 
-    private final JwtUtils jwtUtils;
+    private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtils jwtUtils) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtService jwtService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
-        this.jwtUtils = jwtUtils;
-        setFilterProcessesUrl(LOGIN_URL);
+        this.jwtService = jwtService;
+        setFilterProcessesUrl("/api/v1/volunteers/login");
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
         try {
-            VolunteerCredentialsDto reqUserCredentials = new ObjectMapper()
-                    .readValue(req.getInputStream(), VolunteerCredentialsDto.class);
-
-            UserDetails user = userDetailsService.loadUserByUsername(reqUserCredentials.getEmail());
-
-            return authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            reqUserCredentials.getEmail(),
-                            reqUserCredentials.getPassword(),
-                            user.getAuthorities())
-            );
+            VolunteerCredentialsDto userCredentials = objectMapper.readValue(req.getInputStream(), VolunteerCredentialsDto.class);
+            UserDetails user = userDetailsService.loadUserByUsername(userCredentials.getEmail());
+            Authentication authentication = new UsernamePasswordAuthenticationToken(userCredentials.getEmail(), userCredentials.getPassword(), user.getAuthorities());
+            return authenticationManager.authenticate(authentication);
         } catch (IOException e) {
-            throw new RequestAuthenticationUserException("Failed to authenticate user.", e);
+            throw new BadCredentialsException("Failed to authenticate user.", e);
         }
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest req,
-                                            HttpServletResponse res,
-                                            FilterChain chain,
-                                            Authentication auth) throws IOException, ServletException {
-
-        String authorities = auth.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
+    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
+            throws IOException, ServletException {
         String username = ((User) auth.getPrincipal()).getUsername();
-
-        String accessToken = jwtUtils.createAccessToken(username, authorities);
-        res.addHeader(HttpHeaders.AUTHORIZATION, ACCESS_TOKEN_PREFIX + accessToken);
-        String refreshToken = jwtUtils.createRefreshToken(username, authorities);
-        res.addHeader(REFRESH_HEADER_STRING, refreshToken);
+        List<String> roles = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .map(role -> role.replace("ROLE_", ""))
+                .collect(Collectors.toList());
+        JwtResponseDto jwtResponseDto = jwtService.create(username, roles);
+        String responseBody = objectMapper.writeValueAsString(jwtResponseDto);
+        res.setStatus(HttpServletResponse.SC_OK);
+        res.getWriter().write(responseBody);
+        res.getWriter().flush();
+        res.getWriter().close();
     }
 }

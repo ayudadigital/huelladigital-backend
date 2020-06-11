@@ -2,13 +2,11 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
-import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
-import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,16 +17,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,15 +35,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class VolunteerControllerShould {
 
+    private static final String SIGN_UP_URL = "/api/v1/volunteers/register";
     private static final String loginUri = "/api/v1/volunteers/login";
     private static final String testJwtUri = "/api/v1/test-jwt-authorization";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
     private static final String DEFAULT_PASSWORD = "plain-password";
-
-    @Autowired
-    JpaFailEmailConfirmationRepository failEmailConfirmationRepository;
-
 
     @Autowired
     private TestData testData;
@@ -55,13 +49,7 @@ class VolunteerControllerShould {
     private MockMvc mvc;
 
     @MockBean
-    IssueService issueService;
-
-    @MockBean
     private RegisterVolunteerAction registerVolunteerAction;
-
-    @Autowired
-    private JpaCredentialRepository credentialRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -78,8 +66,8 @@ class VolunteerControllerShould {
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
 
@@ -92,8 +80,8 @@ class VolunteerControllerShould {
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -109,8 +97,8 @@ class VolunteerControllerShould {
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -123,16 +111,16 @@ class VolunteerControllerShould {
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void registering_volunteer_null_should_return_400() throws Exception {
         mvc.perform(post(SIGN_UP_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -147,8 +135,8 @@ class VolunteerControllerShould {
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -171,82 +159,63 @@ class VolunteerControllerShould {
         String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
 
         //WHEN
-        MockHttpServletResponse response = mvc.perform(post(loginUri)
+        String jsonResponse = mvc.perform(post(loginUri)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse();
-        String accessToken = response.getHeader("Authorization");
-        String refreshToken = response.getHeader("Refresh");
+                .getResponse().getContentAsString();
 
         //THEN
-        assertThat(accessToken.replace(ACCESS_TOKEN_PREFIX, "")).matches(regexToken);
-        assertThat(refreshToken.replace(REFRESH_TOKEN_PREFIX, "")).matches(regexToken);
+        JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+        assertThat(responseDto.getAccessToken()).matches(regexToken);
+        assertThat(responseDto.getRefreshToken()).matches(regexToken);
     }
 
     @Test
     void invalid_user_should_return_401() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, "invalidPassword");
         String body = objectMapper.writeValueAsString(dto);
 
-        //WHEN
+        //WHEN + THEN
         mvc.perform(post(loginUri)
                 .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
-
-        //THEN
-
     }
 
 
     @Test
     void grant_access_when_token_contains_valid_role() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
-        String accessToken = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andReturn()
-                .getResponse()
-                .getHeader("Authorization");
+        JwtResponseDto response = login(dto);
+        String accessToken = response.getAccessToken();
 
         //WHEN
-        String response = mvc.perform(get(testJwtUri)
-                .header(AUTHORIZATION, accessToken)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        mvc.perform(get(testJwtUri)
+                .header(AUTHORIZATION, "Bearer " + accessToken)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
     void deny_access_when_token_contains_invalid_role() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ADMIN);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ADMIN);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
-        String accessToken = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andReturn()
-                .getResponse()
-                .getHeader(AUTHORIZATION);
+        JwtResponseDto response = login(dto);
+        String accessToken = response.getAccessToken();
 
         //WHEN + THEN
         mvc.perform(get(testJwtUri)
-                .header(AUTHORIZATION, accessToken)
-                .accept(MediaType.APPLICATION_JSON))
+                .header(AUTHORIZATION, "Bearer " + accessToken)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
 
@@ -254,74 +223,74 @@ class VolunteerControllerShould {
     void deny_access_when_do_not_provide_any_authorization() throws Exception {
         //WHEN + THEN
         mvc.perform(get(testJwtUri)
-                .accept(MediaType.APPLICATION_JSON))
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void return_401_when_token_has_expired() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
-        String authorization = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andReturn()
-                .getResponse()
-                .getHeader(AUTHORIZATION);
-        Thread.sleep(6000);
+        JwtResponseDto response = login(dto);
+        String accessToken = response.getAccessToken();
+        Thread.sleep(2000);
 
         //WHEN + THEN
         mvc.perform(get(testJwtUri)
-                .header(AUTHORIZATION, authorization)
-                .accept(MediaType.APPLICATION_JSON))
+                .header(AUTHORIZATION, "Bearer " + accessToken)
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void generate_new_access_token() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
-
-        MockHttpServletResponse response = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse();
-        String accessToken = response.getHeader(AUTHORIZATION);
-        String refreshToken = response.getHeader("Refresh");
-        Thread.sleep(6000);
+        JwtResponseDto response = login(dto);
+        String accessToken = response.getAccessToken();
+        String refreshToken = response.getRefreshToken();
+        Thread.sleep(1100);
 
         //WHEN
-        response = mvc.perform(get("/api/v1/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Refresh", refreshToken)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent())
-                .andReturn()
-                .getResponse();
-        String newAccessToken = response.getHeader(AUTHORIZATION);
+        String jsonResponse = mvc.perform(post("/api/v1/refresh")
+                .contentType(APPLICATION_JSON)
+                .content(refreshToken)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        response = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+        String newAccessToken = response.getAccessToken();
+        String newRefreshToken = response.getRefreshToken();
 
         //THEN
-        assertThat(newAccessToken)
-                .isNotEqualTo(accessToken)
-                .isNotNull();
+        assertAll(
+                () -> assertThat(newAccessToken).isNotEqualTo(accessToken),
+                () -> assertThat(newRefreshToken).isNotEqualTo(refreshToken)
+        );
     }
 
     @Test
     void fail_to_generate_new_access_token_if_refresh_token_is_malformed() throws Exception {
         //WHEN
-        mvc.perform(get("/api/v1/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Refresh", "malformed JWT string")
-                .accept(MediaType.APPLICATION_JSON))
+        mvc.perform(post("/api/v1/refresh")
+                .contentType(APPLICATION_JSON)
+                .content("malformed JWT string")
+                .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private JwtResponseDto login(CredentialsVolunteerRequestDto loginDto) throws Exception {
+        String jsonBody = objectMapper.writeValueAsString(loginDto);
+        String jsonResponse = mvc.perform(post(loginUri)
+                .content(jsonBody)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse().getContentAsString();
+        return objectMapper.readValue(jsonResponse, JwtResponseDto.class);
     }
 }
 

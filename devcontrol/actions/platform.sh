@@ -119,11 +119,8 @@ EOF
             platformAction=${param[1]}
             case ${platformAction} in
                 cleanup)
-                    # Jenkins workspace & docker data
-                    echo "# Jenkins Cleanup"
-                    cd "${rootdir}/services/jenkins"
-                    docker-compose exec -T jenkins docker system prune --all --volumes -f || true
-                    docker-compose exec -T jenkins rm -rf /var/jenkins_home/workspace/*
+                    # Cleanup
+                    echo "# Cleanup (void)"
                     ;;
                 start|stop|destroy)
                     echo "# Doing [${platformAction}] over the services: ${services[*]}"

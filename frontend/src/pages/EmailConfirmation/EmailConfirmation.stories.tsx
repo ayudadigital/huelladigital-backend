@@ -1,14 +1,13 @@
 import * as React from 'react';
+import {EmailConfirmation} from './EmailConfirmation';
 import { withA11y } from '@storybook/addon-a11y';
 import { BrowserRouter } from 'react-router-dom';
-import VolunteerRegister from './VolunteerRegister';
-
 
 export default {
-  title: 'Pages | Volunteer  ',
+  title: 'Pages | EmailConfirmation',
   decorators: [withA11y,
     (storyFn:any) => <BrowserRouter >{storyFn()}</BrowserRouter>
-  ]
+  ],
 };
 
-export const register = () => <VolunteerRegister/>;
+export const Default = () => <EmailConfirmation />;

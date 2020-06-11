@@ -17,6 +17,10 @@ You will also see any lint errors in the console.
 Launches the test runner in the interactive watch mode.<br />
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
+### `npm test:e2e`
+Launches the cypress with test end to end runner in the interactive watch mode.<br />
+See more information about [cypress](https://docs.cypress.io/guides/overview/why-cypress.html)
+
 ### `npm run new:fc`
 
 Create a new functional component in the specified path, inside a directory with the specified component name.<br />

@@ -1,6 +1,10 @@
 package com.huellapositiva.infrastructure;
 
-import com.huellapositiva.infrastructure.security.*;
+import com.huellapositiva.infrastructure.response.HttpResponseUtils;
+import com.huellapositiva.infrastructure.security.JwtAuthenticationFilter;
+import com.huellapositiva.infrastructure.security.JwtAuthorizationFilter;
+import com.huellapositiva.infrastructure.security.JwtTokenRefresher;
+import com.huellapositiva.infrastructure.security.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static com.huellapositiva.infrastructure.security.SecurityConstants.*;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.LOGIN_URL;
+import static com.huellapositiva.infrastructure.security.SecurityConstants.SIGN_UP_URL;
 
 @Slf4j
 @EnableWebSecurity
@@ -55,6 +60,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtUtils jwtUtils;
 
+    @Autowired
+    private HttpResponseUtils httpResponse;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable().authorizeRequests()
@@ -65,7 +73,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtUtils))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtUtils))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtUtils, httpResponse))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

@@ -2,6 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.huellapositiva.infrastructure.response.HttpResponseUtils;
 import com.huellapositiva.infrastructure.security.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,10 +26,13 @@ public class JwtController {
     @Autowired
     private final JwtUtils jwtUtils;
 
+    @Autowired
+    private final HttpResponseUtils httpResponse;
+
     @GetMapping("/refresh")
     public void refreshJwtToken(@RequestHeader("Refresh") String refreshToken, HttpServletResponse res) {
         if (refreshToken == null) {
-            setErrorResponse(res);
+            httpResponse.setUnauthorized(res);
             return;
         }
 
@@ -36,11 +40,11 @@ public class JwtController {
         try {
             decodedRefreshToken = jwtUtils.decodeRefreshToken(refreshToken);
         } catch (TokenExpiredException ex) {
-            setErrorResponse(res);
+            httpResponse.setUnauthorized(res);
             return;
         } catch (Exception ex) {
             log.error("Failed to verify refresh token: " + refreshToken, ex);
-            setErrorResponse(res);
+            httpResponse.setUnauthorized(res);
             return;
         }
 
@@ -49,8 +53,4 @@ public class JwtController {
         res.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    private void setErrorResponse(HttpServletResponse res) {
-        res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
-        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    }
 }

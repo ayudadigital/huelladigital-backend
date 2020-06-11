@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.huellapositiva.infrastructure.response.HttpResponseUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,9 +29,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final JwtUtils jwtUtils;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    private final HttpResponseUtils httpResponse;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtUtils jwtUtils, HttpResponseUtils httpResponse) {
         super(authenticationManager);
         this.jwtUtils = jwtUtils;
+        this.httpResponse = httpResponse;
     }
 
     @Override
@@ -42,8 +46,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             if (nonAuthenticatedUrls.stream().anyMatch(url -> req.getRequestURI().startsWith(url))) {
                 chain.doFilter(req, res);
             } else {
-                res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
-                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.setUnauthorized(res);
             }
             return;
         }
@@ -52,12 +55,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         try {
             authentication = getAuthentication(accessHeader);
         } catch (TokenExpiredException ex) {
-            res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
-            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            httpResponse.setUnauthorized(res);
             return;
         }
         if(authentication == null){
-            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            httpResponse.setForbidden(res);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
         chain.doFilter(req, res);

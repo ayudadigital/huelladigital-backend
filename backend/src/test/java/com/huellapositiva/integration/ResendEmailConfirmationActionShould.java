@@ -55,7 +55,7 @@ public class ResendEmailConfirmationActionShould {
     }
 
     @Test
-    void update_hash_and_resend_email() throws Exception {
+    void update_hash_and_resend_email() {
         //GIVEN
         UUID initialHash = UUID.randomUUID();
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);

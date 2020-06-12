@@ -68,7 +68,7 @@ class EmailAddressConfirmationControllerShould {
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/resend-email-confirmation")
-                .with(user(withMockUser(DEFAULT_EMAIL, Roles.VOLUNTEER)))
+                .with(user(withMockUser(DEFAULT_EMAIL, Roles.VOLUNTEER_NOT_CONFIRMED)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

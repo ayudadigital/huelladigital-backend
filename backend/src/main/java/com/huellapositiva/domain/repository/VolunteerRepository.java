@@ -33,7 +33,7 @@ public class VolunteerRepository {
     private final JpaCredentialRepository jpaCredentialRepository;
 
     public Integer save(ExpressRegistrationVolunteer expressVolunteer) {
-        Role role = jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())
+        Role role = jpaRoleRepository.findByName(Roles.VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email(expressVolunteer.getEmail())

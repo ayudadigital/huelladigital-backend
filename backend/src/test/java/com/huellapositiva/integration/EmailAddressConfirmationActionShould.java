@@ -5,6 +5,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepo
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class EmailAddressConfirmationActionShould {
     @Autowired
     private JpaCredentialRepository credentialRepository;
 
+    @Autowired
+    private JpaRoleRepository jpaRoleRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -45,7 +49,7 @@ class EmailAddressConfirmationActionShould {
         Credential credential = testData.createCredential(email, hash);
 
         // WHEN
-        EmailConfirmationAction action = new EmailConfirmationAction(jpaEmailConfirmationRepository, credentialRepository);
+        EmailConfirmationAction action = new EmailConfirmationAction(jpaEmailConfirmationRepository, credentialRepository,jpaRoleRepository);
         action.execute(hash);
 
         // THEN

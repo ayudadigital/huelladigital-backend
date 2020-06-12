@@ -57,6 +57,6 @@ class VolunteerServiceShould {
         assertThat(credential.getEmail(), is(email));
         assertThat(passwordEncoder.matches(password, credential.getHashedPassword()), is(true));
         assertThat(credential.getRoles(), hasSize(1));
-        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER.toString()));
+        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER_NOT_CONFIRMED.toString()));
     }
 }

@@ -61,7 +61,7 @@ public class TestData {
     }
 
     public Credential createCredential(String email, String plainPassword, UUID token) {
-        return createCredential(email, token, plainPassword, Roles.VOLUNTEER);
+        return createCredential(email, token, plainPassword, Roles.VOLUNTEER_NOT_CONFIRMED);
     }
 
     public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){

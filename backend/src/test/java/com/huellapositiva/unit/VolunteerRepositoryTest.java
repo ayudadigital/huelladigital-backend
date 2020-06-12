@@ -36,7 +36,7 @@ class VolunteerRepositoryTest {
         EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "");
         PasswordHash passwordHash = new PasswordHash("123456");
         ExpressRegistrationVolunteer expressRegistrationVolunteer = new ExpressRegistrationVolunteer(passwordHash, emailConfirmation);
-        when(jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())).thenReturn(Optional.empty());
+        when(jpaRoleRepository.findByName(Roles.VOLUNTEER_NOT_CONFIRMED.toString())).thenReturn(Optional.empty());
 
         // WHEN + THEN
         VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository, jpaFailEmailConfirmationRepository, jpaCredentialRepository);

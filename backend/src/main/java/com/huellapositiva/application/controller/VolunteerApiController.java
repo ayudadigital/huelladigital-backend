@@ -1,6 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import lombok.AllArgsConstructor;
@@ -22,11 +23,14 @@ public class VolunteerApiController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+    @ResponseBody
+    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
         try {
             registerVolunteerAction.execute(dto);
+            JwtResponseDto responseDto = registerVolunteerAction.authenticate(dto);
+            return responseDto;
         } catch (PasswordNotAllowed pna) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length", pna);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
         }
     }
 }

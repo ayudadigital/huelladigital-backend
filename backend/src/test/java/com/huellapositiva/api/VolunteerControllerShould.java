@@ -3,9 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.Roles;
-import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +13,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,7 +20,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -48,27 +44,31 @@ class VolunteerControllerShould {
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
-    private RegisterVolunteerAction registerVolunteerAction;
-
     @BeforeEach
     void beforeEach() {
         testData.resetData();
     }
 
     @Test
-    void registering_volunteer_should_return_201() throws Exception {
+    void registering_volunteer_should_return_201_and_tokens() throws Exception {
+        String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
         CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password("password")
                 .build();
 
         String body = objectMapper.writeValueAsString(dto);
-        mvc.perform(post(SIGN_UP_URL)
+        String jsonResponse = mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse().getContentAsString();
+
+        JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+        assertThat(responseDto.getAccessToken()).matches(regexToken);
+        assertThat(responseDto.getRefreshToken()).matches(regexToken);
     }
 
     @Test
@@ -93,7 +93,6 @@ class VolunteerControllerShould {
                 .password(shortPassword)
                 .build();
 
-        doThrow(new PasswordNotAllowed("to short")).when(registerVolunteerAction).execute(dto);
         String body = objectMapper.writeValueAsString(dto);
         mvc.perform(post(SIGN_UP_URL)
                 .content(body)

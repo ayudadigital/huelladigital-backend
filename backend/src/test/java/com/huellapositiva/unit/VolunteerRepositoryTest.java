@@ -6,10 +6,7 @@ import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
-import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import com.huellapositiva.infrastructure.orm.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,6 +26,8 @@ class VolunteerRepositoryTest {
     @Mock
     private JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
     @Mock
+    private JpaCredentialRepository jpaCredentialRepository;
+    @Mock
     private JpaRoleRepository jpaRoleRepository;
 
     @Test
@@ -40,7 +39,7 @@ class VolunteerRepositoryTest {
         when(jpaRoleRepository.findByName(Roles.VOLUNTEER.toString())).thenReturn(Optional.empty());
 
         // WHEN + THEN
-        VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository, jpaFailEmailConfirmationRepository);
+        VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository, jpaFailEmailConfirmationRepository, jpaCredentialRepository);
         assertThrows(RoleNotFoundException.class, () -> volunteerRepository.save(expressRegistrationVolunteer));
     }
 

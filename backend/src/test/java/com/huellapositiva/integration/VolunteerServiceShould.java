@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
@@ -45,7 +45,7 @@ class VolunteerServiceShould {
     void registering_a_volunteer_should_create_the_corresponding_entities_in_the_db() {
         String email = "foo@huellapositiva.com";
         String password = "password";
-        RegisterVolunteerRequestDto dto = RegisterVolunteerRequestDto.builder()
+        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .email(email)
                 .password(password)
                 .build();

@@ -2,7 +2,8 @@ node_modules
 /backend/?
 platform/products/backend/.env
 platform/config.ini
-/platform/products/backend/data
+/platform/products/backend/data/db/*
+/platform/products/backend/data/router/etc/letsencrypt/*
 *.lock
 backend/.classpath
 backend/.factorypath

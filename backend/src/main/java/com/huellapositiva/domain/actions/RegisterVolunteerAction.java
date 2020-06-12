@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
@@ -23,10 +23,9 @@ public class RegisterVolunteerAction {
         this.communicationService = communicationService;
     }
 
-    public void execute(RegisterVolunteerRequestDto dto) {
+    public void execute(CredentialsVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
     }
-
 }

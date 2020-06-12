@@ -1,6 +1,6 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.RegisterVolunteerRequestDto;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import lombok.AllArgsConstructor;
@@ -16,12 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 @AllArgsConstructor
 @RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
-    @Autowired
-    private RegisterVolunteerAction registerVolunteerAction;
 
-    @PostMapping
+    @Autowired
+    private final RegisterVolunteerAction registerVolunteerAction;
+
+    @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerVolunteer(@Validated @RequestBody RegisterVolunteerRequestDto dto) {
+    public void registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
         try {
             registerVolunteerAction.execute(dto);
         } catch (PasswordNotAllowed pna) {

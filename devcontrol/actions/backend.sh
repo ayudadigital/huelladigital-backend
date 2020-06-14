@@ -28,38 +28,31 @@ function backend() {
     local briefMessage
     local helpMessage
 
-    briefMessage="Set of actions for the backend"
+    briefMessage="Set of actions for the backend: [build], [unit-tests], [integration-tests], [acceptance-tests], [sonar], [package] or [build-docker-image]"
     helpMessage=$(cat <<EOF
 Set of actions for the backend
 
 Usage:
 
-$ devcontrol backend build # Execute "mvn clean compile"
-
+$ devcontrol backend build                              # Execute "mvn clean compile"
 [...]
 
-$ devcontrol backend unit-tests # Execute unit test suite
-
+$ devcontrol backend unit-tests                         # Execute unit test suite
 [...]
 
-$ devcontrol backend integration-tests # Execute integration test suite
-
+$ devcontrol backend integration-tests                  # Execute integration test suite
 [...]
 
-$ devcontrol backend acceptance-tests # Execute acceptance test suite
-
+$ devcontrol backend acceptance-tests                   # Execute acceptance test suite
 [...]
 
-$ devcontrol backend sonar # Execute sonar analysis
-
+$ devcontrol backend sonar                              # Execute sonar analysis
 [...]
 
-$ devcontrol backend package # Make "jar" package
-
+$ devcontrol backend package                            # Make "jar" package
 [...]
 
-$ devcontrol backend build-docker-image [docker_tag] # Build docker image, or "beta" if you don't specify it
-
+$ devcontrol backend build-docker-image [docker_tag]    # Build docker image, or "beta" if you don't specify it
 [...]
 
 EOF
@@ -105,7 +98,7 @@ EOF
                     docker build -t ayudadigital/huelladigital-backend:${dockerTag} --pull --no-cache .
                     ;;
                 *)
-                    echo "ERROR - Unknown action [${backendActions}], use [start] or [stop]"
+                    echo "ERROR - Unknown action [${backendActions}], use [build], [unit-tests], [integration-tests], [acceptance-tests], [sonar], [package] or [build-docker-image]"
                     echo
                     showHelpMessage "${FUNCNAME[0]}" "$helpMessage"
                     exit 1

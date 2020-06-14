@@ -6,6 +6,8 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
+import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +36,13 @@ public class JwtService {
     @Autowired
     private final JwtProperties jwtProperties;
 
+    @Autowired
+    private final JpaRoleRepository roleRepository;
+
     public JwtResponseDto refresh(String refreshToken) throws InvalidJwtTokenException {
-        Pair<String, List<String>> userDetails = getUserDetails(refreshToken);
-        return create(userDetails.getFirst(), userDetails.getSecond());
+        String username = getUserDetails(refreshToken).getFirst();
+        List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+        return create(username, roles);
     }
 
     public JwtResponseDto create(String username, List<String> roles) {

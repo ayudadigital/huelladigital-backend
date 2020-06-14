@@ -122,19 +122,19 @@ pipeline {
         }
         // Frontend
         stage ('Frontend: install') {
-            agent { label: "docker" }
+            agent { label "docker" }
             stepd {
                 sh "bin/devcontrol.sh frontend install"
             }
         }
         stage ('Frontend: test') {
-            agent { label: "docker" }
+            agent { label "docker" }
             stepd {
                 sh "bin/devcontrol.sh frontend test"
             }
         }
         stage ('Frontend: build') {
-            agent { label: "docker" }
+            agent { label "docker" }
             stepd {
                 sh "bin/devcontrol.sh frontend build"
             }

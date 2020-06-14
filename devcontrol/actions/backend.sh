@@ -82,7 +82,10 @@ EOF
                 "unit-tests")           mvn test ;;
                 "integration-tests")    mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
                 "acceptance-tests")     mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
-                "sonar")                mvn sonar:sonar -Dsonar.login=${sonarcloud_login} ;;
+                "sonar")
+                    sonarcloud_login=${sonarcloud_login:-fake}
+                    mvn sonar:sonar -Dsonar.login=${sonarcloud_login}
+                    ;;
                 "package")              mvn package spring-boot:repackage -DskipTests ;;
                 "build-docker-image")
                     if [ ${#param[@]} -lt 3 ]; then

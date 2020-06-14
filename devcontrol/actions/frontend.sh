@@ -65,15 +65,15 @@ EOF
             frontendActions=${param[1]}
             case ${frontendActions} in
                 "install")
-                    docker run -e HOME=. -e npm_config_cache=npm_cache -t --rm -v $(pwd):$(pwd):delegated -u $(id -u):$(id -g) -w $(pwd) node:12.18.0-alpine3.9 \
+                    docker run -e HOME=. -e npm_config_cache=npm_cache -t --rm -v "$(pwd):$(pwd):delegated" -u "$(id -u):$(id -g)" -w "$(pwd)" node:12.18.0-alpine3.9 \
                         npm install
                     ;;
                 "test")
-                    docker run -e CI=true -e HOME=. -e npm_config_cache=npm_cache -t --rm -v $(pwd):$(pwd):delegated -u $(id -u):$(id -g) -w $(pwd) node:12.18.0-alpine3.9 \
+                    docker run -e CI=true -e HOME=. -e npm_config_cache=npm_cache -t --rm -v "$(pwd):$(pwd):delegated" -u "$(id -u):$(id -g)" -w "$(pwd)" node:12.18.0-alpine3.9 \
                         npm run test
                     ;;
                 "build")
-                    docker run -e HOME=. -e npm_config_cache=npm_cache -t --rm -v $(pwd):$(pwd):delegated -u $(id -u):$(id -g) -w $(pwd) node:12.18.0-alpine3.9 \
+                    docker run -e HOME=. -e npm_config_cache=npm_cache -t --rm -v "$(pwd)":"$(pwd)":delegated -u "$(id -u):$(id -g)" -w "$(pwd)" node:12.18.0-alpine3.9 \
                         npm run build
                     ;;
                 "build-docker-image")

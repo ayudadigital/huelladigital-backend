@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
@@ -11,8 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
@@ -23,6 +29,8 @@ public class JwtService {
 
     private static final String ROLE_CLAIM = "roles";
 
+    private static final Map<String, Date> revokedAccessTokens = new HashMap<>();
+
     @Autowired
     private final JwtProperties jwtProperties;
 
@@ -32,6 +40,7 @@ public class JwtService {
     }
 
     public JwtResponseDto create(String username, List<String> roles) {
+        revokeAccessTokens(username);
         String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
         String newRefreshToken = createToken(username, roles, jwtProperties.getRefreshToken().getExpirationTime());
         return new JwtResponseDto(newAccessToken, newRefreshToken);
@@ -45,21 +54,46 @@ public class JwtService {
     }
 
     private DecodedJWT decodeToken(String token) throws InvalidJwtTokenException {
+        DecodedJWT decodedJWT;
         try {
-            return JWT.require(Algorithm.HMAC512(jwtProperties.getSecret().getBytes()))
-                    .build()
-                    .verify(token);
+            decodedJWT = JWT.require(Algorithm.HMAC512(jwtProperties.getSecret().getBytes())).build().verify(token);
+        } catch (TokenExpiredException e) {
+            throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
         } catch (Exception e) {
-            log.error("Invalid token: {}", token, e);
+            log.warn("Invalid token: {}", token, e);
             throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
         }
+
+        if (isRevoked(decodedJWT)) {
+            log.warn("Token is revoked: {}, {}, {}", decodedJWT.getSubject(), decodedJWT.getIssuedAt(), revokedAccessTokens.get(decodedJWT.getSubject()));
+            throw new InvalidJwtTokenException("Token is revoked: " + token);
+        }
+
+        return decodedJWT;
     }
 
     private String createToken(String username, List<String> roles, long duration) {
+        Instant issuedAt = Instant.now();
         return JWT.create()
                 .withSubject(username)
-                .withExpiresAt(new Date(System.currentTimeMillis() + duration))
+                .withIssuedAt(Date.from(issuedAt))
+                .withExpiresAt(Date.from(issuedAt.plusMillis(duration)))
                 .withArrayClaim(ROLE_CLAIM, roles.toArray(new String[0]))
                 .sign(HMAC512(jwtProperties.getSecret().getBytes()));
+    }
+
+    private void revokeAccessTokens(String username) {
+        Date issuedBefore = Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS));
+        Date revokedBeforeDate = revokedAccessTokens.get(username);
+        if (revokedBeforeDate == null || revokedBeforeDate.before(issuedBefore)) {
+            revokedAccessTokens.put(username, issuedBefore);
+        }
+    }
+
+    private boolean isRevoked(DecodedJWT decodedJWT) {
+        String username = decodedJWT.getSubject();
+        Date issuedAt = decodedJWT.getIssuedAt();
+        Date revokedIssuedBefore = revokedAccessTokens.get(username);
+        return revokedIssuedBefore != null && issuedAt.before(revokedIssuedBefore);
     }
 }

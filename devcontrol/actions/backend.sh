@@ -14,6 +14,7 @@ rootdir="$(pwd)"
 #   backend acceptance-test
 #   backend sonar
 #   backend package
+#   backend build-docker-image
 #
 # @arg $1 Task: "brief", "help" or "exec"
 #
@@ -57,6 +58,9 @@ $ devcontrol backend package # Make "jar" package
 
 [...]
 
+$ devcontrol backend build-docker-image [docker_tag] # Build docker image, or "beta" if you don't specify it
+
+[...]
 
 EOF
 )
@@ -73,7 +77,7 @@ EOF
             ;;
         exec)
             if [ ${#param[@]} -lt 2 ]; then
-                echo >&2 "ERROR - You should specify the action type: [start] or [stop]"
+                echo >&2 "ERROR - You should specify the action type:"
                 echo >&2 
                 showHelpMessage "${FUNCNAME[0]}" "$helpMessage"
                 exit 1
@@ -87,6 +91,19 @@ EOF
                 "acceptance-tests")     mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
                 "sonar")                mvn sonar:sonar -Dsonar.login=${sonarcloud_login} ;;
                 "package")              mvn package spring-boot:repackage -DskipTests ;;
+                "build-docker-image")
+                    if [ ${#param[@]} -lt 3 ]; then
+                        dockerTag=beta
+                    else
+                        dockerTag=${param[2]}
+                    fi
+                    echo "# Using docker tag '${dockerTag}'"
+                    echo
+                    echo "## Building jar package"
+                    devcontrol backend package
+                    echo "## Building backend docker image"
+                    docker build -t ayudadigital/huelladigital-backend:${dockerTag} --pull --no-cache .
+                    ;;
                 *)
                     echo "ERROR - Unknown action [${backendActions}], use [start] or [stop]"
                     echo

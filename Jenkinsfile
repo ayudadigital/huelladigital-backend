@@ -17,8 +17,18 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
     if (nextReleaseNumber == '') {
         nextReleaseNumber = sh (script: 'kd get-next-release-number .', returnStdout: true).trim().substring(1)
     }
+    // Backend
     docker.withRegistry('', 'docker-token') {
-        def customImage = docker.build("${env.DOCKER_ORGANIZATION}/${cfg.projectName}:${nextReleaseNumber}", '--pull --no-cache backend')
+        def customImage = docker.build("${env.DOCKER_ORGANIZATION}/${cfg.projectName}-backend:${nextReleaseNumber}", '--pull --no-cache backend')
+        customImage.push()
+        if (nextReleaseNumber != 'beta') {
+            customImage.push('latest')
+        }
+    }
+    // Frontend
+    docker.withRegistry('', 'docker-token') {
+        def customImage = docker.build("${env.DOCKER_ORGANIZATION}/${cfg.projectName}-frontend:${nextReleaseNumber}", "--pull --no-cache --build-arg BUILD_ID=$BUILD_ID frontend")
+        sh "docker image prune --filter label=stage=builder --filter label=build=$BUILD_ID"
         customImage.push()
         if (nextReleaseNumber != 'beta') {
             customImage.push('latest')
@@ -32,12 +42,13 @@ pipeline {
     stages {
         stage ('Initialize') {
             agent { label 'docker' }
-            steps  {
+            steps {
                 jplStart(cfg)
                 sh 'rm -rf backend/target'
             }
         }
-        stage('Build') {
+        // Backend
+        stage('Backend: uild') {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
@@ -48,7 +59,7 @@ pipeline {
                 sh 'bin/devcontrol.sh backend build'
             }
         }
-        stage('Unit tests') {
+        stage('Backend: Unit tests') {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
@@ -59,7 +70,7 @@ pipeline {
                 sh 'bin/devcontrol.sh backend unit-tests'
             }
         }
-        stage('Integration tests') {
+        stage('Backend: Integration tests') {
             agent { label 'docker'}
             steps {
                 script {
@@ -74,7 +85,7 @@ pipeline {
                 }
             }
         }
-        stage('Acceptance Tests') {
+        stage('Backend: Acceptance Tests') {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
@@ -85,7 +96,7 @@ pipeline {
                 sh 'bin/devcontrol.sh backend acceptance-tests'
             }
         }
-        stage('Sonar') {
+        stage('Backend: Sonar') {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
@@ -98,7 +109,7 @@ pipeline {
                 }
             }
         }
-        stage('Package JAR') {
+        stage('Backend: Package JAR') {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
@@ -109,6 +120,26 @@ pipeline {
                 sh 'bin/devcontrol.sh backend package'
             }
         }
+        // Frontend
+        stage ('Frontend: install') {
+            agent { label "docker" }
+            steps {
+                sh "bin/devcontrol.sh frontend install"
+            }
+        }
+        stage ('Frontend: test') {
+            agent { label "docker" }
+            steps {
+                sh "bin/devcontrol.sh frontend test"
+            }
+        }
+        stage ('Frontend: build') {
+            agent { label "docker" }
+            steps {
+                sh "bin/devcontrol.sh frontend build"
+            }
+        }
+        // Publish backend + frontend
         stage("Docker Publish") {
             agent { label 'docker' }
             when { branch 'develop' }
@@ -125,6 +156,7 @@ pipeline {
                 }
             }
         }
+        // Close release
         stage ('Make release') {
             agent { label 'docker' }
             when { branch 'release/new' }

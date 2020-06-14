@@ -20,7 +20,7 @@ services:
       - ./data/db/var/lib/postgresql/data:/var/lib/postgresql/data
     restart: unless-stopped
   app:
-    image: ayudadigital/huelladigital:${tag_app}
+    image: ayudadigital/huelladigital-backend:${tag_app}
     environment:
       DATASOURCE_URL: ${DATASOURCE_URL}
       DATASOURCE_DBNAME: ${DATASOURCE_DBNAME}

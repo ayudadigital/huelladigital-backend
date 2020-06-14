@@ -42,7 +42,7 @@ pipeline {
     stages {
         stage ('Initialize') {
             agent { label 'docker' }
-            steps  {
+            steps {
                 jplStart(cfg)
                 sh 'rm -rf backend/target'
             }
@@ -123,19 +123,19 @@ pipeline {
         // Frontend
         stage ('Frontend: install') {
             agent { label "docker" }
-            stepd {
+            steps {
                 sh "bin/devcontrol.sh frontend install"
             }
         }
         stage ('Frontend: test') {
             agent { label "docker" }
-            stepd {
+            steps {
                 sh "bin/devcontrol.sh frontend test"
             }
         }
         stage ('Frontend: build') {
             agent { label "docker" }
-            stepd {
+            steps {
                 sh "bin/devcontrol.sh frontend build"
             }
         }

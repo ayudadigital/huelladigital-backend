@@ -22,7 +22,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
-    private final List<String> nonAuthenticatedUrls = List.of("/api/v1/volunteers/register", "/api/v1/email-confirmation/", "/api/v1/refresh");
+    private final List<String> nonAuthenticatedUrls = List.of("/actuator/health", "/api/v1/volunteers/register", "/api/v1/email-confirmation/", "/api/v1/refresh");
 
     private final JwtService jwtService;
 

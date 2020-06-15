@@ -10,4 +10,4 @@ export default {
     ],
 };
 
-export const withText = () => <Header />;
+export const Default = () => <Header />;

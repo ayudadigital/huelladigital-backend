@@ -14,8 +14,8 @@ const bgStyle = {
 export const Footer: React.FC<{}> = () => (
   <div className="Footer" style={bgStyle}>
     <Social />
-    <img src={bannerER} alt="IMAGEN" />
-    <img src={bannerOdds} alt="IMG" />
+    <img src={bannerER} alt="Banner_Entidad_Reconoce" />
+    <img src={bannerOdds} alt="banner_Objetivos_Desarrollo_Sostenibles" />
     <Politics />
     <p>Huella Positiva © 2020 Huella Positiva</p>
   </div>

@@ -8,4 +8,4 @@ export default {
   decorators: [withA11y, (storyFn: any) => <BrowserRouter>{storyFn()}</BrowserRouter>],
 };
 
-export const withDefault = () => <Footer />;
+export const Default = () => <Footer />;

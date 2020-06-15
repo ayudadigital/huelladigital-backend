@@ -7,7 +7,13 @@ export default {
   title: 'Molecules | NavBar',
   decorators: [withA11y,
     (storyFn:any) => <BrowserRouter>{storyFn()}</BrowserRouter>
-    ],  
+    ],
 };
 
-export const withText = () => <NavBar />;
+export const Dashboard = () => {
+  return (
+    <div style={{background: '#7E254E', height: '100vh', padding: '0', margin: '0'}}>
+    <NavBar/>
+    </div>
+  );
+};

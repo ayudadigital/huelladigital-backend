@@ -6,7 +6,6 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -153,22 +152,14 @@ class VolunteerControllerShould {
     @Test
     void validate_user_correctly_and_send_tokens() throws Exception {
         //GIVEN
-        Volunteer volunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String body = objectMapper.writeValueAsString(dto);
         String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
 
         //WHEN
-        String jsonResponse = mvc.perform(post(loginUri)
-                .content(body)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse().getContentAsString();
+        JwtResponseDto responseDto = login(dto);
 
         //THEN
-        JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
         assertThat(responseDto.getAccessToken()).matches(regexToken);
         assertThat(responseDto.getRefreshToken()).matches(regexToken);
     }

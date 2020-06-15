@@ -1,4 +1,4 @@
-package com.huellapositiva.unit;
+package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;

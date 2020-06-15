@@ -14,6 +14,7 @@ rootdir="$(pwd)"
 #   backend acceptance-test
 #   backend sonar
 #   backend package
+#   backend build-docker-image
 #
 # @arg $1 Task: "brief", "help" or "exec"
 #
@@ -27,36 +28,32 @@ function backend() {
     local briefMessage
     local helpMessage
 
-    briefMessage="Set of actions for the backend"
+    briefMessage="Set of actions for the backend: [build], [unit-tests], [integration-tests], [acceptance-tests], [sonar], [package] or [build-docker-image]"
     helpMessage=$(cat <<EOF
 Set of actions for the backend
 
 Usage:
 
-$ devcontrol backend build # Execute "mvn clean compile"
-
+$ devcontrol backend build                              # Execute "mvn clean compile"
 [...]
 
-$ devcontrol backend unit-tests # Execute unit test suite
-
+$ devcontrol backend unit-tests                         # Execute unit test suite
 [...]
 
-$ devcontrol backend integration-tests # Execute integration test suite
-
+$ devcontrol backend integration-tests                  # Execute integration test suite
 [...]
 
-$ devcontrol backend acceptance-tests # Execute acceptance test suite
-
+$ devcontrol backend acceptance-tests                   # Execute acceptance test suite
 [...]
 
-$ devcontrol backend sonar # Execute sonar analysis
-
+$ devcontrol backend sonar                              # Execute sonar analysis
 [...]
 
-$ devcontrol backend package # Make "jar" package
-
+$ devcontrol backend package                            # Make "jar" package
 [...]
 
+$ devcontrol backend build-docker-image [docker_tag]    # Build docker image, or "beta" if you don't specify it
+[...]
 
 EOF
 )
@@ -73,7 +70,7 @@ EOF
             ;;
         exec)
             if [ ${#param[@]} -lt 2 ]; then
-                echo >&2 "ERROR - You should specify the action type: [start] or [stop]"
+                echo >&2 "ERROR - You should specify the action type:"
                 echo >&2 
                 showHelpMessage "${FUNCNAME[0]}" "$helpMessage"
                 exit 1
@@ -85,10 +82,26 @@ EOF
                 "unit-tests")           mvn test ;;
                 "integration-tests")    mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
                 "acceptance-tests")     mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
-                "sonar")                mvn sonar:sonar -Dsonar.login=${sonarcloud_login} ;;
+                "sonar")
+                    sonarcloud_login=${sonarcloud_login:-fake}
+                    mvn sonar:sonar -Dsonar.login=${sonarcloud_login}
+                    ;;
                 "package")              mvn package spring-boot:repackage -DskipTests ;;
+                "build-docker-image")
+                    if [ ${#param[@]} -lt 3 ]; then
+                        dockerTag=beta
+                    else
+                        dockerTag=${param[2]}
+                    fi
+                    echo "# Using docker tag '${dockerTag}'"
+                    echo
+                    echo "## Building jar package"
+                    devcontrol backend package
+                    echo "## Building backend docker image"
+                    docker build -t ayudadigital/huelladigital-backend:${dockerTag} --pull --no-cache .
+                    ;;
                 *)
-                    echo "ERROR - Unknown action [${backendActions}], use [start] or [stop]"
+                    echo "ERROR - Unknown action [${backendActions}], use [build], [unit-tests], [integration-tests], [acceptance-tests], [sonar], [package] or [build-docker-image]"
                     echo
                     showHelpMessage "${FUNCNAME[0]}" "$helpMessage"
                     exit 1

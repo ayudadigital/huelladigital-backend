@@ -12,15 +12,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.huellapositiva.infrastructure.security.JwtProperties.AccessToken;
 import static com.huellapositiva.infrastructure.security.JwtProperties.RefreshToken;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -61,13 +62,21 @@ public class JwtServiceShould {
         String latestRole = "ROLE2";
         when(roleRepository.findAllByEmailAddress(username)).thenReturn(List.of(Role.builder().name(latestRole).build()));
 
-        JwtResponseDto jwtResponseDto = jwtService.refresh(refreshToken);
+        String refreshedAccessToken = jwtService.refresh(refreshToken).getAccessToken();
 
-        String newAccessToken = jwtResponseDto.getAccessToken();
-        String newAccessTokenRole = jwtService.getUserDetails(newAccessToken).getSecond().get(0);
-        assertThat(newAccessTokenRole, is(latestRole));
-        String newRefreshToken = jwtResponseDto.getRefreshToken();
-        List<String> newRefreshTokenRole = jwtService.getUserDetails(newRefreshToken).getSecond();
-        assertThat(newRefreshTokenRole, is(Collections.emptyList()));
+        String refreshedAccessTokenRole = jwtService.getUserDetails(refreshedAccessToken).getSecond().get(0);
+        assertThat(refreshedAccessTokenRole, is(latestRole));
+    }
+
+    @Test
+    void creating_tokens_should_return_roles_in_access_token_and_no_roles_in_refresh_tokens() throws InvalidJwtTokenException {
+        JwtResponseDto jwtResponseDto = jwtService.create(DEFAULT_EMAIL, List.of("ROLE1"));
+
+        String accessToken = jwtResponseDto.getAccessToken();
+        List<String> accessTokenRoles = jwtService.getUserDetails(accessToken).getSecond();
+        assertThat(accessTokenRoles, hasSize(1));
+        String refreshToken = jwtResponseDto.getRefreshToken();
+        List<String> refreshTokenRoles = jwtService.getUserDetails(refreshToken).getSecond();
+        assertThat(refreshTokenRoles, hasSize(0));
     }
 }

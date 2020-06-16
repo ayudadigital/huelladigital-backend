@@ -3,6 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
+import com.huellapositiva.application.exception.UserAlreadyExists;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -39,6 +40,8 @@ public class VolunteerApiController {
             return jwtService.create(username, roles);
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
+        } catch (UserAlreadyExists ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
         }
     }
 }

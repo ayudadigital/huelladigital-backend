@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -57,7 +59,9 @@ class EmailAddressConfirmationActionShould {
         action.execute(hash);
 
         // THEN
-        credential = credentialRepository.findById(credential.getId()).get();
+        Optional<Credential> credentialOptional = credentialRepository.findById(credential.getId());
+        assertTrue(credentialOptional.isPresent());
+        credential = credentialOptional.get();
         assertThat(credential.getEmailConfirmed(), is(true));
         String username = credential.getEmail();
         verify(jwtService, times(1)).revokeAccessTokens(username);

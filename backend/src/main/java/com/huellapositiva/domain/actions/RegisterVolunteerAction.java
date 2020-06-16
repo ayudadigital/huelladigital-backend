@@ -1,12 +1,14 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.exception.UserAlreadyExists;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PlainPassword;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -22,7 +24,11 @@ public class RegisterVolunteerAction {
 
     public void execute(CredentialsVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
-        volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        try {
+            volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        } catch (DataIntegrityViolationException ex) {
+            throw new UserAlreadyExists();
+        }
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
     }
 }

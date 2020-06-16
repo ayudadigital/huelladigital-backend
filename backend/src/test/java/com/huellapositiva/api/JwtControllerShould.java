@@ -76,6 +76,8 @@ class JwtControllerShould {
             String newRefreshToken = refreshResponse.getRefreshToken();
 
             //THEN
+            assertThat(newAccessToken).isNotNull();
+            assertThat(newRefreshToken).isNotNull();
             assertAll(
                     () -> assertThat(newAccessToken).isNotEqualTo(accessToken),
                     () -> assertThat(newRefreshToken).isNotEqualTo(refreshToken)

@@ -15,8 +15,10 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterVolunteerActionShould {
+
     @Mock
     VolunteerService volunteerService;
+
     @Mock
     EmailCommunicationService communicationService;
 
@@ -24,8 +26,7 @@ class RegisterVolunteerActionShould {
 
     @BeforeEach
     void beforeEach() {
-        registerVolunteerAction = new RegisterVolunteerAction(
-                volunteerService, communicationService);
+        registerVolunteerAction = new RegisterVolunteerAction(volunteerService, communicationService);
     }
 
     @Test

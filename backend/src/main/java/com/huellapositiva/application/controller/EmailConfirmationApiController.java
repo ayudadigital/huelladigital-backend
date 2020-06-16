@@ -27,7 +27,7 @@ public class EmailConfirmationApiController {
         emailConfirmationAction.execute(hash);
     }
 
-    @RolesAllowed({"VOLUNTEER"})
+    @RolesAllowed({"VOLUNTEER_NOT_CONFIRMED"})
     @PostMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void resendConfirmEmail() {

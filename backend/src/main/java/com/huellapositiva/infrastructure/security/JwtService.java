@@ -64,7 +64,7 @@ public class JwtService {
         try {
             decodedJWT = JWT.require(Algorithm.HMAC512(jwtProperties.getSecret().getBytes())).build().verify(token);
         } catch (TokenExpiredException e) {
-            throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
+            throw new InvalidJwtTokenException("Token is expired: " + token, e);
         } catch (Exception e) {
             log.warn("Invalid token: {}", token, e);
             throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
@@ -88,7 +88,7 @@ public class JwtService {
                 .sign(HMAC512(jwtProperties.getSecret().getBytes()));
     }
 
-    private void revokeAccessTokens(String username) {
+    public void revokeAccessTokens(String username) {
         Date issuedBefore = Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS));
         Date revokedBeforeDate = revokedAccessTokens.get(username);
         if (revokedBeforeDate == null || revokedBeforeDate.before(issuedBefore)) {

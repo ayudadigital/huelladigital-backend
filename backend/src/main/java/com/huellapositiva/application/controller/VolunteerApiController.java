@@ -1,15 +1,22 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
+import com.huellapositiva.application.exception.UserAlreadyExists;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
+import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
+import com.huellapositiva.infrastructure.security.JwtService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -17,16 +24,24 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
 
-    @Autowired
+    private final JwtService jwtService;
+
+    private final JpaRoleRepository roleRepository;
+
     private final RegisterVolunteerAction registerVolunteerAction;
 
     @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+    @ResponseBody
+    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
         try {
             registerVolunteerAction.execute(dto);
+            String username = dto.getEmail();
+            List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+            return jwtService.create(username, roles);
         } catch (PasswordNotAllowed pna) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length", pna);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
+        } catch (UserAlreadyExists ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
         }
     }
 }

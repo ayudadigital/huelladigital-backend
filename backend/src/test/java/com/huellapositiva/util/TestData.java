@@ -22,6 +22,10 @@ public class TestData {
 
     public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
+    public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
+
+    public static final String DEFAULT_PASSWORD = "plainPassword";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -50,18 +54,22 @@ public class TestData {
 
     private EmailConfirmation createEmailConfirmation(UUID token) {
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
-                .email("foo@huellapositiva.com")
+                .email(DEFAULT_EMAIL)
                 .hash(token.toString())
                 .build();
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
     public Credential createCredential(String email, UUID token) {
-        return createCredential(email, "defaultPassword", token);
+        return createCredential(email, DEFAULT_PASSWORD, token);
+    }
+
+    public Credential createCredential(String email, Roles role) {
+        return createCredential(email, UUID.randomUUID(), DEFAULT_PASSWORD, role);
     }
 
     public Credential createCredential(String email, String plainPassword, UUID token) {
-        return createCredential(email, token, plainPassword, Roles.VOLUNTEER);
+        return createCredential(email, token, plainPassword, Roles.VOLUNTEER_NOT_CONFIRMED);
     }
 
     public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){
@@ -89,6 +97,4 @@ public class TestData {
 
         return volunteerRepository.save(volunteer);
     }
-
-
 }

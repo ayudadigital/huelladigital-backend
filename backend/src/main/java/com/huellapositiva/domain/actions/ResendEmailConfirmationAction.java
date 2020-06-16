@@ -36,7 +36,8 @@ public class ResendEmailConfirmationAction {
         Credential credential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
 
-        if (!credential.getEmailConfirmed()) {
+        boolean isEmailNotConfirmed = !credential.getEmailConfirmed();
+        if (isEmailNotConfirmed) {
             Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
             if (updateOperation != 1) {
                 throw new RuntimeException("No modifying anything hash or you have modified several hashes");

@@ -1,10 +1,10 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.*;
+import com.huellapositiva.domain.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
+import com.huellapositiva.domain.valueobjects.PlainPassword;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

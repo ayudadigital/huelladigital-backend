@@ -15,10 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import java.util.Optional;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
@@ -43,20 +46,20 @@ class VolunteerServiceShould {
 
     @Test
     void registering_a_volunteer_should_create_the_corresponding_entities_in_the_db() {
-        String email = "foo@huellapositiva.com";
-        String password = "password";
         CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
-                .email(email)
-                .password(password)
+                .email(DEFAULT_EMAIL)
+                .password(DEFAULT_PASSWORD)
                 .build();
 
         Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
-        Volunteer volunteer = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get();
+        Optional<Volunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerId);
+        assertTrue(volunteerOptional.isPresent());
+        Volunteer volunteer = volunteerOptional.get();
         Credential credential = volunteer.getCredential();
-        assertThat(credential.getEmail(), is(email));
-        assertThat(passwordEncoder.matches(password, credential.getHashedPassword()), is(true));
+        assertThat(credential.getEmail(), is(DEFAULT_EMAIL));
+        assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, credential.getHashedPassword()), is(true));
         assertThat(credential.getRoles(), hasSize(1));
-        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER.toString()));
+        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER_NOT_CONFIRMED.toString()));
     }
 }

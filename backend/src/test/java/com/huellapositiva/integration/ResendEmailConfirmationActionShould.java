@@ -20,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.util.Collections;
 import java.util.UUID;
 
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -29,10 +31,6 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
 public class ResendEmailConfirmationActionShould {
-
-    private static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
-
-    private static final String DEFAULT_PASSWORD = "plain-password";
 
     @Autowired
     private TestData testData;
@@ -71,7 +69,6 @@ public class ResendEmailConfirmationActionShould {
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         String newHash = newEmailConfirmation.getHash();
         assertThat(initialHash, is(not(newHash)));
-
         verify(communicationService).sendRegistrationConfirmationEmail(any());
     }
 }

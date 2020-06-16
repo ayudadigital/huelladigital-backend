@@ -1,40 +1,46 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
-import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
+import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
+import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import java.util.Set;
 import java.util.UUID;
 
+import static com.huellapositiva.domain.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
 @Import(TestData.class)
 class EmailAddressConfirmationActionShould {
 
     @Autowired
     private TestData testData;
 
-    @Autowired
-    private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
+    @MockBean
+    private JwtService jwtService;
 
     @Autowired
     private JpaCredentialRepository credentialRepository;
 
     @Autowired
-    private JpaRoleRepository jpaRoleRepository;
+    private EmailConfirmationAction action;
 
     @BeforeEach
     void beforeEach() {
@@ -44,22 +50,19 @@ class EmailAddressConfirmationActionShould {
     @Test
     void confirm_email() {
         // GIVEN
-        String email = "foo@huellapositiva.com";
         UUID hash = UUID.randomUUID();
-        Credential credential = testData.createCredential(email, hash);
+        Credential credential = testData.createCredential(DEFAULT_EMAIL, hash, DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
 
         // WHEN
-        EmailConfirmationAction action = new EmailConfirmationAction(jpaEmailConfirmationRepository, credentialRepository,jpaRoleRepository);
         action.execute(hash);
 
         // THEN
-        Integer emailConfirmationId = credential.getEmailConfirmation().getId();
-        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findById(emailConfirmationId).get();
-        assertThat(emailConfirmation.getEmail(), is(email));
-        assertThat(emailConfirmation.getHash(), is(hash.toString()));
-        credential = emailConfirmation.getCredential();
+        credential = credentialRepository.findById(credential.getId()).get();
         assertThat(credential.getEmailConfirmed(), is(true));
+        String username = credential.getEmail();
+        verify(jwtService, times(1)).revokeAccessTokens(username);
+        Set<Role> roles = credential.getRoles();
+        Assertions.assertThat(roles).hasSize(1);
+        Assertions.assertThat(roles.iterator().next().getName()).isEqualTo(VOLUNTEER.toString());
     }
-
-
 }

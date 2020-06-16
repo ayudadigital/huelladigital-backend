@@ -1,5 +1,6 @@
 package com.huellapositiva.unit;
 
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.huellapositiva.infrastructure.security.JwtProperties.AccessToken;
@@ -59,9 +61,13 @@ public class JwtServiceShould {
         String latestRole = "ROLE2";
         when(roleRepository.findAllByEmailAddress(username)).thenReturn(List.of(Role.builder().name(latestRole).build()));
 
-        String refreshedAccessToken = jwtService.refresh(refreshToken).getAccessToken();
+        JwtResponseDto jwtResponseDto = jwtService.refresh(refreshToken);
 
-        String refreshedAccessTokenRole = jwtService.getUserDetails(refreshedAccessToken).getSecond().get(0);
-        assertThat(refreshedAccessTokenRole, is(latestRole));
+        String newAccessToken = jwtResponseDto.getAccessToken();
+        String newAccessTokenRole = jwtService.getUserDetails(newAccessToken).getSecond().get(0);
+        assertThat(newAccessTokenRole, is(latestRole));
+        String newRefreshToken = jwtResponseDto.getRefreshToken();
+        List<String> newRefreshTokenRole = jwtService.getUserDetails(newRefreshToken).getSecond();
+        assertThat(newRefreshTokenRole, is(Collections.emptyList()));
     }
 }

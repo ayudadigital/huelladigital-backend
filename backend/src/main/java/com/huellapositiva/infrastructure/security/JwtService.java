@@ -16,10 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
@@ -48,7 +45,7 @@ public class JwtService {
     public JwtResponseDto create(String username, List<String> roles) {
         revokeAccessTokens(username);
         String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
-        String newRefreshToken = createToken(username, roles, jwtProperties.getRefreshToken().getExpirationTime());
+        String newRefreshToken = createToken(username, Collections.emptyList(), jwtProperties.getRefreshToken().getExpirationTime());
         return new JwtResponseDto(newAccessToken, newRefreshToken);
     }
 

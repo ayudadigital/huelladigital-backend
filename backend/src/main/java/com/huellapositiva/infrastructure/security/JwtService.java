@@ -67,7 +67,8 @@ public class JwtService {
             throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
         }
 
-        if (isRevoked(decodedJWT)) {
+        boolean isRefresh = decodedJWT.getClaim(ROLE_CLAIM).asList(String.class).isEmpty();
+        if (!isRefresh && isRevoked(decodedJWT)) {
             log.warn("Token is revoked: {}, {}, {}", decodedJWT.getSubject(), decodedJWT.getIssuedAt(), revokedAccessTokens.get(decodedJWT.getSubject()));
             throw new InvalidJwtTokenException("Token is revoked: " + token);
         }

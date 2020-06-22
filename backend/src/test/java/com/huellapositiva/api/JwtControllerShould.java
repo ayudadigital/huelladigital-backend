@@ -1,6 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
@@ -22,11 +23,14 @@ import java.util.stream.Collectors;
 import static com.huellapositiva.domain.Roles.VOLUNTEER;
 import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static com.huellapositiva.util.TestUtils.loginRequest;
+import static com.huellapositiva.util.TestUtils.refreshRequest;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,7 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class JwtControllerShould {
 
-    private static final String loginUri = "/api/v1/volunteers/login";
     private static final String testJwtUri = "/api/v1/test-jwt-authorization";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -141,6 +144,37 @@ class JwtControllerShould {
                     .andReturn().getResponse().getStatus();
             return responseStatus == HttpStatus.UNAUTHORIZED.value();
         });
+    }
+
+    @Test
+    void support_multiple_sessions() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String jsonBody = objectMapper.writeValueAsString(loginDto);
+        String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
+
+        //GIVEN
+        JwtResponseDto sessionOneJwtDto = objectMapper.readValue(
+                loginRequest(mvc, jsonBody).getContentAsString(), JwtResponseDto.class);
+        JwtResponseDto sessionTwoJwtDto = objectMapper.readValue(
+                loginRequest(mvc, jsonBody).getContentAsString(), JwtResponseDto.class);
+
+        //WHEN
+        Thread.sleep(1000);
+        String sessionOneNewAccessToken = objectMapper.readValue(
+                refreshRequest(mvc, sessionOneJwtDto.getRefreshToken()).getContentAsString(), JwtResponseDto.class)
+                .getAccessToken();
+        String sessionTwoNewAccessToken = objectMapper.readValue(
+                refreshRequest(mvc, sessionTwoJwtDto.getRefreshToken()).getContentAsString(), JwtResponseDto.class)
+                .getAccessToken();
+
+        //THEN
+        assertAll(
+                () -> assertTrue(sessionOneNewAccessToken.matches(regexToken)),
+                () -> assertTrue(sessionTwoNewAccessToken.matches(regexToken)),
+                () -> assertNotEquals(sessionOneNewAccessToken, sessionOneJwtDto.getAccessToken()),
+                () -> assertNotEquals(sessionTwoNewAccessToken, sessionTwoJwtDto.getAccessToken())
+        );
     }
 
     private JwtResponseDto createVolunteerWithRoleAndGetAccessToken(Roles role) {

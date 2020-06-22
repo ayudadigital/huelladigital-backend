@@ -96,7 +96,8 @@ public class JwtService {
             throw new InvalidJwtTokenException("Token is expired: " + token);
         }
 
-        if (isRevoked(claims)) {
+        boolean isRefresh = decodedJWT.getClaim(ROLE_CLAIM).asList(String.class).isEmpty();
+        if (!isRefresh && isRevoked(claims)) {
             log.warn("Token is revoked: {}, {}, {}", claims.getSubject(), claims.getIssueTime(), revokedAccessTokens.get(claims.getSubject()));
             throw new InvalidJwtTokenException("Token is revoked: " + token);
         }

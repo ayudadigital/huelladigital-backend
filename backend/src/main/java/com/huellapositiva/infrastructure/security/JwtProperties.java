@@ -15,7 +15,7 @@ public class JwtProperties {
 
     private AccessToken accessToken;
     private RefreshToken refreshToken;
-    private String secret;
+    private Signature signature;
 
     @Data
     @NoArgsConstructor
@@ -29,5 +29,12 @@ public class JwtProperties {
     @AllArgsConstructor
     public static class RefreshToken {
         private long expirationTime;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Signature {
+        private String secret;
     }
 }

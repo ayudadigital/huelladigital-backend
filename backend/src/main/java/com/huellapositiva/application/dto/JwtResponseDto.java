@@ -2,10 +2,8 @@ package com.huellapositiva.application.dto;
 
 import lombok.Value;
 
-import java.io.Serializable;
-
 @Value
-public class JwtResponseDto implements Serializable {
+public class JwtResponseDto {
 
     String accessToken;
 

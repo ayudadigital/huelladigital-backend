@@ -1,43 +1,35 @@
 package com.huellapositiva.infrastructure.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.TokenExpiredException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
-import com.nimbusds.jose.EncryptionMethod;
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.JWEHeader;
-import com.nimbusds.jose.crypto.RSADecrypter;
-import com.nimbusds.jose.crypto.RSAEncrypter;
-import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
-import lombok.AllArgsConstructor;
+import com.nimbusds.jwt.SignedJWT;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPrivateKeySpec;
-import java.security.spec.RSAPublicKeySpec;
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
+import static com.nimbusds.jose.JOSEObjectType.JWT;
+import static com.nimbusds.jose.JWSAlgorithm.HS512;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class JwtService {
 
@@ -51,10 +43,24 @@ public class JwtService {
     @Autowired
     private final JpaRoleRepository roleRepository;
 
+    private JWSHeader signatureHeader;
+
+    private JWSSigner jwsSigner;
+
+    private JWSVerifier jwsVerifier;
+
+    @PostConstruct
+    public void init() throws JOSEException {
+        String signatureSecret = jwtProperties.getSignature().getSecret();
+        log.debug("Signing key length: {}", signatureSecret.getBytes().length * 8);
+        signatureHeader = new JWSHeader.Builder(HS512).type(JWT).build();
+        jwsSigner = new MACSigner(signatureSecret);
+        jwsVerifier = new MACVerifier(signatureSecret);
+    }
+
     public JwtResponseDto refresh(String refreshToken) throws InvalidJwtTokenException {
         String username = getUserDetails(refreshToken).getFirst();
         List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
-
         return create(username, roles);
     }
 
@@ -62,93 +68,58 @@ public class JwtService {
         revokeAccessTokens(username);
         String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
         String newRefreshToken = createToken(username, Collections.emptyList(), jwtProperties.getRefreshToken().getExpirationTime());
-        try {
-
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-
-            keyPairGenerator.initialize(2048);
-
-            // generate the key pair
-            KeyPair keyPair = keyPairGenerator.genKeyPair();
-
-            // create KeyFactory and RSA Keys Specs
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            RSAPublicKeySpec publicKeySpec = keyFactory.getKeySpec(keyPair.getPublic(), RSAPublicKeySpec.class);
-            RSAPrivateKeySpec privateKeySpec = keyFactory.getKeySpec(keyPair.getPrivate(), RSAPrivateKeySpec.class);
-
-            // generate (and retrieve) RSA Keys from the KeyFactory using Keys Specs
-            RSAPublicKey publicRsaKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
-            RSAPrivateKey privateRsaKey = (RSAPrivateKey) keyFactory.generatePrivate(privateKeySpec);
-
-
-            JWTClaimsSet.Builder jwtClaimsSet = new JWTClaimsSet.Builder();
-            jwtClaimsSet.issuer("https://my-auth-server.com");
-            jwtClaimsSet.subject("John Kerr");
-            jwtClaimsSet.expirationTime(new Date(new Date().getTime() + 1000*60*10));
-            jwtClaimsSet.notBeforeTime(new Date());
-            jwtClaimsSet.jwtID(UUID.randomUUID().toString());
-
-            EncryptedJWT encryptedJWT = new EncryptedJWT(new JWEHeader(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A128CBC_HS256),
-                    jwtClaimsSet.build());
-
-            String beforeEncryption = encryptedJWT.getParsedString();
-
-            RSAEncrypter encrypter = new RSAEncrypter(publicRsaKey);
-            encryptedJWT.encrypt(encrypter);
-
-            String afterEncryption = encryptedJWT.getParsedString();
-
-            String jwtString = encryptedJWT.serialize();
-
-
-            RSADecrypter decrypter = new RSADecrypter(privateRsaKey);
-            EncryptedJWT decryptedJwt = EncryptedJWT.parse(jwtString);
-
-
-            String beforeDecryption = decryptedJwt.getParsedString();
-            decryptedJwt.decrypt(decrypter);
-            String afterDecryption = decryptedJwt.getParsedString();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return new JwtResponseDto(newAccessToken, newRefreshToken);
     }
 
+    @SuppressWarnings("unchecked")
     public Pair<String, List<String>> getUserDetails(String token) throws InvalidJwtTokenException {
-        DecodedJWT decodedRefreshToken = decodeToken(token);
-        String username = decodedRefreshToken.getSubject();
-        List<String> roles = decodedRefreshToken.getClaim(ROLE_CLAIM).asList(String.class);
+        JWTClaimsSet claims = decodeToken(token);
+        String username = claims.getSubject();
+        List<String> roles = (List<String>) claims.getClaim(ROLE_CLAIM);
         return Pair.of(username, roles);
     }
 
-    private DecodedJWT decodeToken(String token) throws InvalidJwtTokenException {
-        DecodedJWT decodedJWT;
+    private JWTClaimsSet decodeToken(String token) throws InvalidJwtTokenException {
+        JWTClaimsSet claims;
         try {
-            decodedJWT = JWT.require(Algorithm.HMAC512(jwtProperties.getSecret().getBytes())).build().verify(token);
-        } catch (TokenExpiredException e) {
-            throw new InvalidJwtTokenException("Token is expired: " + token, e);
-        } catch (Exception e) {
-            log.warn("Invalid token: {}", token, e);
+            SignedJWT signedJwt = SignedJWT.parse(token);
+            if (!signedJwt.verify(jwsVerifier)) {
+                throw new InvalidJwtTokenException("Token signature is invalid: " + token);
+            }
+            claims = signedJwt.getJWTClaimsSet();
+        } catch (ParseException | IllegalStateException | JOSEException | InvalidJwtTokenException e) {
+            log.error("Invalid token: {}", token, e);
             throw new InvalidJwtTokenException("Unable to decode token: " + token, e);
         }
 
-        if (isRevoked(decodedJWT)) {
-            log.warn("Token is revoked: {}, {}, {}", decodedJWT.getSubject(), decodedJWT.getIssuedAt(), revokedAccessTokens.get(decodedJWT.getSubject()));
+        if (claims.getExpirationTime().before(new Date())) {
+            throw new InvalidJwtTokenException("Token is expired: " + token);
+        }
+
+        if (isRevoked(claims)) {
+            log.warn("Token is revoked: {}, {}, {}", claims.getSubject(), claims.getIssueTime(), revokedAccessTokens.get(claims.getSubject()));
             throw new InvalidJwtTokenException("Token is revoked: " + token);
         }
-        return decodedJWT;
+
+        return claims;
     }
 
     private String createToken(String username, List<String> roles, long duration) {
         Instant issuedAt = Instant.now();
-        return JWT.create()
-                .withSubject(username)
-                .withIssuedAt(Date.from(issuedAt))
-                .withExpiresAt(Date.from(issuedAt.plusMillis(duration)))
-                .withArrayClaim(ROLE_CLAIM, roles.toArray(new String[0]))
-                .sign(HMAC512(jwtProperties.getSecret().getBytes()));
+        JWTClaimsSet claims = new JWTClaimsSet.Builder()
+                .subject(username)
+                .issueTime(Date.from(issuedAt))
+                .expirationTime(Date.from(issuedAt.plusMillis(duration)))
+                .claim(ROLE_CLAIM, roles)
+                .build();
+        SignedJWT signedJWT = new SignedJWT(signatureHeader, claims);
+        try {
+            signedJWT.sign(jwsSigner);
+        } catch (JOSEException e) {
+            log.error("Unable to sign token: {}", signedJWT.toString());
+            throw new IllegalStateException("Unable to create a token.", e);
+        }
+        return signedJWT.serialize();
     }
 
     public void revokeAccessTokens(String username) {
@@ -159,9 +130,9 @@ public class JwtService {
         }
     }
 
-    private boolean isRevoked(DecodedJWT decodedJWT) {
-        String username = decodedJWT.getSubject();
-        Date issuedAt = decodedJWT.getIssuedAt();
+    private boolean isRevoked(JWTClaimsSet claims) {
+        String username = claims.getSubject();
+        Date issuedAt = claims.getIssueTime();
         Date revokedIssuedBefore = revokedAccessTokens.get(username);
         return revokedIssuedBefore != null && issuedAt.before(revokedIssuedBefore);
     }

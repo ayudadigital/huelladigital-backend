@@ -5,7 +5,10 @@ import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtProperties;
+import com.huellapositiva.infrastructure.security.JwtProperties.Signature;
 import com.huellapositiva.infrastructure.security.JwtService;
+import com.nimbusds.jose.JOSEException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +29,14 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 public class JwtServiceShould {
 
-    private final JwtProperties jwtProperties = new JwtProperties(new AccessToken(5000L), new RefreshToken(3000000L), "secret");
+    private final JwtProperties jwtProperties = new JwtProperties(
+            new AccessToken(5000L),
+            new RefreshToken(3000000L),
+            new Signature("ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789"));
 
     @Mock
     private JpaRoleRepository roleRepository;
@@ -37,8 +44,9 @@ public class JwtServiceShould {
     private JwtService jwtService;
 
     @BeforeEach
-    void beforeEach() {
+    void beforeEach() throws JOSEException {
         jwtService = new JwtService(jwtProperties, roleRepository);
+        jwtService.init();
     }
 
     @Test

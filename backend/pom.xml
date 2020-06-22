@@ -21,20 +21,20 @@
     <hamcrest.version>2.2</hamcrest.version>
     <hibernate.version>5.4.12.Final</hibernate.version>
     <hibernate-validator.version>6.1.4.Final</hibernate-validator.version>
-    <jjwt.version>0.9.1</jjwt.version>
     <jackson.version>2.10.3</jackson.version>
     <jacoco.version>0.8.5</jacoco.version>
     <java.version>11</java.version>
-    <java-jwt.version>3.10.3</java-jwt.version>
     <json.path>2.4.0</json.path>
     <junit5.version>5.5.2</junit5.version>
     <junit4.version>4.13</junit4.version>
     <localstack.version>1.14.1</localstack.version>
+    <localstack-utils.version>0.2.1</localstack-utils.version>
     <lombok.version>1.18.10</lombok.version>
     <maven.compiler.version>3.8.1</maven.compiler.version>
     <maven.failsafe.version>2.22.2</maven.failsafe.version>
     <maven.project.info.reports.version>3.0.0</maven.project.info.reports.version>
     <mockito.version>3.3.0</mockito.version>
+    <nimbus-jose-jwt.version>8.19</nimbus-jose-jwt.version>
     <postqresql.version>9.4-1201-jdbc4</postqresql.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.version>3.8.1</maven.compiler.version>
@@ -139,15 +139,9 @@
       <version>${aws.ses.version}</version>
     </dependency>
     <dependency>
-      <groupId>cloud.localstack</groupId>
-      <artifactId>localstack-utils</artifactId>
-      <version>0.2.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.stefanbirkner</groupId>
-      <artifactId>system-rules</artifactId>
-      <version>${system.rules.version}</version>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>${nimbus-jose-jwt.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->
@@ -234,26 +228,18 @@
       <version>${awaitility.version}</version>
       <scope>test</scope>
     </dependency>
-
-
-    <!-- Security Dependencies -->
     <dependency>
-      <groupId>com.auth0</groupId>
-      <artifactId>java-jwt</artifactId>
-      <version>${java-jwt.version}</version>
+      <groupId>cloud.localstack</groupId>
+      <artifactId>localstack-utils</artifactId>
+      <version>${localstack-utils.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt</artifactId>
-      <version>${jjwt.version}</version>
+      <groupId>com.github.stefanbirkner</groupId>
+      <artifactId>system-rules</artifactId>
+      <version>${system.rules.version}</version>
+      <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.nimbusds</groupId>
-      <artifactId>nimbus-jose-jwt</artifactId>
-      <version>8.17.1</version>
-    </dependency>
-
-
   </dependencies>
 
   <build>

@@ -79,6 +79,7 @@ public class JwtService {
         return Pair.of(username, roles);
     }
 
+    @SuppressWarnings("unchecked")
     private JWTClaimsSet decodeToken(String token) throws InvalidJwtTokenException {
         JWTClaimsSet claims;
         try {
@@ -96,7 +97,7 @@ public class JwtService {
             throw new InvalidJwtTokenException("Token is expired: " + token);
         }
 
-        boolean isRefresh = decodedJWT.getClaim(ROLE_CLAIM).asList(String.class).isEmpty();
+        boolean isRefresh = ((List<String>) claims.getClaim(ROLE_CLAIM)).isEmpty();
         if (!isRefresh && isRevoked(claims)) {
             log.warn("Token is revoked: {}, {}, {}", claims.getSubject(), claims.getIssueTime(), revokedAccessTokens.get(claims.getSubject()));
             throw new InvalidJwtTokenException("Token is revoked: " + token);

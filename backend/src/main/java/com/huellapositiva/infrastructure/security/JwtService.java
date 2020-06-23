@@ -4,10 +4,9 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.DirectDecrypter;
+import com.nimbusds.jose.crypto.DirectEncrypter;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -49,6 +48,12 @@ public class JwtService {
 
     private JWSVerifier jwsVerifier;
 
+    private DirectEncrypter encrypter;
+
+    private DirectDecrypter decrypter;
+
+    private JWEHeader encryptionHeader;
+
     @PostConstruct
     public void init() throws JOSEException {
         String signatureSecret = jwtProperties.getSignature().getSecret();
@@ -56,6 +61,11 @@ public class JwtService {
         signatureHeader = new JWSHeader.Builder(HS512).type(JWT).build();
         jwsSigner = new MACSigner(signatureSecret);
         jwsVerifier = new MACVerifier(signatureSecret);
+        String encryptionSecret = jwtProperties.getEncryption().getSecret();
+        log.debug("Signing key length: {}", encryptionSecret.getBytes().length * 8);
+        encrypter = new DirectEncrypter(encryptionSecret.getBytes());
+        decrypter = new DirectDecrypter(jwtProperties.getEncryption().getSecret().getBytes());
+        encryptionHeader = new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A256GCM).contentType("JWT").build();
     }
 
     public JwtResponseDto refresh(String refreshToken) throws InvalidJwtTokenException {
@@ -81,9 +91,21 @@ public class JwtService {
 
     @SuppressWarnings("unchecked")
     private JWTClaimsSet decodeToken(String token) throws InvalidJwtTokenException {
+
+        JWEObject jweObject;
+        try {
+            jweObject = JWEObject.parse(token);
+
+            jweObject.decrypt(decrypter);
+        } catch (ParseException | JOSEException e) {
+            log.error("Failed to decrypt token: {}", token, e);
+            throw new InvalidJwtTokenException("Unable to decrypt token: " + token, e);
+        }
+
+        SignedJWT signedJwt = jweObject.getPayload().toSignedJWT();
+
         JWTClaimsSet claims;
         try {
-            SignedJWT signedJwt = SignedJWT.parse(token);
             if (!signedJwt.verify(jwsVerifier)) {
                 throw new InvalidJwtTokenException("Token signature is invalid: " + token);
             }
@@ -99,7 +121,6 @@ public class JwtService {
 
         boolean isRefresh = ((List<String>) claims.getClaim(ROLE_CLAIM)).isEmpty();
         if (!isRefresh && isRevoked(claims)) {
-            log.warn("Token is revoked: {}, {}, {}", claims.getSubject(), claims.getIssueTime(), revokedAccessTokens.get(claims.getSubject()));
             throw new InvalidJwtTokenException("Token is revoked: " + token);
         }
 
@@ -121,7 +142,15 @@ public class JwtService {
             log.error("Unable to sign token: {}", signedJWT.toString());
             throw new IllegalStateException("Unable to create a token.", e);
         }
-        return signedJWT.serialize();
+
+        JWEObject jweObject = new JWEObject(encryptionHeader, new Payload(signedJWT));
+        try {
+            jweObject.encrypt(encrypter);
+        } catch (JOSEException e) {
+            throw new IllegalArgumentException("Failed to encrypt token", e);
+        }
+
+        return jweObject.serialize();
     }
 
     public void revokeAccessTokens(String username) {

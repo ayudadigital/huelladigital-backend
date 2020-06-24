@@ -57,12 +57,12 @@ public class JwtService {
     @PostConstruct
     public void init() throws JOSEException {
         String signatureSecret = jwtProperties.getSignature().getSecret();
-        log.debug("Signing key length: -{}-, {}", signatureSecret, signatureSecret.getBytes().length * 8);
+        log.debug("Signing key length: {}", signatureSecret.getBytes().length * 8);
         signatureHeader = new JWSHeader.Builder(HS512).type(JWT).build();
         jwsSigner = new MACSigner(signatureSecret);
         jwsVerifier = new MACVerifier(signatureSecret);
         String encryptionSecret = jwtProperties.getEncryption().getSecret();
-        log.debug("Signing key length: -{}-, {}", encryptionSecret, encryptionSecret.getBytes().length * 8);
+        log.debug("Signing key length: {}", encryptionSecret.getBytes().length * 8);
         encrypter = new DirectEncrypter(encryptionSecret.getBytes());
         decrypter = new DirectDecrypter(jwtProperties.getEncryption().getSecret().getBytes());
         encryptionHeader = new JWEHeader.Builder(JWEAlgorithm.DIR, EncryptionMethod.A256GCM).contentType("JWT").build();

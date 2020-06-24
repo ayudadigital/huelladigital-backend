@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.Role;
@@ -30,7 +31,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -148,33 +150,21 @@ class JwtControllerShould {
 
     @Test
     void support_multiple_sessions() throws Exception {
+        //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String jsonBody = objectMapper.writeValueAsString(loginDto);
-        String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
-
-        //GIVEN
-        JwtResponseDto sessionOneJwtDto = objectMapper.readValue(
-                loginRequest(mvc, jsonBody).getContentAsString(), JwtResponseDto.class);
-        JwtResponseDto sessionTwoJwtDto = objectMapper.readValue(
-                loginRequest(mvc, jsonBody).getContentAsString(), JwtResponseDto.class);
+        JwtResponseDto sessionOneJwtDto = loginRequest(mvc, loginDto);
+        Thread.sleep(1100);
 
         //WHEN
-        Thread.sleep(1000);
-        String sessionOneNewAccessToken = objectMapper.readValue(
-                refreshRequest(mvc, sessionOneJwtDto.getRefreshToken()).getContentAsString(), JwtResponseDto.class)
-                .getAccessToken();
-        String sessionTwoNewAccessToken = objectMapper.readValue(
-                refreshRequest(mvc, sessionTwoJwtDto.getRefreshToken()).getContentAsString(), JwtResponseDto.class)
-                .getAccessToken();
+        // Login with second device
+        loginRequest(mvc, loginDto);
 
         //THEN
-        assertAll(
-                () -> assertTrue(sessionOneNewAccessToken.matches(regexToken)),
-                () -> assertTrue(sessionTwoNewAccessToken.matches(regexToken)),
-                () -> assertNotEquals(sessionOneNewAccessToken, sessionOneJwtDto.getAccessToken()),
-                () -> assertNotEquals(sessionTwoNewAccessToken, sessionTwoJwtDto.getAccessToken())
-        );
+        // Access token from first login has been revoked due to the second login
+        assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()));
+        // Refresh token from first login can still get access tokens issued
+        assertThat(refreshRequest(mvc, sessionOneJwtDto.getRefreshToken()).getAccessToken()).isNotNull();
     }
 
     private JwtResponseDto createVolunteerWithRoleAndGetAccessToken(Roles role) {

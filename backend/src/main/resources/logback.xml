@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date [%thread] %-5level %logger{36} - %message%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.huellapositiva" level="DEBUG"/>
+
+    <!-- To see more logs set one of these to DEBUG -> Careful too spammy but you will learn a lot about Spring -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.transaction" level="INFO"/>
+    <logger name="org.springframework.web.servlet.mvc" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+
+    <!-- To see query parameter values set to TRACE -->
+    <logger name="org.hibernate.type.descriptor.sql" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

@@ -25,7 +25,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -79,19 +79,16 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private RequestMatcher csrfWhitelistedEndpoints() {
         return new RequestMatcher() {
-            private final AntPathRequestMatcher[] csrfDisabledPaths = {
+            private final List<AntPathRequestMatcher> whitelistedEndpoints = Arrays.asList(
                     new AntPathRequestMatcher("/api/v1/volunteers/login"),
                     new AntPathRequestMatcher("/api/v1/volunteers/register"),
                     new AntPathRequestMatcher("/actuator/health")
-            };
+            );
             @Override
             public boolean matches(HttpServletRequest request) {
-                for (AntPathRequestMatcher rm : csrfDisabledPaths) {
-                    if (rm.matches(request) || request.getMethod().equals("GET")) {
-                        return false;
-                    }
-                }
-                return true;
+                boolean isWhitelisted = whitelistedEndpoints.stream().anyMatch(endpoint -> endpoint.matches(request));
+                boolean isGetRequest = request.getMethod().equals("GET");
+                return !isWhitelisted && !isGetRequest;
             }
         };
     }

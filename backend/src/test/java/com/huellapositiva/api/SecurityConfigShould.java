@@ -11,8 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.Cookie;
@@ -31,7 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = ClassMode.BEFORE_CLASS)
 @AutoConfigureMockMvc
 @Import(TestData.class)
 public class SecurityConfigShould {

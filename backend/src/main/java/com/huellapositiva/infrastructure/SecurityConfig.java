@@ -18,8 +18,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Slf4j
 @EnableWebSecurity
@@ -35,7 +40,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public WebMvcConfigurer corsConfigure(){
+    public WebMvcConfigurer corsConfigure() {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
@@ -54,7 +59,28 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable().authorizeRequests()
+
+        RequestMatcher csrfRequestMatcher = new RequestMatcher() {
+            private final AntPathRequestMatcher[] csrfDisabledPaths = {
+                    new AntPathRequestMatcher("/api/v1/volunteers/login"),
+                    new AntPathRequestMatcher("/api/v1/volunteers/register"),
+                    new AntPathRequestMatcher("/actuator/health")
+            };
+            @Override
+            public boolean matches(HttpServletRequest request) {
+                for (AntPathRequestMatcher rm : csrfDisabledPaths) {
+                    if (rm.matches(request) || request.getMethod().equals("GET")) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+
+        http.cors().and()
+                .csrf().requireCsrfProtectionMatcher(csrfRequestMatcher)
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .and().authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()

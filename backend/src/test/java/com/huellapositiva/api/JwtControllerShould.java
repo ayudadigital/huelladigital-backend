@@ -9,6 +9,7 @@ import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
+import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -93,9 +95,18 @@ class JwtControllerShould {
 
     @Test
     void fail_to_generate_new_access_token_if_refresh_token_is_malformed() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+
+        String xsrfToken = loginResponse.getHeader("Set-Cookie");
+        xsrfToken= xsrfToken.substring(xsrfToken.indexOf("=") + 1, xsrfToken.indexOf(";"));
+
         //WHEN + THEN
         mvc.perform(post("/api/v1/refresh")
                 .contentType(APPLICATION_JSON)
+                .header("X-XSRF-TOKEN", xsrfToken)
+                .cookie(loginResponse.getCookie("XSRF-TOKEN"))
                 .content("malformed JWT string")
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -153,7 +164,7 @@ class JwtControllerShould {
         //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto sessionOneJwtDto = loginRequest(mvc, loginDto);
+        JwtResponseDto sessionOneJwtDto = objectMapper.readValue(loginRequest(mvc, loginDto).getContentAsString(), JwtResponseDto.class);
         Thread.sleep(1100);
 
         //WHEN

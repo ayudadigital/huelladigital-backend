@@ -25,6 +25,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @EnableWebSecurity
@@ -59,8 +61,24 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.cors().and()
+                .csrf().requireCsrfProtectionMatcher(csrfWhitelistedEndpoints())
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .and().authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    }
 
-        RequestMatcher csrfRequestMatcher = new RequestMatcher() {
+    private RequestMatcher csrfWhitelistedEndpoints() {
+        return new RequestMatcher() {
             private final AntPathRequestMatcher[] csrfDisabledPaths = {
                     new AntPathRequestMatcher("/api/v1/volunteers/login"),
                     new AntPathRequestMatcher("/api/v1/volunteers/register"),
@@ -76,21 +94,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 return true;
             }
         };
-
-        http.cors().and()
-                .csrf().requireCsrfProtectionMatcher(csrfRequestMatcher)
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
-                .and().authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Autowired

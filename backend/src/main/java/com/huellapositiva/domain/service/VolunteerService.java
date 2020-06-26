@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.UserAlreadyExists;
+import com.huellapositiva.application.exception.FailedToPersistUser;
 import com.huellapositiva.domain.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
@@ -28,7 +28,7 @@ public class VolunteerService {
             ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
             return volunteerRepository.save(expressVolunteer);
         } catch (DataIntegrityViolationException ex) {
-            throw new UserAlreadyExists();
+            throw new FailedToPersistUser("Conflict found while saving user in database", ex);
         }
     }
 }

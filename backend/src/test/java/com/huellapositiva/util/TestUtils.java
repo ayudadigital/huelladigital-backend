@@ -2,7 +2,6 @@ package com.huellapositiva.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.Roles;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -60,13 +59,7 @@ public final class TestUtils {
                 .andReturn().getResponse();
     }
 
-    public static JwtResponseDto refreshRequest(MockMvc mvc, String refreshToken) throws Exception {
-        String jsonResponse =  mvc.perform(post("/api/v1/refresh")
-                .content(refreshToken)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+    public static String getTokenValue(String xsrfToken) {
+        return xsrfToken.substring(xsrfToken.indexOf("=") + 1, xsrfToken.indexOf(";"));
     }
 }

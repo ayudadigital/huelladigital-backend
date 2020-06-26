@@ -59,7 +59,7 @@ public final class TestUtils {
                 .andReturn().getResponse();
     }
 
-    public static String getTokenValue(String xsrfToken) {
-        return xsrfToken.substring(xsrfToken.indexOf("=") + 1, xsrfToken.indexOf(";"));
+    public static String getCsrfTokenFromCookieHeader(String cookieHeader) {
+        return cookieHeader.substring(cookieHeader.indexOf("=") + 1, cookieHeader.indexOf(";"));
     }
 }

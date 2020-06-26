@@ -28,7 +28,7 @@ public class VolunteerService {
             ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
             return volunteerRepository.save(expressVolunteer);
         } catch (DataIntegrityViolationException ex) {
-            throw new FailedToPersistUser("Conflict found while saving user in database", ex);
+            throw new FailedToPersistUser("Conflict encountered while storing user in database. Constraints were violated.", ex);
         }
     }
 }

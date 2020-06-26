@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,14 +71,12 @@ class JwtControllerShould {
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
         String accessToken = jwtResponseDto.getAccessToken();
         String refreshToken = jwtResponseDto.getRefreshToken();
-        String xsrfToken = getTokenValue(loginResponse.getHeader("Set-Cookie"));
 
         //WHEN
         await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() -> {
             String jsonResponse = mvc.perform(post("/api/v1/refresh")
+                    .with(csrf())
                     .contentType(APPLICATION_JSON)
-                    .header("X-XSRF-TOKEN", xsrfToken)
-                    .cookie(loginResponse.getCookie("XSRF-TOKEN"))
                     .content(refreshToken)
                     .accept(APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -103,13 +102,10 @@ class JwtControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
 
-        String xsrfToken = getTokenValue(loginResponse.getHeader("Set-Cookie"));
-
         //WHEN + THEN
         mvc.perform(post("/api/v1/refresh")
+                .with(csrf())
                 .contentType(APPLICATION_JSON)
-                .header("X-XSRF-TOKEN", xsrfToken)
-                .cookie(loginResponse.getCookie("XSRF-TOKEN"))
                 .content("malformedt JWT string")
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
@@ -169,8 +165,6 @@ class JwtControllerShould {
         CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, loginDto);
         JwtResponseDto sessionOneJwtDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        String xsrfTokenValue = getTokenValue(loginResponse.getHeader("Set-Cookie"));
-        Cookie xsrfCookie = loginResponse.getCookie("XSRF-TOKEN");
 
         Thread.sleep(1100);
 
@@ -183,10 +177,9 @@ class JwtControllerShould {
         assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()));
         // Refresh token from first login can still get access tokens issued
         String refreshResponse = mvc.perform(post("/api/v1/refresh")
+                .with(csrf())
                 .content(sessionOneJwtDto.getRefreshToken())
                 .contentType(APPLICATION_JSON)
-                .header("X-XSRF-TOKEN", xsrfTokenValue)
-                .cookie(xsrfCookie)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();

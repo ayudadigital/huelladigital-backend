@@ -41,7 +41,7 @@ public class VolunteerApiController {
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
         } catch (FailedToPersistUser ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
         }
     }
 }

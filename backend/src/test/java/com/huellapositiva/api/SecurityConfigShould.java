@@ -17,10 +17,7 @@ import javax.servlet.http.Cookie;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
-import static com.huellapositiva.util.TestUtils.getCsrfTokenFromCookieHeader;
 import static com.huellapositiva.util.TestUtils.loginRequest;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -29,7 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(printOnlyOnFailure = false)
 @Import(TestData.class)
 public class SecurityConfigShould {
 
@@ -48,7 +45,7 @@ public class SecurityConfigShould {
     }
 
     @Test
-    void not_check_csrf_token_when_request_is_get() throws Exception {
+    void do_not_check_csrf_token_when_request_is_get() throws Exception {
         // WHEN + THEN
         mvc.perform(get("/actuator/health")
                 .accept(APPLICATION_JSON))
@@ -56,13 +53,12 @@ public class SecurityConfigShould {
     }
 
     @Test
-    void not_check_csrf_token_when_request_endpoint_is_whitelisted() throws Exception {
+    void do_not_check_csrf_token_when_request_endpoint_is_whitelisted() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        assertThat(loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD))
-                .getStatus(), is(MockHttpServletResponse.SC_OK));
+        loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
     }
 
     @Test
@@ -116,13 +112,12 @@ public class SecurityConfigShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        String xsrfTokenValue = getCsrfTokenFromCookieHeader(loginResponse.getHeader("Set-Cookie"));
         Cookie xsrfCookie = loginResponse.getCookie("XSRF-TOKEN");
 
         // WHEN + THEN
         mvc.perform(post(REFRESH_URL)
                 .contentType(APPLICATION_JSON)
-                .header("X-XSRF-TOKEN", xsrfTokenValue)
+                .header("X-XSRF-TOKEN", xsrfCookie.getValue())
                 .cookie(xsrfCookie)
                 .content(jwtResponseDto.getRefreshToken())
                 .accept(APPLICATION_JSON))

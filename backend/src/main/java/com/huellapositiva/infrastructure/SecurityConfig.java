@@ -19,14 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @EnableWebSecurity
@@ -62,8 +56,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and()
-                .csrf().requireCsrfProtectionMatcher(csrfWhitelistedEndpoints())
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrf()
+                    .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register")
+                    .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
@@ -75,22 +70,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
                 .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    }
-
-    private RequestMatcher csrfWhitelistedEndpoints() {
-        return new RequestMatcher() {
-            private final List<AntPathRequestMatcher> whitelistedEndpoints = Arrays.asList(
-                    new AntPathRequestMatcher("/api/v1/volunteers/login"),
-                    new AntPathRequestMatcher("/api/v1/volunteers/register"),
-                    new AntPathRequestMatcher("/actuator/health")
-            );
-            @Override
-            public boolean matches(HttpServletRequest request) {
-                boolean isWhitelisted = whitelistedEndpoints.stream().anyMatch(endpoint -> endpoint.matches(request));
-                boolean isGetRequest = request.getMethod().equals("GET");
-                return !isWhitelisted && !isGetRequest;
-            }
-        };
     }
 
     @Autowired

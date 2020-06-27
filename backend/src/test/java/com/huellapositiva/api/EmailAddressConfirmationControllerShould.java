@@ -16,8 +16,10 @@ import java.util.UUID;
 import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
-import static com.huellapositiva.util.TestUtils.*;
+import static com.huellapositiva.util.TestUtils.loginRequest;
+import static com.huellapositiva.util.TestUtils.withMockUser;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -63,13 +65,11 @@ class EmailAddressConfirmationControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
-        String xsrfToken = getCsrfTokenFromCookieHeader(loginResponse.getHeader("Set-Cookie"));
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/resend-email-confirmation")
                 .with(user(withMockUser(DEFAULT_EMAIL, VOLUNTEER_NOT_CONFIRMED)))
-                .header("X-XSRF-TOKEN", xsrfToken)
-                .cookie(loginResponse.getCookie("XSRF-TOKEN"))
+                .with(csrf())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

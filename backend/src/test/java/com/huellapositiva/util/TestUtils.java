@@ -58,8 +58,4 @@ public final class TestUtils {
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
     }
-
-    public static String getCsrfTokenFromCookieHeader(String cookieHeader) {
-        return cookieHeader.substring(cookieHeader.indexOf("=") + 1, cookieHeader.indexOf(";"));
-    }
 }

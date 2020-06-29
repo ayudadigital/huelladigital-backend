@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SecurityConfigShould {
 
     private static final String REFRESH_URL = "/api/v1/refresh";
+    private static final String HEALTH_URL = "/actuator/health";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -47,13 +48,13 @@ public class SecurityConfigShould {
     @Test
     void do_not_check_csrf_token_when_request_is_get() throws Exception {
         // WHEN + THEN
-        mvc.perform(get("/actuator/health")
+        mvc.perform(get(HEALTH_URL)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void do_not_check_csrf_token_when_request_endpoint_is_whitelisted() throws Exception {
+    void do_not_check_csrf_token_when_request_endpoint_is_allowlisted() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -67,7 +68,7 @@ public class SecurityConfigShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse getResponse = mvc.perform(get("/actuator/health")
+        MockHttpServletResponse getResponse = mvc.perform(get(HEALTH_URL)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
@@ -100,8 +101,8 @@ public class SecurityConfigShould {
         // WHEN + THEN
         mvc.perform(post(REFRESH_URL)
                 .contentType(APPLICATION_JSON)
-                .header("X-XSRF-TOKEN", "invalid token")
-                .cookie(new Cookie("XSRF-TOKEN", "invalidCookie"))
+                .header("X-XSRF-TOKEN", "IllicitValue")
+                .cookie(new Cookie("XSRF-TOKEN", "TokenValue"))
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }

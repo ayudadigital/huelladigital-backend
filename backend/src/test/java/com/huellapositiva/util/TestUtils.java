@@ -2,9 +2,9 @@ package com.huellapositiva.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.Roles;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,24 +49,13 @@ public final class TestUtils {
                 .andExpect(expectedHeader);
     }
 
-    public static JwtResponseDto loginRequest(MockMvc mvc, CredentialsVolunteerRequestDto loginDto) throws Exception {
+    public static MockHttpServletResponse loginRequest(MockMvc mvc, CredentialsVolunteerRequestDto loginDto) throws Exception {
         String jsonBody = objectMapper.writeValueAsString(loginDto);
-        String jsonResponse = mvc.perform(post("/api/v1/volunteers/login")
+        return mvc.perform(post("/api/v1/volunteers/login")
                 .content(jsonBody)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(jsonResponse, JwtResponseDto.class);
-    }
-
-    public static JwtResponseDto refreshRequest(MockMvc mvc, String refreshToken) throws Exception {
-        String jsonResponse =  mvc.perform(post("/api/v1/refresh")
-                .content(refreshToken)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        return objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+                .andReturn().getResponse();
     }
 }

@@ -50,7 +50,6 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_should_return_201_and_tokens() throws Exception {
-        String regexToken = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.?[A-Za-z0-9-_.+/=]*$";
         CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password("password")

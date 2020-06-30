@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Repository
@@ -21,6 +22,6 @@ public interface JpaEmailConfirmationRepository extends JpaRepository<EmailConfi
 
     @Modifying
     @Transactional
-    @Query("UPDATE EmailConfirmation ec SET ec.hash = :hash WHERE ec.email = :email")
-    Integer updateHashByEmail(@Param("email") String email, @Param("hash") String hash);
+    @Query("UPDATE EmailConfirmation ec SET ec.hash = :hash, ec.createdOn = :createdOn WHERE ec.email = :email")
+    Integer updateHashByEmail(@Param("email") String email, @Param("hash") String hash, @Param("createdOn") Date createdOn);
 }

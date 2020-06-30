@@ -76,8 +76,7 @@ public class ResendEmailConfirmationActionShould {
     @Test
     void update_creation_date() throws Exception{
         //GIVEN
-        UUID initialHash = UUID.randomUUID();
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
+        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         Date createdOn = emailConfirmation.getCreatedOn();

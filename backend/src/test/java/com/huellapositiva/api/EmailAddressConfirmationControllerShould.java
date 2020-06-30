@@ -62,7 +62,7 @@ class EmailAddressConfirmationControllerShould {
 
     @Test
     void resend_email_should_return_204() throws Exception {
-        //GIVEN
+        // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
 
@@ -72,6 +72,20 @@ class EmailAddressConfirmationControllerShould {
                 .with(csrf())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void expired_email_should_return_410() throws Exception{
+        // GIVEN
+        UUID token = UUID.randomUUID();
+        testData.createCredential("email@huellapositiva.com", token, "password", VOLUNTEER_NOT_CONFIRMED);
+
+        Thread.sleep(1000);
+
+        // WHEN + THEN
+        mvc.perform(get(baseUri + '/' + token)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isGone());
     }
 }
 

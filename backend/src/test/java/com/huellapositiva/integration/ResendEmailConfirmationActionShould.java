@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -70,5 +71,27 @@ public class ResendEmailConfirmationActionShould {
         String newHash = newEmailConfirmation.getHash();
         assertThat(initialHash, is(not(newHash)));
         verify(communicationService).sendRegistrationConfirmationEmail(any());
+    }
+
+    @Test
+    void update_creation_date() throws Exception{
+        //GIVEN
+        UUID initialHash = UUID.randomUUID();
+        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
+        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
+                .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
+        Date createdOn = emailConfirmation.getCreatedOn();
+
+        //WHEN
+        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
+        Authentication auth = authenticationManager.authenticate(authReq);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        resendEmailConfirmationAction.execute();
+
+        //THEN
+        EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
+                .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
+        Date newCreatedOn = newEmailConfirmation.getCreatedOn();
+        assertThat(createdOn, is(not(newCreatedOn)));
     }
 }

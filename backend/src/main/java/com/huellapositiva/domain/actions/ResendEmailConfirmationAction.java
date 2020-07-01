@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 public class ResendEmailConfirmationAction {
 
@@ -40,7 +38,7 @@ public class ResendEmailConfirmationAction {
 
         boolean isEmailNotConfirmed = !credential.getEmailConfirmed();
         if (isEmailNotConfirmed) {
-            Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString(), new Date());
+            Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
             if (updateOperation != 1) {
                 throw new RuntimeException("No modifying anything hash or you have modified several hashes");
             }

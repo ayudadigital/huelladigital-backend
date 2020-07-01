@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -144,13 +143,12 @@ class JwtControllerShould {
         String accessToken = createVolunteerWithRoleAndGetAccessToken(VOLUNTEER_NOT_CONFIRMED).getAccessToken();
 
         //WHEN + THEN
-        await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).until(() -> {
-            int responseStatus = mvc.perform(get(testJwtUri)
-                    .header(AUTHORIZATION, "Bearer " + accessToken)
-                    .accept(APPLICATION_JSON))
-                    .andReturn().getResponse().getStatus();
-            return responseStatus == HttpStatus.UNAUTHORIZED.value();
-        });
+        await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() ->
+                mvc.perform(get(testJwtUri)
+                        .header(AUTHORIZATION, "Bearer " + accessToken)
+                        .accept(APPLICATION_JSON))
+                        .andExpect(status().isUnauthorized())
+        );
     }
 
     @Test
@@ -160,14 +158,15 @@ class JwtControllerShould {
         CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, loginDto);
         JwtResponseDto sessionOneJwtDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        Thread.sleep(1100);
 
         //WHEN
         // Login with second device
         loginRequest(mvc, loginDto);
         //THEN
         // Access token from first login has been revoked due to the second login
-        assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()));
+        await().atMost(1, SECONDS).untilAsserted(() ->
+                assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()))
+        );
         // Refresh token from first login can still get access tokens issued
         String refreshResponse = mvc.perform(post("/api/v1/refresh")
                 .with(csrf())

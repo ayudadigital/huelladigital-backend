@@ -2,6 +2,7 @@ package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
+import com.huellapositiva.infrastructure.orm.model.Credential;
 import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
@@ -17,8 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -26,6 +27,7 @@ import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -54,10 +56,11 @@ public class ResendEmailConfirmationActionShould {
     }
 
     @Test
-    void update_hash_and_resend_email() {
+    void update_hash_and_creation_timestamp_and_resend_email() {
         //GIVEN
         UUID initialHash = UUID.randomUUID();
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
+        Credential credential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
+        Instant initialCreationTimestamp = credential.getEmailConfirmation().getCreatedOn();
 
         //WHEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
@@ -69,28 +72,11 @@ public class ResendEmailConfirmationActionShould {
         EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         String newHash = newEmailConfirmation.getHash();
-        assertThat(initialHash, is(not(newHash)));
+        Instant newCreationTimestamp = newEmailConfirmation.getCreatedOn();
+        assertAll(
+                () -> assertThat(initialHash, is(not(newHash))),
+                () -> assertThat(initialCreationTimestamp, is(not(newCreationTimestamp)))
+        );
         verify(communicationService).sendRegistrationConfirmationEmail(any());
-    }
-
-    @Test
-    void update_creation_date() throws Exception{
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
-        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
-        Date createdOn = emailConfirmation.getCreatedOn();
-
-        //WHEN
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        Authentication auth = authenticationManager.authenticate(authReq);
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        resendEmailConfirmationAction.execute();
-
-        //THEN
-        EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
-                .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
-        Date newCreatedOn = newEmailConfirmation.getCreatedOn();
-        assertThat(createdOn, is(not(newCreatedOn)));
     }
 }

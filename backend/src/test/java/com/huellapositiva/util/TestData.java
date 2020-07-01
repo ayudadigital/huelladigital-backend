@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -56,7 +55,6 @@ public class TestData {
     private EmailConfirmation createEmailConfirmation(UUID token) {
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
                 .email(DEFAULT_EMAIL)
-                .createdOn(new Date())
                 .hash(token.toString())
                 .build();
         return jpaEmailConfirmationRepository.save(emailConfirmation);

@@ -15,9 +15,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.huellapositiva.domain.Roles.VOLUNTEER;
+import static java.time.Instant.now;
 
 @Service
 @RequiredArgsConstructor
@@ -33,18 +37,15 @@ public class EmailConfirmationAction {
     private final JwtService jwtService;
 
     @Value("${huellapositiva.email-confirmation.expiration-time}")
-    private Integer emailExpirationTime;
+    private long emailExpirationTime;
 
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
                 .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
 
-        Calendar expirationDate = Calendar.getInstance();
-        expirationDate.setTime(emailConfirmation.getCreatedOn());
-        expirationDate.add(Calendar.SECOND, emailExpirationTime);
-        Calendar currentDate = Calendar.getInstance();
-        if(currentDate.after(expirationDate)){
-           throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationDate.getTime().toString() + ".");
+        Instant expirationTimestamp = emailConfirmation.getCreatedOn().plusMillis(emailExpirationTime);
+        if(expirationTimestamp.isBefore(now())) {
+           throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }
 
         Credential credential = emailConfirmation.getCredential();

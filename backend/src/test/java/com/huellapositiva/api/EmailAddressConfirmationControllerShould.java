@@ -1,6 +1,5 @@
 package com.huellapositiva.api;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -16,8 +14,9 @@ import java.util.UUID;
 import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
-import static com.huellapositiva.util.TestUtils.loginRequest;
 import static com.huellapositiva.util.TestUtils.withMockUser;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -64,7 +63,6 @@ class EmailAddressConfirmationControllerShould {
     void resend_email_should_return_204() throws Exception {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/resend-email-confirmation")
@@ -75,17 +73,17 @@ class EmailAddressConfirmationControllerShould {
     }
 
     @Test
-    void expired_email_should_return_410() throws Exception{
+    void expired_email_should_return_410() {
         // GIVEN
         UUID token = UUID.randomUUID();
         testData.createCredential("email@huellapositiva.com", token, "password", VOLUNTEER_NOT_CONFIRMED);
 
-        Thread.sleep(1000);
-
         // WHEN + THEN
-        mvc.perform(get(baseUri + '/' + token)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isGone());
+        await().atMost(1, SECONDS).untilAsserted(() ->
+                mvc.perform(get(baseUri + '/' + token)
+                        .contentType(APPLICATION_JSON))
+                        .andExpect(status().isGone())
+        );
     }
 }
 

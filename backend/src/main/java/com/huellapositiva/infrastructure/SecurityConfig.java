@@ -53,13 +53,34 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtService jwtService;
 
+
+    private static final String[] AUTH_ALLOWSLIST = {
+            // -- swagger ui
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**"
+            // other public endpoints of your API may be appended to this array
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and()
                 .csrf()
-                    .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register")
+                    .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register",
+                            "/v2/api-docs",
+                            "/swagger-resources",
+                            "/swagger-resources/**",
+                            "/configuration/ui",
+                            "/configuration/security",
+                            "/swagger-ui.html",
+                            "/webjars/**" )
                     .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .and().authorizeRequests()
+                .antMatchers(AUTH_ALLOWSLIST).permitAll()
                 .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()

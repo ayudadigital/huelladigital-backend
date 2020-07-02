@@ -43,7 +43,7 @@ public class EmailConfirmationAction {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
                 .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
 
-        Instant expirationTimestamp = emailConfirmation.getCreatedOn().plusMillis(emailExpirationTime);
+        Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
         if(expirationTimestamp.isBefore(now())) {
            throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }

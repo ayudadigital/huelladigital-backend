@@ -24,7 +24,7 @@ public class EmailConfirmationApiController {
     @GetMapping("/{hash}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void confirmEmail(@PathVariable UUID hash) {
-            emailConfirmationAction.execute(hash);
+        emailConfirmationAction.execute(hash);
     }
 
     @RolesAllowed({"VOLUNTEER_NOT_CONFIRMED"})

@@ -60,7 +60,7 @@ public class ResendEmailConfirmationActionShould {
         //GIVEN
         UUID initialHash = UUID.randomUUID();
         Credential credential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
-        Instant initialCreationTimestamp = credential.getEmailConfirmation().getCreatedOn();
+        Instant updateTimestamp = credential.getEmailConfirmation().getUpdatedOn().toInstant();
 
         //WHEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
@@ -72,10 +72,10 @@ public class ResendEmailConfirmationActionShould {
         EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         String newHash = newEmailConfirmation.getHash();
-        Instant newCreationTimestamp = newEmailConfirmation.getCreatedOn();
+        Instant lastUpdateTimestamp = newEmailConfirmation.getUpdatedOn().toInstant();
         assertAll(
                 () -> assertThat(initialHash, is(not(newHash))),
-                () -> assertThat(initialCreationTimestamp, is(not(newCreationTimestamp)))
+                () -> assertThat(updateTimestamp, is(not(lastUpdateTimestamp)))
         );
         verify(communicationService).sendRegistrationConfirmationEmail(any());
     }

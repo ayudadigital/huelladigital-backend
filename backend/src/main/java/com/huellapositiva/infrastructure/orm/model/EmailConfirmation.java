@@ -4,12 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.time.Instant;
-
-import static java.time.Instant.now;
+import java.util.Date;
 
 @Entity
 @Table(name = "email_confirmation")
@@ -29,15 +28,14 @@ public class EmailConfirmation {
     @Column(name = "hash", unique = true)
     private String hash;
 
-    @UpdateTimestamp
+    @CreationTimestamp
     @Column(name = "created_on")
-    private Instant createdOn;
+    private Date createdOn;
+
+    @UpdateTimestamp
+    @Column(name = "updated_on")
+    private Date updatedOn;
 
     @OneToOne(mappedBy = "emailConfirmation")
     private Credential credential;
-
-    @PrePersist
-    protected void onPersist() {
-        createdOn = now();
-    }
 }

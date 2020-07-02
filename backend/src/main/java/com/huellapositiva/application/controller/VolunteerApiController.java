@@ -8,6 +8,10 @@ import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -28,9 +32,14 @@ public class VolunteerApiController {
 
     private final RegisterVolunteerAction registerVolunteerAction;
 
+    @ApiOperation(notes = "Register a volunteer", value = "Request Volunteer's Credentials", nickname = "registerVolunteer" )
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Volunteer is register in database successfully"),
+            @ApiResponse(code = 409, message = "Volunteer already exist in database")
+    })
     @PostMapping("/register")
     @ResponseBody
-    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+    public JwtResponseDto registerVolunteer(@ApiParam(value = "User info DTO", required = true) @Validated @RequestBody CredentialsVolunteerRequestDto dto) {
         try {
             registerVolunteerAction.execute(dto);
             String username = dto.getEmail();

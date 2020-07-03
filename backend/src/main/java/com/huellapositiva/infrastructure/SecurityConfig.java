@@ -76,14 +76,14 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                     .antMatchers("/**").permitAll()
                     .anyRequest().permitAll();
-//
+
 //            http.authorizeRequests()
 //                .antMatchers(AUTH_ALLOWSLIST).permitAll()
 //                    .anyRequest().authenticated();
 
 
-
-        //        http.cors().and()
+//
+//                http.cors().and()
 //                .csrf()
 //                    .ignoringAntMatchers(AUTH_ALLOWSLIST)
 //                    .csrfTokenRepository(new CookieCsrfTokenRepository())

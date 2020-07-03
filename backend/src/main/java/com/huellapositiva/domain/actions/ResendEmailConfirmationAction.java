@@ -44,7 +44,6 @@ public class ResendEmailConfirmationAction {
 
         Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
         if (updateOperation != 1) {
-
             throw new RuntimeException("No modifying anything hash or you have modified several hashes");
         }
         EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);

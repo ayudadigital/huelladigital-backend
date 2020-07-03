@@ -5,6 +5,7 @@ import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,9 +40,13 @@ public class JwtController {
                     @ApiResponse(
                             responseCode = "200",
                             description = "successful",
-                            // TODO: poner ejemplo de token refresh
-                            content = @Content()
+                            content = @Content(
+                                    schema = @Schema(
+                                            example = "{\n\"refreshToken\": \"eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0..UZg_dFpW0JJp0nul.GyaID9YuFwRcUkH7gagM9242657Px7474WH3MWJ3lrQho_RspGNDGlaOGYiZzaU0dHHufqC_zL7q7I0zvNTbVbjTrxCtrY5UjqH42Z7VLg_BsLy2JXiQDVd2VZ-zUabiifoigW3l_towpywAhpK0thvkrXUK4DlKGLuDJmKe7PNiOVkRAoBSU31GumMWU2mJxA97bav0hvYtKdWh9sF7WFv8dOrXX6jPGREj3C1Z3nVb5EGl2ub_mwANYNo97jvcSfSYEuLgPMZiAQHfzGAtsu2tOlctYPz8JJLao5nO4GTVzQ.E1MR54BpO6CxHXzjU5ED-g\"\n}"
+                                    )
+                            )
                     ),
+
                     @ApiResponse(
                             responseCode = "401",
                             description = "Unauthorized",
@@ -49,7 +54,6 @@ public class JwtController {
                     )
             }
     )
-
     @PostMapping("/refresh")
     public JwtResponseDto refreshJwtToken(@RequestBody String refreshToken, HttpServletResponse res) {
         try {

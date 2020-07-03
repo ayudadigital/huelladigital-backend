@@ -55,6 +55,10 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     private static final String[] AUTH_ALLOWSLIST = {
+            // api
+            "/api/v1/volunteers/login",
+            "/api/v1/volunteers/register",
+
             // -- swagger ui
             "/v2/api-docs",
             "/swagger-resources",
@@ -68,29 +72,27 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and()
-                .csrf()
-                    .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register",
-                            "/v2/api-docs",
-                            "/swagger-resources",
-                            "/swagger-resources/**",
-                            "/configuration/ui",
-                            "/configuration/security",
-                            "/swagger-ui.html",
-                            "/webjars/**" )
-                    .csrfTokenRepository(new CookieCsrfTokenRepository())
-                .and().authorizeRequests()
-                .antMatchers(AUTH_ALLOWSLIST).permitAll()
-                .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+            http.csrf().disable()
+                    .authorizeRequests()
+                    .antMatchers("/**").permitAll()
+                    .anyRequest().permitAll();
+
+        //        http.cors().and()
+//                .csrf()
+//                    .ignoringAntMatchers(AUTH_ALLOWSLIST)
+//                    .csrfTokenRepository(new CookieCsrfTokenRepository())
+//                .and().authorizeRequests()
+//                .antMatchers(AUTH_ALLOWSLIST).permitAll()
+//                .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+//                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
+//                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
+//                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
+//                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
+//                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
+//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 
     @Autowired

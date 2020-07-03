@@ -52,6 +52,7 @@
     <sonar.organization>ayudadigital</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+    <springdoc-openapi-ui.version>1.4.3</springdoc-openapi-ui.version>
     <system.rules.version>1.17.2</system.rules.version>
     <springfox.version>2.9.2</springfox.version>
     <swagger.core.version>2.1.1</swagger.core.version>
@@ -145,20 +146,13 @@
       <artifactId>nimbus-jose-jwt</artifactId>
       <version>${nimbus-jose-jwt.version}</version>
     </dependency>
+
+<!--    Documentation-->
+
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger2</artifactId>
-      <version>${springfox.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-swagger-ui</artifactId>
-      <version>${springfox.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-bean-validators</artifactId>
-      <version>${springfox.version}</version>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>${springdoc-openapi-ui.version}</version>
     </dependency>
 
     <!-- Test Dependencies -->

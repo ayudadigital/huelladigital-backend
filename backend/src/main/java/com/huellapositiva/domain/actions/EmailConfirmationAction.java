@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
 import com.huellapositiva.application.exception.EmailConfirmationExpired;
 import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
@@ -42,6 +43,11 @@ public class EmailConfirmationAction {
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
                 .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
+
+        boolean isEmailConfirmed = emailConfirmation.getCredential().getEmailConfirmed();
+        if (isEmailConfirmed) {
+            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
+        }
 
         Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
         if(expirationTimestamp.isBefore(now())) {

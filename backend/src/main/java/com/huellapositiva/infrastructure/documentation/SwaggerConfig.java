@@ -1,8 +1,10 @@
 package com.huellapositiva.infrastructure.documentation;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -14,8 +16,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
+@Profile("dev")
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig {
+
+    @Value("${info.build.version}")
+    private String buildVersion;
 
     @Bean
     public Docket apiDocket() {
@@ -30,7 +36,7 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder().title("Huella Positiva")
                 .description("Plataforma de voluntariado en Canarias")
-                .version("0.1.0")
+                .version(buildVersion)
                 .build();
     }
 }

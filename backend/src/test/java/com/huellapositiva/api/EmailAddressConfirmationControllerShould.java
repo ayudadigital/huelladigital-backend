@@ -6,6 +6,7 @@ import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -33,6 +34,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class EmailAddressConfirmationControllerShould {
 
     private static final String baseUri = "/api/v1/email-confirmation";
+
+    @Value("${huellapositiva.email-confirmation.expiration-time}")
+    private long expirationTime;
 
     @Autowired
     private MockMvc mvc;
@@ -96,7 +100,7 @@ class EmailAddressConfirmationControllerShould {
         // GIVEN
         UUID token = UUID.randomUUID();
         Credential credential = testData.createCredential("email@huellapositiva.com", token, "password", VOLUNTEER_NOT_CONFIRMED);
-        Instant expirationTimestamp = credential.getEmailConfirmation().getUpdatedOn().toInstant().plusMillis(1000);
+        Instant expirationTimestamp = credential.getEmailConfirmation().getUpdatedOn().toInstant().plusMillis(expirationTime);
         await().until(() -> expirationTimestamp.isBefore(now()));
 
         // WHEN + THEN

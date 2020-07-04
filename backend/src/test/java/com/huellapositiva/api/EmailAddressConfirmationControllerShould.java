@@ -83,6 +83,21 @@ class EmailAddressConfirmationControllerShould {
     }
 
     @Test
+    void resend_confirmed_email_should_return_409() throws Exception {
+        // GIVEN
+        UUID token = UUID.randomUUID();
+        testData.createCredential(DEFAULT_EMAIL, token, DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
+        emailConfirmationAction.execute(token);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/resend-email-confirmation")
+                .with(user(withMockUser(DEFAULT_EMAIL, VOLUNTEER_NOT_CONFIRMED)))
+                .with(csrf())
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void confirmed_email_should_return_409() throws Exception {
         // GIVEN
         UUID token = UUID.randomUUID();

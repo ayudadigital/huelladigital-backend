@@ -8,7 +8,6 @@ import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +30,7 @@ public class ResendEmailConfirmationAction {
     }
 
     public void execute() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = userDetails.getUsername();
+        String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Credential credential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
 

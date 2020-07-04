@@ -17,7 +17,7 @@ public class CredentialsVolunteerRequestDto {
 
     @Schema(
             description = "Volunteer email unique",
-            example = "jhon.doe@gmail.com"
+            example = "jhon.doe@huellapositiva.com"
     )
     @NotNull
     @Email(regexp = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")

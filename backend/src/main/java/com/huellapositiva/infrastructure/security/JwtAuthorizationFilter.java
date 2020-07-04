@@ -3,7 +3,6 @@ package com.huellapositiva.infrastructure.security;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,27 +24,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private static final String ACCESS_TOKEN_PREFIX = "Bearer ";
 
-    private final List<AntPathRequestMatcher> nonAuthenticatedUrls = Arrays.asList(
-            new AntPathRequestMatcher("/swagger-ui/**", HttpMethod.GET.name()),
-            new AntPathRequestMatcher("/v3/api-docs/**", HttpMethod.GET.name()),
-            new AntPathRequestMatcher("/actuator/health", HttpMethod.GET.name()),
-            new AntPathRequestMatcher("/api/v1/email-confirmation/", HttpMethod.GET.name()),
-            new AntPathRequestMatcher("/api/v1/volunteers/register", HttpMethod.POST.name()),
-            new AntPathRequestMatcher("/api/v1/refresh", HttpMethod.POST.name())
-    );
-
     private final JwtService jwtService;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
+    private final AntPathRequestMatcher[] authAllowList;
+
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtService jwtService, AntPathRequestMatcher[] authAllowList) {
         super(authenticationManager);
         this.jwtService = jwtService;
+        this.authAllowList = authAllowList;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith(ACCESS_TOKEN_PREFIX)) {
-            if (nonAuthenticatedUrls.stream().anyMatch(matcher -> matcher.matches(req))) {
+            if (Arrays.stream(authAllowList).anyMatch(matcher -> matcher.matches(req))) {
                 chain.doFilter(req, res);
             } else {
                 res.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Bearer");

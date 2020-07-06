@@ -21,6 +21,6 @@ public interface JpaEmailConfirmationRepository extends JpaRepository<EmailConfi
 
     @Modifying
     @Transactional
-    @Query("UPDATE EmailConfirmation ec SET ec.hash = :hash WHERE ec.email = :email")
+    @Query("UPDATE EmailConfirmation ec SET ec.hash = :hash, ec.updatedOn = current_timestamp WHERE ec.email = :email")
     Integer updateHashByEmail(@Param("email") String email, @Param("hash") String hash);
 }

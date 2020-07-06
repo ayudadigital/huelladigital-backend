@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -30,6 +31,10 @@ public class EmailConfirmation {
     @CreationTimestamp
     @Column(name = "created_on")
     private Date createdOn;
+
+    @UpdateTimestamp
+    @Column(name = "updated_on")
+    private Date updatedOn;
 
     @OneToOne(mappedBy = "emailConfirmation")
     private Credential credential;

@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -26,6 +24,7 @@ import static com.huellapositiva.domain.Roles.VOLUNTEER;
 import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static com.huellapositiva.util.TestUtils.loginRequest;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -62,12 +61,17 @@ class JwtControllerShould {
         testData.resetData();
     }
 
+    private JwtResponseDto createVolunteerWithRoleAndGetAccessToken(Roles role) {
+        Credential credentials = testData.createCredential(DEFAULT_EMAIL, role);
+        List<String> roles = credentials.getRoles().stream().map(Role::getName).collect(Collectors.toList());
+        return jwtService.create(DEFAULT_EMAIL, roles);
+    }
+
     @Test
     void generate_new_access_token() throws Exception {
         //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
-        JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String accessToken = jwtResponseDto.getAccessToken();
         String refreshToken = jwtResponseDto.getRefreshToken();
 
@@ -92,7 +96,6 @@ class JwtControllerShould {
                     () -> assertThat(newRefreshToken).isNotEqualTo(refreshToken)
             );
         });
-
     }
 
     @Test
@@ -101,7 +104,7 @@ class JwtControllerShould {
         mvc.perform(post("/api/v1/refresh")
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
-                .content("malformedt JWT string")
+                .content("malformed JWT string")
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
@@ -144,30 +147,28 @@ class JwtControllerShould {
         String accessToken = createVolunteerWithRoleAndGetAccessToken(VOLUNTEER_NOT_CONFIRMED).getAccessToken();
 
         //WHEN + THEN
-        await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).until(() -> {
-            int responseStatus = mvc.perform(get(testJwtUri)
-                    .header(AUTHORIZATION, "Bearer " + accessToken)
-                    .accept(APPLICATION_JSON))
-                    .andReturn().getResponse().getStatus();
-            return responseStatus == HttpStatus.UNAUTHORIZED.value();
-        });
+        await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() ->
+                mvc.perform(get(testJwtUri)
+                        .header(AUTHORIZATION, "Bearer " + accessToken)
+                        .accept(APPLICATION_JSON))
+                        .andExpect(status().isUnauthorized())
+        );
     }
 
     @Test
     void support_multiple_sessions() throws Exception {
         //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, loginDto);
-        JwtResponseDto sessionOneJwtDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        Thread.sleep(1100);
+        JwtResponseDto sessionOneJwtDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         //WHEN
         // Login with second device
-        loginRequest(mvc, loginDto);
+        loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         //THEN
         // Access token from first login has been revoked due to the second login
-        assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()));
+        await().atMost(1, SECONDS).untilAsserted(() ->
+                assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()))
+        );
         // Refresh token from first login can still get access tokens issued
         String refreshResponse = mvc.perform(post("/api/v1/refresh")
                 .with(csrf())
@@ -177,11 +178,5 @@ class JwtControllerShould {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(objectMapper.readValue(refreshResponse, JwtResponseDto.class).getAccessToken()).isNotNull();
-    }
-
-    private JwtResponseDto createVolunteerWithRoleAndGetAccessToken(Roles role) {
-        Credential credentials = testData.createCredential(DEFAULT_EMAIL, role);
-        List<String> roles = credentials.getRoles().stream().map(Role::getName).collect(Collectors.toList());
-        return jwtService.create(DEFAULT_EMAIL, roles);
     }
 }

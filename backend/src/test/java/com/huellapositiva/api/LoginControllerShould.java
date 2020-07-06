@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,22 +43,13 @@ class LoginControllerShould {
     void validate_user_correctly_and_send_tokens() throws Exception {
         //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        CredentialsVolunteerRequestDto loginDto = new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String jsonBody = objectMapper.writeValueAsString(loginDto);
 
         //WHEN
-        String jsonResponse = mvc.perform(post(loginUri)
-                .content(jsonBody)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse().getContentAsString();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         //THEN
-        JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
-        assertThat(responseDto.getAccessToken()).isNotNull();
-        assertThat(responseDto.getRefreshToken()).isNotNull();
+        assertThat(jwtResponseDto.getAccessToken()).isNotNull();
+        assertThat(jwtResponseDto.getRefreshToken()).isNotNull();
     }
 
     @Test

@@ -17,6 +17,7 @@ import javax.servlet.http.Cookie;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static com.huellapositiva.util.TestUtils.loginRequest;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,8 +86,7 @@ public class SecurityConfigShould {
     void deny_access_when_no_csrf_token_was_provided() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
-        JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
         mvc.perform(post(REFRESH_URL)

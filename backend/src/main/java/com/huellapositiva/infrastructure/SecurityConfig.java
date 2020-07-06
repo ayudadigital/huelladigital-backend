@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -53,22 +54,28 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtService jwtService;
 
+    private static final AntPathRequestMatcher[] AUTH_ALLOWSLIST = new AntPathRequestMatcher[]{
+            new AntPathRequestMatcher("/swagger-ui/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/v3/api-docs/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/actuator/health", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/api/v1/email-confirmation/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/api/v1/volunteers/register", HttpMethod.POST.name()),
+            new AntPathRequestMatcher("/api/v1/refresh", HttpMethod.POST.name()),
+            new AntPathRequestMatcher("/api/v1/volunteers/login", HttpMethod.POST.name())
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and()
                 .csrf()
-                    .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register")
-                    .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers/register")
+                .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .and().authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/register").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/refresh").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/v1/email-confirmation/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/volunteers/login").permitAll()
+                .requestMatchers(AUTH_ALLOWSLIST).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService, AUTH_ALLOWSLIST ))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

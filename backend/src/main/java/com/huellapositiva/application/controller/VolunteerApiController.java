@@ -2,12 +2,17 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.application.exception.FailedToPersistUser;
+import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/volunteers")
+@Tag(name = "Volunteer", description = "The volunteer API")
 public class VolunteerApiController {
 
     private final JwtService jwtService;
@@ -27,6 +33,30 @@ public class VolunteerApiController {
     private final JpaRoleRepository roleRepository;
 
     private final RegisterVolunteerAction registerVolunteerAction;
+
+    @Operation(
+            summary = "Register a new volunteer",
+            description = "Register a new volunteer",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Volunteer register successful"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request - Password doesn't meet minimum length",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict - Could not register the user already exist on db",
+                            content = @Content()
+                    )
+            }
+    )
 
     @PostMapping("/register")
     @ResponseBody

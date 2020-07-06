@@ -33,7 +33,7 @@ public class JwtController {
 
     @Operation(
             summary = "Request a new refresh token",
-            description = "Give you a new refresh token",
+            description = "Returns access token and refresh token when you give valid refresh token",
             tags = "jwt"
     )
     @ApiResponses(
@@ -43,9 +43,8 @@ public class JwtController {
                             description = "successful",
                             content = {
                                     @Content(mediaType = "application/json",
-
                                             schema = @Schema(
-                                                    example = "{\n\"refreshToken\": \"eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0..UZg_dFpW0JJp0nul.GyaID9YuFwRcUkH7gagM9242657Px7474WH3MWJ3lrQho_RspGNDGlaOGYiZzaU0dHHufqC_zL7q7I0zvNTbVbjTrxCtrY5UjqH42Z7VLg_BsLy2JXiQDVd2VZ-zUabiifoigW3l_towpywAhpK0thvkrXUK4DlKGLuDJmKe7PNiOVkRAoBSU31GumMWU2mJxA97bav0hvYtKdWh9sF7WFv8dOrXX6jPGREj3C1Z3nVb5EGl2ub_mwANYNo97jvcSfSYEuLgPMZiAQHfzGAtsu2tOlctYPz8JJLao5nO4GTVzQ.E1MR54BpO6CxHXzjU5ED-g\"\n}"
+                                                    implementation = JwtResponseDto.class
                                             )
                                     )
                             }

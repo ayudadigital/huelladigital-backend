@@ -2,6 +2,9 @@ package com.huellapositiva.api;
 
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.infrastructure.orm.model.Credential;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -21,9 +26,9 @@ import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.withMockUser;
 import static java.time.Instant.now;
 import static org.awaitility.Awaitility.await;
+import static com.huellapositiva.util.TestUtils.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,6 +42,8 @@ class EmailAddressConfirmationControllerShould {
 
     @Value("${huellapositiva.email-confirmation.expiration-time}")
     private long expirationTime;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private MockMvc mvc;
@@ -73,10 +80,12 @@ class EmailAddressConfirmationControllerShould {
     void resend_email_should_return_204() throws Exception {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/resend-email-confirmation")
-                .with(user(withMockUser(DEFAULT_EMAIL, VOLUNTEER_NOT_CONFIRMED)))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());

@@ -11,8 +11,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@SecurityScheme( description = "Cookie inside your browser. Example: a6f5086d-af6b-464f-988b-7a604e46062b",name = "XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.COOKIE)
-@SecurityScheme( description = "Same value XSRF-TOKEN",name = "X-XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
+@SecurityScheme(
+        type = SecuritySchemeType.APIKEY,
+        in = SecuritySchemeIn.COOKIE,
+        name = "XSRF-TOKEN",
+        description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. \n Example: a6f5086d-af6b-464f-988b-7a604e46062b"
+)
+@SecurityScheme(
+        type = SecuritySchemeType.APIKEY,
+        in = SecuritySchemeIn.HEADER,
+        name = "X-XSRF-TOKEN",
+        description = "Same value of XSRF-TOKEN"
+)
 public class OpenAPIConfig {
 
     @Value("${info.build.version}")
@@ -23,7 +33,7 @@ public class OpenAPIConfig {
         return new OpenAPI()
                 .components(new Components())
                 .info(new Info().title("Huella Positiva")
-                .description("Plataforma de voluntariado en Canarias")
+                        .description("Plataforma de voluntariado en Canarias")
                         .version(buildVersion));
 
     }

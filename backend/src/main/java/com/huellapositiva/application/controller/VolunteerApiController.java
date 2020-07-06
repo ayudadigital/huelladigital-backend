@@ -9,9 +9,12 @@ import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,7 @@ public class VolunteerApiController {
             description = "Register a new volunteer",
             tags = "user"
     )
+
     @ApiResponses(
             value = {
                     @ApiResponse(
@@ -57,6 +61,7 @@ public class VolunteerApiController {
                     )
             }
     )
+
 
     @PostMapping("/register")
     @ResponseBody

@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,11 @@ public class JwtController {
     @Operation(
             summary = "Request a new refresh token",
             description = "Returns access token and refresh token when you give valid refresh token",
-            tags = "jwt"
+            tags = "jwt",
+            security = {
+                    @SecurityRequirement(name = "XSRF-TOKEN"),
+                    @SecurityRequirement(name = "X-XSRF-TOKEN")
+            }
     )
     @ApiResponses(
             value = {
@@ -53,6 +59,11 @@ public class JwtController {
                     @ApiResponse(
                             responseCode = "401",
                             description = "Unauthorized",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden",
                             content = @Content()
                     )
             }

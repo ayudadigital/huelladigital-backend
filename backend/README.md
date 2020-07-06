@@ -53,3 +53,11 @@ Notice that the platform can also be run directly from the IDE by just right cli
 The docker daemon must already be running in your system in order to run the integrations tests that require it.
 
 From the IDE you may run the tests with the right mouse button on the `src/test` folder.
+
+## Run the documentation of the API in Swagger
+
+If don't have the API running. Open a new terminal with `mvn clean compile spring-boot:run` to launch the backend on port 8080. Remember don't close the terminal if you need use the API.
+
+Notice that the platform can also be run directly from the IDE by just right clicking in the `Application.java`or `App.java` file which might be more convenient in some cases.
+
+On the another hand the documentation is disable with the profile `prod`, only works in `dev` and `local`profiles.

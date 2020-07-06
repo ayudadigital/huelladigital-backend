@@ -16,7 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -70,8 +69,7 @@ public class ResendEmailConfirmationActionShould {
 
         // WHEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        Authentication auth = authenticationManager.authenticate(authReq);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authReq);
         resendEmailConfirmationAction.execute();
 
         // THEN
@@ -95,8 +93,7 @@ public class ResendEmailConfirmationActionShould {
 
         // WHEN + THEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        Authentication auth = authenticationManager.authenticate(authReq);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContextHolder.getContext().setAuthentication(authReq);
         assertThrows(EmailConfirmationAlreadyConfirmed.class, () -> resendEmailConfirmationAction.execute());
     }
 }

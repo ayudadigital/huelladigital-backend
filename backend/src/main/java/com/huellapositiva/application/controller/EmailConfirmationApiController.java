@@ -4,6 +4,7 @@ import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +38,10 @@ public class EmailConfirmationApiController {
                     @ApiResponse(
                             responseCode = "204",
                             description = "Ok, verify email"
+                    ),
+                    @ApiResponse(
+                            responseCode = "410",
+                            description = "Need generate a new email confirmation using */resend-email-confirmation* endpoint"
                     )
             }
     )
@@ -49,8 +54,15 @@ public class EmailConfirmationApiController {
     @Operation(
             summary = "Resend another has to confirmation email",
             description = "If the user without confirm the email need resend a new hash to confirm email",
-            tags = "email"
+            tags = "email",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN"),
+            // TODO: Aquí creo que hay que pasarle también el accesstoken y refreshtoken por el body para que pueda hacer la petición
+            }
     )
+
+
     @ApiResponses(
             value = {
                     @ApiResponse(

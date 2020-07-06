@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.Token;
@@ -34,15 +35,16 @@ public class ResendEmailConfirmationAction {
         Credential credential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
 
-        boolean isEmailNotConfirmed = !credential.getEmailConfirmed();
-        if (isEmailNotConfirmed) {
-            Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
-            if (updateOperation != 1) {
-                throw new RuntimeException("No modifying anything hash or you have modified several hashes");
-            }
-
-            EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);
-            communicationService.sendRegistrationConfirmationEmail(emailConfirmationValueObject);
+        boolean isEmailConfirmed = credential.getEmailConfirmed();
+        if (isEmailConfirmed) {
+            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
         }
+
+        Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
+        if (updateOperation != 1) {
+            throw new RuntimeException("No modifying anything hash or you have modified several hashes");
+        }
+        EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);
+        communicationService.sendRegistrationConfirmationEmail(emailConfirmationValueObject);
     }
 }

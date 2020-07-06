@@ -1,5 +1,7 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
+import com.huellapositiva.application.exception.EmailConfirmationExpired;
 import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.infrastructure.orm.model.Credential;
@@ -9,18 +11,21 @@ import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.Roles.VOLUNTEER;
+import static java.time.Instant.now;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class EmailConfirmationAction {
 
@@ -32,9 +37,23 @@ public class EmailConfirmationAction {
 
     private final JwtService jwtService;
 
+    @Value("${huellapositiva.email-confirmation.expiration-time}")
+    private long emailExpirationTime;
+
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
-                .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found"));
+                .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
+
+        boolean isEmailConfirmed = emailConfirmation.getCredential().getEmailConfirmed();
+        if (isEmailConfirmed) {
+            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
+        }
+
+        Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
+        if(expirationTimestamp.isBefore(now())) {
+           throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
+        }
+
         Credential credential = emailConfirmation.getCredential();
         credential.setEmailConfirmed(true);
         Role newRole = jpaRoleRepository.findByName(VOLUNTEER.toString())

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +68,8 @@ public class JwtController {
             }
     )
     @PostMapping("/refresh")
-    public JwtResponseDto refreshJwtToken(@Parameter(description = "refresh token in string") @RequestBody String refreshToken, HttpServletResponse res) {
+    public JwtResponseDto refreshJwtToken(@Parameter(description = "refresh token value", example = "eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiZGlyIn0..qPxdcrmy04En8lrP.JtPX2HK7gApQHR5R_8DjoHZq703Mpl2eiBl4GN-SrEb72lPBeb_CRULKxGAMveQ5WHaHHZJ9TC6-GA37v7bHLPSQrrMZonZCCUhYNl2afPpzYkHwJOKeTRLl3Kx339VJLOhCgtyhxP5Ca_oWW0Um4ke6XYo6pK1uNPncwXmivdvOmQzGEMHslNehJpcdxUkwn7Qw7TU1tUEfDqBUp5c8jOtSaPF6Nui12aKlHrFKn_dKUsDIdhTkBIROipec9wriyF_fMW3pQ34TiYz48aubvmqPAkVWrOLB0BfDapG0LsRsvoAWyr5e9HHa48SYvnb-mKXmhOS5-K8LlOoOLMb6AJuCgQ.IUVXVJP1CcDzwr4mnE_Psw")
+                                          @RequestBody String refreshToken, HttpServletResponse res) {
         try {
             return jwtService.refresh(refreshToken);
         } catch (InvalidJwtTokenException e) {

@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@SecurityScheme( name = "XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.COOKIE)
-@SecurityScheme( name = "X-XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
+@SecurityScheme( description = "Cookie inside your browser. Example: a6f5086d-af6b-464f-988b-7a604e46062b",name = "XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.COOKIE)
+@SecurityScheme( description = "Same value XSRF-TOKEN",name = "X-XSRF-TOKEN", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
 public class OpenAPIConfig {
 
     @Value("${info.build.version}")

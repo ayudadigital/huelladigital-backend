@@ -15,8 +15,15 @@ import java.util.List;
 @Configuration
 @SecurityScheme(
         type = SecuritySchemeType.HTTP,
-        scheme = "basic",
-        name = "basicScheme"
+        bearerFormat = "JWT",
+        scheme = "Bearer",
+        name = "accessToken"
+)
+@SecurityScheme(
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "Bearer",
+        name = "refreshToken"
 )
 public class OpenAPIConfig {
 

@@ -4,8 +4,10 @@ import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +38,19 @@ public class EmailConfirmationApiController {
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "Ok, verify email"
+                            description = "Ok, email has been verified"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, the hash does not exist"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the email you are trying to confirm is already confirmed"
+                    ),
+                    @ApiResponse(
+                            responseCode = "410",
+                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint"
                     )
             }
     )
@@ -49,13 +63,34 @@ public class EmailConfirmationApiController {
     @Operation(
             summary = "Resend another has to confirmation email",
             description = "If the user without confirm the email need resend a new hash to confirm email",
-            tags = "email"
+            tags = "email",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN"),
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
+
+
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "Ok, resend a new hash"
+                            description = "Ok, email has been resent successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized, you need a valid access token"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden, you need a valid XSRF-TOKEN"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the email you are trying to resend is already confirmed"
                     )
             }
     )

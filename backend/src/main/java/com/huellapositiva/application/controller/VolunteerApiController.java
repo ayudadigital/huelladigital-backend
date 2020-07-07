@@ -44,16 +44,16 @@ public class VolunteerApiController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Volunteer register successful"
+                            description = "Ok, volunteer register successful"
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request - Password doesn't meet minimum length",
+                            description = "Bad request, credentials are not valid",
                             content = @Content()
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict - Could not register the user already exist on db",
+                            description = "Conflict, could not register. The user already exist on db",
                             content = @Content()
                     )
             }

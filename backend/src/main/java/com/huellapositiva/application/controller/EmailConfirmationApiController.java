@@ -82,11 +82,11 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized, need a valid access token"
+                            description = "Unauthorized, you need a valid access token"
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, need a valid XSRF-TOKEN"
+                            description = "Forbidden, you need a valid XSRF-TOKEN"
                     ),
                     @ApiResponse(
                             responseCode = "409",

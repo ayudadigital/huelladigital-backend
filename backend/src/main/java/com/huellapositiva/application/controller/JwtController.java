@@ -50,20 +50,24 @@ public class JwtController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "successful",
+                            description = "Ok, created new JwtResponseDto",
                             content = {
                                     @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponseDto.class))
                             }
                     ),
-
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request, required request body is missing",
+                            content = @Content()
+                    ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized",
+                            description = "Unauthorized, you need a valid refresh token or XSRF-TOKEN",
                             content = @Content()
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden",
+                            description = "Forbidden, you need a valid XSRF-TOKEN",
                             content = @Content()
                     )
             }

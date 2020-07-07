@@ -38,11 +38,19 @@ public class EmailConfirmationApiController {
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "Ok, verify email"
+                            description = "Ok, email has been verified"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, the hash does not exist"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the email you are trying to confirm is already confirmed"
                     ),
                     @ApiResponse(
                             responseCode = "410",
-                            description = "Need generate a new email confirmation using */resend-email-confirmation* endpoint"
+                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint"
                     )
             }
     )
@@ -58,7 +66,7 @@ public class EmailConfirmationApiController {
             tags = "email",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
-                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN"),
             },
             security = {
                     @SecurityRequirement(name = "accessToken")
@@ -70,7 +78,19 @@ public class EmailConfirmationApiController {
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "Ok, resend a new hash"
+                            description = "Ok, email has been resent successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized, need a valid access token"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden, need a valid XSRF-TOKEN"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the email you are trying to resend is already confirmed"
                     )
             }
     )

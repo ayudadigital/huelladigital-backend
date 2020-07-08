@@ -61,3 +61,5 @@ If don't have the API running. Open a new terminal with `mvn clean compile sprin
 Notice that the platform can also be run directly from the IDE by just right clicking in the `Application.java`or `App.java` file which might be more convenient in some cases.
 
 On the another hand the documentation is disable with the profile `prod`, only works in `dev` and `local`profiles.
+
+[Swagger docs](https://dev.huelladigital.ayudadigital.org/swagger-ui/)

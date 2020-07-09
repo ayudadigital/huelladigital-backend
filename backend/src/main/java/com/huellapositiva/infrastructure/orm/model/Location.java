@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "location")
@@ -25,10 +23,12 @@ public class Location {
     @Column(name = "province")
     private String province;
 
-    @Column(name = "town", unique = true)
+    @Column(name = "town")
     private String town;
 
-    @CreationTimestamp
     @Column(name = "address")
-    private Date address;
+    private String address;
+
+    @OneToMany(mappedBy = "location")
+    private Set<Proposal> proposal;
 }

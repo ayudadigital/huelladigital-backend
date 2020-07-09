@@ -26,6 +26,8 @@ public class TestData {
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
+    public static final String DEFAULT_ORGANIZATION = "Huella Digital";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -44,9 +46,20 @@ public class TestData {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private final JpaLocationRepository jpaLocationRepository;
+
+    @Autowired
+    private final JpaOrganizationRepository jpaOrganizationRepository;
+
+    @Autowired
+    private final JpaProposalRepository jpaProposalRepository;
+
     public void resetData() {
         volunteerRepository.deleteAll();
-        jpaCredentialRepository.deleteAll();
+        jpaProposalRepository.deleteAll();
+        jpaLocationRepository.deleteAll();
+        jpaOrganizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();

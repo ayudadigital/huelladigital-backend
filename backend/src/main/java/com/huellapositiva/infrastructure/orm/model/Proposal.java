@@ -10,12 +10,12 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "propolsal")
+@Table(name = "proposal")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Propolsal {
+public class Proposal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class Propolsal {
     private Organization organization;
 
     @JoinColumn(name = "location_id")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Location location;
 
     @Column(name = "required_days", nullable = false)
@@ -44,12 +44,12 @@ public class Propolsal {
     @Column(name = "expiration_date", nullable = false)
     private Date expirationDate;
 
-    @Column(name = "published", nullable = false)
+    @Column(name = "published")
     private Boolean published;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "volunteer_propolsals",
-            joinColumns = {@JoinColumn(name = "propolsal_id", referencedColumnName = "id")},
+    @JoinTable(name = "volunteer_proposal",
+            joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}
     )
     private Set<Volunteer> inscribedVolunteers;

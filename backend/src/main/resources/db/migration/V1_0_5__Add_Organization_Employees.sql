@@ -1,11 +1,15 @@
-ALTER TABLE organization DROP CONSTRAINT organization_credential_id_fkey;
+DROP TABLE organization CASCADE;
 
-ALTER TABLE organization DROP COLUMN credential_id;
+CREATE TABLE organization
+(
+    id              SERIAL PRIMARY KEY NOT NULL,
+    name            VARCHAR(255) NOT NULL UNIQUE
+);
 
 CREATE TABLE organization_users(
     id              SERIAL PRIMARY KEY NOT NULL,
     credential_id   INTEGER NOT NULL,
-    organization_id INTEGER NOT NULL,
+    organization_id INTEGER,
     FOREIGN KEY (credential_id) REFERENCES credentials(id),
     FOREIGN KEY (organization_id) REFERENCES organization(id)
 );

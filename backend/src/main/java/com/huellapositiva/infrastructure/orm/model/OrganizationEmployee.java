@@ -26,6 +26,6 @@ public class OrganizationEmployee {
     private Credential credential;
 
     @JoinColumn(name = "organization_id")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Organization joinedOrganization;
 }

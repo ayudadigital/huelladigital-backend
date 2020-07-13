@@ -1,10 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.domain.ExpressRegistrationOrganizationEmployee;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.model.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -31,6 +28,11 @@ public class OrganizationEmployeeRepository {
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
 
+    public OrganizationEmployee findById(Integer id) {
+        return jpaOrganizationEmployeeRepository.findById(id)
+                .orElseThrow( () -> new RuntimeException("Organization employee not found"));
+    }
+
     public Integer save(ExpressRegistrationOrganizationEmployee expressEmployee) {
         Role role = jpaRoleRepository.findByName(ORGANIZATION_EMPLOYEE_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RuntimeException("Role ORGANIZATION_NOT_CONFIRMED not found."));
@@ -50,5 +52,9 @@ public class OrganizationEmployeeRepository {
                 .credential(credential)
                 .build();
         return jpaOrganizationEmployeeRepository.save(organizationEmployee).getId();
+    }
+
+    public Integer updateOrganization(Integer employeeId, Organization organization) {
+        return jpaOrganizationEmployeeRepository.updateOrganization(employeeId, organization);
     }
 }

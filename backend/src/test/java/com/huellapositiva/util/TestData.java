@@ -1,10 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.domain.Roles;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Role;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.infrastructure.orm.model.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +27,9 @@ public class TestData {
 
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
+
+    @Autowired
+    private final JpaOrganizationEmployeeRepository organizationEmployeeRepository;
 
     @Autowired
     private final JpaCredentialRepository jpaCredentialRepository;
@@ -113,5 +113,15 @@ public class TestData {
         Volunteer volunteer = Volunteer.builder().credential(credential).build();
 
         return volunteerRepository.save(volunteer);
+    }
+
+    public OrganizationEmployee createOrganizationEmployee(String email, String password) {
+        return createOrganizationEmployee(email, password, Roles.ORGANIZATION_EMPLOYEE);
+    }
+
+    public OrganizationEmployee createOrganizationEmployee(String email, String password, Roles role) {
+        Credential credential = createCredential(email, UUID.randomUUID(), password, role);
+        OrganizationEmployee employee = OrganizationEmployee.builder().credential(credential).build();
+        return organizationEmployeeRepository.save(employee);
     }
 }

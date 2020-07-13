@@ -6,6 +6,8 @@ import com.huellapositiva.domain.repository.OrganizationEmployeeRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 import com.huellapositiva.domain.valueobjects.PlainPassword;
+import com.huellapositiva.infrastructure.orm.model.Organization;
+import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +35,9 @@ public class OrganizationEmployeeService {
             log.error("Unable to persist organization due to a conflict.", ex);
             throw new FailedToPersistUser("Conflict encountered while storing organization in database. Constraints were violated.", ex);
         }
+    }
+
+    public Integer updateJoinedOrganization(OrganizationEmployee employee, Organization organization) {
+        return organizationEmployeeRepository.updateOrganization(employee.getId(), organization);
     }
 }

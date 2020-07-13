@@ -32,7 +32,10 @@ public class ProposalRepository {
 
     public Integer save(ProposalRequestDto dto) {
         Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
-                .orElseThrow(() -> new RuntimeException("Organization " + dto.getOrganizationName() + " not found"));
+                .orElseThrow(
+                        () -> new RuntimeException("Organization " + dto.getOrganizationName() + " not found")
+                );
+
         Location proposalLocation = jpaLocationRepository.save(Location.builder()
                 .province(dto.getProvince())
                 .town(dto.getTown())

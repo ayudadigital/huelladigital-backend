@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "organization")
@@ -22,7 +23,6 @@ public class Organization {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @JoinColumn(name = "credential_id")
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Credential credential;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "joinedOrganization")
+    private List<OrganizationEmployee> employees;
 }

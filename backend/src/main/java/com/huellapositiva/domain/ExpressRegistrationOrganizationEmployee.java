@@ -3,16 +3,14 @@ package com.huellapositiva.domain;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 
-public class ExpressRegistrationOrganization {
+public class ExpressRegistrationOrganizationEmployee {
 
     private final EmailConfirmation confirmation;
     private final PasswordHash password;
-    private final String name;
 
-    public ExpressRegistrationOrganization(PasswordHash password, EmailConfirmation confirmation, String name) {
+    public ExpressRegistrationOrganizationEmployee(PasswordHash password, EmailConfirmation confirmation) {
         this.confirmation = confirmation;
         this.password = password;
-        this.name = name;
     }
 
     public String getEmail() {
@@ -25,9 +23,5 @@ public class ExpressRegistrationOrganization {
 
     public String getConfirmationToken() {
         return confirmation.getToken();
-    }
-
-    public String getName() {
-        return this.name;
     }
 }

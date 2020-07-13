@@ -1,8 +1,8 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.FailedToPersistUser;
-import com.huellapositiva.domain.ExpressRegistrationOrganization;
-import com.huellapositiva.domain.repository.OrganizationRepository;
+import com.huellapositiva.domain.ExpressRegistrationOrganizationEmployee;
+import com.huellapositiva.domain.repository.OrganizationEmployeeRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 import com.huellapositiva.domain.valueobjects.PlainPassword;
@@ -16,19 +16,19 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class OrganizationService {
+public class OrganizationEmployeeService {
 
     @Autowired
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationEmployeeRepository organizationEmployeeRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public Integer registerOrganization(PlainPassword plainPassword, EmailConfirmation emailConfirmation, String name) {
+    public Integer registerEmployee(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
-            ExpressRegistrationOrganization expressOrganization = new ExpressRegistrationOrganization(hash, emailConfirmation, name);
-            return organizationRepository.save(expressOrganization);
+            ExpressRegistrationOrganizationEmployee expressOrganization = new ExpressRegistrationOrganizationEmployee(hash, emailConfirmation);
+            return organizationEmployeeRepository.save(expressOrganization);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist organization due to a conflict.", ex);
             throw new FailedToPersistUser("Conflict encountered while storing organization in database. Constraints were violated.", ex);

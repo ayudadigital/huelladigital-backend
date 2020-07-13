@@ -25,7 +25,7 @@ public class Proposal {
     private String title;
 
     @JoinColumn(name = "organization_id")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Organization organization;
 
     @JoinColumn(name = "location_id")

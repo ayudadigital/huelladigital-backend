@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @AllArgsConstructor
-public class CredentialsOrganizationRequestDto {
+public class CredentialsOrganizationEmployeeRequestDto {
 
     @Schema(
             description = "Organization email unique",
@@ -28,11 +28,4 @@ public class CredentialsOrganizationRequestDto {
     )
     @NotEmpty
     private final String password;
-
-    @Schema(
-            description = "Organization name",
-            example = "Huella Digital"
-    )
-    @NotEmpty
-    private final String name;
 }

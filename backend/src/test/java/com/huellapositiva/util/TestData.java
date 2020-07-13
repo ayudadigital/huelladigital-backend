@@ -50,15 +50,19 @@ public class TestData {
     private final JpaLocationRepository jpaLocationRepository;
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
 
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
+
+    @Autowired
+    private final JpaOrganizationRepository jpaOrganizationRepository;
 
     public void resetData() {
         volunteerRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
+        jpaOrganizationEmployeeRepository.deleteAll();
         jpaOrganizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();

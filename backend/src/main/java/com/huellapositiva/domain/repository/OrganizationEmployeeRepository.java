@@ -55,6 +55,6 @@ public class OrganizationEmployeeRepository {
     }
 
     public Integer updateOrganization(Integer employeeId, Organization organization) {
-        return jpaOrganizationEmployeeRepository.updateOrganization(employeeId, organization);
+        return jpaOrganizationEmployeeRepository.updateJoinedOrganization(employeeId, organization);
     }
 }

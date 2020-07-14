@@ -21,6 +21,7 @@ public class RegisterOrganizationAction {
 
     public void execute(OrganizationRequestDto dto, OrganizationEmployee employee) {
         Integer organizationId = organizationService.create(dto, employee);
+        organizationService.findById(organizationId);
         Integer updatedRows = organizationEmployeeService.updateJoinedOrganization(employee, organizationService.findById(organizationId));
 
     }

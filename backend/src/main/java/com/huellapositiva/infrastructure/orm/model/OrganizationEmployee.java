@@ -22,10 +22,10 @@ public class OrganizationEmployee {
     private Integer id;
 
     @JoinColumn(name = "credential_id")
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Credential credential;
 
     @JoinColumn(name = "organization_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Organization joinedOrganization;
 }

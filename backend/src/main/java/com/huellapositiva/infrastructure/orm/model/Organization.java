@@ -23,6 +23,6 @@ public class Organization {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "joinedOrganization")
-    private List<OrganizationEmployee> employees;
+    //@OneToMany(fetch = FetchType.LAZY, mappedBy = "joinedOrganization")
+    //private List<OrganizationEmployee> employees;
 }

@@ -109,9 +109,7 @@ public class TestData {
 
     public Volunteer createVolunteer(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
-
         Volunteer volunteer = Volunteer.builder().credential(credential).build();
-
         return volunteerRepository.save(volunteer);
     }
 

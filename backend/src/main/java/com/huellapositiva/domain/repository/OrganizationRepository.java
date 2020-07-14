@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Transactional
@@ -19,13 +20,9 @@ public class OrganizationRepository {
     @Autowired
     private final JpaOrganizationRepository jpaOrganizationRepository;
 
-    @Autowired
-    private final JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
-
     public Integer save(ExpressRegistrationOrganization expressOrganization) {
         Organization organization = Organization.builder()
                 .name(expressOrganization.getName())
-                .employees(Collections.singletonList(expressOrganization.getEmployee()))
                 .build();
         return jpaOrganizationRepository.save(organization).getId();
     }

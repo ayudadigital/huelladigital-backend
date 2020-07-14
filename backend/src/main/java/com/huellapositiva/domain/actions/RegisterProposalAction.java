@@ -1,9 +1,7 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
+import com.huellapositiva.domain.service.ProposalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +9,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterProposalAction {
 
+    private final ProposalService proposalService;
+
     public void execute(ProposalRequestDto dto) {
-
-
+        proposalService.registerProposal(dto);
     }
 }

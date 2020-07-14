@@ -56,14 +56,15 @@ public class TestData {
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaOrganizationRepository organizationRepository;
+
 
     public void resetData() {
         volunteerRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
         jpaOrganizationEmployeeRepository.deleteAll();
-        jpaOrganizationRepository.deleteAll();
+        organizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();
@@ -121,5 +122,10 @@ public class TestData {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
         OrganizationEmployee employee = OrganizationEmployee.builder().credential(credential).build();
         return organizationEmployeeRepository.save(employee);
+    }
+
+    public Integer createAndLinkOrganization(OrganizationEmployee employee, Organization organization) {
+        organizationRepository.save(organization);
+        return organizationEmployeeRepository.updateJoinedOrganization(employee.getId(), organization);
     }
 }

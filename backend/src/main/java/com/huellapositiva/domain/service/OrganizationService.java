@@ -3,7 +3,6 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.ExpressRegistrationOrganization;
-import com.huellapositiva.domain.repository.OrganizationEmployeeRepository;
 import com.huellapositiva.domain.repository.OrganizationRepository;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;

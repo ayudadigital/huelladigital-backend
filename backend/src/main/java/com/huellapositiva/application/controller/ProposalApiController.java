@@ -1,6 +1,5 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
 import com.huellapositiva.domain.service.OrganizationService;
@@ -28,7 +27,7 @@ public class ProposalApiController {
 
     private final RegisterProposalAction registerProposalAction;
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     @ResponseBody
     public void createProposal(@RequestBody ProposalRequestDto dto, HttpServletRequest req) {
         try {

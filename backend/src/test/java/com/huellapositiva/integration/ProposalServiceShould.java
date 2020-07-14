@@ -52,17 +52,7 @@ public class ProposalServiceShould {
 //                .name(DEFAULT_ORGANIZATION)
 //                .build();
 //        organizationEmployeeService.registerEmployee(PlainPassword.from(organizationDto.getPassword()), EmailConfirmation.from(organizationDto.getEmail(), ""), organizationDto.getName());
-//        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
-//                .title("Recogida de alimentos")
-//                .organizationName(DEFAULT_ORGANIZATION)
-//                .province("Santa Cruz de Tenerife")
-//                .town("Santa Cruz de Tenerife")
-//                .address("Avenida Weyler 4")
-//                .expirationDate("24-08-2020")
-//                .requiredDays("Weekends")
-//                .minimumAge(18)
-//                .maximumAge(26)
-//                .build();
+//
 //
 //        // WHEN
 //        Integer proposalId = proposalService.registerProposal(proposalDto);

@@ -3,6 +3,7 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.model.Proposal;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,9 @@ public class ProposalService {
             log.error("Unable to persist the proposal due to a conflict.", ex);
             throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
         }
+    }
+
+    public Proposal fetch(Integer id) {
+        return proposalRepository.fetch(id);
     }
 }

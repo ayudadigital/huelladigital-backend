@@ -50,4 +50,8 @@ public class ProposalRepository {
                 .build();
         return jpaProposalRepository.save(proposal).getId();
     }
+
+    public Proposal fetch(Integer id) {
+        return jpaProposalRepository.getOne(id);
+    }
 }

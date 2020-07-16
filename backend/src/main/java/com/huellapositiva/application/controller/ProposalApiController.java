@@ -1,13 +1,12 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.exception.ProposalNotFound;
+import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
-import com.huellapositiva.domain.service.ProposalService;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
-import com.huellapositiva.infrastructure.security.JwtService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +20,7 @@ public class ProposalApiController {
 
     private final RegisterProposalAction registerProposalAction;
 
-    private final ProposalService proposalService;
+    private final FetchProposalAction fetchProposalAction;
 
     @PostMapping("/register")
     @ResponseBody
@@ -33,9 +32,16 @@ public class ProposalApiController {
         }
     }
 
-//    @GetMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public void getProposal(@PathVariable Integer id) {
-//        return proposalService.execute(id);
-//    }
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ProposalResponseDto getProposal(@PathVariable Integer id) {
+        try {
+            return fetchProposalAction.execute(id);
+        } catch(ProposalNotFound e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist");
+        }
+        catch (ProposalNotPublished e) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet");
+        }
+    }
 }

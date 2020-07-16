@@ -61,9 +61,9 @@ public class TestData {
 
     public void resetData() {
         volunteerRepository.deleteAll();
+        jpaOrganizationEmployeeRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
-        jpaOrganizationEmployeeRepository.deleteAll();
         organizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();

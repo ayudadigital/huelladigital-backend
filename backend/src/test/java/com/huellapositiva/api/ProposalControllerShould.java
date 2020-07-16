@@ -8,6 +8,7 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -19,6 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Optional;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
@@ -52,6 +55,9 @@ class ProposalControllerShould {
         testData.resetData();
     }
 
+    @Autowired
+    private JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
+
     @Test
     void create_an_organization_and_update_employee_joined_organization() throws Exception {
         // GIVEN
@@ -69,15 +75,18 @@ class ProposalControllerShould {
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        // WHEN + THEN
+        // WHEN
         mvc.perform(post(REGISTER_PROPOSAL_URL)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse();
+                .andExpect(status().isOk());
+
+        // THEN
+        OrganizationEmployee persistedEmployee = jpaOrganizationEmployeeRepository.findById(organizationEmployee.getId()).get();
+        assertThat(persistedEmployee.getJoinedOrganization().getName()).isEqualTo("Huella Positiva");
     }
 }
 

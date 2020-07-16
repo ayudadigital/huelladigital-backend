@@ -2,7 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
-import com.huellapositiva.domain.service.OrganizationService;
+import com.huellapositiva.domain.service.ProposalService;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -19,27 +19,23 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/api/v1/proposals")
 public class ProposalApiController {
 
-    private final JwtService jwtService;
-
-    private final OrganizationService organizationService;
-
-    private final JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
-
     private final RegisterProposalAction registerProposalAction;
+
+    private final ProposalService proposalService;
 
     @PostMapping("/register")
     @ResponseBody
     public void createProposal(@RequestBody ProposalRequestDto dto, HttpServletRequest req) {
         try {
-            String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-            String employeeEmail = jwtService.getUserDetails(authHeader.replace("Bearer ", "")).getFirst();
-            Organization organization = jpaOrganizationEmployeeRepository.findByEmail(employeeEmail)
-                    .orElseThrow( () -> new RuntimeException("Could not retrieve the organization employee by his email."))
-                    .getJoinedOrganization();
-            dto.setOrganization(organization);
-            registerProposalAction.execute(dto);
+            registerProposalAction.execute(dto, req);
         } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the proposal");
         }
     }
+
+//    @GetMapping("/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public void getProposal(@PathVariable Integer id) {
+//        return proposalService.execute(id);
+//    }
 }

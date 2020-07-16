@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.infrastructure.orm.model.Location;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
@@ -35,7 +36,7 @@ public class ProposalRepository {
         try {
             expirationDate = new SimpleDateFormat("dd-MM-yyyy").parse(dto.getExpirationDate());
         } catch(ParseException ex){
-            throw new RuntimeException("Could not format the following date: " + dto.getExpirationDate(), ex);
+            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
         Proposal proposal = Proposal.builder()
                 .title(dto.getTitle())

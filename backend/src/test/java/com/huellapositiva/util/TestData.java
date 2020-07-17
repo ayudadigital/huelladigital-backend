@@ -1,5 +1,6 @@
 package com.huellapositiva.util;
 
+import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
@@ -9,6 +10,8 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -20,6 +23,8 @@ public class TestData {
     public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
+
+    public static final String DEFAULT_ORGANIZATION_EMPLOYEE_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
@@ -127,5 +132,49 @@ public class TestData {
     public Integer createAndLinkOrganization(OrganizationEmployee employee, Organization organization) {
         organizationRepository.save(organization);
         return organizationEmployeeRepository.updateJoinedOrganization(employee.getId(), organization);
+    }
+
+    public Proposal createProposal(Proposal proposal) {
+         return jpaProposalRepository.save(proposal);
+    }
+
+    public ProposalRequestDto buildPublishedProposalDto() {
+        return buildProposalDto(true);
+    }
+    public ProposalRequestDto buildUnpublishedProposalDto() {
+        return buildProposalDto(false);
+    }
+
+    private ProposalRequestDto buildProposalDto(boolean isPublished) {
+        return ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .expirationDate("24-08-2020")
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .published(isPublished)
+                .build();
+    }
+
+    public Proposal registerOrganizationAndProposal() throws ParseException {
+        OrganizationEmployee employee = createOrganizationEmployee(DEFAULT_ORGANIZATION_EMPLOYEE_EMAIL, DEFAULT_PASSWORD);
+        Organization organization = Organization.builder().name(DEFAULT_ORGANIZATION).build();
+        createAndLinkOrganization(employee, organization);
+        Proposal proposal = Proposal.builder()
+                .title("Recogida de ropita")
+                .location(Location.builder().province("Santa Cruz de Tenerife")
+                        .town("Santa Cruz de Tenerife")
+                        .address("Avenida Weyler 4").build())
+                .organization(organization)
+                .expirationDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .published(true)
+                .build();
+        return createProposal(proposal);
     }
 }

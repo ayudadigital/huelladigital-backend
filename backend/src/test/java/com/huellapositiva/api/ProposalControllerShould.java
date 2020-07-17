@@ -6,10 +6,8 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.util.TestData;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +18,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.ParseException;
+
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
+import static com.huellapositiva.util.TestUtils.registerProposalRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -62,16 +63,7 @@ class ProposalControllerShould {
         // GIVEN
         OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
-                .title("Recogida de alimentos")
-                .province("Santa Cruz de Tenerife")
-                .town("Santa Cruz de Tenerife")
-                .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
-                .requiredDays("Weekends")
-                .minimumAge(18)
-                .maximumAge(26)
-                .build();
+        ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -92,31 +84,13 @@ class ProposalControllerShould {
         // GIVEN
         OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
-                .title("Recogida de ropita")
-                .province("Santa Cruz de Tenerife")
-                .town("Santa Cruz de Tenerife")
-                .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
-                .requiredDays("Weekends")
-                .minimumAge(18)
-                .maximumAge(26)
-                .published(true)
-                .build();
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
-                .with(csrf())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
-
+        ProposalRequestDto proposalDto = testData.buildPublishedProposalDto();
+        String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
+        registerProposalRequest(mvc, accessToken, proposalDto);
         Integer proposalId = jpaProposalRepository.findAll().get(0).getId();
 
         // WHEN
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -125,5 +99,50 @@ class ProposalControllerShould {
         // THEN
         ProposalResponseDto proposalResponseDto = objectMapper.readValue(fetchResponse.getContentAsString(), ProposalResponseDto.class);
         assertThat(proposalResponseDto.getTitle()).isEqualTo("Recogida de ropita");
+    }
+
+    @Test
+    void return_404_when_given_ID_does_not_exist() throws Exception {
+        // GIVEN
+        int id = 23;
+
+        // WHEN + THEN
+        mvc.perform(get(FETCH_PROPOSAL_URI + id)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_412_when_fetching_a_not_published_proposal() throws Exception {
+        // GIVEN
+        OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
+        ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
+        String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
+        registerProposalRequest(mvc, accessToken, proposalDto);
+
+        Integer proposalId = jpaProposalRepository.findAll().get(0).getId();
+
+        // WHEN
+        mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isPreconditionFailed());
+    }
+
+    @Test
+    void allow_a_volunteer_to_enroll() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Integer proposalId = testData.registerOrganizationAndProposal().getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

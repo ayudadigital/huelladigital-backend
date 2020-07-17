@@ -38,4 +38,6 @@ public class EmailConfirmation {
 
     @OneToOne(mappedBy = "emailConfirmation")
     private Credential credential;
+
+
 }

@@ -117,6 +117,7 @@ class JwtControllerShould {
         //WHEN
         mvc.perform(get(testJwtUri)
                 .header(AUTHORIZATION, "Bearer " + accessToken)
+                .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -129,6 +130,7 @@ class JwtControllerShould {
         //WHEN + THEN
         mvc.perform(get(testJwtUri)
                 .header(AUTHORIZATION, "Bearer " + accessToken)
+                .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
@@ -137,6 +139,7 @@ class JwtControllerShould {
     void deny_access_when_do_not_provide_any_authorization() throws Exception {
         //WHEN + THEN
         mvc.perform(get(testJwtUri)
+                .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }

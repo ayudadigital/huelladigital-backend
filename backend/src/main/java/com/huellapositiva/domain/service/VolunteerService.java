@@ -6,6 +6,7 @@ import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 import com.huellapositiva.domain.valueobjects.PlainPassword;
+import com.huellapositiva.infrastructure.orm.model.Volunteer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,9 @@ public class VolunteerService {
             log.error("Unable to persist volunteer due to a conflict.", ex);
             throw new FailedToPersistUser("Conflict encountered while storing user in database. Constraints were violated.", ex);
         }
+    }
+
+    public Volunteer findVolunteerByEmail(String email) {
+        return volunteerRepository.findByEmail(email);
     }
 }

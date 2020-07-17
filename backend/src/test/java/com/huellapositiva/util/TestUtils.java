@@ -1,6 +1,5 @@
 package com.huellapositiva.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;

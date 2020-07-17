@@ -159,7 +159,15 @@ public class TestData {
                 .build();
     }
 
-    public Proposal registerOrganizationAndProposal() throws ParseException {
+    public Proposal registerOrganizationAndPublishedProposal() throws ParseException {
+        return registerOrganizationAndProposal(true);
+    }
+
+    public Proposal registerOrganizationAndNotPublishedProposal() throws ParseException {
+        return registerOrganizationAndProposal(false);
+    }
+
+    private Proposal registerOrganizationAndProposal(boolean isPublished) throws ParseException {
         OrganizationEmployee employee = createOrganizationEmployee(DEFAULT_ORGANIZATION_EMPLOYEE_EMAIL, DEFAULT_PASSWORD);
         Organization organization = Organization.builder().name(DEFAULT_ORGANIZATION).build();
         createAndLinkOrganization(employee, organization);
@@ -173,7 +181,7 @@ public class TestData {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .published(true)
+                .published(isPublished)
                 .build();
         return createProposal(proposal);
     }

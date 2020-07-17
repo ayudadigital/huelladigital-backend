@@ -2,6 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.model.Volunteer;
@@ -34,6 +35,10 @@ public class ProposalService {
 
     public Proposal enrollVolunteer(Integer proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
+        boolean isNotPublished = !proposal.getPublished();
+        if (isNotPublished) {
+            throw new ProposalNotPublished();
+        }
         proposal.getInscribedVolunteers().add(volunteer);
         return proposalRepository.save(proposal);
     }

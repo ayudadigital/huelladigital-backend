@@ -1,10 +1,8 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsOrganizationEmployeeRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
-import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +54,3 @@ class OrganizationControllerShould {
                 .andReturn().getResponse();
     }
 }
-
-
-
-

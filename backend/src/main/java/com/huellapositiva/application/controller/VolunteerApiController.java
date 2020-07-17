@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/volunteers")
 @Tag(name = "Volunteer", description = "The volunteer API")
+@RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
 
     private final JwtService jwtService;
@@ -39,7 +39,6 @@ public class VolunteerApiController {
             description = "Register a new volunteer",
             tags = "user"
     )
-
     @ApiResponses(
             value = {
                     @ApiResponse(
@@ -58,8 +57,6 @@ public class VolunteerApiController {
                     )
             }
     )
-
-
     @PostMapping("/register")
     @ResponseBody
     public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {

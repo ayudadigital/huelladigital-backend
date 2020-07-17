@@ -1,17 +1,15 @@
 package com.huellapositiva.infrastructure.orm.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "credentials")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -40,4 +38,16 @@ public class Credential {
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
+
+    @Override
+    public String toString() {
+        return "Credential{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", hashedPassword='" + hashedPassword + '\'' +
+                ", emailConfirmed=" + emailConfirmed +
+                ", roles=" + roles +
+                ", emailConfirmation=" + emailConfirmation +
+                '}';
+    }
 }

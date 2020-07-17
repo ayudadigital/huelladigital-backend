@@ -1,9 +1,6 @@
 package com.huellapositiva.infrastructure.orm.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,7 +9,8 @@ import java.util.Date;
 
 @Entity
 @Table(name = "email_confirmation")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -39,5 +37,15 @@ public class EmailConfirmation {
     @OneToOne(mappedBy = "emailConfirmation")
     private Credential credential;
 
-
+    @Override
+    public String toString() {
+        return "EmailConfirmation{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", hash='" + hash + '\'' +
+                ", createdOn=" + createdOn +
+                ", updatedOn=" + updatedOn +
+                ", credential=" + credential +
+                '}';
+    }
 }

@@ -6,7 +6,9 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
+import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,14 +20,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.ParseException;
-
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static com.huellapositiva.util.TestUtils.registerProposalRequest;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -58,6 +57,9 @@ class ProposalControllerShould {
     @Autowired
     private JpaProposalRepository jpaProposalRepository;
 
+    @Autowired
+    private JpaVolunteerRepository jpaVolunteerRepository;
+
     @Test
     void create_an_organization_and_update_employee_joined_organization() throws Exception {
         // GIVEN
@@ -76,7 +78,7 @@ class ProposalControllerShould {
                 .andExpect(status().isOk());
 
         // THEN
-        assertNotEquals(0, jpaProposalRepository.findAll().size());
+        assertThat(jpaProposalRepository.findAll()).isNotEmpty();
     }
 
     @Test
@@ -102,9 +104,9 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_404_when_given_ID_does_not_exist() throws Exception {
+    void return_404_when_fetching_a_non_existent_proposal() throws Exception {
         // GIVEN
-        int id = 23;
+        int id = 999;
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + id)
@@ -135,14 +137,54 @@ class ProposalControllerShould {
     void allow_a_volunteer_to_enroll() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer proposalId = testData.registerOrganizationAndProposal().getId();
+        Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        // WHEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(APPLICATION_JSON)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        // THEN
+        Proposal proposal = jpaProposalRepository.findById(proposalId).get();
+        assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
+        Integer volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
+        assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
+    }
+
+    @Test
+    void return_412_when_joining_a_not_published_proposal() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Integer proposalId = testData.registerOrganizationAndNotPublishedProposal().getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isPreconditionFailed());
+    }
+
+    @Test
+    void return_404_when_joining_a_non_existent_proposal() throws Exception {
+        // GIVEN
+        int id = 999;
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Integer proposalId = testData.registerOrganizationAndNotPublishedProposal().getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + id + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

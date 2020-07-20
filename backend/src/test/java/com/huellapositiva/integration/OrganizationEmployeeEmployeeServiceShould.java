@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-public class OrganizationEmployeeEmployeeServiceShould {
+class OrganizationEmployeeEmployeeServiceShould {
     @Autowired
     private TestData testData;
 

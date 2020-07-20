@@ -169,7 +169,7 @@ class JwtControllerShould {
         loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         //THEN
         // Access token from first login has been revoked due to the second login
-        await().atMost(1, SECONDS).untilAsserted(() ->
+        await().atMost(2, SECONDS).untilAsserted(() ->
                 assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()))
         );
         // Refresh token from first login can still get access tokens issued

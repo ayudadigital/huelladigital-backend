@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-public class JwtServiceShould {
+class JwtServiceShould {
 
     private final JwtProperties jwtProperties = new JwtProperties(
             new AccessToken(5000L),

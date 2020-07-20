@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
@@ -82,6 +83,25 @@ class ProposalControllerShould {
     }
 
     @Test
+    void return_422_when_an_employee_not_confirmed_tries_to_create_a_proposal() throws Exception {
+        // GIVEN
+        OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.ORGANIZATION_EMPLOYEE_NOT_CONFIRMED);
+        testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
+        ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(REGISTER_PROPOSAL_URI)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
+    }
+
+
+    @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
         OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -134,7 +154,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void allow_a_volunteer_to_enroll() throws Exception {
+    void allow_a_volunteer_to_join() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
@@ -186,5 +206,21 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_422_when_a_volunteer_not_confirmed_tries_to_join_a_proposal() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER_NOT_CONFIRMED);
+        Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isUnprocessableEntity());
     }
 }

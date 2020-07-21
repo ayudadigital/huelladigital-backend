@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class VolunteerControllerShould {
 
-    private static final String SIGN_UP_URL = "/api/v1/volunteers/register";
+    private static final String SIGN_UP_URL = "/api/v1/volunteers";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -60,7 +60,7 @@ class VolunteerControllerShould {
                 .content(body)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse().getContentAsString();
 

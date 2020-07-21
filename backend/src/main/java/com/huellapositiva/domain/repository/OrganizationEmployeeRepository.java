@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.huellapositiva.domain.Roles.ORGANIZATION_EMPLOYEE_NOT_CONFIRMED;
 
@@ -56,5 +57,9 @@ public class OrganizationEmployeeRepository {
 
     public Integer updateOrganization(Integer employeeId, Organization organization) {
         return jpaOrganizationEmployeeRepository.updateJoinedOrganization(employeeId, organization);
+    }
+
+    public Optional<OrganizationEmployee> findByEmail(String email) {
+        return jpaOrganizationEmployeeRepository.findByEmail(email);
     }
 }

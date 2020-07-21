@@ -10,6 +10,7 @@ import java.util.Set;
 @Table(name = "credentials")
 @Getter
 @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -38,16 +39,4 @@ public class Credential {
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
-
-    @Override
-    public String toString() {
-        return "Credential{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", hashedPassword='" + hashedPassword + '\'' +
-                ", emailConfirmed=" + emailConfirmed +
-                ", roles=" + roles +
-                ", emailConfirmation=" + emailConfirmation +
-                '}';
-    }
 }

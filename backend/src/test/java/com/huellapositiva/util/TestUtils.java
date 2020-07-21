@@ -33,12 +33,12 @@ public final class TestUtils {
     }
 
     public static void registerProposalRequest(MockMvc mvc, String accessToken, ProposalRequestDto proposalDto) throws Exception {
-        mvc.perform(post("/api/v1/proposals/register")
+        mvc.perform(post("/api/v1/proposals")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 @Table(name = "email_confirmation")
 @Getter
 @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,16 +37,4 @@ public class EmailConfirmation {
 
     @OneToOne(mappedBy = "emailConfirmation")
     private Credential credential;
-
-    @Override
-    public String toString() {
-        return "EmailConfirmation{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", hash='" + hash + '\'' +
-                ", createdOn=" + createdOn +
-                ", updatedOn=" + updatedOn +
-                ", credential=" + credential +
-                '}';
-    }
 }

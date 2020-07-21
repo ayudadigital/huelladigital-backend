@@ -2,9 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.application.exception.ProposalNotPublished;
-import com.huellapositiva.application.exception.UserNotConfirmed;
 import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
@@ -20,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @AllArgsConstructor
@@ -42,32 +39,17 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "201",
                             description = "Ok, proposal register successful"
-                    ),
-                    @ApiResponse(
-                            responseCode = "422",
-                            description = "Unprocessable entity, in order to create a proposal the employee has to be confirmed.",
-                            content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "Conflict, could not register proposal.",
-                            content = @Content()
                     )
             }
     )
-    @PostMapping("/register")
-    @RolesAllowed({"ORGANIZATION_EMPLOYEE","ORGANIZATION_EMPLOYEE_NOT_CONFIRMED"})
+    @PostMapping
+    @RolesAllowed("ORGANIZATION_EMPLOYEE")
     @ResponseBody
-    public void createProposal(@RequestBody ProposalRequestDto dto, HttpServletRequest req) {
-        try {
-            registerProposalAction.execute(dto, req);
-        } catch (UserNotConfirmed e){
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Employee is not confirmed yet");
-        }catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the proposal");
-        }
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createProposal(@RequestBody ProposalRequestDto dto) {
+        registerProposalAction.execute(dto);
     }
 
     @Operation(
@@ -84,11 +66,6 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, the given ID was not found.",
-                            content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "412",
-                            description = "Precondition failed, the proposal you are looking for is not published yet.",
                             content = @Content()
                     )
             }
@@ -126,28 +103,19 @@ public class ProposalApiController {
                             responseCode = "412",
                             description = "Precondition failed, the proposal you are looking for is not published yet.",
                             content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "422",
-                            description = "Unprocessable entity, in order to join a proposal, the volunteer has to be confirmed.",
-                            content = @Content()
                     )
             }
     )
     @PostMapping("/{id}/join")
-    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
+    @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable Integer id, HttpServletRequest req) {
+    public void joinProposal(@PathVariable Integer id) {
         try {
-            joinProposalAction.execute(id, req);
+            joinProposalAction.execute(id);
         } catch(EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist");
         } catch (ProposalNotPublished e) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet");
-        } catch (UserNotConfirmed e){
-            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Volunteer is not confirmed yet");
-        } catch (InvalidJwtTokenException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "JWT is not valid");
         }
     }
 }

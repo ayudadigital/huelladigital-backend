@@ -15,6 +15,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -39,5 +41,9 @@ public class OrganizationEmployeeService {
 
     public Integer updateJoinedOrganization(OrganizationEmployee employee, Organization organization) {
         return organizationEmployeeRepository.updateOrganization(employee.getId(), organization);
+    }
+
+    public Optional<OrganizationEmployee> findByEmail(String email){
+        return organizationEmployeeRepository.findByEmail(email);
     }
 }

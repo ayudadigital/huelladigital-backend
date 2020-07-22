@@ -5,7 +5,7 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
+import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -61,10 +61,10 @@ class ProposalControllerShould {
     private JpaVolunteerRepository jpaVolunteerRepository;
 
     @Test
-    void create_an_organization_and_update_employee_joined_organization() throws Exception {
+    void create_an_organization_and_update_member_joined_organization() throws Exception {
         // GIVEN
-        OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -84,8 +84,8 @@ class ProposalControllerShould {
     @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
-        OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildPublishedProposalDto();
         String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
         registerProposalRequest(mvc, accessToken, proposalDto);
@@ -118,8 +118,8 @@ class ProposalControllerShould {
     @Test
     void return_412_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
-        OrganizationEmployee organizationEmployee = testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationEmployee, Organization.builder().name("Huella Positiva").build());
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
         registerProposalRequest(mvc, accessToken, proposalDto);

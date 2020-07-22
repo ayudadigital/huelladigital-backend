@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "proposal")
+@Table(name = "proposals")
 @Data
 @Builder
 @AllArgsConstructor
@@ -48,7 +48,7 @@ public class Proposal {
     private Boolean published;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "volunteer_proposal",
+    @JoinTable(name = "volunteers_proposals",
             joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}
     )

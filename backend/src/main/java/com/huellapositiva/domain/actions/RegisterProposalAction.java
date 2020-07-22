@@ -3,10 +3,9 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.service.ProposalService;
 import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -14,13 +13,12 @@ import org.springframework.web.client.HttpServerErrorException;
 @Service
 public class RegisterProposalAction {
 
-    private final JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
+    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
     private final ProposalService proposalService;
 
-    public void execute(ProposalRequestDto dto) {
-        String employeeEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Organization organization = jpaOrganizationEmployeeRepository.findByEmail(employeeEmail)
+    public void execute(ProposalRequestDto dto, String employeeEmail) {
+        Organization organization = jpaOrganizationMemberRepository.findByEmail(employeeEmail)
                 .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
                 .getJoinedOrganization();
         dto.setOrganization(organization);

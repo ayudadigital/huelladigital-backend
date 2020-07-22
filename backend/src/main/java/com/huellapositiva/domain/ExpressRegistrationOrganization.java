@@ -1,21 +1,21 @@
 package com.huellapositiva.domain;
 
-import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
+import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 
 public class ExpressRegistrationOrganization {
     private final String name;
-    private final OrganizationEmployee employee;
+    private final OrganizationMember organizationMember;
 
-    public ExpressRegistrationOrganization(String name, OrganizationEmployee employee) {
+    public ExpressRegistrationOrganization(String name, OrganizationMember organizationMember) {
         this.name = name;
-        this.employee = employee;
+        this.organizationMember = organizationMember;
     }
 
     public String getName() {
         return this.name;
     }
 
-    public OrganizationEmployee getEmployee() {
-        return this.employee;
+    public OrganizationMember getOrganizationMember() {
+        return this.organizationMember;
     }
 }

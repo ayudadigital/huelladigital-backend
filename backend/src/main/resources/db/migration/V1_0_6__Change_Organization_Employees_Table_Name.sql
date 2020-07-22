@@ -1,1 +1,0 @@
-ALTER TABLE organization_users RENAME TO organization_employees

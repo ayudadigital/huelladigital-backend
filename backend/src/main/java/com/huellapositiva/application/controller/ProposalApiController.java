@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,11 +46,12 @@ public class ProposalApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("ORGANIZATION_EMPLOYEE")
+    @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestBody ProposalRequestDto dto) {
-        registerProposalAction.execute(dto);
+        String employeeEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        registerProposalAction.execute(dto, employeeEmail);
     }
 
     @Operation(
@@ -111,7 +113,8 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public void joinProposal(@PathVariable Integer id) {
         try {
-            joinProposalAction.execute(id);
+            String volunteerEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            joinProposalAction.execute(id, volunteerEmail);
         } catch(EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist");
         } catch (ProposalNotPublished e) {

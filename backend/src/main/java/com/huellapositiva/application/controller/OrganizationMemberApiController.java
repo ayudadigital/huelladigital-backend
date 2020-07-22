@@ -1,10 +1,10 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.CredentialsOrganizationEmployeeRequestDto;
+import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.FailedToPersistUser;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
-import com.huellapositiva.domain.actions.RegisterOrganizationEmployeeAction;
+import com.huellapositiva.domain.actions.RegisterOrganizationMemberAction;
 import com.huellapositiva.infrastructure.orm.model.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 @RestController
 @AllArgsConstructor
 @Tag(name = "Organization Employee", description = "The organization employee API")
-@RequestMapping("/api/v1/organizationemployee")
-public class OrganizationEmployeeApiController {
+@RequestMapping("/api/v1/organizationmember")
+public class OrganizationMemberApiController {
 
-    private final RegisterOrganizationEmployeeAction registerOrganizationEmployeeAction;
+    private final RegisterOrganizationMemberAction registerOrganizationMemberAction;
 
     private final JwtService jwtService;
 
@@ -59,10 +59,9 @@ public class OrganizationEmployeeApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerOrganizationEmployee(@RequestBody CredentialsOrganizationEmployeeRequestDto dto) {
+    public JwtResponseDto registerOrganizationMember(@RequestBody CredentialsOrganizationMemberRequestDto dto) {
         try {
-            registerOrganizationEmployeeAction.execute(dto);
-
+            registerOrganizationMemberAction.execute(dto);
             String username = dto.getEmail();
             List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
             return jwtService.create(username, roles);

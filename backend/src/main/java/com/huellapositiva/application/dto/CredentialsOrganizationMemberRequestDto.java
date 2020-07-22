@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @AllArgsConstructor
-public class CredentialsOrganizationEmployeeRequestDto {
+public class CredentialsOrganizationMemberRequestDto {
 
     @Schema(
             description = "Organization email unique",

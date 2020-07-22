@@ -3,12 +3,12 @@ package com.huellapositiva.domain;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PasswordHash;
 
-public class ExpressRegistrationOrganizationEmployee {
+public class ExpressRegistrationOrganizationMember {
 
     private final EmailConfirmation confirmation;
     private final PasswordHash password;
 
-    public ExpressRegistrationOrganizationEmployee(PasswordHash password, EmailConfirmation confirmation) {
+    public ExpressRegistrationOrganizationMember(PasswordHash password, EmailConfirmation confirmation) {
         this.confirmation = confirmation;
         this.password = password;
     }

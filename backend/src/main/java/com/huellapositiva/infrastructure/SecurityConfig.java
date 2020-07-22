@@ -63,14 +63,14 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/api/v1/refresh", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/volunteers/login", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/proposals/**", HttpMethod.GET.name()),
-            new AntPathRequestMatcher("/api/v1/organizationemployee", HttpMethod.POST.name())
+            new AntPathRequestMatcher("/api/v1/organizationmember", HttpMethod.POST.name())
     };
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and()
                 .csrf()
-                .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers", "/api/v1/organizationemployee")
+                .ignoringAntMatchers("/api/v1/volunteers/login", "/api/v1/volunteers", "/api/v1/organizationmember")
                 .csrfTokenRepository(new CookieCsrfTokenRepository())
                 .and().authorizeRequests()
                 .requestMatchers(AUTH_ALLOWSLIST).permitAll()

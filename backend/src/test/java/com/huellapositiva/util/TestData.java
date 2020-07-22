@@ -24,7 +24,7 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
-    public static final String DEFAULT_ORGANIZATION_EMPLOYEE_EMAIL = "organizationEmployee@huellapositiva.com";
+    public static final String DEFAULT_ORGANIZATION_MEMBER_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
@@ -34,7 +34,7 @@ public class TestData {
     private final JpaVolunteerRepository volunteerRepository;
 
     @Autowired
-    private final JpaOrganizationEmployeeRepository organizationEmployeeRepository;
+    private final JpaOrganizationMemberRepository organizationMemberRepository;
 
     @Autowired
     private final JpaCredentialRepository jpaCredentialRepository;
@@ -55,7 +55,7 @@ public class TestData {
     private final JpaLocationRepository jpaLocationRepository;
 
     @Autowired
-    private final JpaOrganizationEmployeeRepository jpaOrganizationEmployeeRepository;
+    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
@@ -66,7 +66,7 @@ public class TestData {
 
     public void resetData() {
         volunteerRepository.deleteAll();
-        jpaOrganizationEmployeeRepository.deleteAll();
+        jpaOrganizationMemberRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
         organizationRepository.deleteAll();
@@ -119,19 +119,19 @@ public class TestData {
         return volunteerRepository.save(volunteer);
     }
 
-    public OrganizationEmployee createOrganizationEmployee(String email, String password) {
-        return createOrganizationEmployee(email, password, Roles.ORGANIZATION_EMPLOYEE);
+    public OrganizationMember createOrganizationMember(String email, String password) {
+        return createOrganizationMember(email, password, Roles.ORGANIZATION_MEMBER);
     }
 
-    public OrganizationEmployee createOrganizationEmployee(String email, String password, Roles role) {
+    public OrganizationMember createOrganizationMember(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
-        OrganizationEmployee employee = OrganizationEmployee.builder().credential(credential).build();
-        return organizationEmployeeRepository.save(employee);
+        OrganizationMember employee = OrganizationMember.builder().credential(credential).build();
+        return organizationMemberRepository.save(employee);
     }
 
-    public Integer createAndLinkOrganization(OrganizationEmployee employee, Organization organization) {
+    public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
         organizationRepository.save(organization);
-        return organizationEmployeeRepository.updateJoinedOrganization(employee.getId(), organization);
+        return organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
     }
 
     public Proposal createProposal(Proposal proposal) {
@@ -168,7 +168,7 @@ public class TestData {
     }
 
     private Proposal registerOrganizationAndProposal(boolean isPublished) throws ParseException {
-        OrganizationEmployee employee = createOrganizationEmployee(DEFAULT_ORGANIZATION_EMPLOYEE_EMAIL, DEFAULT_PASSWORD);
+        OrganizationMember employee = createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
         Organization organization = Organization.builder().name(DEFAULT_ORGANIZATION).build();
         createAndLinkOrganization(employee, organization);
         Proposal proposal = Proposal.builder()

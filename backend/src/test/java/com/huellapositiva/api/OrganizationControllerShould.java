@@ -40,8 +40,8 @@ class OrganizationControllerShould {
     }
 
     @Test
-    void create_an_organization_and_update_employee_joined_organization() throws Exception {
-        testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+    void create_an_organization_and_update_member_joined_organization() throws Exception {
+        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/organizations")

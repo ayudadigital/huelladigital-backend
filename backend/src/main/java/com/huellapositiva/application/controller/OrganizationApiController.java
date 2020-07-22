@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,11 +43,12 @@ public class OrganizationApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("ORGANIZATION_EMPLOYEE")
+    @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
     public void registerOrganization(@RequestBody OrganizationRequestDto dto) {
         try {
-            registerOrganizationAction.execute(dto);
+            String employeeEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            registerOrganizationAction.execute(dto, employeeEmail);
         } catch (UserNotFound ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }

@@ -1,13 +1,13 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsOrganizationEmployeeRequestDto;
+import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
 import com.huellapositiva.domain.Roles;
-import com.huellapositiva.domain.service.OrganizationEmployeeService;
+import com.huellapositiva.domain.service.OrganizationMemberService;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.OrganizationEmployee;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationEmployeeRepository;
+import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-class OrganizationEmployeeEmployeeServiceShould {
+class OrganizationMemberServiceShould {
     @Autowired
     private TestData testData;
 
@@ -34,10 +34,10 @@ class OrganizationEmployeeEmployeeServiceShould {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private OrganizationEmployeeService organizationEmployeeService;
+    private OrganizationMemberService organizationMemberService;
 
     @Autowired
-    private JpaOrganizationEmployeeRepository organizationEmployeeRepository;
+    private JpaOrganizationMemberRepository organizationMemberRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -45,24 +45,24 @@ class OrganizationEmployeeEmployeeServiceShould {
     }
 
     @Test
-    void register_a_new_employee() {
+    void register_a_new_member() {
         // GIVEN
-        CredentialsOrganizationEmployeeRequestDto dto = CredentialsOrganizationEmployeeRequestDto.builder()
+        CredentialsOrganizationMemberRequestDto dto = CredentialsOrganizationMemberRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();
 
         // WHEN
-        Integer employeeId = organizationEmployeeService.registerEmployee(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Integer employeeId = organizationMemberService.registerMember(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
-        Optional<OrganizationEmployee> employeeOptional = organizationEmployeeRepository.findByIdWithCredentialsAndRoles(employeeId);
+        Optional<OrganizationMember> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(employeeId);
         assertTrue(employeeOptional.isPresent());
-        OrganizationEmployee organizationEmployee = employeeOptional.get();
-        Credential credential = organizationEmployee.getCredential();
+        OrganizationMember organizationMember = employeeOptional.get();
+        Credential credential = organizationMember.getCredential();
         assertThat(credential.getEmail(), is(DEFAULT_EMAIL));
         assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, credential.getHashedPassword()), is(true));
         assertThat(credential.getRoles(), hasSize(1));
-        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.ORGANIZATION_EMPLOYEE_NOT_CONFIRMED.toString()));
+        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.ORGANIZATION_MEMBER_NOT_CONFIRMED.toString()));
     }
 }

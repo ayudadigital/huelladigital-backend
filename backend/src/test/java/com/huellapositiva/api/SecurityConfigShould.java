@@ -130,7 +130,7 @@ class SecurityConfigShould {
     @Test
     void allow_access_only_to_allowed_roles() throws Exception {
         // GIVEN
-        testData.createOrganizationEmployee(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
         Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();

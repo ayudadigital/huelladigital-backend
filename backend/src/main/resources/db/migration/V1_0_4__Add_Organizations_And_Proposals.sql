@@ -1,12 +1,19 @@
-CREATE TABLE organization
+CREATE TABLE organizations
+(
+    id              SERIAL PRIMARY KEY NOT NULL,
+    name            VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE organization_members
 (
     id              SERIAL PRIMARY KEY NOT NULL,
     credential_id   INTEGER NOT NULL,
-    name            VARCHAR(255) NOT NULL UNIQUE,
-    FOREIGN KEY (credential_id) REFERENCES credentials(id)
+    organization_id INTEGER,
+    FOREIGN KEY (credential_id) REFERENCES credentials(id),
+    FOREIGN KEY (organization_id) REFERENCES organizations(id)
 );
 
-CREATE TABLE location
+CREATE TABLE locations
 (
     id              SERIAL PRIMARY KEY NOT NULL,
     province        VARCHAR(255) NOT NULL,
@@ -14,7 +21,7 @@ CREATE TABLE location
     address         VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE proposal
+CREATE TABLE proposals
 (
     id              SERIAL PRIMARY KEY NOT NULL,
     title           VARCHAR(255) NOT NULL,
@@ -25,18 +32,18 @@ CREATE TABLE proposal
     max_age         INTEGER NOT NULL,
     expiration_date DATE NOT NULL,
     published       BOOLEAN NOT NULL,
-    FOREIGN KEY (organization_id) REFERENCES organization(id),
-    FOREIGN KEY (location_id) REFERENCES location(id)
+    FOREIGN KEY (organization_id) REFERENCES organizations(id),
+    FOREIGN KEY (location_id) REFERENCES locations(id)
 );
 
-CREATE TABLE volunteer_proposal
+CREATE TABLE volunteers_proposals
 (
     proposal_id INTEGER NOT NULL,
     volunteer_id INTEGER NOT NULL,
     PRIMARY KEY (proposal_id,volunteer_id),
-    FOREIGN KEY (proposal_id) REFERENCES proposal(id),
+    FOREIGN KEY (proposal_id) REFERENCES proposals(id),
     FOREIGN KEY (volunteer_id) REFERENCES volunteer(id)
 );
 
-INSERT INTO roles VALUES (4, 'ORGANIZATION');
-INSERT INTO roles VALUES (5, 'ORGANIZATION_NOT_CONFIRMED');
+INSERT INTO roles VALUES (4, 'ORGANIZATION_MEMBER');
+INSERT INTO roles VALUES (5, 'ORGANIZATION_MEMBER_NOT_CONFIRMED');

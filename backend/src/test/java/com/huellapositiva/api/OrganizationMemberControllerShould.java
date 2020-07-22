@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsOrganizationEmployeeRequestDto;
+import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
-class OrganizationEmployeeControllerShould {
+class OrganizationMemberControllerShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,12 +46,12 @@ class OrganizationEmployeeControllerShould {
     }
 
     @Test
-    void register_employee_and_return_201_and_tokens() throws Exception {
+    void register_member_and_return_201_and_tokens() throws Exception {
         // GIVEN
-        CredentialsOrganizationEmployeeRequestDto dto = new CredentialsOrganizationEmployeeRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        CredentialsOrganizationMemberRequestDto dto = new CredentialsOrganizationMemberRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        String jsonResponse = mvc.perform(post("/api/v1/organizationemployee")
+        String jsonResponse = mvc.perform(post("/api/v1/organizationmember")
                 .content(objectMapper.writeValueAsString(dto))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -64,6 +64,6 @@ class OrganizationEmployeeControllerShould {
         Pair<String, List<String>> userDetails = jwtService.getUserDetails(responseDto.getAccessToken());
         assertThat(userDetails.getFirst()).isEqualTo(dto.getEmail());
         assertThat(userDetails.getSecond()).hasSize(1);
-        assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.ORGANIZATION_EMPLOYEE_NOT_CONFIRMED.toString());
+        assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.ORGANIZATION_MEMBER_NOT_CONFIRMED.toString());
     }
 }

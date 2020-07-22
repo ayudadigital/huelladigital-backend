@@ -17,11 +17,15 @@ public class RegisterOrganizationAction {
     private final OrganizationMemberService organizationMemberService;
 
     public void execute(OrganizationRequestDto dto, String employeeEmail) {
-                OrganizationMember employee = organizationMemberService.findByEmail(employeeEmail)
-                .orElseThrow( () -> new UserNotFound("Could not retrieve the organization employee by his email."));
+        OrganizationMember employee = organizationMemberService.findByEmail(employeeEmail)
+                .orElseThrow(() -> new UserNotFound("Could not retrieve the organization employee by his email."));
 
-        Integer organizationId = organizationService.create(dto, employee);
+        Integer organizationId = organizationService.create(dto);
         organizationService.findById(organizationId);
         organizationMemberService.updateJoinedOrganization(employee, organizationService.findById(organizationId));
+    }
+
+    public void execute(OrganizationRequestDto dto) {
+        organizationService.create(dto);
     }
 }

@@ -53,4 +53,11 @@ public class OrganizationApiController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }
     }
+
+    @PostMapping("/admin")
+    @RolesAllowed("ADMIN")
+    @ResponseBody
+    public void registerOrganizationAsAdmin(@RequestBody OrganizationRequestDto dto) {
+        registerOrganizationAction.execute(dto);
+    }
 }

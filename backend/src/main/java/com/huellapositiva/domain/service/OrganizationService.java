@@ -5,7 +5,6 @@ import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.ExpressRegistrationOrganization;
 import com.huellapositiva.domain.repository.OrganizationRepository;
 import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +20,9 @@ public class OrganizationService {
     private final OrganizationRepository organizationRepository;
 
 
-    public Integer create(OrganizationRequestDto dto, OrganizationMember employee) {
+    public Integer create(OrganizationRequestDto dto) {
         try {
-            return organizationRepository.save(new ExpressRegistrationOrganization(dto.getName(), employee));
+            return organizationRepository.save(new ExpressRegistrationOrganization(dto.getName()));
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist the proposal due to a conflict.", ex);
             throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);

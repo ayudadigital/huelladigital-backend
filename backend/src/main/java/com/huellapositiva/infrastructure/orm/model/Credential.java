@@ -36,7 +36,7 @@ public class Credential {
     )
     private Set<Role> roles;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
 }

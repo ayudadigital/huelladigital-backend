@@ -1,11 +1,11 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.domain.ExpressRegistrationVolunteer;
-import com.huellapositiva.domain.Roles;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.repository.VolunteerRepository;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PasswordHash;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

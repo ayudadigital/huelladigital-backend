@@ -2,7 +2,7 @@ package com.huellapositiva.infrastructure;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
-import com.huellapositiva.domain.Email;
+import com.huellapositiva.domain.model.valueobjects.Email;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

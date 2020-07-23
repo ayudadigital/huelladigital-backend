@@ -1,4 +1,4 @@
-package com.huellapositiva.domain;
+package com.huellapositiva.domain.model.valueobjects;
 
 public class ExpressRegistrationOrganization {
     private final String name;

@@ -3,6 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.actions.RegisterOrganizationAction;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -49,7 +50,7 @@ public class OrganizationApiController {
     @ResponseBody
     public void registerOrganization(@RequestBody OrganizationRequestDto dto, @AuthenticationPrincipal String memberEmail) {
         try {
-            registerOrganizationAction.execute(dto, memberEmail);
+            registerOrganizationAction.execute(dto, EmailAddress.from(memberEmail));
         } catch (UserNotFound ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }

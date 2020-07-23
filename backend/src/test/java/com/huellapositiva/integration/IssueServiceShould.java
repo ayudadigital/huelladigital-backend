@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.infrastructure.orm.model.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;

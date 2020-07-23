@@ -1,8 +1,8 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -18,8 +18,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.Roles.VOLUNTEER;
-import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;

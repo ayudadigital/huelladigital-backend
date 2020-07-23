@@ -1,8 +1,6 @@
-package com.huellapositiva.domain;
+package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.domain.exception.EmailNotValidException;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.EmailTemplate;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -18,14 +16,11 @@ public class Email {
         if (emailConfirmation.getEmailAddress().isEmpty()) {
             throw new EmailNotValidException("Error when build the email, the email address is empty");
         }
-
         return Email.builder()
                 .from(from)
                 .to(emailConfirmation.getEmailAddress())
                 .subject("Confirmación de la cuenta en huellapositiva")
                 .body(emailTemplate.getParsedTemplate())
                 .build();
-
     }
-
 }

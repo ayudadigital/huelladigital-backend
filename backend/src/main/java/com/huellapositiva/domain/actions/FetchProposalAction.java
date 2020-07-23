@@ -3,7 +3,7 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.service.ProposalService;
-import com.huellapositiva.infrastructure.orm.model.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.Proposal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

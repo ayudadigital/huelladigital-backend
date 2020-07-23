@@ -1,12 +1,12 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.domain.Roles;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.VolunteerService;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.PlainPassword;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;

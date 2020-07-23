@@ -3,7 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.domain.Roles;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;

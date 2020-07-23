@@ -1,14 +1,11 @@
-package com.huellapositiva.domain;
+package com.huellapositiva.domain.model.valueobjects;
 
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PasswordHash;
-
-public class ExpressRegistrationOrganizationMember {
+public class ExpressRegistrationVolunteer {
 
     private final EmailConfirmation confirmation;
     private final PasswordHash password;
 
-    public ExpressRegistrationOrganizationMember(PasswordHash password, EmailConfirmation confirmation) {
+    public ExpressRegistrationVolunteer(PasswordHash password, EmailConfirmation confirmation) {
         this.confirmation = confirmation;
         this.password = password;
     }
@@ -20,7 +17,6 @@ public class ExpressRegistrationOrganizationMember {
     public String getHashedPassword() {
         return this.password.toString();
     }
-
     public String getConfirmationToken() {
         return confirmation.getToken();
     }

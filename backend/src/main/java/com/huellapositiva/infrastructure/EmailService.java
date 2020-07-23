@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure;
 
-import com.huellapositiva.domain.Email;
+import com.huellapositiva.domain.model.valueobjects.Email;
 
 public interface EmailService {
 

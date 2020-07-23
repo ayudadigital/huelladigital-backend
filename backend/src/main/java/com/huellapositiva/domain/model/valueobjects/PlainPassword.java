@@ -1,4 +1,4 @@
-package com.huellapositiva.domain.valueobjects;
+package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import lombok.EqualsAndHashCode;

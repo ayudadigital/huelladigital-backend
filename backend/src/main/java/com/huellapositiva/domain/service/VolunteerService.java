@@ -1,12 +1,12 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.FailedToPersistUser;
-import com.huellapositiva.domain.ExpressRegistrationVolunteer;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PasswordHash;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.PasswordHash;
+import com.huellapositiva.domain.model.valueobjects.PlainPassword;
+import com.huellapositiva.infrastructure.orm.entities.Volunteer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

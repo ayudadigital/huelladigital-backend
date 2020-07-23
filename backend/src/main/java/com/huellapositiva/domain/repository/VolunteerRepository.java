@@ -1,11 +1,11 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.domain.ExpressRegistrationVolunteer;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Role;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.Role;
+import com.huellapositiva.infrastructure.orm.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 
-import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
 @Component
 @Transactional

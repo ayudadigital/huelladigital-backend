@@ -1,8 +1,8 @@
 package com.huellapositiva.infrastructure;
 
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;

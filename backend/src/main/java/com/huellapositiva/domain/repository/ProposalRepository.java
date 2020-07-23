@@ -2,8 +2,8 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.infrastructure.orm.model.Location;
-import com.huellapositiva.infrastructure.orm.model.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.Location;
+import com.huellapositiva.infrastructure.orm.entities.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import lombok.AllArgsConstructor;

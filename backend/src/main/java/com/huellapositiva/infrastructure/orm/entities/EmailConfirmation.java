@@ -1,4 +1,4 @@
-package com.huellapositiva.infrastructure.orm.model;
+package com.huellapositiva.infrastructure.orm.entities;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

@@ -1,6 +1,6 @@
 package com.huellapositiva.application.dto;
 
-import com.huellapositiva.infrastructure.orm.model.Organization;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,4 +39,8 @@ public class ProposalRequestDto {
     private final String expirationDate;
 
     private boolean published;
+
+    void publish() {
+
+    }
 }

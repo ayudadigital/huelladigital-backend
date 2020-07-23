@@ -2,7 +2,7 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.service.ProposalService;
-import com.huellapositiva.infrastructure.orm.model.Organization;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

@@ -1,10 +1,10 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.domain.valueobjects.PasswordHash;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.domain.model.valueobjects.PasswordHash;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.Roles.ADMIN;
+import static com.huellapositiva.domain.model.valueobjects.Roles.ADMIN;
 
 @Slf4j
 @Service

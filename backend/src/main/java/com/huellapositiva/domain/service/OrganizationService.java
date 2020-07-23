@@ -2,9 +2,9 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.domain.ExpressRegistrationOrganization;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganization;
 import com.huellapositiva.domain.repository.OrganizationRepository;
-import com.huellapositiva.infrastructure.orm.model.Organization;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

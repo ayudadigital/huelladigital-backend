@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.domain.ExpressRegistrationOrganizationMember;
-import com.huellapositiva.infrastructure.orm.model.*;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganizationMember;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.Optional;
 
-import static com.huellapositiva.domain.Roles.ORGANIZATION_MEMBER_NOT_CONFIRMED;
+import static com.huellapositiva.domain.model.valueobjects.Roles.ORGANIZATION_MEMBER_NOT_CONFIRMED;
 
 @Component
 @Transactional

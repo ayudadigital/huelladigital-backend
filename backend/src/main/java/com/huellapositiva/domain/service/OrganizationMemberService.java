@@ -1,13 +1,11 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.FailedToPersistUser;
-import com.huellapositiva.domain.ExpressRegistrationOrganizationMember;
+import com.huellapositiva.domain.model.entities.User;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.OrganizationMemberRepository;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PasswordHash;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
+import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +43,10 @@ public class OrganizationMemberService {
 
     public Optional<OrganizationMember> findByEmail(String email){
         return organizationMemberRepository.findByEmail(email);
+    }
+
+    public User fetch(EmailAddress emailAddress) {
+        OrganizationMember organizationMember = organizationMemberRepository.findByEmail(emailAddress.toString()).get();
+        return new User(emailAddress, new Id(organizationMember.getId()));
     }
 }

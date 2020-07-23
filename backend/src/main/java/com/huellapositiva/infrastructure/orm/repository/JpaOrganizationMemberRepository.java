@@ -1,7 +1,7 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
+import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

@@ -2,9 +2,9 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.Token;
-import com.huellapositiva.infrastructure.orm.model.Credential;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.Token;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import org.springframework.beans.factory.annotation.Value;

@@ -4,7 +4,7 @@ import cloud.localstack.docker.LocalstackDockerExtension;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityRequest;
-import com.huellapositiva.domain.Email;
+import com.huellapositiva.domain.model.valueobjects.Email;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
 import org.junit.jupiter.api.Test;

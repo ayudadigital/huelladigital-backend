@@ -38,5 +38,5 @@ public class ProposalRequestDto {
     @NotEmpty
     private final String expirationDate;
 
-    private final boolean published;
+    private boolean published;
 }

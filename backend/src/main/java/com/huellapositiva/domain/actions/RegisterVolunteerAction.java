@@ -20,9 +20,10 @@ public class RegisterVolunteerAction {
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    public void execute(CredentialsVolunteerRequestDto dto) {
+    public Integer execute(CredentialsVolunteerRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
-        volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        Integer id = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
+        return id;
     }
 }

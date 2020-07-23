@@ -14,11 +14,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,11 +64,15 @@ public class VolunteerApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto, HttpServletResponse res) {
         try {
-            registerVolunteerAction.execute(dto);
+            Integer id = registerVolunteerAction.execute(dto);
             String username = dto.getEmail();
             List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}").buildAndExpand(id)
+                    .toUri();
+            res.addHeader(HttpHeaders.LOCATION, uri.toString());
             return jwtService.create(username, roles);
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");

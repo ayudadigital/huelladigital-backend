@@ -17,11 +17,11 @@ public class RegisterProposalAction {
 
     private final ProposalService proposalService;
 
-    public void execute(ProposalRequestDto dto, String employeeEmail) {
+    public Integer execute(ProposalRequestDto dto, String employeeEmail) {
         Organization organization = jpaOrganizationMemberRepository.findByEmail(employeeEmail)
                 .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
                 .getJoinedOrganization();
         dto.setOrganization(organization);
-        proposalService.registerProposal(dto);
+        return proposalService.registerProposal(dto);
     }
 }

@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
-import static com.huellapositiva.util.TestUtils.registerProposalRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -69,30 +68,28 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(post(REGISTER_PROPOSAL_URI)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated()).andReturn().getResponse();
 
         // THEN
-        assertThat(jpaProposalRepository.findAll()).isNotEmpty();
+        String location = response.getHeader(HttpHeaders.LOCATION);
+        assertThat(location).matches("\\S+(/api/v1/proposals/)\\d+");
+        int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+        assertThat(jpaProposalRepository.findById(id).get().getTitle()).isEqualTo("Recogida de ropita");
     }
 
     @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildPublishedProposalDto();
-        String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
-        registerProposalRequest(mvc, accessToken, proposalDto);
-        Integer proposalId = jpaProposalRepository.findAll().get(0).getId();
+        Proposal proposal = testData.registerOrganizationAndPublishedProposal();
 
         // WHEN
-        MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
+        MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -118,16 +115,10 @@ class ProposalControllerShould {
     @Test
     void return_412_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
-        String accessToken = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD).getAccessToken();
-        registerProposalRequest(mvc, accessToken, proposalDto);
+        Proposal proposal = testData.registerOrganizationAndNotPublishedProposal();
 
-        Integer proposalId = jpaProposalRepository.findAll().get(0).getId();
-
-        // WHEN
-        mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
+        // WHEN + THEN
+        mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isPreconditionFailed());

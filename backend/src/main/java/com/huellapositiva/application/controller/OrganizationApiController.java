@@ -10,7 +10,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,6 +21,7 @@ import javax.annotation.security.RolesAllowed;
 @AllArgsConstructor
 @Tag(name = "Organizations", description = "The organization API")
 @RequestMapping("/api/v1/organizations")
+@EnableWebSecurity
 public class OrganizationApiController {
 
     private final RegisterOrganizationAction registerOrganizationAction;
@@ -45,10 +47,9 @@ public class OrganizationApiController {
     @PostMapping
     @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
-    public void registerOrganization(@RequestBody OrganizationRequestDto dto) {
+    public void registerOrganization(@RequestBody OrganizationRequestDto dto, @AuthenticationPrincipal String memberEmail) {
         try {
-            String employeeEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            registerOrganizationAction.execute(dto, employeeEmail);
+            registerOrganizationAction.execute(dto, memberEmail);
         } catch (UserNotFound ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }

@@ -12,18 +12,24 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 
 @RestController
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
 @RequestMapping("/api/v1/proposals")
+@EnableWebSecurity
 public class ProposalApiController {
 
     private final RegisterProposalAction registerProposalAction;
@@ -34,14 +40,14 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal",
-            description = "Register a new proposal and link it to the logged employee",
+            description = "Register a new proposal and link it to the logged employee.",
             tags = "proposals"
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "201",
-                            description = "Ok, proposal register successful"
+                            description = "Ok, proposal register successful."
                     )
             }
     )
@@ -49,21 +55,25 @@ public class ProposalApiController {
     @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestBody ProposalRequestDto dto) {
-        String employeeEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        registerProposalAction.execute(dto, employeeEmail);
+    public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String memberEmail, HttpServletResponse res) {
+        dto.setPublished(true);
+        int id = registerProposalAction.execute(dto, memberEmail);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(id)
+                .toUri();
+        res.addHeader(HttpHeaders.LOCATION, uri.toString());
     }
 
     @Operation(
             summary = "Fetch a proposal",
-            description = "Fetch a proposal with the given ID through the path variable",
+            description = "Fetch a proposal with the given ID through the path variable.",
             tags = "proposals"
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Ok, proposal fetched successfully"
+                            description = "Ok, proposal fetched successfully."
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -78,10 +88,10 @@ public class ProposalApiController {
         try {
             return fetchProposalAction.execute(id);
         } catch(EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist.");
         }
         catch (ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet");
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet.");
         }
     }
 
@@ -94,7 +104,7 @@ public class ProposalApiController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Ok, proposal joined successfully"
+                            description = "Ok, proposal joined successfully."
                     ),
                     @ApiResponse(
                             responseCode = "404",
@@ -111,14 +121,13 @@ public class ProposalApiController {
     @PostMapping("/{id}/join")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable Integer id) {
+    public void joinProposal(@PathVariable Integer id, @AuthenticationPrincipal String memberEmail) {
         try {
-            String volunteerEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            joinProposalAction.execute(id, volunteerEmail);
+            joinProposalAction.execute(id, memberEmail);
         } catch(EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist.");
         } catch (ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet");
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet.");
         }
     }
 }

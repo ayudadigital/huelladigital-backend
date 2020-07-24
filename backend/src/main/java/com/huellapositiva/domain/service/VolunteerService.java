@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.FailedToPersistUser;
+import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.valueobjects.EmailConfirmation;
@@ -32,7 +32,7 @@ public class VolunteerService {
             return volunteerRepository.save(expressVolunteer);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist volunteer due to a conflict.", ex);
-            throw new FailedToPersistUser("Conflict encountered while storing user in database. Constraints were violated.", ex);
+            throw new ConflictPersistingUserException("Conflict encountered while storing user in database. Constraints were violated.", ex);
         }
     }
 

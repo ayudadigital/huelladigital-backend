@@ -52,5 +52,5 @@ public class Proposal {
             joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}
     )
-    private Set<Volunteer> inscribedVolunteers;
+    private Set<Volunteer> joinedVolunteers;
 }

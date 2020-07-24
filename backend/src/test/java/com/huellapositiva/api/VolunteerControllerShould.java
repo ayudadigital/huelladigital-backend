@@ -25,8 +25,10 @@ import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -69,6 +71,7 @@ class VolunteerControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)\\d+")))
                 .andReturn()
                 .getResponse();
 
@@ -80,7 +83,6 @@ class VolunteerControllerShould {
         assertThat(userDetails.getSecond()).hasSize(1);
         assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
-        assertThat(location).matches("\\S+(/api/v1/volunteers/)\\d+");
         int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }

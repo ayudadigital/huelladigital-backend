@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface JpaProposalRepository extends JpaRepository<Proposal, Integer> {
 
-    @Query("FROM Proposal p LEFT JOIN FETCH p.organization LEFT JOIN FETCH p.inscribedVolunteers WHERE p.id = :id")
+    @Query("FROM Proposal p LEFT JOIN FETCH p.organization LEFT JOIN FETCH p.joinedVolunteers WHERE p.id = :id")
     Optional<Proposal> findByIdWithOrganizationAndInscribedVolunteers(@Param("id") Integer id);
 }

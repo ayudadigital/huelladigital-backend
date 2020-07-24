@@ -39,7 +39,7 @@ public class ProposalService {
         if (isNotPublished) {
             throw new ProposalNotPublished();
         }
-        proposal.getInscribedVolunteers().add(volunteer);
+        proposal.getJoinedVolunteers().add(volunteer);
         return proposalRepository.save(proposal);
     }
 }

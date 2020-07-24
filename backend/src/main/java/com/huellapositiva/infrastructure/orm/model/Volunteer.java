@@ -24,6 +24,6 @@ public class Volunteer {
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Credential credential;
 
-    @ManyToMany(mappedBy = "inscribedVolunteers")
+    @ManyToMany(mappedBy = "joinedVolunteers")
     private List<Proposal> joinedProposals;
 }

@@ -130,8 +130,9 @@ public class TestData {
     }
 
     public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
-        organizationRepository.save(organization);
-        return organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+        Integer id = organizationRepository.save(organization).getId();
+        organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+        return id;
     }
 
     public Proposal createProposal(Proposal proposal) {

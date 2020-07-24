@@ -24,10 +24,12 @@ import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -74,11 +76,12 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isCreated()).andReturn().getResponse();
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andReturn().getResponse();
 
         // THEN
         String location = response.getHeader(HttpHeaders.LOCATION);
-        assertThat(location).matches("\\S+(/api/v1/proposals/)\\d+");
         int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
         assertThat(jpaProposalRepository.findById(id).get().getTitle()).isEqualTo("Recogida de ropita");
     }
@@ -141,8 +144,8 @@ class ProposalControllerShould {
 
         // THEN
         Proposal proposal = jpaProposalRepository.findById(proposalId).get();
-        assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
-        Integer volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
+        assertThat(proposal.getJoinedVolunteers()).isNotEmpty();
+        Integer volunteerId = proposal.getJoinedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 

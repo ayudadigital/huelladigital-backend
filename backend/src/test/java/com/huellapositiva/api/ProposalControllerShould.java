@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.domain.Roles;
 import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
@@ -20,8 +21,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
-import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import java.util.UUID;
+
+import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -179,5 +181,27 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void create_proposal_as_admin() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.ADMIN);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
+        ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
+        proposalRequestDto.setOrganizationName("Huella Positiva");
+
+        mvc.perform(post("/api/v1/proposals/admin")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalRequestDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andExpect(status().isCreated());
+
+        assertThat(jpaProposalRepository.findAll()).isNotEmpty();
     }
 }

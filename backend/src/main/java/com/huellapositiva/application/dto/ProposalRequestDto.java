@@ -1,6 +1,5 @@
 package com.huellapositiva.application.dto;
 
-import com.huellapositiva.infrastructure.orm.model.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,7 +14,7 @@ public class ProposalRequestDto {
     @NotEmpty
     private final String title;
 
-    private Organization organization;
+    private String organizationName;
 
     @NotEmpty
     private final String province;

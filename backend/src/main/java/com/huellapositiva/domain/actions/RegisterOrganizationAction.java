@@ -6,7 +6,9 @@ import com.huellapositiva.domain.service.OrganizationMemberService;
 import com.huellapositiva.domain.service.OrganizationService;
 import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Service
@@ -16,13 +18,17 @@ public class RegisterOrganizationAction {
 
     private final OrganizationMemberService organizationMemberService;
 
-    public void execute(OrganizationRequestDto dto, String employeeEmail) {
-        OrganizationMember employee = organizationMemberService.findByEmail(employeeEmail)
-                .orElseThrow(() -> new UserNotFound("Could not retrieve the organization employee by his email."));
+    public void execute(OrganizationRequestDto dto, String memberEmail) {
+        OrganizationMember member = organizationMemberService.findByEmail(memberEmail)
+                .orElseThrow(() -> new UserNotFound("Could not retrieve the organization member by his email."));
+
+        if(member.getJoinedOrganization() != null){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED);
+        }
 
         Integer organizationId = organizationService.create(dto);
         organizationService.findById(organizationId);
-        organizationMemberService.updateJoinedOrganization(employee, organizationService.findById(organizationId));
+        organizationMemberService.updateJoinedOrganization(member, organizationService.findById(organizationId));
     }
 
     public void execute(OrganizationRequestDto dto) {

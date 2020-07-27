@@ -66,6 +66,4 @@ class LoginControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
-
-
 }

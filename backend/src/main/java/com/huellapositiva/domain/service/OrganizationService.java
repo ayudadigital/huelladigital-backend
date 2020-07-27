@@ -2,9 +2,11 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.OrganizationAlreadyExists;
 import com.huellapositiva.domain.ExpressRegistrationOrganization;
 import com.huellapositiva.domain.repository.OrganizationRepository;
 import com.huellapositiva.infrastructure.orm.model.Organization;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +21,11 @@ public class OrganizationService {
     @Autowired
     private final OrganizationRepository organizationRepository;
 
+    @Autowired
+    private final JpaOrganizationRepository jpaOrganizationRepository;
 
     public Integer create(OrganizationRequestDto dto) {
+        jpaOrganizationRepository.findByName(dto.getName()).ifPresent(s -> {throw new OrganizationAlreadyExists();});
         try {
             return organizationRepository.save(new ExpressRegistrationOrganization(dto.getName()));
         } catch (DataIntegrityViolationException ex) {

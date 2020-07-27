@@ -128,4 +128,16 @@ public class ProposalApiController {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet.");
         }
     }
+
+    @PostMapping("/admin")
+    @RolesAllowed("ADMIN")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createProposalAsAdmin(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
+        int id = registerProposalAction.execute(dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(id)
+                .toUri();
+        res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/admin", ""));
+    }
 }

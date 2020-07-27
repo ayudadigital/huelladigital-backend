@@ -2,9 +2,12 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.OrganizationNotFound;
 import com.huellapositiva.infrastructure.orm.model.Location;
+import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
+    @Autowired
+    private final JpaOrganizationRepository jpaOrganizationRepository;
+
     public Integer save(ProposalRequestDto dto) {
         Location proposalLocation = jpaLocationRepository.save(Location.builder()
                 .province(dto.getProvince())
@@ -38,9 +44,12 @@ public class ProposalRepository {
         } catch(ParseException ex){
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
+        Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
+                .orElseThrow(() -> new OrganizationNotFound());
+
         Proposal proposal = Proposal.builder()
                 .title(dto.getTitle())
-                .organization(dto.getOrganization())
+                .organization(organization)
                 .location(proposalLocation)
                 .expirationDate(expirationDate)
                 .requiredDays(dto.getRequiredDays())

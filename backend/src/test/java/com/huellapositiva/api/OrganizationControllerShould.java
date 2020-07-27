@@ -98,4 +98,34 @@ class OrganizationControllerShould {
 
         assertThat(jpaOrganizationRepository.findById(organizationId)).isEmpty();
     }
+
+    @Test
+    void not_allow_to_create_an_organization_when_member_already_has_one() throws Exception {
+        OrganizationMember member = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(member, Organization.builder().name("Huella Negativa").build());
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/organizations")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella positiva")))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isPreconditionFailed());
+    }
+
+    @Test
+    void return_409_when_organization_is_already_taken() throws Exception {
+        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createOrganization(Organization.builder().name("Huella Positiva").build());
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/organizations")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella Positiva")))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
 }

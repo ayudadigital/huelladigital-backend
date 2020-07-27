@@ -1,6 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.OrganizationRequestDto;
+import com.huellapositiva.application.exception.OrganizationAlreadyExists;
 import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.actions.DeleteOrganizationAction;
 import com.huellapositiva.domain.actions.RegisterOrganizationAction;
@@ -25,7 +26,7 @@ public class OrganizationApiController {
 
     private final RegisterOrganizationAction registerOrganizationAction;
 
-    private DeleteOrganizationAction deleteOrganizationAction;
+    private final DeleteOrganizationAction deleteOrganizationAction;
 
     @Operation(
             summary = "Register a new organization",
@@ -36,7 +37,7 @@ public class OrganizationApiController {
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Ok, organization registered successful"
+                            description = "Ok, organization registered successful."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -52,7 +53,9 @@ public class OrganizationApiController {
         try {
             registerOrganizationAction.execute(dto, memberEmail);
         } catch (UserNotFound ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue.");
+        }catch (OrganizationAlreadyExists ex){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Organization with name " + dto.getName() + " already exists.");
         }
     }
 
@@ -63,7 +66,7 @@ public class OrganizationApiController {
         try {
             deleteOrganizationAction.execute(memberEmail);
         } catch (UserNotFound ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue.");
         }
     }
 

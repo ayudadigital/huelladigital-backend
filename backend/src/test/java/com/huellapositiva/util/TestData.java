@@ -130,9 +130,13 @@ public class TestData {
     }
 
     public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
-        Integer id = organizationRepository.save(organization).getId();
+        Integer id = createOrganization(organization);
         organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
         return id;
+    }
+
+    public Integer createOrganization(Organization organization) {
+        return organizationRepository.save(organization).getId();
     }
 
     public Proposal createProposal(Proposal proposal) {
@@ -146,7 +150,7 @@ public class TestData {
         return buildProposalDto(false);
     }
 
-    private ProposalRequestDto buildProposalDto(boolean isPublished) {
+    public ProposalRequestDto buildProposalDto(boolean isPublished) {
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")

@@ -30,6 +30,8 @@ public class TestData {
 
     public static final String DEFAULT_ORGANIZATION = "Huella Digital";
 
+    public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -61,7 +63,7 @@ public class TestData {
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository organizationRepository;
+    private final JpaOrganizationRepository jpaOrganizationRepository;
 
 
     public void resetData() {
@@ -69,7 +71,7 @@ public class TestData {
         jpaOrganizationMemberRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
-        organizationRepository.deleteAll();
+        jpaOrganizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();
@@ -136,7 +138,7 @@ public class TestData {
     }
 
     public Integer createOrganization(Organization organization) {
-        return organizationRepository.save(organization).getId();
+        return jpaOrganizationRepository.save(organization).getId();
     }
 
     public Proposal createProposal(Proposal proposal) {

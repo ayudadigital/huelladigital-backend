@@ -59,12 +59,12 @@ public class OrganizationApiController {
         }
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/{id}")
     @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
-    public void deleteOrganization(@AuthenticationPrincipal String memberEmail) {
+    public void deleteOrganization(@AuthenticationPrincipal String memberEmail, @PathVariable Integer id) {
         try {
-            deleteOrganizationAction.execute(memberEmail);
+            deleteOrganizationAction.execute(memberEmail, id);
         } catch (UserNotFound ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue.");
         }

@@ -118,7 +118,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_fetching_a_not_published_proposal() throws Exception {
+    void return_404_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
         Proposal proposal = testData.registerOrganizationAndNotPublishedProposal();
 
@@ -126,7 +126,7 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -152,7 +152,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_joining_a_not_published_proposal() throws Exception {
+    void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         Integer proposalId = testData.registerOrganizationAndNotPublishedProposal().getId();
@@ -164,7 +164,7 @@ class ProposalControllerShould {
                 .contentType(APPLICATION_JSON)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test

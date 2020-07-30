@@ -30,7 +30,7 @@ CREATE TABLE proposals
     required_days   VARCHAR(255) NOT NULL,
     min_age         INTEGER NOT NULL,
     max_age         INTEGER NOT NULL,
-    expiration_date DATE NOT NULL,
+    expiration_date DATETIME NOT NULL,
     published       BOOLEAN NOT NULL,
     FOREIGN KEY (organization_id) REFERENCES organizations(id),
     FOREIGN KEY (location_id) REFERENCES locations(id)

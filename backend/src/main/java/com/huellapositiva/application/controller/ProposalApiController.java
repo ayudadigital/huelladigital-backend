@@ -75,7 +75,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found.",
+                            description = "Not found, the given ID was not found or is not published.",
                             content = @Content()
                     )
             }
@@ -85,11 +85,8 @@ public class ProposalApiController {
     public ProposalResponseDto getProposal(@PathVariable Integer id) {
         try {
             return fetchProposalAction.execute(id);
-        } catch(EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist.");
-        }
-        catch (ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet.");
+        } catch(EntityNotFoundException | ProposalNotPublished e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist or is not published.");
         }
     }
 
@@ -106,12 +103,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found.",
-                            content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "412",
-                            description = "Precondition failed, the proposal you are looking for is not published yet.",
+                            description = "Not found, the given ID was not found or is not published.",
                             content = @Content()
                     )
             }
@@ -122,10 +114,8 @@ public class ProposalApiController {
     public void joinProposal(@PathVariable Integer id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
-        } catch(EntityNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist.");
-        } catch (ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Proposal is not published yet.");
+        } catch(EntityNotFoundException | ProposalNotPublished e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
     }
 

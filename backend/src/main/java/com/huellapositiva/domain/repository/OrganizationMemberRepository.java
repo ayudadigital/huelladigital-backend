@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.ExpressRegistrationOrganizationMember;
 import com.huellapositiva.infrastructure.orm.model.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
@@ -64,6 +65,7 @@ public class OrganizationMemberRepository {
     }
 
     public Organization getJoinedOrganization(String memberEmail){
-        return jpaOrganizationMemberRepository.findByEmail(memberEmail).get().getJoinedOrganization();
+        return jpaOrganizationMemberRepository.findByEmail(memberEmail)
+                .orElseThrow(UserNotFound::new).getJoinedOrganization();
     }
 }

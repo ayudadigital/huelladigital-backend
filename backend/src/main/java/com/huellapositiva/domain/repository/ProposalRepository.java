@@ -9,8 +9,9 @@ import com.huellapositiva.infrastructure.orm.model.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,7 @@ import java.util.Date;
 
 @Component
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProposalRepository {
 
     @Autowired
@@ -32,6 +33,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaOrganizationRepository jpaOrganizationRepository;
 
+    @Value("${huellapositiva.proposal.expiration-hour}")
+    private String expirationHour;
+
     public Integer save(ProposalRequestDto dto) {
         Location proposalLocation = jpaLocationRepository.save(Location.builder()
                 .province(dto.getProvince())
@@ -40,12 +44,12 @@ public class ProposalRepository {
                 .build());
         Date expirationDate;
         try {
-            expirationDate = new SimpleDateFormat("dd-MM-yyyy").parse(dto.getExpirationDate());
+            expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dto.getExpirationDate() + " " + expirationHour);
         } catch(ParseException ex){
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
         Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
-                .orElseThrow(() -> new OrganizationNotFound());
+                .orElseThrow(OrganizationNotFound::new);
 
         Proposal proposal = Proposal.builder()
                 .title(dto.getTitle())

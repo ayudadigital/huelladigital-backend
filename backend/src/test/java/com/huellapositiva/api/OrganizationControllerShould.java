@@ -1,7 +1,6 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.domain.Roles;
@@ -9,7 +8,6 @@ import com.huellapositiva.infrastructure.orm.model.Organization;
 import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.util.TestData;
-import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,10 +84,9 @@ class OrganizationControllerShould {
         OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         Integer organizationId = testData.createAndLinkOrganization(organizationMember, Organization.builder().name(DEFAULT_ORGANIZATION).build());
 
-        String jsonResponse = TestUtils.loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD)).getContentAsString();
-        JwtResponseDto jwtResponseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(delete("/api/v1/organizations/delete")
+        mvc.perform(delete("/api/v1/organizations/" + organizationId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
@@ -127,5 +124,21 @@ class OrganizationControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isConflict());
+    }
+
+    @Test
+    void return_401_when_a_user_attempts_to_delete_an_organization_that_does_not_belong_to() throws Exception {
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
+        Integer secondOrganizationId = testData.createOrganization(Organization.builder().name("Huella Negativa").build());
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(delete("/api/v1/organizations/" + secondOrganizationId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 }

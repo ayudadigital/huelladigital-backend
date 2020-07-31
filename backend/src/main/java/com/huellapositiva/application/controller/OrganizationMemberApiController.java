@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Organization Employee", description = "The organization employee API")
+@Tag(name = "Organization members", description = "The organization member API")
 @RequestMapping("/api/v1/member")
 public class OrganizationMemberApiController {
 

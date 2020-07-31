@@ -7,9 +7,12 @@ import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -39,13 +42,28 @@ public class ProposalApiController {
     @Operation(
             summary = "Register a new proposal",
             description = "Register a new proposal and link it to the logged employee.",
-            tags = "proposals"
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "201",
                             description = "Ok, proposal register successful."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -93,7 +111,14 @@ public class ProposalApiController {
     @Operation(
             summary = "Join a proposal",
             description = "Join a proposal as volunteer",
-            tags = "proposals"
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -119,6 +144,34 @@ public class ProposalApiController {
         }
     }
 
+    @Operation(
+            summary = "Register a new proposal as admin",
+            description = "Register a new proposal by providing the ESAL name through the DTO.",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Ok, proposal register successful."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the ESAL data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping("/admin")
     @RolesAllowed("ADMIN")
     @ResponseBody

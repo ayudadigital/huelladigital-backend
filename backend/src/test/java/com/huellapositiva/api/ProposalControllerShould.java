@@ -21,6 +21,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.*;
@@ -45,23 +48,22 @@ class ProposalControllerShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-
     @Autowired
     private TestData testData;
 
     @Autowired
     private MockMvc mvc;
 
-    @BeforeEach
-    void beforeEach() {
-        testData.resetData();
-    }
-
     @Autowired
     private JpaProposalRepository jpaProposalRepository;
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
 
     @Test
     void create_an_organization_and_update_member_joined_organization() throws Exception {
@@ -181,6 +183,26 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_410_when_joining_a_non_existent_proposal() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Proposal proposal = testData.registerOrganizationAndPublishedProposal();
+        proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
+        jpaProposalRepository.save(proposal);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+
+
+        // WHEN
+        mvc.perform(post("/api/v1/proposals/" + proposal.getId() + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isGone());
     }
 
     @Test

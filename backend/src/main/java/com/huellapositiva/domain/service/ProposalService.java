@@ -2,6 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.ProposalEnrollmentClosed;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.model.Proposal;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Slf4j
 @Service
@@ -38,6 +41,10 @@ public class ProposalService {
         boolean isNotPublished = !proposal.getPublished();
         if (isNotPublished) {
             throw new ProposalNotPublished();
+        }
+        boolean isEnrollmentClosed = proposal.getExpirationDate().before(new Date());
+        if (isEnrollmentClosed) {
+            throw new ProposalEnrollmentClosed();
         }
         proposal.getJoinedVolunteers().add(volunteer);
         return proposalRepository.save(proposal);

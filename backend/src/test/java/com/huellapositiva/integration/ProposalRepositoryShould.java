@@ -2,8 +2,8 @@ package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
+import com.huellapositiva.infrastructure.orm.entities.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;

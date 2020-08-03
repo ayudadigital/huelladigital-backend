@@ -3,13 +3,9 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
-<<<<<<< HEAD
 import com.huellapositiva.domain.model.valueobjects.Roles;
-=======
-import com.huellapositiva.domain.Roles;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.OrganizationMember;
->>>>>>> origin/develop
+import com.huellapositiva.infrastructure.orm.entities.Organization;
+import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;

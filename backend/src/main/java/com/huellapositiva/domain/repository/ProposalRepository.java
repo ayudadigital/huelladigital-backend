@@ -2,12 +2,17 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.OrganizationNotFound;
 import com.huellapositiva.infrastructure.orm.entities.Location;
+import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.entities.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

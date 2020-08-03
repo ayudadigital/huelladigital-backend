@@ -2,6 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.ProposalEnrollmentClosed;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.Proposal;
@@ -45,7 +46,7 @@ public class ProposalService {
         if (isEnrollmentClosed) {
             throw new ProposalEnrollmentClosed();
         }
-        proposal.getJoinedVolunteers().add(volunteer);
+        proposal.getInscribedVolunteers().add(volunteer);
         return proposalRepository.save(proposal);
     }
 }

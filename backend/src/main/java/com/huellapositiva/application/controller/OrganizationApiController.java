@@ -36,10 +36,6 @@ import javax.annotation.security.RolesAllowed;
 @AllArgsConstructor
 @Tag(name = "Organizations", description = "The organization API")
 @RequestMapping("/api/v1/organizations")
-<<<<<<< HEAD
-@EnableWebSecurity
-=======
->>>>>>> origin/develop
 public class OrganizationApiController {
 
     private final RegisterOrganizationAction registerOrganizationAction;

@@ -7,9 +7,12 @@ import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -29,10 +32,6 @@ import java.net.URI;
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
 @RequestMapping("/api/v1/proposals")
-<<<<<<< HEAD
-@EnableWebSecurity
-=======
->>>>>>> origin/develop
 public class ProposalApiController {
 
     private final RegisterProposalAction registerProposalAction;

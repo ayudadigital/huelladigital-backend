@@ -3,8 +3,6 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.application.exception.FailedToPersistUser;
-import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterOrganizationMemberAction;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -18,7 +16,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;

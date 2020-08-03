@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.FailedToPersistUser;
+import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;

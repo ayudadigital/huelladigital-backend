@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganizationMember;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;

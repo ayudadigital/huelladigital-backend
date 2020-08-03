@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
 import com.huellapositiva.infrastructure.orm.entities.Proposal;
@@ -47,24 +48,12 @@ class ProposalControllerShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/develop
     @Autowired
     private TestData testData;
 
     @Autowired
     private MockMvc mvc;
 
-<<<<<<< HEAD
-    @BeforeEach
-    void beforeEach() {
-        testData.resetData();
-    }
-
-=======
->>>>>>> origin/develop
     @Autowired
     private JpaProposalRepository jpaProposalRepository;
 
@@ -159,8 +148,8 @@ class ProposalControllerShould {
 
         // THEN
         Proposal proposal = jpaProposalRepository.findById(proposalId).get();
-        assertThat(proposal.getJoinedVolunteers()).isNotEmpty();
-        Integer volunteerId = proposal.getJoinedVolunteers().iterator().next().getId();
+        assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
+        Integer volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 

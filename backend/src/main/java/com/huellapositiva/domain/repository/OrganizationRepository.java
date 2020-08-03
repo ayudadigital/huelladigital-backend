@@ -39,5 +39,8 @@ public class OrganizationRepository {
         Integer id = jpaOrganizationRepository.save(organization).getId();
         jpaOrganizationMemberRepository.updateJoinedOrganization(model.getMember().getId().asInt(), organization);
         return id;
+    public void delete(int id) {
+        jpaOrganizationMemberRepository.unlinkMembersOfOrganization(id);
+        jpaOrganizationRepository.deleteById(id);
     }
 }

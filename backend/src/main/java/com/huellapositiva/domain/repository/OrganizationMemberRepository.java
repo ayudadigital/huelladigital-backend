@@ -62,4 +62,9 @@ public class OrganizationMemberRepository {
     public Optional<OrganizationMember> findByEmail(String email) {
         return jpaOrganizationMemberRepository.findByEmail(email);
     }
+
+    public Organization getJoinedOrganization(String memberEmail){
+        return jpaOrganizationMemberRepository.findByEmail(memberEmail)
+                .orElseThrow(UserNotFound::new).getJoinedOrganization();
+    }
 }

@@ -15,13 +15,22 @@ public class RegisterProposalAction {
 
     private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
+    private final JpaOrganizationRepository jpaOrganizationRepository;
+
     private final ProposalService proposalService;
 
     public Integer execute(ProposalRequestDto dto, String employeeEmail) {
         Organization organization = jpaOrganizationMemberRepository.findByEmail(employeeEmail)
                 .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
                 .getJoinedOrganization();
-        dto.setOrganization(organization);
+        dto.setOrganizationName(organization.getName());
+        return proposalService.registerProposal(dto);
+    }
+
+    public Integer execute(ProposalRequestDto dto) {
+        Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
+                .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+        dto.setOrganizationName(organization.getName());
         return proposalService.registerProposal(dto);
     }
 }

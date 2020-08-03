@@ -17,7 +17,7 @@ import java.util.Date;
 
 @Component
 @Transactional
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProposalRepository {
 
     @Autowired
@@ -25,6 +25,12 @@ public class ProposalRepository {
 
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
+
+    @Autowired
+    private final JpaOrganizationRepository jpaOrganizationRepository;
+
+    @Value("${huellapositiva.proposal.expiration-hour}")
+    private String expirationHour;
 
     public Integer save(ProposalRequestDto dto) {
         Location proposalLocation = jpaLocationRepository.save(Location.builder()
@@ -34,13 +40,16 @@ public class ProposalRepository {
                 .build());
         Date expirationDate;
         try {
-            expirationDate = new SimpleDateFormat("dd-MM-yyyy").parse(dto.getExpirationDate());
+            expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(dto.getExpirationDate() + " " + expirationHour);
         } catch(ParseException ex){
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
+        Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
+                .orElseThrow(OrganizationNotFound::new);
+
         Proposal proposal = Proposal.builder()
                 .title(dto.getTitle())
-                .organization(dto.getOrganization())
+                .organization(organization)
                 .location(proposalLocation)
                 .expirationDate(expirationDate)
                 .requiredDays(dto.getRequiredDays())

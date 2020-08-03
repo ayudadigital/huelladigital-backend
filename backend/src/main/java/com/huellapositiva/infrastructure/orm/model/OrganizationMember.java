@@ -6,24 +6,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "volunteer")
+@Table(name = "organization_members")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Volunteer {
+public class OrganizationMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @JoinColumn(name = "credential_id")
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Credential credential;
 
-    @ManyToMany(mappedBy = "inscribedVolunteers")
-    private List<Proposal> joinedProposals;
+    @JoinColumn(name = "organization_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Organization joinedOrganization;
 }

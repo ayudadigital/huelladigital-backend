@@ -33,7 +33,7 @@ public class OrganizationMemberService {
             return organizationMemberRepository.save(expressOrganization);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist organization due to a conflict.", ex);
-            throw new FailedToPersistUser("Conflict encountered while storing organization in database. Constraints were violated.", ex);
+            throw new ConflictPersistingUserException("Conflict encountered while storing organization in database. Constraints were violated.", ex);
         }
     }
 

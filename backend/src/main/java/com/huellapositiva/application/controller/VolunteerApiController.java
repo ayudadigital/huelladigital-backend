@@ -2,7 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.exception.FailedToPersistUser;
+import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.entities.Role;
@@ -76,7 +76,7 @@ public class VolunteerApiController {
             return jwtService.create(username, roles);
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
-        } catch (FailedToPersistUser ex) {
+        } catch (ConflictPersistingUserException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
         }
     }

@@ -22,4 +22,8 @@ public interface JpaOrganizationMemberRepository extends JpaRepository<Organizat
     @Modifying
     @Query("UPDATE OrganizationMember o SET o.joinedOrganization = :organization WHERE o.id = :employeeId")
     Integer updateJoinedOrganization(@Param("employeeId") Integer employeeId, @Param("organization") Organization organization);
+
+    @Modifying
+    @Query("UPDATE OrganizationMember om SET om.joinedOrganization = NULL WHERE om.joinedOrganization.id = :organizationId")
+    Integer unlinkMembersOfOrganization(@Param("organizationId")int organizationId);
 }

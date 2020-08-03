@@ -23,8 +23,10 @@ import java.util.List;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -57,11 +59,12 @@ class OrganizationMemberControllerShould {
         CredentialsOrganizationMemberRequestDto dto = new CredentialsOrganizationMemberRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(post("/api/v1/organizationmember")
+        MockHttpServletResponse response = mvc.perform(post("/api/v1/member")
                 .content(objectMapper.writeValueAsString(dto))
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/member/)\\d+")))
                 .andReturn()
                 .getResponse();
 
@@ -73,7 +76,6 @@ class OrganizationMemberControllerShould {
         assertThat(userDetails.getSecond()).hasSize(1);
         assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.ORGANIZATION_MEMBER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
-        assertThat(location).matches("\\S+(/api/v1/organizationmember/)\\d+");
         int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
         assertThat(jpaOrganizationMemberRepository.findById(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }

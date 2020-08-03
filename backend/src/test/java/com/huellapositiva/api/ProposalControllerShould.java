@@ -20,14 +20,20 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
-import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.UUID;
+
+import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -41,23 +47,34 @@ class ProposalControllerShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/develop
     @Autowired
     private TestData testData;
 
     @Autowired
     private MockMvc mvc;
 
+<<<<<<< HEAD
     @BeforeEach
     void beforeEach() {
         testData.resetData();
     }
 
+=======
+>>>>>>> origin/develop
     @Autowired
     private JpaProposalRepository jpaProposalRepository;
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
 
     @Test
     void create_an_organization_and_update_member_joined_organization() throws Exception {
@@ -74,11 +91,12 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isCreated()).andReturn().getResponse();
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andReturn().getResponse();
 
         // THEN
         String location = response.getHeader(HttpHeaders.LOCATION);
-        assertThat(location).matches("\\S+(/api/v1/proposals/)\\d+");
         int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
         assertThat(jpaProposalRepository.findById(id).get().getTitle()).isEqualTo("Recogida de ropita");
     }
@@ -113,7 +131,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_fetching_a_not_published_proposal() throws Exception {
+    void return_404_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
         Proposal proposal = testData.registerOrganizationAndNotPublishedProposal();
 
@@ -121,7 +139,7 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -141,13 +159,13 @@ class ProposalControllerShould {
 
         // THEN
         Proposal proposal = jpaProposalRepository.findById(proposalId).get();
-        assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
-        Integer volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
+        assertThat(proposal.getJoinedVolunteers()).isNotEmpty();
+        Integer volunteerId = proposal.getJoinedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 
     @Test
-    void return_412_when_joining_a_not_published_proposal() throws Exception {
+    void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         Integer proposalId = testData.registerOrganizationAndNotPublishedProposal().getId();
@@ -159,7 +177,7 @@ class ProposalControllerShould {
                 .contentType(APPLICATION_JSON)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -176,5 +194,47 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_410_when_joining_a_non_existent_proposal() throws Exception {
+        // GIVEN
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Proposal proposal = testData.registerOrganizationAndPublishedProposal();
+        proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
+        jpaProposalRepository.save(proposal);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+
+
+        // WHEN
+        mvc.perform(post("/api/v1/proposals/" + proposal.getId() + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isGone());
+    }
+
+    @Test
+    void create_proposal_as_admin() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.ADMIN);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
+        ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
+        proposalRequestDto.setOrganizationName("Huella Positiva");
+
+        mvc.perform(post("/api/v1/proposals/admin")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalRequestDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andExpect(status().isCreated());
+
+        assertThat(jpaProposalRepository.findAll()).isNotEmpty();
     }
 }

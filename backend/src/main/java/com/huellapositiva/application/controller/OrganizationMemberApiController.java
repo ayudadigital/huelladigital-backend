@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Organization Employee", description = "The organization employee API")
-@RequestMapping("/api/v1/organizationmember")
+@Tag(name = "Organization members", description = "The organization member API")
+@RequestMapping("/api/v1/member")
 public class OrganizationMemberApiController {
 
     private final RegisterOrganizationMemberAction registerOrganizationMemberAction;
@@ -65,20 +65,14 @@ public class OrganizationMemberApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public JwtResponseDto registerOrganizationMember(@RequestBody CredentialsOrganizationMemberRequestDto dto, HttpServletResponse res) {
-        try {
-            Integer id = registerOrganizationMemberAction.execute(dto);
-            String username = dto.getEmail();
-            List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
-                    .toUri();
-            res.addHeader(HttpHeaders.LOCATION, uri.toString());
-            return jwtService.create(username, roles);
-        } catch (PasswordNotAllowed pna) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
-        } catch (FailedToPersistUser ex) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
-        }
+        Integer id = registerOrganizationMemberAction.execute(dto);
+        String username = dto.getEmail();
+        List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(id)
+                .toUri();
+        res.addHeader(HttpHeaders.LOCATION, uri.toString());
+        return jwtService.create(username, roles);
     }
 
     @GetMapping("/{id}")

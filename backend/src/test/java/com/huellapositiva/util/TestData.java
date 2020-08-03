@@ -30,6 +30,8 @@ public class TestData {
 
     public static final String DEFAULT_ORGANIZATION = "Huella Digital";
 
+    public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -61,7 +63,7 @@ public class TestData {
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository organizationRepository;
+    private final JpaOrganizationRepository jpaOrganizationRepository;
 
 
     public void resetData() {
@@ -69,7 +71,7 @@ public class TestData {
         jpaOrganizationMemberRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
-        organizationRepository.deleteAll();
+        jpaOrganizationRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();
@@ -115,7 +117,9 @@ public class TestData {
 
     public Volunteer createVolunteer(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
+
         Volunteer volunteer = Volunteer.builder().credential(credential).build();
+
         return volunteerRepository.save(volunteer);
     }
 
@@ -130,8 +134,13 @@ public class TestData {
     }
 
     public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
-        organizationRepository.save(organization);
-        return organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+        Integer id = createOrganization(organization);
+        organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+        return id;
+    }
+
+    public Integer createOrganization(Organization organization) {
+        return jpaOrganizationRepository.save(organization).getId();
     }
 
     public Proposal createProposal(Proposal proposal) {
@@ -145,7 +154,7 @@ public class TestData {
         return buildProposalDto(false);
     }
 
-    private ProposalRequestDto buildProposalDto(boolean isPublished) {
+    public ProposalRequestDto buildProposalDto(boolean isPublished) {
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")

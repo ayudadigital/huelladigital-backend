@@ -15,7 +15,7 @@ public class ProposalRequestDto {
     @NotEmpty
     private final String title;
 
-    private Organization organization;
+    private String organizationName;
 
     @NotEmpty
     private final String province;

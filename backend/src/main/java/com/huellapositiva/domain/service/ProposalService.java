@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -39,7 +41,11 @@ public class ProposalService {
         if (isNotPublished) {
             throw new ProposalNotPublished();
         }
-        proposal.getInscribedVolunteers().add(volunteer);
+        boolean isEnrollmentClosed = proposal.getExpirationDate().before(new Date());
+        if (isEnrollmentClosed) {
+            throw new ProposalEnrollmentClosed();
+        }
+        proposal.getJoinedVolunteers().add(volunteer);
         return proposalRepository.save(proposal);
     }
 }

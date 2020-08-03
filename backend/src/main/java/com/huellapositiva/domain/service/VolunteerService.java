@@ -32,7 +32,7 @@ public class VolunteerService {
             return volunteerRepository.save(expressVolunteer);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist volunteer due to a conflict.", ex);
-            throw new FailedToPersistUser("Conflict encountered while storing user in database. Constraints were violated.", ex);
+            throw new ConflictPersistingUserException("Conflict encountered while storing user in database. Constraints were violated.", ex);
         }
     }
 

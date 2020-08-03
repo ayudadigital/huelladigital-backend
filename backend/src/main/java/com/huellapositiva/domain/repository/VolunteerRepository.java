@@ -52,4 +52,10 @@ public class VolunteerRepository {
                 .build();
         return jpaVolunteerRepository.save(volunteer).getId();
     }
+
+    public Volunteer findByEmail(String email) {
+        return jpaVolunteerRepository.findByEmail(email).orElseThrow(
+                () -> new RuntimeException("Could not find volunteer with email " + email)
+        );
+    }
 }

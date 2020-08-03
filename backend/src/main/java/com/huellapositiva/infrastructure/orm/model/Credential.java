@@ -1,17 +1,16 @@
 package com.huellapositiva.infrastructure.orm.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
 @Table(name = "credentials")
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,7 +36,7 @@ public class Credential {
     )
     private Set<Role> roles;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @OneToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
 }

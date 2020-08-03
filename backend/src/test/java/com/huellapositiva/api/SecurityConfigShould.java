@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,6 +23,7 @@ import static com.huellapositiva.util.TestUtils.loginRequest;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc(printOnlyOnFailure = false)
 @Import(TestData.class)
-public class SecurityConfigShould {
+class SecurityConfigShould {
 
     private static final String REFRESH_URL = "/api/v1/refresh";
     private static final String HEALTH_URL = "/actuator/health";
@@ -123,5 +125,22 @@ public class SecurityConfigShould {
                 .content(jwtResponseDto.getRefreshToken())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void allow_access_only_to_allowed_roles() throws Exception {
+        // GIVEN
+        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
+        Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
+
+        // WHEN + THEN
+        mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(APPLICATION_JSON)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

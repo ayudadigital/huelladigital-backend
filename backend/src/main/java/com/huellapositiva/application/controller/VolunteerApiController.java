@@ -2,7 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.exception.FailedToPersistUser;
+import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.orm.model.Role;
@@ -14,18 +14,22 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/volunteers")
 @Tag(name = "Volunteer", description = "The volunteer API")
+@RequestMapping("/api/v1/volunteers")
 public class VolunteerApiController {
 
     private final JwtService jwtService;
@@ -39,11 +43,10 @@ public class VolunteerApiController {
             description = "Register a new volunteer",
             tags = "user"
     )
-
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "201",
                             description = "Ok, volunteer register successful"
                     ),
                     @ApiResponse(
@@ -58,19 +61,22 @@ public class VolunteerApiController {
                     )
             }
     )
-
-
-    @PostMapping("/register")
+    @PostMapping
     @ResponseBody
-    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto, HttpServletResponse res) {
         try {
-            registerVolunteerAction.execute(dto);
+            Integer id = registerVolunteerAction.execute(dto);
             String username = dto.getEmail();
             List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}").buildAndExpand(id)
+                    .toUri();
+            res.addHeader(HttpHeaders.LOCATION, uri.toString());
             return jwtService.create(username, roles);
         } catch (PasswordNotAllowed pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
-        } catch (FailedToPersistUser ex) {
+        } catch (ConflictPersistingUserException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
         }
     }

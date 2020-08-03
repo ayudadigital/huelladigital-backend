@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
-public class EmailCommunicationServiceShould {
+class EmailCommunicationServiceShould {
     @MockBean
     EmailService emailService;
     @MockBean

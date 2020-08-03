@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-public class ResendEmailConfirmationActionShould {
+class ResendEmailConfirmationActionShould {
 
     @Autowired
     private TestData testData;

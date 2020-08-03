@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.Roles;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.util.Pair;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -22,8 +25,10 @@ import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -31,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class VolunteerControllerShould {
 
-    private static final String SIGN_UP_URL = "/api/v1/volunteers/register";
+    private static final String SIGN_UP_URL = "/api/v1/volunteers";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -43,6 +48,9 @@ class VolunteerControllerShould {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private JpaVolunteerRepository jpaVolunteerRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -50,25 +58,33 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_should_return_201_and_tokens() throws Exception {
+        // GIVEN
         CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password("password")
                 .build();
 
+        // THEN
         String body = objectMapper.writeValueAsString(dto);
-        String jsonResponse = mvc.perform(post(SIGN_UP_URL)
+        MockHttpServletResponse response = mvc.perform(post(SIGN_UP_URL)
                 .content(body)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)\\d+")))
                 .andReturn()
-                .getResponse().getContentAsString();
+                .getResponse();
 
+        // WHEN
+        String jsonResponse = response.getContentAsString();
         JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
         Pair<String, List<String>> userDetails = jwtService.getUserDetails(responseDto.getAccessToken());
         assertThat(userDetails.getFirst()).isEqualTo(dto.getEmail());
         assertThat(userDetails.getSecond()).hasSize(1);
         assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
+        String location = response.getHeader(HttpHeaders.LOCATION);
+        int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+        assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 
     @Test

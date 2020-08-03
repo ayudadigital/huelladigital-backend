@@ -72,8 +72,6 @@ public class EmailConfirmationApiController {
                     @SecurityRequirement(name = "accessToken")
             }
     )
-
-
     @ApiResponses(
             value = {
                     @ApiResponse(

@@ -1,9 +1,9 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
+import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.domain.actions.RegisterOrganizationMemberAction;
+import com.huellapositiva.domain.actions.RegisterESALMemberAction;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -25,30 +25,30 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "Organization members", description = "The organization member API")
+@Tag(name = "ESAL members", description = "The ESAL's members API")
 @RequestMapping("/api/v1/member")
-public class OrganizationMemberApiController {
+public class ESALMemberApiController {
 
-    private final RegisterOrganizationMemberAction registerOrganizationMemberAction;
+    private final RegisterESALMemberAction registerESALMemberAction;
 
     private final JwtService jwtService;
 
     private final JpaRoleRepository jpaRoleRepository;
 
     @Operation(
-            summary = "Register a new organization employee",
-            description = "Register a new organization employee",
+            summary = "Register a new ESAL employee",
+            description = "Register a new ESAL employee",
             tags = "user"
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "201",
-                            description = "Ok, organization employee has been registered successfully."
+                            description = "Ok, ESAL member has been registered successfully."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not register the organization.",
+                            description = "Internal server error, could not register the ESAL.",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -61,8 +61,8 @@ public class OrganizationMemberApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerOrganizationMember(@RequestBody CredentialsOrganizationMemberRequestDto dto, HttpServletResponse res) {
-        Integer id = registerOrganizationMemberAction.execute(dto);
+    public JwtResponseDto registerESALMember(@RequestBody CredentialsESALMemberRequestDto dto, HttpServletResponse res) {
+        Integer id = registerESALMemberAction.execute(dto);
         String username = dto.getEmail();
         List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()

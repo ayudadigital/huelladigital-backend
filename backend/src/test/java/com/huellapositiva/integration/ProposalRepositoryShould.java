@@ -40,7 +40,7 @@ class ProposalRepositoryShould {
     @Test
     void persist_a_default_expiration_hour(){
         // WHEN
-        testData.createOrganization(Organization.builder().name("Huella Positiva").build());
+        testData.createESAL(Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
         proposalRequestDto.setOrganizationName("Huella Positiva");
         Integer id = proposalRepository.save(proposalRequestDto);

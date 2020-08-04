@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.exception.UserNotFound;
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganizationMember;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESALMember;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
@@ -19,7 +19,7 @@ import static com.huellapositiva.domain.model.valueobjects.Roles.ORGANIZATION_ME
 @Component
 @Transactional
 @AllArgsConstructor
-public class OrganizationMemberRepository {
+public class ESALMemberRepository {
 
     @Autowired
     private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
@@ -35,7 +35,7 @@ public class OrganizationMemberRepository {
                 .orElseThrow( () -> new RuntimeException("Organization member not found"));
     }
 
-    public Integer save(ExpressRegistrationOrganizationMember expressMember) {
+    public Integer save(ExpressRegistrationESALMember expressMember) {
         Role role = jpaRoleRepository.findByName(ORGANIZATION_MEMBER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RuntimeException("Role ORGANIZATION_MEMBER_NOT_CONFIRMED not found."));
         EmailConfirmation emailConfirmation = EmailConfirmation.builder()
@@ -64,7 +64,7 @@ public class OrganizationMemberRepository {
         return jpaOrganizationMemberRepository.findByEmail(email);
     }
 
-    public Organization getJoinedOrganization(String memberEmail){
+    public Organization getJoinedESAL(String memberEmail){
         return jpaOrganizationMemberRepository.findByEmail(memberEmail)
                 .orElseThrow(UserNotFound::new).getJoinedOrganization();
     }

@@ -1,8 +1,8 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
+import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.domain.service.OrganizationMemberService;
+import com.huellapositiva.domain.service.ESALMemberService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.entities.Credential;
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-class OrganizationMemberServiceShould {
+class ESALMemberServiceShould {
     @Autowired
     private TestData testData;
 
@@ -34,7 +34,7 @@ class OrganizationMemberServiceShould {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    private OrganizationMemberService organizationMemberService;
+    private ESALMemberService ESALMemberService;
 
     @Autowired
     private JpaOrganizationMemberRepository organizationMemberRepository;
@@ -47,13 +47,13 @@ class OrganizationMemberServiceShould {
     @Test
     void register_a_new_member() {
         // GIVEN
-        CredentialsOrganizationMemberRequestDto dto = CredentialsOrganizationMemberRequestDto.builder()
+        CredentialsESALMemberRequestDto dto = CredentialsESALMemberRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();
 
         // WHEN
-        Integer employeeId = organizationMemberService.registerMember(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Integer employeeId = ESALMemberService.registerMember(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
         Optional<OrganizationMember> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(employeeId);

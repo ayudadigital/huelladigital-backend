@@ -1,8 +1,8 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.exception.OperationNotAllowed;
-import com.huellapositiva.domain.repository.OrganizationMemberRepository;
-import com.huellapositiva.domain.repository.OrganizationRepository;
+import com.huellapositiva.domain.repository.ESALMemberRepository;
+import com.huellapositiva.domain.repository.ESALRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeleteESALAction {
 
-    private final OrganizationRepository organizationRepository;
+    private final ESALRepository ESALRepository;
 
-    private final OrganizationMemberRepository organizationMemberRepository;
+    private final ESALMemberRepository ESALMemberRepository;
 
     public void execute(String memberEmail, int requesterId){
-        Integer contextId = organizationMemberRepository.getJoinedOrganization(memberEmail).getId();
+        Integer contextId = ESALMemberRepository.getJoinedESAL(memberEmail).getId();
         if(requesterId != contextId){
-            throw new OperationNotAllowed("The given organization ID does not match the user's organization ID.");
+            throw new OperationNotAllowed("The given ESAL ID does not match the user's ESAL ID.");
         }
-        organizationRepository.delete(contextId);
+        ESALRepository.delete(contextId);
     }
 }

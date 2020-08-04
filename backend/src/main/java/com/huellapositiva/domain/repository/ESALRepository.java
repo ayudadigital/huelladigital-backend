@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganization;
+import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
@@ -12,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional
 @AllArgsConstructor
-public class OrganizationRepository {
+public class ESALRepository {
 
     @Autowired
     private final JpaOrganizationRepository jpaOrganizationRepository;
@@ -20,7 +21,7 @@ public class OrganizationRepository {
     @Autowired
     private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
-    public Integer save(ExpressRegistrationOrganization expressOrganization) {
+    public Integer save(ExpressRegistrationESAL expressOrganization) {
         Organization organization = Organization.builder()
                 .name(expressOrganization.getName())
                 .build();
@@ -32,7 +33,7 @@ public class OrganizationRepository {
                 .orElseThrow(() -> new RuntimeException("Could not find the organization by the provided ID"));
     }
 
-    public Integer save(com.huellapositiva.domain.model.entities.Organization model) {
+    public Integer save(ESAL model) {
         Organization organization = Organization.builder()
                 .name(model.getName())
                 .build();

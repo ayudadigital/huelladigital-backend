@@ -68,8 +68,8 @@ class ProposalControllerShould {
     @Test
     void create_an_organization_and_update_member_joined_organization() throws Exception {
         // GIVEN
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
+        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(organizationMember, Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -93,7 +93,7 @@ class ProposalControllerShould {
     @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
-        Proposal proposal = testData.registerOrganizationAndPublishedProposal();
+        Proposal proposal = testData.registerESALAndPublishedProposal();
 
         // WHEN
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -122,7 +122,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
-        Proposal proposal = testData.registerOrganizationAndNotPublishedProposal();
+        Proposal proposal = testData.registerESALAndNotPublishedProposal();
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -135,7 +135,7 @@ class ProposalControllerShould {
     void allow_a_volunteer_to_join() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
+        Integer proposalId = testData.registerESALAndPublishedProposal().getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -157,7 +157,7 @@ class ProposalControllerShould {
     void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer proposalId = testData.registerOrganizationAndNotPublishedProposal().getId();
+        Integer proposalId = testData.registerESALAndNotPublishedProposal().getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -189,7 +189,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Proposal proposal = testData.registerOrganizationAndPublishedProposal();
+        Proposal proposal = testData.registerESALAndPublishedProposal();
         proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -210,8 +210,8 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.ADMIN);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
+        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_ESAL_MEMBER_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(organizationMember, Organization.builder().name("Huella Positiva").build());
         ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
         proposalRequestDto.setOrganizationName("Huella Positiva");
 

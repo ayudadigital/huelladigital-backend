@@ -39,8 +39,14 @@ public class ProposalRequestDto {
 
     private boolean published;
 
-    /*Es raro que vayamos a la variable publish, así que mejor hacerlo método*/
+    /** This operation will be implemented in the entity Proposal
+     * @see com.huellapositiva.domain.model.entities.Proposal
+     * @deprecated
+     *  since = "Refactor to Domain Driven Design"
+     *  forRemoval = true
+     * */
+    @Deprecated(since = "Refactor to Domain Driven Design", forRemoval = true)
     void publish() {
-
+        throw new UnsupportedOperationException();
     }
 }

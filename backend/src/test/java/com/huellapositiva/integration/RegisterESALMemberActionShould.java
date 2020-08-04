@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
-import com.huellapositiva.domain.actions.RegisterOrganizationMemberAction;
+import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.domain.actions.RegisterESALMemberAction;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,10 +15,10 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-class RegisterOrganizationMemberActionShould {
+class RegisterESALMemberActionShould {
 
     @Autowired
-    private RegisterOrganizationMemberAction organizationMemberAction;
+    private RegisterESALMemberAction organizationMemberAction;
 
     @Autowired
     private TestData testData;
@@ -34,7 +34,7 @@ class RegisterOrganizationMemberActionShould {
     @Test
     void send_email_to_confirm_a_new_organization_member(){
         //GIVEN
-        CredentialsOrganizationMemberRequestDto dto = new CredentialsOrganizationMemberRequestDto("foo@huellapositiva.com", "plain-password");
+        CredentialsESALMemberRequestDto dto = new CredentialsESALMemberRequestDto("foo@huellapositiva.com", "plain-password");
 
         //WHEN
         organizationMemberAction.execute(dto);

@@ -25,7 +25,7 @@ import javax.annotation.security.RolesAllowed;
 
 @RestController
 @AllArgsConstructor
-@Tag(name = "ESAL", description = "The ESAL api.")
+@Tag(name = "ESAL", description = "The ESAL API.")
 @RequestMapping("/api/v1/esal")
 public class ESALApiController {
 
@@ -116,7 +116,7 @@ public class ESALApiController {
     @DeleteMapping("/{id}")
     @RolesAllowed("ORGANIZATION_MEMBER")
     @ResponseBody
-    public void deleteOrganization(@AuthenticationPrincipal String memberEmail, @PathVariable Integer id) {
+    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable Integer id) {
         try {
             deleteESALAction.execute(memberEmail, id);
         } catch (UserNotFound ex) {

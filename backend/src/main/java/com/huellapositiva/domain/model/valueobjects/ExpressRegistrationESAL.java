@@ -1,9 +1,9 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-public class ExpressRegistrationOrganization {
+public class ExpressRegistrationESAL {
     private final String name;
 
-    public ExpressRegistrationOrganization(String name) {
+    public ExpressRegistrationESAL(String name) {
         this.name = name;
     }
 

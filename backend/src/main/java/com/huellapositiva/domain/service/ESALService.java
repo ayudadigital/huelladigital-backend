@@ -2,8 +2,8 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganization;
-import com.huellapositiva.domain.repository.OrganizationRepository;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
+import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class OrganizationService {
+public class ESALService {
 
     @Autowired
-    private final OrganizationRepository organizationRepository;
-
+    private final ESALRepository ESALRepository;
 
     public Integer create(ESALRequestDto dto) {
         try {
-            return organizationRepository.save(new ExpressRegistrationOrganization(dto.getName()));
+            return ESALRepository.save(new ExpressRegistrationESAL(dto.getName()));
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist the proposal due to a conflict.", ex);
             throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
@@ -30,6 +29,6 @@ public class OrganizationService {
     }
 
     public Organization findById(Integer id) {
-        return organizationRepository.findById(id);
+        return ESALRepository.findById(id);
     }
 }

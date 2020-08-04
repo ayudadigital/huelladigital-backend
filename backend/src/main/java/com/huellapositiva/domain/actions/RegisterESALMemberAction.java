@@ -1,9 +1,9 @@
 package com.huellapositiva.domain.actions;
 
 
-import com.huellapositiva.application.dto.CredentialsOrganizationMemberRequestDto;
+import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.domain.service.OrganizationMemberService;
+import com.huellapositiva.domain.service.ESALMemberService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import lombok.RequiredArgsConstructor;
@@ -12,18 +12,18 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class RegisterOrganizationMemberAction {
+public class RegisterESALMemberAction {
 
-    private final OrganizationMemberService organizationMemberService;
+    private final ESALMemberService ESALMemberService;
 
     private final EmailCommunicationService emailCommunicationService;
 
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    public Integer execute(CredentialsOrganizationMemberRequestDto dto){
+    public Integer execute(CredentialsESALMemberRequestDto dto){
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
-        Integer id = organizationMemberService.registerMember(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        Integer id = ESALMemberService.registerMember(PlainPassword.from(dto.getPassword()), emailConfirmation);
         emailCommunicationService.sendRegistrationConfirmationEmail(emailConfirmation);
         return id;
     }

@@ -21,7 +21,7 @@ public class FetchProposalAction {
         }
         return ProposalResponseDto.builder()
                 .title(proposal.getTitle())
-                .organization(proposal.getOrganization().getName())
+                .ESAL(proposal.getOrganization().getName())
                 .province(proposal.getLocation().getProvince())
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())

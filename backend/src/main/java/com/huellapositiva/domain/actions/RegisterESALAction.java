@@ -3,11 +3,11 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.exception.ESALAlreadyExists;
 import com.huellapositiva.domain.model.entities.ContactPerson;
+import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.entities.Organization;
-import com.huellapositiva.domain.repository.OrganizationRepository;
-import com.huellapositiva.domain.service.OrganizationMemberService;
-import com.huellapositiva.domain.service.OrganizationService;
+import com.huellapositiva.domain.repository.ESALRepository;
+import com.huellapositiva.domain.service.ESALMemberService;
+import com.huellapositiva.domain.service.ESALService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -16,24 +16,24 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterESALAction {
 
-    private final OrganizationService organizationService;
+    private final ESALService ESALService;
 
-    private final OrganizationMemberService organizationMemberService;
+    private final ESALMemberService ESALMemberService;
 
-    private final OrganizationRepository organizationRepository;
+    private final ESALRepository ESALRepository;
 
     public void execute(ESALRequestDto dto, EmailAddress memberEmail) {
-        Organization organization = new Organization(dto.getName());
-        ContactPerson contactPerson = organizationMemberService.fetch(memberEmail);
-        organization.addUserAsMember(contactPerson);
+        ESAL ESAL = new ESAL(dto.getName());
+        ContactPerson contactPerson = ESALMemberService.fetch(memberEmail);
+        ESAL.addContactPerson(contactPerson);
         try {
-            organizationRepository.save(organization);
+            ESALRepository.save(ESAL);
         } catch (DataIntegrityViolationException ex) {
             throw new ESALAlreadyExists();
         }
     }
 
     public void execute(ESALRequestDto dto) {
-        organizationService.create(dto);
+        ESALService.create(dto);
     }
 }

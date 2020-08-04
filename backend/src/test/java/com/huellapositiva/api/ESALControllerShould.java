@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
-class OrganizationControllerShould {
+class ESALControllerShould {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -51,7 +51,7 @@ class OrganizationControllerShould {
 
     @Test
     void create_an_organization_and_update_member_joined_organization() throws Exception {
-        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/esal")
@@ -81,8 +81,8 @@ class OrganizationControllerShould {
 
     @Test
     void allow_members_to_delete_their_organization() throws Exception {
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer organizationId = testData.createAndLinkOrganization(organizationMember, Organization.builder().name(DEFAULT_ORGANIZATION).build());
+        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        Integer organizationId = testData.createAndLinkESAL(organizationMember, Organization.builder().name(DEFAULT_ESAL).build());
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -98,8 +98,8 @@ class OrganizationControllerShould {
 
     @Test
     void not_allow_to_create_an_organization_when_member_already_has_one() throws Exception {
-        OrganizationMember member = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(member, Organization.builder().name("Huella Negativa").build());
+        OrganizationMember member = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(member, Organization.builder().name("Huella Negativa").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/esal")
@@ -113,8 +113,8 @@ class OrganizationControllerShould {
 
     @Test
     void return_409_when_organization_is_already_taken() throws Exception {
-        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createOrganization(Organization.builder().name("Huella Positiva").build());
+        testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESAL(Organization.builder().name("Huella Positiva").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/esal")
@@ -128,9 +128,9 @@ class OrganizationControllerShould {
 
     @Test
     void return_401_when_a_user_attempts_to_delete_an_organization_that_does_not_belong_to() throws Exception {
-        OrganizationMember organizationMember = testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkOrganization(organizationMember, Organization.builder().name("Huella Positiva").build());
-        Integer secondOrganizationId = testData.createOrganization(Organization.builder().name("Huella Negativa").build());
+        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(organizationMember, Organization.builder().name("Huella Positiva").build());
+        Integer secondOrganizationId = testData.createESAL(Organization.builder().name("Huella Negativa").build());
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

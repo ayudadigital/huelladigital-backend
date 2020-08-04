@@ -2,7 +2,7 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.application.exception.OrganizationNotFound;
+import com.huellapositiva.application.exception.ESALNotFound;
 import com.huellapositiva.infrastructure.orm.entities.Location;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.entities.Proposal;
@@ -49,7 +49,7 @@ public class ProposalRepository {
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
         Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
-                .orElseThrow(OrganizationNotFound::new);
+                .orElseThrow(ESALNotFound::new);
 
         Proposal proposal = Proposal.builder()
                 .title(dto.getTitle())

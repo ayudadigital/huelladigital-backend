@@ -2,8 +2,9 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
+import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.*;
-import com.huellapositiva.domain.repository.OrganizationMemberRepository;
+import com.huellapositiva.domain.repository.ESALMemberRepository;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
 import lombok.AllArgsConstructor;
@@ -18,10 +19,10 @@ import java.util.Optional;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class OrganizationMemberService {
+public class ESALMemberService {
 
     @Autowired
-    private final OrganizationMemberRepository organizationMemberRepository;
+    private final ESALMemberRepository ESALMemberRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -29,8 +30,8 @@ public class OrganizationMemberService {
     public Integer registerMember(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
-            ExpressRegistrationOrganizationMember expressOrganization = new ExpressRegistrationOrganizationMember(hash, emailConfirmation);
-            return organizationMemberRepository.save(expressOrganization);
+            ExpressRegistrationESALMember expressOrganization = new ExpressRegistrationESALMember(hash, emailConfirmation);
+            return ESALMemberRepository.save(expressOrganization);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist organization due to a conflict.", ex);
             throw new ConflictPersistingUserException("Conflict encountered while storing organization in database. Constraints were violated.", ex);
@@ -38,19 +39,19 @@ public class OrganizationMemberService {
     }
 
     public Integer updateJoinedOrganization(OrganizationMember employee, Organization organization) {
-        return organizationMemberRepository.updateOrganization(employee.getId(), organization);
+        return ESALMemberRepository.updateOrganization(employee.getId(), organization);
     }
 
     public Optional<OrganizationMember> findByEmail(String email){
-        return organizationMemberRepository.findByEmail(email);
+        return ESALMemberRepository.findByEmail(email);
     }
 
     public ContactPerson fetch(EmailAddress emailAddress) {
-        OrganizationMember organizationMember = organizationMemberRepository.findByEmail(emailAddress.toString()).get();
+        OrganizationMember organizationMember = ESALMemberRepository.findByEmail(emailAddress.toString()).get();
         if (organizationMember.getJoinedOrganization() == null) {
             return new ContactPerson(emailAddress, new Id(organizationMember.getId()));
         }
-        com.huellapositiva.domain.model.entities.Organization esal = new com.huellapositiva.domain.model.entities.Organization(organizationMember.getJoinedOrganization().getName());
+        ESAL esal = new ESAL(organizationMember.getJoinedOrganization().getName());
         return new ContactPerson(emailAddress, new Id(organizationMember.getId()), esal);
     }
 }

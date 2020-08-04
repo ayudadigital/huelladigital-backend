@@ -5,21 +5,21 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import lombok.Getter;
 
 @Getter
-public class Organization {
+public class ESAL {
 
     private final String name;
     private ContactPerson contactPerson;
 
-    public Organization(String name) {
+    public ESAL(String name) {
         this.name = name;
     }
 
-    /** The user is required to be already registered
+    /** The user is required to be registered and not to be part of an organization
      *
      * @param contactPerson
      */
-    public void addUserAsMember(ContactPerson contactPerson) {
-        if (contactPerson.hasOrganization()) {
+    public void addContactPerson(ContactPerson contactPerson) {
+        if (contactPerson.hasESAL()) {
             throw new UserAlreadyHasESALException();
         }
         this.contactPerson = contactPerson;

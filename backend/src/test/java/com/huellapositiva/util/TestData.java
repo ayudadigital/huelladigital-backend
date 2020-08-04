@@ -24,11 +24,11 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
-    public static final String DEFAULT_ORGANIZATION_MEMBER_EMAIL = "organizationEmployee@huellapositiva.com";
+    public static final String DEFAULT_ESAL_MEMBER_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
-    public static final String DEFAULT_ORGANIZATION = "Huella Digital";
+    public static final String DEFAULT_ESAL = "Huella Digital";
 
     public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
 
@@ -123,23 +123,23 @@ public class TestData {
         return volunteerRepository.save(volunteer);
     }
 
-    public OrganizationMember createOrganizationMember(String email, String password) {
-        return createOrganizationMember(email, password, Roles.ORGANIZATION_MEMBER);
+    public OrganizationMember createESALMember(String email, String password) {
+        return createESALMember(email, password, Roles.ORGANIZATION_MEMBER);
     }
 
-    public OrganizationMember createOrganizationMember(String email, String password, Roles role) {
+    public OrganizationMember createESALMember(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
         OrganizationMember employee = OrganizationMember.builder().credential(credential).build();
         return organizationMemberRepository.save(employee);
     }
 
-    public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
-        Integer id = createOrganization(organization);
-        organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+    public Integer createAndLinkESAL(OrganizationMember member, Organization organization) {
+        Integer id = createESAL(organization);
+        organizationMemberRepository.updateJoinedOrganization(member.getId(), organization);
         return id;
     }
 
-    public Integer createOrganization(Organization organization) {
+    public Integer createESAL(Organization organization) {
         return jpaOrganizationRepository.save(organization).getId();
     }
 
@@ -168,18 +168,18 @@ public class TestData {
                 .build();
     }
 
-    public Proposal registerOrganizationAndPublishedProposal() throws ParseException {
-        return registerOrganizationAndProposal(true);
+    public Proposal registerESALAndPublishedProposal() throws ParseException {
+        return registerESALAndProposal(true);
     }
 
-    public Proposal registerOrganizationAndNotPublishedProposal() throws ParseException {
-        return registerOrganizationAndProposal(false);
+    public Proposal registerESALAndNotPublishedProposal() throws ParseException {
+        return registerESALAndProposal(false);
     }
 
-    private Proposal registerOrganizationAndProposal(boolean isPublished) throws ParseException {
-        OrganizationMember employee = createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
-        Organization organization = Organization.builder().name(DEFAULT_ORGANIZATION).build();
-        createAndLinkOrganization(employee, organization);
+    private Proposal registerESALAndProposal(boolean isPublished) throws ParseException {
+        OrganizationMember employee = createESALMember(DEFAULT_ESAL_MEMBER_EMAIL, DEFAULT_PASSWORD);
+        Organization organization = Organization.builder().name(DEFAULT_ESAL).build();
+        createAndLinkESAL(employee, organization);
         Proposal proposal = Proposal.builder()
                 .title("Recogida de ropita")
                 .location(Location.builder().province("Santa Cruz de Tenerife")

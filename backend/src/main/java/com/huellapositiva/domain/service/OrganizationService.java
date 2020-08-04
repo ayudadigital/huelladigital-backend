@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.dto.OrganizationRequestDto;
+import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationOrganization;
 import com.huellapositiva.domain.repository.OrganizationRepository;
@@ -20,7 +20,7 @@ public class OrganizationService {
     private final OrganizationRepository organizationRepository;
 
 
-    public Integer create(OrganizationRequestDto dto) {
+    public Integer create(ESALRequestDto dto) {
         try {
             return organizationRepository.save(new ExpressRegistrationOrganization(dto.getName()));
         } catch (DataIntegrityViolationException ex) {

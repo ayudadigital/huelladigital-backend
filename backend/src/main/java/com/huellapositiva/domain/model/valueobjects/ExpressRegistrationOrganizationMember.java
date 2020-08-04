@@ -1,8 +1,5 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.PasswordHash;
-
 public class ExpressRegistrationOrganizationMember {
 
     private final EmailConfirmation confirmation;

@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.OrganizationRequestDto;
-import com.huellapositiva.application.exception.OrganizationAlreadyExists;
+import com.huellapositiva.application.dto.ESALRequestDto;
+import com.huellapositiva.application.exception.ESALAlreadyExists;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.entities.Organization;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class RegisterOrganizationAction {
+public class RegisterESALAction {
 
     private final OrganizationService organizationService;
 
@@ -22,18 +22,18 @@ public class RegisterOrganizationAction {
 
     private final OrganizationRepository organizationRepository;
 
-    public void execute(OrganizationRequestDto dto, EmailAddress memberEmail) {
+    public void execute(ESALRequestDto dto, EmailAddress memberEmail) {
         Organization organization = new Organization(dto.getName());
         ContactPerson contactPerson = organizationMemberService.fetch(memberEmail);
         organization.addUserAsMember(contactPerson);
         try {
             organizationRepository.save(organization);
         } catch (DataIntegrityViolationException ex) {
-            throw new OrganizationAlreadyExists();
+            throw new ESALAlreadyExists();
         }
     }
 
-    public void execute(OrganizationRequestDto dto) {
+    public void execute(ESALRequestDto dto) {
         organizationService.create(dto);
     }
 }

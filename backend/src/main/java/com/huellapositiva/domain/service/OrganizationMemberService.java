@@ -2,7 +2,6 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
-import com.huellapositiva.domain.model.entities.User;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.OrganizationMemberRepository;
 import com.huellapositiva.infrastructure.orm.entities.Organization;

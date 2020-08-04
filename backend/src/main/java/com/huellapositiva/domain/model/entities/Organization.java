@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
-import com.huellapositiva.domain.exception.UserAlreadyHasOrganizationException;
+import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import lombok.Getter;
 
@@ -20,7 +20,7 @@ public class Organization {
      */
     public void addUserAsMember(ContactPerson contactPerson) {
         if (contactPerson.hasOrganization()) {
-            throw new UserAlreadyHasOrganizationException();
+            throw new UserAlreadyHasESALException();
         }
         this.contactPerson = contactPerson;
     }

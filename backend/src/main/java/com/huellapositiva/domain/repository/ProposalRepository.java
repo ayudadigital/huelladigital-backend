@@ -9,7 +9,6 @@ import com.huellapositiva.infrastructure.orm.entities.Proposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

@@ -9,7 +9,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @Builder
 @AllArgsConstructor
-public class OrganizationRequestDto {
+public class ESALRequestDto {
 
     @NotEmpty
     private final String name;

@@ -2,7 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.OrganizationRequestDto;
+import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.Organization;
 import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
@@ -54,9 +54,9 @@ class OrganizationControllerShould {
         testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/organizations")
+        mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -68,9 +68,9 @@ class OrganizationControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.ADMIN);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/organizations/admin")
+        mvc.perform(post("/api/v1/esal/admin")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -86,7 +86,7 @@ class OrganizationControllerShould {
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(delete("/api/v1/organizations/" + organizationId)
+        mvc.perform(delete("/api/v1/esal/" + organizationId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
@@ -102,9 +102,9 @@ class OrganizationControllerShould {
         testData.createAndLinkOrganization(member, Organization.builder().name("Huella Negativa").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/organizations")
+        mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -117,9 +117,9 @@ class OrganizationControllerShould {
         testData.createOrganization(Organization.builder().name("Huella Positiva").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/organizations")
+        mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new OrganizationRequestDto("Huella Positiva")))
+                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella Positiva")))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -134,7 +134,7 @@ class OrganizationControllerShould {
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(delete("/api/v1/organizations/" + secondOrganizationId)
+        mvc.perform(delete("/api/v1/esal/" + secondOrganizationId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(APPLICATION_JSON)

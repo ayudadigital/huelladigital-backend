@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.User;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.OrganizationMemberRepository;
@@ -45,8 +46,12 @@ public class OrganizationMemberService {
         return organizationMemberRepository.findByEmail(email);
     }
 
-    public User fetch(EmailAddress emailAddress) {
+    public ContactPerson fetch(EmailAddress emailAddress) {
         OrganizationMember organizationMember = organizationMemberRepository.findByEmail(emailAddress.toString()).get();
-        return new User(emailAddress, new Id(organizationMember.getId()));
+        if (organizationMember.getJoinedOrganization() == null) {
+            return new ContactPerson(emailAddress, new Id(organizationMember.getId()));
+        }
+        com.huellapositiva.domain.model.entities.Organization esal = new com.huellapositiva.domain.model.entities.Organization(organizationMember.getJoinedOrganization().getName());
+        return new ContactPerson(emailAddress, new Id(organizationMember.getId()), esal);
     }
 }

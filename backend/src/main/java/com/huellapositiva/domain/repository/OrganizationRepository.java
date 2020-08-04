@@ -37,7 +37,7 @@ public class OrganizationRepository {
                 .name(model.getName())
                 .build();
         Integer id = jpaOrganizationRepository.save(organization).getId();
-        jpaOrganizationMemberRepository.updateJoinedOrganization(model.getMember().getId().asInt(), organization);
+        jpaOrganizationMemberRepository.updateJoinedOrganization(model.getContactPerson().getId().asInt(), organization);
         return id;
     }
 

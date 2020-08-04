@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
+import com.huellapositiva.domain.exception.UserAlreadyHasOrganizationException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import lombok.Getter;
 
@@ -7,7 +8,7 @@ import lombok.Getter;
 public class Organization {
 
     private final String name;
-    private User member;
+    private ContactPerson contactPerson;
 
     public Organization(String name) {
         this.name = name;
@@ -15,13 +16,16 @@ public class Organization {
 
     /** The user is required to be already registered
      *
-     * @param member
+     * @param contactPerson
      */
-    public void addUserAsMember(User member) {
-        this.member = member;
+    public void addUserAsMember(ContactPerson contactPerson) {
+        if (contactPerson.hasOrganization()) {
+            throw new UserAlreadyHasOrganizationException();
+        }
+        this.contactPerson = contactPerson;
     }
 
     public EmailAddress getEmail() {
-        return this.member.getEmailAddress();
+        return this.contactPerson.getEmailAddress();
     }
 }

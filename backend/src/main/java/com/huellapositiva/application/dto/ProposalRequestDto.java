@@ -1,6 +1,5 @@
 package com.huellapositiva.application.dto;
 
-import com.huellapositiva.infrastructure.orm.entities.Organization;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +39,7 @@ public class ProposalRequestDto {
 
     private boolean published;
 
+    /*Es raro que vayamos a la variable publish, así que mejor hacerlo método*/
     void publish() {
 
     }

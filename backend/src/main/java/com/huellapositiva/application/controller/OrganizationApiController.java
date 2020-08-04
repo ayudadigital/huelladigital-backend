@@ -3,6 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.actions.RegisterOrganizationAction;
+import com.huellapositiva.domain.exception.UserAlreadyHasOrganizationException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -66,6 +67,11 @@ public class OrganizationApiController {
                             content = @Content()
                     ),
                     @ApiResponse(
+                            responseCode = "412",
+                            description = "Precondition failed, the user attempting to create the organization has another one linked.",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
                             content = @Content()
@@ -78,10 +84,12 @@ public class OrganizationApiController {
     public void registerOrganization(@RequestBody OrganizationRequestDto dto, @AuthenticationPrincipal String memberEmail) {
         try {
             registerOrganizationAction.execute(dto, EmailAddress.from(memberEmail));
+        } catch (OrganizationAlreadyExists ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
+        } catch (UserAlreadyHasOrganizationException ex) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The user attempting to create the organization has already registered another one.");
         } catch (UserNotFound ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
-        } catch (OrganizationAlreadyExists ex){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         }
     }
 

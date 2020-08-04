@@ -2,7 +2,7 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.OrganizationRequestDto;
 import com.huellapositiva.application.exception.OrganizationAlreadyExists;
-import com.huellapositiva.domain.model.entities.User;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.entities.Organization;
 import com.huellapositiva.domain.repository.OrganizationRepository;
@@ -24,8 +24,8 @@ public class RegisterOrganizationAction {
 
     public void execute(OrganizationRequestDto dto, EmailAddress memberEmail) {
         Organization organization = new Organization(dto.getName());
-        User user = organizationMemberService.fetch(memberEmail);
-        organization.addUserAsMember(user);
+        ContactPerson contactPerson = organizationMemberService.fetch(memberEmail);
+        organization.addUserAsMember(contactPerson);
         try {
             organizationRepository.save(organization);
         } catch (DataIntegrityViolationException ex) {

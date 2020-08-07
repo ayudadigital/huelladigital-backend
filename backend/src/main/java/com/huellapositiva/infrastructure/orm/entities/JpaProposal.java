@@ -15,18 +15,21 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Proposal {
+public class JpaProposal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer surrogateKey;
+
+    @Column(name = "id")
+    private String id;
 
     @Column(name = "title", nullable = false)
     private String title;
 
-    @JoinColumn(name = "organization_id")
+    @JoinColumn(name = "esal_id")
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Organization organization;
+    private JpaESAL esal;
 
     @JoinColumn(name = "location_id")
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -52,5 +55,5 @@ public class Proposal {
             joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}
     )
-    private Set<Volunteer> inscribedVolunteers;
+    private Set<JpaVolunteer> inscribedVolunteers;
 }

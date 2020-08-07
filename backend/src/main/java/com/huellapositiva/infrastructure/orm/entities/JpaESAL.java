@@ -9,21 +9,20 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "volunteer")
+@Table(name = "ESALs")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Volunteer {
+public class JpaESAL {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer surrogateKey;
 
-    @JoinColumn(name = "credential_id")
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Credential credential;
+    @Column(name = "id")
+    private String id;
 
-    @ManyToMany(mappedBy = "inscribedVolunteers")
-    private List<Proposal> joinedProposals;
+    @Column(name = "name", nullable = false)
+    private String name;
 }

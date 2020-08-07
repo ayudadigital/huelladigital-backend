@@ -19,7 +19,7 @@ public final class TestUtils {
 
     public static MockHttpServletResponse loginRequest(MockMvc mvc, CredentialsVolunteerRequestDto loginDto) throws Exception {
         String jsonBody = objectMapper.writeValueAsString(loginDto);
-        return mvc.perform(post("/api/v1/volunteers/login")
+        return mvc.perform(post("/api/v1/authentication/login")
                 .content(jsonBody)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))

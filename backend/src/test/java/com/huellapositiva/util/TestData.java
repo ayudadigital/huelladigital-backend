@@ -5,6 +5,7 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @AllArgsConstructor
 @TestComponent
 @Transactional
@@ -24,7 +27,7 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
-    public static final String DEFAULT_ESAL_MEMBER_EMAIL = "organizationEmployee@huellapositiva.com";
+    public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
@@ -32,11 +35,13 @@ public class TestData {
 
     public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
 
+    public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
     @Autowired
-    private final JpaOrganizationMemberRepository organizationMemberRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
     @Autowired
     private final JpaCredentialRepository jpaCredentialRepository;
@@ -56,22 +61,20 @@ public class TestData {
     @Autowired
     private final JpaLocationRepository jpaLocationRepository;
 
-    @Autowired
-    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaESALRepository jpaESALRepository;
 
 
     public void resetData() {
         volunteerRepository.deleteAll();
-        jpaOrganizationMemberRepository.deleteAll();
+        jpaContactPersonRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
-        jpaOrganizationRepository.deleteAll();
+        jpaESALRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();
@@ -111,45 +114,54 @@ public class TestData {
         return jpaCredentialRepository.save(credential);
     }
 
-    public Volunteer createVolunteer(String email, String password) {
+    public JpaVolunteer createVolunteer(String email, String password) {
         return createVolunteer(email, password, Roles.VOLUNTEER);
     }
 
-    public Volunteer createVolunteer(String email, String password, Roles role) {
+    public JpaVolunteer createVolunteer(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
 
-        Volunteer volunteer = Volunteer.builder().credential(credential).build();
+        JpaVolunteer volunteer = JpaVolunteer.builder()
+                .credential(credential)
+                .id(UUID.randomUUID().toString())
+                .build();
 
         return volunteerRepository.save(volunteer);
     }
 
-    public OrganizationMember createESALMember(String email, String password) {
-        return createESALMember(email, password, Roles.ORGANIZATION_MEMBER);
+    public JpaContactPerson createESALMember(String email, String password) {
+        return createESALMember(email, password, Roles.CONTACT_PERSON);
     }
 
-    public OrganizationMember createESALMember(String email, String password, Roles role) {
+    public JpaContactPerson createESALMember(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
-        OrganizationMember employee = OrganizationMember.builder().credential(credential).build();
-        return organizationMemberRepository.save(employee);
+        JpaContactPerson contactPerson = JpaContactPerson.builder()
+                .credential(credential)
+                .id(UUID.randomUUID().toString())
+                .build();
+        return jpaContactPersonRepository.save(contactPerson);
     }
 
-    public Integer createAndLinkESAL(OrganizationMember member, Organization organization) {
-        Integer id = createESAL(organization);
-        organizationMemberRepository.updateJoinedOrganization(member.getId(), organization);
+    public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
+        String id = createESAL(esal);
+        //member.setJoinedEsal(jpaESALRepository.findByUUID(id).get());
+        //jpaContactPersonRepository.save(member);
+        jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         return id;
     }
 
-    public Integer createESAL(Organization organization) {
-        return jpaOrganizationRepository.save(organization).getId();
+    public String createESAL(JpaESAL esal) {
+        return jpaESALRepository.save(esal).getId();
     }
 
-    public Proposal createProposal(Proposal proposal) {
+    public JpaProposal createProposal(JpaProposal proposal) {
          return jpaProposalRepository.save(proposal);
     }
 
     public ProposalRequestDto buildPublishedProposalDto() {
         return buildProposalDto(true);
     }
+
     public ProposalRequestDto buildUnpublishedProposalDto() {
         return buildProposalDto(false);
     }
@@ -168,24 +180,24 @@ public class TestData {
                 .build();
     }
 
-    public Proposal registerESALAndPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndPublishedProposal() throws ParseException {
         return registerESALAndProposal(true);
     }
 
-    public Proposal registerESALAndNotPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
         return registerESALAndProposal(false);
     }
 
-    private Proposal registerESALAndProposal(boolean isPublished) throws ParseException {
-        OrganizationMember employee = createESALMember(DEFAULT_ESAL_MEMBER_EMAIL, DEFAULT_PASSWORD);
-        Organization organization = Organization.builder().name(DEFAULT_ESAL).build();
-        createAndLinkESAL(employee, organization);
-        Proposal proposal = Proposal.builder()
+    private JpaProposal registerESALAndProposal(boolean isPublished) throws ParseException {
+        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        createAndLinkESAL(contactPerson, esal);
+        JpaProposal proposal = JpaProposal.builder()
                 .title("Recogida de ropita")
                 .location(Location.builder().province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
-                .organization(organization)
+                .esal(esal)
                 .expirationDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
                 .requiredDays("Weekends")
                 .minimumAge(18)

@@ -133,7 +133,7 @@ class SecurityConfigShould {
         testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        Integer proposalId = testData.registerESALAndPublishedProposal().getId();
+        String proposalId = testData.registerESALAndPublishedProposal().getId();
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")

@@ -69,11 +69,11 @@ public class ESALApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("ORGANIZATION_MEMBER")
+    @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String memberEmail) {
+    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
         try {
-            registerESALAction.execute(dto, EmailAddress.from(memberEmail));
+            registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
         } catch (ESALAlreadyExists ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
@@ -114,7 +114,7 @@ public class ESALApiController {
             }
     )
     @DeleteMapping("/{id}")
-    @RolesAllowed("ORGANIZATION_MEMBER")
+    @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
     public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable Integer id) {
         try {
@@ -145,10 +145,10 @@ public class ESALApiController {
                     )
             }
     )
-    @PostMapping("/admin")
-    @RolesAllowed("ADMIN")
+    @PostMapping("/reviser")
+    @RolesAllowed("REVISER")
     @ResponseBody
-    public void registerESALAsAdmin(@RequestBody ESALRequestDto dto) {
+    public void registerESALAsReviser(@RequestBody ESALRequestDto dto) {
         registerESALAction.execute(dto);
     }
 }

@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class LoginControllerShould {
 
-    private static final String loginUri = "/api/v1/volunteers/login";
+    private static final String loginUri = "/api/v1/authentication/login";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired

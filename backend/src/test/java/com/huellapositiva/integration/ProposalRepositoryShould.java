@@ -2,8 +2,8 @@ package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.Organization;
-import com.huellapositiva.infrastructure.orm.entities.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 import static java.util.Calendar.HOUR_OF_DAY;
 import static java.util.Calendar.MINUTE;
@@ -40,12 +41,12 @@ class ProposalRepositoryShould {
     @Test
     void persist_a_default_expiration_hour(){
         // WHEN
-        testData.createESAL(Organization.builder().name("Huella Positiva").build());
+        testData.createESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
-        proposalRequestDto.setOrganizationName("Huella Positiva");
-        Integer id = proposalRepository.save(proposalRequestDto);
+        proposalRequestDto.setEsalName("Huella Positiva");
+        String id = proposalRepository.save(proposalRequestDto);
 
-        Proposal proposal = jpaProposalRepository.findById(id).get();
+        JpaProposal proposal = jpaProposalRepository.findById(Integer.valueOf(id)).get();
         Calendar expirationTimestamp = Calendar.getInstance();
         expirationTimestamp.setTime(proposal.getExpirationDate());
         // THEN

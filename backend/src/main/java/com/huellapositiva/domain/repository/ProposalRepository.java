@@ -4,10 +4,10 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ESALNotFound;
 import com.huellapositiva.infrastructure.orm.entities.Location;
-import com.huellapositiva.infrastructure.orm.entities.Organization;
-import com.huellapositiva.infrastructure.orm.entities.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 @Transactional
@@ -31,12 +32,12 @@ public class ProposalRepository {
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaESALRepository jpaESALRepository;
 
     @Value("${huellapositiva.proposal.expiration-hour}")
     private String expirationHour;
 
-    public Integer save(ProposalRequestDto dto) {
+    public String save(ProposalRequestDto dto) {
         Location proposalLocation = jpaLocationRepository.save(Location.builder()
                 .province(dto.getProvince())
                 .town(dto.getTown())
@@ -48,12 +49,13 @@ public class ProposalRepository {
         } catch(ParseException ex){
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate(), ex);
         }
-        Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
+        JpaESAL esal = jpaESALRepository.findByName(dto.getEsalName())
                 .orElseThrow(ESALNotFound::new);
 
-        Proposal proposal = Proposal.builder()
+        JpaProposal proposal = JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
                 .title(dto.getTitle())
-                .organization(organization)
+                .esal(esal)
                 .location(proposalLocation)
                 .expirationDate(expirationDate)
                 .requiredDays(dto.getRequiredDays())
@@ -64,11 +66,38 @@ public class ProposalRepository {
         return jpaProposalRepository.save(proposal).getId();
     }
 
-    public Proposal save(Proposal proposal) {
+    public String save(com.huellapositiva.domain.model.entities.Proposal proposal) {
+        Location location = jpaLocationRepository.save(Location.builder()
+                .province(proposal.getProvince())
+                .town(proposal.getTown())
+                .address(proposal.getAddress())
+                .build());
+        Date expirationDate;
+        try {
+            expirationDate = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(proposal.getExpirationDate() + " " + expirationHour);
+        } catch(ParseException ex){
+            throw new FailedToPersistProposal("Could not format the following date: " + proposal.getExpirationDate(), ex);
+        }
+        JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
+                .orElseThrow(ESALNotFound::new);
+        JpaProposal jpaProposal = JpaProposal.builder()
+                .title(proposal.getTitle())
+                .esal(esal)
+                .location(location)
+                .expirationDate(expirationDate)
+                .requiredDays(proposal.getRequiredDays())
+                .minimumAge(proposal.getMinimumAge())
+                .maximumAge(proposal.getMaximumAge())
+                .published(proposal.isPublished())
+                .build();
+        return jpaProposalRepository.save(jpaProposal).getId();
+    }
+
+    public JpaProposal save(JpaProposal proposal) {
         return jpaProposalRepository.save(proposal);
     }
 
-    public Proposal fetch(Integer id) {
+    public JpaProposal fetch(Integer id) {
         return jpaProposalRepository.getOne(id);
     }
 }

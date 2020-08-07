@@ -30,5 +30,5 @@ public class Location {
     private String address;
 
     @OneToMany(mappedBy = "location")
-    private Set<Proposal> proposal;
+    private Set<JpaProposal> proposal;
 }

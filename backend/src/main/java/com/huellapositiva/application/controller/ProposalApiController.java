@@ -68,12 +68,12 @@ public class ProposalApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("ORGANIZATION_MEMBER")
+    @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String memberEmail, HttpServletResponse res) {
+    public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String contactPersonEmail, HttpServletResponse res) {
         dto.setPublished(true);
-        int id = registerProposalAction.execute(dto, memberEmail);
+        String id = registerProposalAction.execute(dto, contactPersonEmail);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(id)
                 .toUri();
@@ -172,15 +172,15 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/admin")
-    @RolesAllowed("ADMIN")
+    @PostMapping("/reviser")
+    @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposalAsAdmin(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
-        int id = registerProposalAction.execute(dto);
+    public void createProposalAsReviser(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
+        String id = registerProposalAction.execute(dto);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(id)
                 .toUri();
-        res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/admin", ""));
+        res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
     }
 }

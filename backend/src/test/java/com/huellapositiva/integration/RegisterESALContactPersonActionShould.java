@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
-import com.huellapositiva.domain.actions.RegisterESALMemberAction;
+import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,10 +15,10 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-class RegisterESALMemberActionShould {
+class RegisterESALContactPersonActionShould {
 
     @Autowired
-    private RegisterESALMemberAction organizationMemberAction;
+    private RegisterESALContactPersonAction organizationMemberAction;
 
     @Autowired
     private TestData testData;

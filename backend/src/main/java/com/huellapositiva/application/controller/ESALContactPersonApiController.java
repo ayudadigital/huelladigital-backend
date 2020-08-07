@@ -3,7 +3,8 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.domain.actions.RegisterESALMemberAction;
+import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -26,10 +27,10 @@ import java.util.stream.Collectors;
 @RestController
 @AllArgsConstructor
 @Tag(name = "ESAL members", description = "The ESAL's members API")
-@RequestMapping("/api/v1/member")
-public class ESALMemberApiController {
+@RequestMapping("/api/v1/contactperson")
+public class ESALContactPersonApiController {
 
-    private final RegisterESALMemberAction registerESALMemberAction;
+    private final RegisterESALContactPersonAction registerESALContactPersonAction;
 
     private final JwtService jwtService;
 
@@ -61,12 +62,12 @@ public class ESALMemberApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerESALMember(@RequestBody CredentialsESALMemberRequestDto dto, HttpServletResponse res) {
-        Integer id = registerESALMemberAction.execute(dto);
+    public JwtResponseDto registerContactPerson(@RequestBody CredentialsESALMemberRequestDto dto, HttpServletResponse res) {
+        Id contactPersonId = registerESALContactPersonAction.execute(dto);
         String username = dto.getEmail();
         List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(id)
+                .path("/{id}").buildAndExpand(contactPersonId.toString())
                 .toUri();
         res.addHeader(HttpHeaders.LOCATION, uri.toString());
         return jwtService.create(username, roles);

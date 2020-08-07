@@ -5,9 +5,9 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.Organization;
-import com.huellapositiva.infrastructure.orm.entities.OrganizationMember;
-import com.huellapositiva.infrastructure.orm.entities.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
@@ -66,10 +66,10 @@ class ProposalControllerShould {
     }
 
     @Test
-    void create_an_organization_and_update_member_joined_organization() throws Exception {
+    void persist_a_proposal() throws Exception {
         // GIVEN
-        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(organizationMember, Organization.builder().name("Huella Positiva").build());
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -93,7 +93,7 @@ class ProposalControllerShould {
     @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
-        Proposal proposal = testData.registerESALAndPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndPublishedProposal();
 
         // WHEN
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -122,7 +122,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_fetching_a_not_published_proposal() throws Exception {
         // GIVEN
-        Proposal proposal = testData.registerESALAndNotPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndNotPublishedProposal();
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -135,7 +135,7 @@ class ProposalControllerShould {
     void allow_a_volunteer_to_join() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer proposalId = testData.registerESALAndPublishedProposal().getId();
+        String proposalId = testData.registerESALAndPublishedProposal().getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -147,9 +147,9 @@ class ProposalControllerShould {
                 .andExpect(status().isOk());
 
         // THEN
-        Proposal proposal = jpaProposalRepository.findById(proposalId).get();
+        JpaProposal proposal = jpaProposalRepository.findById(Integer.valueOf(proposalId)).get();
         assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
-        Integer volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
+        String volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 
@@ -157,7 +157,7 @@ class ProposalControllerShould {
     void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Integer proposalId = testData.registerESALAndNotPublishedProposal().getId();
+        String proposalId = testData.registerESALAndNotPublishedProposal().getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -189,7 +189,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        Proposal proposal = testData.registerESALAndPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndPublishedProposal();
         proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -206,16 +206,16 @@ class ProposalControllerShould {
     }
 
     @Test
-    void create_proposal_as_admin() throws Exception {
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.ADMIN);
+    void create_proposal_as_reviser() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        OrganizationMember organizationMember = testData.createESALMember(DEFAULT_ESAL_MEMBER_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(organizationMember, Organization.builder().name("Huella Positiva").build());
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
-        proposalRequestDto.setOrganizationName("Huella Positiva");
+        proposalRequestDto.setEsalName("Huella Positiva");
 
-        mvc.perform(post("/api/v1/proposals/admin")
+        mvc.perform(post("/api/v1/proposals/reviser")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(proposalRequestDto))
                 .with(csrf())

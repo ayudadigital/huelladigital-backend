@@ -6,24 +6,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
 
 @Entity
-@Table(name = "organization_members")
+@Table(name = "volunteers")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrganizationMember {
+public class JpaVolunteer implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer surrogateKey;
+
+    @Column(name = "id")
+    private String id;
 
     @JoinColumn(name = "credential_id")
-    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Credential credential;
 
-    @JoinColumn(name = "organization_id")
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Organization joinedOrganization;
+    @ManyToMany(mappedBy = "inscribedVolunteers")
+    private List<JpaProposal> joinedProposals;
 }

@@ -15,7 +15,7 @@ public class ProposalResponseDto {
     private final String title;
 
     @NotEmpty
-    private String ESAL;
+    private String esalName;
 
     @NotEmpty
     private final String province;

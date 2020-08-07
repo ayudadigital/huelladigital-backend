@@ -18,12 +18,12 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.model.valueobjects.Roles.ADMIN;
+import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AdminService {
+public class ReviserService {
 
     @Autowired
     private JpaCredentialRepository jpaCredentialRepository;
@@ -38,23 +38,23 @@ public class AdminService {
     private PasswordEncoder passwordEncoder;
 
     @Value("${huellapositiva.web-admin.password}")
-    private String adminPassword;
+    private String reviserPassword;
 
     @Value("${huellapositiva.web-admin.email}")
-    private String adminEmail;
+    private String reviserEmail;
 
-    public void createDefaultAdmin() {
-        if (jpaCredentialRepository.findByEmail(adminEmail).isEmpty()) {
-            Role role = jpaRoleRepository.findByName(ADMIN.toString())
-                    .orElseThrow(() -> new RoleNotFoundException("Role ADMIN not found."));
+    public void createDefaultReviser() {
+        if (jpaCredentialRepository.findByEmail(reviserEmail).isEmpty()) {
+            Role role = jpaRoleRepository.findByName(REVISER.toString())
+                    .orElseThrow(() -> new RoleNotFoundException("Role REVISER not found."));
             EmailConfirmation emailConfirmation = EmailConfirmation.builder()
-                    .email(adminEmail)
+                    .email(reviserEmail)
                     .hash(UUID.randomUUID().toString())
                     .build();
             emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
             Credential credential = Credential.builder()
-                    .email(adminEmail)
-                    .hashedPassword(new PasswordHash(passwordEncoder.encode(adminPassword)).toString())
+                    .email(reviserEmail)
+                    .hashedPassword(new PasswordHash(passwordEncoder.encode(reviserPassword)).toString())
                     .roles(Collections.singleton(role))
                     .emailConfirmed(true)
                     .emailConfirmation(emailConfirmation)

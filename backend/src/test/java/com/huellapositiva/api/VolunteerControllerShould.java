@@ -83,7 +83,7 @@ class VolunteerControllerShould {
         assertThat(userDetails.getSecond()).hasSize(1);
         assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
-        int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+        String id = location.substring(location.lastIndexOf('/') + 1);
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 

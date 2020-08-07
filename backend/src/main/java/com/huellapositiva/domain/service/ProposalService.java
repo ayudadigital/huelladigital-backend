@@ -5,8 +5,8 @@ import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosed;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.Proposal;
-import com.huellapositiva.infrastructure.orm.entities.Volunteer;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class ProposalService {
     @Autowired
     private final ProposalRepository proposalRepository;
 
-    public Integer registerProposal(ProposalRequestDto proposalRequestDto) {
+    public String registerProposal(ProposalRequestDto proposalRequestDto) {
         try {
              return proposalRepository.save(proposalRequestDto);
         } catch (DataIntegrityViolationException ex) {
@@ -32,12 +32,12 @@ public class ProposalService {
         }
     }
 
-    public Proposal fetch(Integer id) {
+    public JpaProposal fetch(Integer id) {
         return proposalRepository.fetch(id);
     }
 
-    public Proposal enrollVolunteer(Integer proposalId, Volunteer volunteer) {
-        Proposal proposal = proposalRepository.fetch(proposalId);
+    public JpaProposal enrollVolunteer(Integer proposalId, JpaVolunteer volunteer) {
+        JpaProposal proposal = proposalRepository.fetch(proposalId);
         boolean isNotPublished = !proposal.getPublished();
         if (isNotPublished) {
             throw new ProposalNotPublished();

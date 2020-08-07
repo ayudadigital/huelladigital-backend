@@ -1,12 +1,17 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.application.exception.ESALAlreadyExists;
+import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
-import com.huellapositiva.infrastructure.orm.entities.Organization;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,34 +21,43 @@ import org.springframework.transaction.annotation.Transactional;
 public class ESALRepository {
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaESALRepository jpaESALRepository;
 
     @Autowired
-    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
-    public Integer save(ExpressRegistrationESAL expressOrganization) {
-        Organization organization = Organization.builder()
+    public String save(ExpressRegistrationESAL expressOrganization) {
+        JpaESAL organization = JpaESAL.builder()
                 .name(expressOrganization.getName())
                 .build();
-        return jpaOrganizationRepository.save(organization).getId();
+        return jpaESALRepository.save(organization).getId();
     }
 
-    public Organization findById(Integer id) {
-        return jpaOrganizationRepository.findById(id)
+    public JpaESAL findById(Integer id) {
+        return jpaESALRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Could not find the organization by the provided ID"));
     }
 
-    public Integer save(ESAL model) {
-        Organization organization = Organization.builder()
+    public String save(ESAL model) {
+        JpaContactPerson contactPerson = jpaContactPersonRepository.findByEmail(model.getContactPersonEmail().toString()).get();
+        JpaESAL esal = JpaESAL.builder()
                 .name(model.getName())
                 .build();
-        Integer id = jpaOrganizationRepository.save(organization).getId();
-        jpaOrganizationMemberRepository.updateJoinedOrganization(model.getContactPerson().getId().asInt(), organization);
-        return id;
+        try {
+            String id = jpaESALRepository.save(esal).getId();
+            jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
+            return id;
+        } catch (DataIntegrityViolationException ex) {
+            throw new ESALAlreadyExists();
+        }
     }
 
     public void delete(int id) {
-        jpaOrganizationMemberRepository.unlinkMembersOfOrganization(id);
-        jpaOrganizationRepository.deleteById(id);
+        jpaContactPersonRepository.unlinkMembersOfESAL(id);
+        jpaESALRepository.deleteById(id);
+    }
+
+    public Id newId() {
+        return Id.newId();
     }
 }

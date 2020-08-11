@@ -26,7 +26,7 @@ public class JpaContactPerson {
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Credential credential;
 
-    @JoinColumn(name = "esal_id")
-    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "esal_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private JpaESAL joinedEsal;
 }

@@ -5,7 +5,6 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,8 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @AllArgsConstructor
 @TestComponent
@@ -193,6 +190,7 @@ public class TestData {
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal proposal = JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
                 .title("Recogida de ropita")
                 .location(Location.builder().province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")

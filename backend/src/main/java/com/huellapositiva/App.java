@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class App implements CommandLineRunner {
 
     @Autowired
-    ReviserService reviserService;
+    private ReviserService reviserService;
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);

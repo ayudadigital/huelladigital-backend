@@ -93,7 +93,7 @@ class ESALControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        assertThat(jpaESALRepository.findById(Integer.valueOf(esalId))).isEmpty();
+        assertThat(jpaESALRepository.findByNaturalId(esalId)).isEmpty();
     }
 
     @Test

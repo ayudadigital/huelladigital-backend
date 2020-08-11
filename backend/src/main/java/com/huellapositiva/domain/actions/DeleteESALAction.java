@@ -14,11 +14,11 @@ public class DeleteESALAction {
 
     private final ESALContactPersonRepository esalContactPersonRepository;
 
-    public void execute(String memberEmail, int requesterId){
-        Integer contextId = esalContactPersonRepository.getJoinedESAL(memberEmail).getId().asInt();
-        if(requesterId != contextId){
+    public void execute(String memberEmail, String requesterId){
+        String esalId = esalContactPersonRepository.getJoinedESAL(memberEmail).getId().toString();
+        if(!requesterId.equals(esalId)){
             throw new OperationNotAllowed("The given ESAL ID does not match the user's ESAL ID.");
         }
-        esalRepository.delete(contextId);
+        esalRepository.delete(esalId);
     }
 }

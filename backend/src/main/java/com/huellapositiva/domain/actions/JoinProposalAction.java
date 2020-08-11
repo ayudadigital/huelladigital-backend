@@ -14,7 +14,7 @@ public class JoinProposalAction {
 
     private final VolunteerService volunteerService;
 
-    public void execute(Integer proposalId, String volunteerEmail){
+    public void execute(String proposalId, String volunteerEmail){
         JpaVolunteer volunteer = volunteerService.findVolunteerByEmail(volunteerEmail);
         proposalService.enrollVolunteer(proposalId, volunteer);
     }

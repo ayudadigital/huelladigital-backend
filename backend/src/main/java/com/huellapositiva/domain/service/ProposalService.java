@@ -32,11 +32,7 @@ public class ProposalService {
         }
     }
 
-    public JpaProposal fetch(Integer id) {
-        return proposalRepository.fetch(id);
-    }
-
-    public JpaProposal enrollVolunteer(Integer proposalId, JpaVolunteer volunteer) {
+    public JpaProposal enrollVolunteer(String proposalId, JpaVolunteer volunteer) {
         JpaProposal proposal = proposalRepository.fetch(proposalId);
         boolean isNotPublished = !proposal.getPublished();
         if (isNotPublished) {

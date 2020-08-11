@@ -116,7 +116,7 @@ public class ESALApiController {
     @DeleteMapping("/{id}")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
-    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable Integer id) {
+    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
         try {
             deleteESALAction.execute(memberEmail, id);
         } catch (UserNotFound ex) {

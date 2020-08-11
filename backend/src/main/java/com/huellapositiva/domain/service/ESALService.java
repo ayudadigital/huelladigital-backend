@@ -34,8 +34,11 @@ public class ESALService {
     }
 
     public boolean isUserAssociatedWithAnESAL(EmailAddress contactPersonEmail) {
-        return jpaContactPersonRepository.findByEmail(contactPersonEmail.toString()).get().getJoinedEsal() != null;
+        return jpaContactPersonRepository.findByEmail(contactPersonEmail.toString())
+                .stream()
+                .anyMatch(n -> n.getJoinedEsal() != null);
     }
+
 
     public JpaESAL findById(Integer id) {
         return esalRepository.findById(id);

@@ -71,7 +71,7 @@ public class VolunteerApiController {
             String username = volunteer.getEmailAddress().toString();
             List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(volunteer.getId().asInt())
+                    .path("/{id}").buildAndExpand(volunteer.getId().toString())
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
             return jwtService.create(username, roles);

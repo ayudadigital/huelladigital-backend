@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.UUID_REGEX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -71,7 +72,7 @@ class VolunteerControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)\\d+")))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)" + UUID_REGEX)))
                 .andReturn()
                 .getResponse();
 

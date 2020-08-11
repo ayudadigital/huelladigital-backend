@@ -81,13 +81,13 @@ class ProposalControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andReturn().getResponse();
 
         // THEN
         String location = response.getHeader(HttpHeaders.LOCATION);
-        int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
-        assertThat(jpaProposalRepository.findById(id).get().getTitle()).isEqualTo("Recogida de ropita");
+        String id = location.substring(location.lastIndexOf('/') + 1);
+        assertThat(jpaProposalRepository.findByNaturalId(id).get().getTitle()).isEqualTo("Recogida de ropita");
     }
 
     @Test
@@ -147,7 +147,7 @@ class ProposalControllerShould {
                 .andExpect(status().isOk());
 
         // THEN
-        JpaProposal proposal = jpaProposalRepository.findById(Integer.valueOf(proposalId)).get();
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(proposalId).get();
         assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
         String volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
@@ -221,7 +221,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)\\d+")))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andExpect(status().isCreated());
 
         assertThat(jpaProposalRepository.findAll()).isNotEmpty();

@@ -2,7 +2,7 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.exception.ProposalNotPublished;
-import com.huellapositiva.domain.service.ProposalService;
+import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class FetchProposalAction {
 
-    private final ProposalService proposalService;
+    private final ProposalRepository proposalRepository;
 
-    public ProposalResponseDto execute(Integer proposalId) {
-        JpaProposal proposal = proposalService.fetch(proposalId);
+    public ProposalResponseDto execute(String proposalId) {
+        JpaProposal proposal = proposalRepository.fetch(proposalId);
         boolean isNotPublished = !proposal.getPublished();
         if (isNotPublished) {
             throw new ProposalNotPublished();

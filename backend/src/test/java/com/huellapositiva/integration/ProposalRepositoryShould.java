@@ -46,7 +46,7 @@ class ProposalRepositoryShould {
         proposalRequestDto.setEsalName("Huella Positiva");
         String id = proposalRepository.save(proposalRequestDto);
 
-        JpaProposal proposal = jpaProposalRepository.findById(Integer.valueOf(id)).get();
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(id).get();
         Calendar expirationTimestamp = Calendar.getInstance();
         expirationTimestamp.setTime(proposal.getExpirationDate());
         // THEN

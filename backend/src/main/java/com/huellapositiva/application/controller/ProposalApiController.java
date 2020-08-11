@@ -100,7 +100,7 @@ public class ProposalApiController {
     )
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto getProposal(@PathVariable Integer id) {
+    public ProposalResponseDto getProposal(@PathVariable String id) {
         try {
             return fetchProposalAction.execute(id);
         } catch(EntityNotFoundException | ProposalNotPublished e) {
@@ -136,7 +136,7 @@ public class ProposalApiController {
     @PostMapping("/{id}/join")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable Integer id, @AuthenticationPrincipal String memberEmail) {
+    public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
         } catch(EntityNotFoundException | ProposalNotPublished e) {

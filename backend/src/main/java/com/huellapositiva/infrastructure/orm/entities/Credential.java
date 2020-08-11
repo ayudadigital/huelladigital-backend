@@ -4,6 +4,7 @@ package com.huellapositiva.infrastructure.orm.entities;
 import lombok.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -14,7 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Credential {
+public class Credential implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

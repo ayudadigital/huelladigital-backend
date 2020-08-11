@@ -15,6 +15,9 @@ import java.util.List;
 public class Proposal {
 
     @NotEmpty
+    private final String id;
+
+    @NotEmpty
     private final String title;
 
     @NotEmpty

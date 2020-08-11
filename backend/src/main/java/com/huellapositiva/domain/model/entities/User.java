@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import lombok.Getter;
 

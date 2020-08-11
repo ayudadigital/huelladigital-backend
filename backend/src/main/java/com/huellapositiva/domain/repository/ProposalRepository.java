@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -81,6 +82,7 @@ public class ProposalRepository {
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
                 .orElseThrow(ESALNotFound::new);
         JpaProposal jpaProposal = JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
                 .title(proposal.getTitle())
                 .esal(esal)
                 .location(location)
@@ -97,7 +99,7 @@ public class ProposalRepository {
         return jpaProposalRepository.save(proposal);
     }
 
-    public JpaProposal fetch(Integer id) {
-        return jpaProposalRepository.getOne(id);
+    public JpaProposal fetch(String id) {
+        return jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
     }
 }

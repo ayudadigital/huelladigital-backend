@@ -25,7 +25,7 @@ public interface JpaContactPersonRepository extends JpaRepository<JpaContactPers
 
     @Modifying
     @Query("UPDATE JpaContactPerson om SET om.joinedEsal = NULL WHERE om.joinedEsal.id = :organizationId")
-    Integer unlinkMembersOfESAL(@Param("organizationId")int organizationId);
+    Integer unlinkMembersOfESAL(@Param("organizationId")String organizationId);
 
     @Query("FROM JpaContactPerson o LEFT JOIN FETCH o.credential c LEFT JOIN FETCH c.roles WHERE o.id = :id")
     Optional<JpaContactPerson> findByUUID(@Param("id") String id);

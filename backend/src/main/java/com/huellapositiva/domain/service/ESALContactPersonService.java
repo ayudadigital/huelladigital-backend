@@ -44,12 +44,4 @@ public class ESALContactPersonService {
         return esalContactPersonRepository.findByEmail(email);
     }
 
-//    public com.huellapositiva.domain.model.entities.ContactPerson fetch(EmailAddress emailAddress) {
-//        JpaContactPerson contactPerson = esalContactPersonRepository.findByEmail(emailAddress.toString()).get();
-//        if (contactPerson.getJoinedEsal() == null) {
-//            return com.huellapositiva.domain.model.entities.ContactPerson.contactPersonWithoutESAL(emailAddress, new Id(contactPerson.getId()));
-//        }
-//        com.huellapositiva.domain.model.entities.ESAL esal = new com.huellapositiva.domain.model.entities.ESAL(contactPerson.getJoinedEsal().getName());
-//        return com.huellapositiva.domain.model.entities.ContactPerson.contactPersonWithESAL(emailAddress, new Id(contactPerson.getId()), esal);
-//    }
 }

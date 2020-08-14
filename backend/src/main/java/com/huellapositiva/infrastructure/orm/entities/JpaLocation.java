@@ -1,9 +1,7 @@
 package com.huellapositiva.infrastructure.orm.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -11,15 +9,19 @@ import java.util.Set;
 
 @Entity
 @Table(name = "locations")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location implements Serializable {
+public class JpaLocation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer surrogateKey;
+
+    @NaturalId
+    private String id;
 
     @Column(name = "province")
     private String province;

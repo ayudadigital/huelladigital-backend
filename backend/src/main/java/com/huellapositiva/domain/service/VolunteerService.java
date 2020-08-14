@@ -1,12 +1,12 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class VolunteerService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public com.huellapositiva.domain.model.entities.Volunteer registerVolunteer(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
+    public Volunteer registerVolunteer(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
             ExpressRegistrationVolunteer expressVolunteer = new ExpressRegistrationVolunteer(hash, emailConfirmation);
@@ -36,7 +36,7 @@ public class VolunteerService {
         }
     }
 
-    public JpaVolunteer findVolunteerByEmail(String email) {
+    public Volunteer findVolunteerByEmail(String email) {
         return volunteerRepository.findByEmail(email);
     }
 }

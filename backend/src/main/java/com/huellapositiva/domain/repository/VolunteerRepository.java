@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
@@ -61,9 +62,12 @@ public class VolunteerRepository {
         );
     }
 
-    public JpaVolunteer findByEmail(String email) {
-        return jpaVolunteerRepository.findByEmail(email).orElseThrow(
+    public Volunteer findByEmail(String email) {
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("Could not find volunteer with email " + email)
         );
+        return new Volunteer(
+                EmailAddress.from(volunteer.getCredential().getEmail()),
+                new Id(volunteer.getId()));
     }
 }

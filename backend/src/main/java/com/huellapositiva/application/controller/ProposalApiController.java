@@ -2,6 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
@@ -26,6 +27,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
+import java.text.ParseException;
 
 @RestController
 @AllArgsConstructor
@@ -45,7 +47,7 @@ public class ProposalApiController {
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
-                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
                     @SecurityRequirement(name = "accessToken")
@@ -73,11 +75,15 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String contactPersonEmail, HttpServletResponse res) {
         dto.setPublished(true);
-        String id = registerProposalAction.execute(dto, contactPersonEmail);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(id)
-                .toUri();
-        res.addHeader(HttpHeaders.LOCATION, uri.toString());
+        try {
+            String id = registerProposalAction.execute(dto, contactPersonEmail);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}").buildAndExpand(id)
+                    .toUri();
+            res.addHeader(HttpHeaders.LOCATION, uri.toString());
+        } catch (ParseException pe) {
+            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate());
+        }
     }
 
     @Operation(
@@ -103,7 +109,7 @@ public class ProposalApiController {
     public ProposalResponseDto getProposal(@PathVariable String id) {
         try {
             return fetchProposalAction.execute(id);
-        } catch(EntityNotFoundException | ProposalNotPublished e) {
+        } catch (EntityNotFoundException | ProposalNotPublished e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist or is not published.");
         }
     }
@@ -114,7 +120,7 @@ public class ProposalApiController {
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
-                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
                     @SecurityRequirement(name = "accessToken")
@@ -139,7 +145,7 @@ public class ProposalApiController {
     public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
-        } catch(EntityNotFoundException | ProposalNotPublished e) {
+        } catch (EntityNotFoundException | ProposalNotPublished e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
     }
@@ -150,7 +156,7 @@ public class ProposalApiController {
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
-                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
                     @SecurityRequirement(name = "accessToken")
@@ -177,10 +183,14 @@ public class ProposalApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposalAsReviser(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
-        String id = registerProposalAction.execute(dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(id)
-                .toUri();
-        res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
+        try {
+            String id = registerProposalAction.execute(dto);
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}").buildAndExpand(id)
+                    .toUri();
+            res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
+        } catch (ParseException pe) {
+            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate());
+        }
     }
 }

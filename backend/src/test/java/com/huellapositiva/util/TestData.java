@@ -1,10 +1,15 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -140,15 +145,20 @@ public class TestData {
     }
 
     public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
-        String id = createESAL(esal);
+        String id = createJpaESAL(esal);
         //member.setJoinedEsal(jpaESALRepository.findByUUID(id).get());
         //jpaContactPersonRepository.save(member);
         jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         return id;
     }
 
-    public String createESAL(JpaESAL esal) {
+    public String createJpaESAL(JpaESAL esal) {
         return jpaESALRepository.save(esal).getId();
+    }
+
+    public ESAL createESAL(String id, String name) {
+        JpaESAL savedEsal = jpaESALRepository.save(JpaESAL.builder().id(id).name(name).build());
+        return new ESAL(savedEsal.getName(), new Id(savedEsal.getId()));
     }
 
     public JpaProposal createProposal(JpaProposal proposal) {
@@ -177,6 +187,29 @@ public class TestData {
                 .build();
     }
 
+    public Proposal buildPublishedProposalWithEsal(ESAL esal) {
+        return buildProposal(esal, true);
+    }
+
+    public Proposal buildUnpublishedProposalWithEsal(ESAL esal) {
+        return buildProposal(esal, false);
+    }
+
+    @SneakyThrows
+    public Proposal buildProposal(ESAL esal, boolean isPublished) {
+        return Proposal.builder()
+                .id(Id.newId())
+                .title("Recogida de ropita")
+                .esal(esal)
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .expirationDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .published(isPublished)
+                .build();
+    }
+
     public JpaProposal registerESALAndPublishedProposal() throws ParseException {
         return registerESALAndProposal(true);
     }
@@ -192,7 +225,9 @@ public class TestData {
         JpaProposal proposal = JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
                 .title("Recogida de ropita")
-                .location(Location.builder().province("Santa Cruz de Tenerife")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
                 .esal(esal)

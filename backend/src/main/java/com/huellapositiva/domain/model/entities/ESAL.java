@@ -3,22 +3,29 @@ package com.huellapositiva.domain.model.entities;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
 @Getter
+@Setter
 public class ESAL {
 
     private final String name;
 
     private final Id id;
 
-    private final EmailAddress contactPersonEmail;
+    private EmailAddress contactPersonEmail;
 
     public ESAL(String name, Id id, EmailAddress contactPersonEmail) {
         this.name = name;
         this.id = id;
         this.contactPersonEmail = contactPersonEmail;
+    }
+
+    public ESAL(String name, Id id) {
+        this.name = name;
+        this.id = id;
     }
 
     public EmailAddress getEmail() {

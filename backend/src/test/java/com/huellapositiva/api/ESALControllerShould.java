@@ -64,6 +64,20 @@ class ESALControllerShould {
     }
 
     @Test
+    void create_an_ESAL_as_a_not_confirmed_contact_person() throws Exception {
+        testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.CONTACT_PERSON_NOT_CONFIRMED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/esal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void create_an_ESAL_as_reviser() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -114,7 +128,7 @@ class ESALControllerShould {
     @Test
     void return_409_when_ESAL_is_already_taken() throws Exception {
         testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/esal")
@@ -130,7 +144,7 @@ class ESALControllerShould {
     void return_401_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        String secondESALId = testData.createESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Negativa").build());
+        String secondESALId = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Negativa").build());
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

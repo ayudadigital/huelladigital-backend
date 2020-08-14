@@ -1,21 +1,28 @@
 package com.huellapositiva.domain.model.entities;
 
 
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Location;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Builder
 @Getter
+@Setter
 @AllArgsConstructor
 public class Proposal {
 
+    private Integer surrogateKey;
+
     @NotEmpty
-    private final String id;
+    private final Id id;
 
     @NotEmpty
     private final String title;
@@ -24,13 +31,7 @@ public class Proposal {
     private final ESAL esal;
 
     @NotEmpty
-    private final String province;
-
-    @NotEmpty
-    private final String town;
-
-    @NotEmpty
-    private final String address;
+    private final Location location;
 
     @NotEmpty
     private final String requiredDays;
@@ -42,7 +43,7 @@ public class Proposal {
     private final int maximumAge;
 
     @NotEmpty
-    private final String expirationDate;
+    private final Date expirationDate;
 
     private boolean published;
 

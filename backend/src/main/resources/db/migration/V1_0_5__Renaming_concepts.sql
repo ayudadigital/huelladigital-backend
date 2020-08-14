@@ -31,6 +31,8 @@ DROP TABLE organizations CASCADE;
 
 DROP TABLE proposals CASCADE;
 
+DROP TABLE locations CASCADE;
+
 CREATE TABLE ESALs (
     id              VARCHAR(255) UNIQUE NOT NULL,
     surrogate_key   SERIAL PRIMARY KEY,
@@ -47,13 +49,22 @@ CREATE TABLE contact_persons
     FOREIGN KEY (esal_id) REFERENCES ESALs(id)
 );
 
+CREATE TABLE locations
+(
+    id              VARCHAR(255) UNIQUE NOT NULL,
+    surrogate_key   SERIAL PRIMARY KEY,
+    province        VARCHAR(255) NOT NULL,
+    town            VARCHAR(255) NOT NULL,
+    address         VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE proposals
 (
     id              VARCHAR(255) UNIQUE NOT NULL,
     surrogate_key   SERIAL PRIMARY KEY,
     title           VARCHAR(255) NOT NULL,
     esal_id         VARCHAR(255) NOT NULL,
-    location_id     INTEGER NOT NULL,
+    location_id     VARCHAR(255) NOT NULL,
     required_days   VARCHAR(255) NOT NULL,
     min_age         INTEGER NOT NULL,
     max_age         INTEGER NOT NULL,
@@ -68,7 +79,10 @@ CREATE TABLE volunteers
     id              VARCHAR(255) UNIQUE NOT NULL,
     surrogate_key   SERIAL PRIMARY KEY,
     credential_id   INTEGER NOT NULL,
-    FOREIGN KEY (credential_id) REFERENCES credentials(id)
+    age             INTEGER,
+    location_id     VARCHAR(255),
+    FOREIGN KEY (credential_id) REFERENCES credentials(id),
+    FOREIGN KEY (location_id) REFERENCES locations(id)
 );
 
 CREATE TABLE volunteers_proposals
@@ -76,8 +90,8 @@ CREATE TABLE volunteers_proposals
     proposal_id VARCHAR(255) NOT NULL,
     volunteer_id VARCHAR(255) NOT NULL,
     PRIMARY KEY (proposal_id,volunteer_id),
-    FOREIGN KEY (proposal_id) REFERENCES proposals(id),
-    FOREIGN KEY (volunteer_id) REFERENCES volunteers(id)
+    FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE,
+    FOREIGN KEY (volunteer_id) REFERENCES volunteers(id) ON DELETE CASCADE
 );
 
 UPDATE roles

@@ -39,7 +39,16 @@ public class ESALRepository {
 
     public JpaESAL findById(Integer id) {
         return jpaESALRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Could not find the organization by the provided ID"));
+                .orElseThrow(() -> new RuntimeException("Could not find the ESAL by the provided ID"));
+    }
+
+    public ESAL findByName(String esalName) {
+        JpaESAL esal = jpaESALRepository.findByName(esalName)
+                .orElseThrow(() -> new RuntimeException("Could not find the ESAL by the provided name"));
+        return new ESAL(
+                esal.getName(),
+                new Id(esal.getId()),
+                null);
     }
 
     public String save(ESAL model) {

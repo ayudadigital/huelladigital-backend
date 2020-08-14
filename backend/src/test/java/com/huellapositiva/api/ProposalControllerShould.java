@@ -147,7 +147,7 @@ class ProposalControllerShould {
                 .andExpect(status().isOk());
 
         // THEN
-        JpaProposal proposal = jpaProposalRepository.findByNaturalId(proposalId).get();
+        JpaProposal proposal = jpaProposalRepository.findByIdWithOrganizationAndInscribedVolunteers(proposalId).get();
         assertThat(proposal.getInscribedVolunteers()).isNotEmpty();
         String volunteerId = proposal.getInscribedVolunteers().iterator().next().getId();
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(volunteerId).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);

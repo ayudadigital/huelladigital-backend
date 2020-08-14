@@ -69,7 +69,7 @@ public class ESALApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("CONTACT_PERSON")
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
         try {

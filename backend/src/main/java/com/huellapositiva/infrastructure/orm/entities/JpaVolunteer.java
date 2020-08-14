@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "volunteers")
@@ -21,6 +22,7 @@ public class JpaVolunteer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer surrogateKey;
 
+    @NaturalId
     @Column(name = "id")
     private String id;
 
@@ -28,6 +30,6 @@ public class JpaVolunteer implements Serializable {
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Credential credential;
 
-    @ManyToMany(mappedBy = "inscribedVolunteers")
-    private List<JpaProposal> joinedProposals;
+    @ManyToMany(mappedBy = "inscribedVolunteers", cascade = CascadeType.ALL)
+    private Set<JpaProposal> joinedProposals;
 }

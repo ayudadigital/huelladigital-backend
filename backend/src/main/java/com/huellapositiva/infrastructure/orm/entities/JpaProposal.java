@@ -1,9 +1,7 @@
 package com.huellapositiva.infrastructure.orm.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +10,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "proposals")
-@Data
+@Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,6 +21,7 @@ public class JpaProposal implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer surrogateKey;
 
+    @NaturalId
     @Column(name = "id")
     private String id;
 
@@ -29,12 +29,12 @@ public class JpaProposal implements Serializable {
     private String title;
 
     @JoinColumn(name = "esal_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private JpaESAL esal;
 
-    @JoinColumn(name = "location_id")
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Location location;
+    private JpaLocation location;
 
     @Column(name = "required_days", nullable = false)
     private String requiredDays;
@@ -51,7 +51,7 @@ public class JpaProposal implements Serializable {
     @Column(name = "published")
     private Boolean published;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "volunteers_proposals",
             joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}

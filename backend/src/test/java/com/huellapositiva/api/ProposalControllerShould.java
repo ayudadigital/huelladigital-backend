@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
@@ -88,6 +89,102 @@ class ProposalControllerShould {
         String location = response.getHeader(HttpHeaders.LOCATION);
         String id = location.substring(location.lastIndexOf('/') + 1);
         assertThat(jpaProposalRepository.findByNaturalId(id).get().getTitle()).isEqualTo("Recogida de ropita");
+    }
+
+    @Test
+    void return_400_when_date_is_invalid() throws Exception {
+        // GIVEN
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        String invalidStartingDate = "20-08-2020";
+        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .expirationDate("24-08-2020")
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate(invalidStartingDate)
+                .category(ProposalCategory.ON_SITE.toString())
+                .build();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(REGISTER_PROPOSAL_URI)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_age_is_out_of_range() throws Exception {
+        // GIVEN
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        int invalidMinimumAge = 17;
+        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .expirationDate("24-08-2020")
+                .requiredDays("Weekends")
+                .minimumAge(invalidMinimumAge)
+                .maximumAge(26)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate("25-08-2020")
+                .category(ProposalCategory.ON_SITE.toString())
+                .build();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(REGISTER_PROPOSAL_URI)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
+        // GIVEN
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        int invalidMinimumAge = 30;
+        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .expirationDate("24-08-2020")
+                .requiredDays("Weekends")
+                .minimumAge(invalidMinimumAge)
+                .maximumAge(26)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate("25-08-2020")
+                .category(ProposalCategory.ON_SITE.toString())
+                .build();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(REGISTER_PROPOSAL_URI)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(proposalDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -193,8 +290,6 @@ class ProposalControllerShould {
         proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-
 
         // WHEN
         mvc.perform(post("/api/v1/proposals/" + proposal.getId() + "/join")

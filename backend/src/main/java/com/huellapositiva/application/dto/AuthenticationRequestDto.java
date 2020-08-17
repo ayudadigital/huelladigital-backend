@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @AllArgsConstructor
-public class CredentialsVolunteerRequestDto {
+public class AuthenticationRequestDto {
 
 
     @Schema(

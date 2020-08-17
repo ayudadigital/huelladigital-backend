@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -60,7 +60,7 @@ class VolunteerControllerShould {
     @Test
     void registering_volunteer_should_return_201_and_tokens() throws Exception {
         // GIVEN
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password("password")
                 .build();
@@ -90,7 +90,7 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_without_password_should_return_400() throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .build();
 
@@ -105,7 +105,7 @@ class VolunteerControllerShould {
     @Test
     void registering_volunteer_with_short_password_should_return_400() throws Exception {
         String shortPassword = "12345";
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password(shortPassword)
                 .build();
@@ -120,7 +120,7 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_without_email_should_return_400() throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .password("password")
                 .build();
 
@@ -143,7 +143,7 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
     void registering_volunteer_with_malformed_email_should_return_400(String malformedEmail) throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(malformedEmail)
                 .password("password")
                 .build();

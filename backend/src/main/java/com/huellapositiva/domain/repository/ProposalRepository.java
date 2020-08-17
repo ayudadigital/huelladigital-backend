@@ -7,6 +7,7 @@ import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
+import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
@@ -74,6 +75,10 @@ public class ProposalRepository {
                 .minimumAge(proposal.getMinimumAge())
                 .maximumAge(proposal.getMaximumAge())
                 .published(proposal.isPublished())
+                .description(proposal.getDescription())
+                .durationInDays(proposal.getDurationInDays())
+                .startingDate(proposal.getStartingDate())
+                .category(proposal.getCategory().toString())
                 .inscribedVolunteers(volunteers)
                 .build();
 
@@ -103,6 +108,10 @@ public class ProposalRepository {
                 .maximumAge(jpaProposal.getMaximumAge())
                 .requiredDays(jpaProposal.getRequiredDays())
                 .published(jpaProposal.getPublished())
+                .description(jpaProposal.getDescription())
+                .durationInDays(jpaProposal.getDurationInDays())
+                .startingDate(jpaProposal.getStartingDate())
+                .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
                 .build();
         jpaProposal.getInscribedVolunteers()
                 .stream()

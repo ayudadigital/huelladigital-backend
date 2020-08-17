@@ -7,6 +7,7 @@ import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
+import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -81,8 +82,12 @@ public class ProposalApiController {
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
-        } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate());
+        } catch (ParseException e) {
+            throw new FailedToPersistProposal("The given date(s) format is not valid.");
+        } catch (IllegalArgumentException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
+        } catch (InvalidProposalRequestException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 

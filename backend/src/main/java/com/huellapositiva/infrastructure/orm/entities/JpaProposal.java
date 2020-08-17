@@ -51,6 +51,18 @@ public class JpaProposal implements Serializable {
     @Column(name = "published")
     private Boolean published;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "duration_in_days")
+    private Integer durationInDays;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "starting_date")
+    private Date startingDate;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "volunteers_proposals",
             joinColumns = {@JoinColumn(name = "proposal_id", referencedColumnName = "id")},

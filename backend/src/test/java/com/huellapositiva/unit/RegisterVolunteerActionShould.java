@@ -1,6 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.VolunteerService;
@@ -31,7 +31,7 @@ class RegisterVolunteerActionShould {
 
     @Test
     void send_confirmation_email() {
-        registerVolunteerAction.execute(CredentialsVolunteerRequestDto.builder()
+        registerVolunteerAction.execute(AuthenticationRequestDto.builder()
                 .email("foo@huellapositiva.com")
                 .password("123456")
                 .build());

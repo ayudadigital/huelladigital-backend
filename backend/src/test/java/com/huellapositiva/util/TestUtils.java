@@ -1,7 +1,7 @@
 package com.huellapositiva.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +17,7 @@ public final class TestUtils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static MockHttpServletResponse loginRequest(MockMvc mvc, CredentialsVolunteerRequestDto loginDto) throws Exception {
+    public static MockHttpServletResponse loginRequest(MockMvc mvc, AuthenticationRequestDto loginDto) throws Exception {
         String jsonBody = objectMapper.writeValueAsString(loginDto);
         return mvc.perform(post("/api/v1/authentication/login")
                 .content(jsonBody)
@@ -28,7 +28,7 @@ public final class TestUtils {
     }
 
     public static JwtResponseDto loginAndGetJwtTokens(MockMvc mvc, String email, String password) throws Exception {
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(email, password));
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(email, password));
         return objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
     }
 

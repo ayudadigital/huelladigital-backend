@@ -1,26 +1,3 @@
---DROP TABLE email_confirmation CASCADE;
---
---
---DROP TABLE locations CASCADE;
---
---DROP TABLE credentials_roles CASCADE;
---
---DROP TABLE credentials CASCADE;
---DROP TABLE roles CASCADE;
-
---ALTER TABLE organizations
---RENAME TO ESALs;
-
---ALTER TABLE organization_members
---RENAME TO contact_persons;
-
---ALTER TABLE contact_persons
---RENAME COLUMN organization_id TO esal_id;
---
---ALTER TABLE proposals
---RENAME COLUMN organization_id TO esal_id;
-
-
 DROP TABLE organization_members CASCADE;
 
 DROP TABLE volunteers_proposals CASCADE;
@@ -58,6 +35,8 @@ CREATE TABLE locations
     address         VARCHAR(255) NOT NULL
 );
 
+CREATE TYPE proposal_category AS ENUM ('ON_SITE', 'REMOTE', 'MIXED');
+
 CREATE TABLE proposals
 (
     id              VARCHAR(255) UNIQUE NOT NULL,
@@ -70,6 +49,10 @@ CREATE TABLE proposals
     max_age         INTEGER NOT NULL,
     expiration_date TIMESTAMP NOT NULL,
     published       BOOLEAN NOT NULL,
+    description        VARCHAR(500) NOT NULL,
+    duration_in_days   INTEGER NOT NULL,
+    category           proposal_category NOT NULL,
+    starting_date      TIMESTAMP NOT NULL,
     FOREIGN KEY (esal_id) REFERENCES ESALs(id),
     FOREIGN KEY (location_id) REFERENCES locations(id)
 );

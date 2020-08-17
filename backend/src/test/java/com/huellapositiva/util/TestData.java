@@ -5,6 +5,7 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
+import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
@@ -146,8 +147,6 @@ public class TestData {
 
     public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
         String id = createJpaESAL(esal);
-        //member.setJoinedEsal(jpaESALRepository.findByUUID(id).get());
-        //jpaContactPersonRepository.save(member);
         jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         return id;
     }
@@ -173,7 +172,7 @@ public class TestData {
         return buildProposalDto(false);
     }
 
-    public ProposalRequestDto buildProposalDto(boolean isPublished) {
+    public ProposalRequestDto buildProposalDto(boolean isPublished){
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -184,6 +183,10 @@ public class TestData {
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate("25-08-2020")
+                .category(ProposalCategory.ON_SITE.toString())
                 .build();
     }
 
@@ -207,6 +210,10 @@ public class TestData {
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .category(ProposalCategory.ON_SITE)
                 .build();
     }
 
@@ -236,6 +243,10 @@ public class TestData {
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays(5)
+                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .category(ProposalCategory.ON_SITE.toString())
                 .build();
         return createProposal(proposal);
     }

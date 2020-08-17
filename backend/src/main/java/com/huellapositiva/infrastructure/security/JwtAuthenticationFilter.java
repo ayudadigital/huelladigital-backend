@@ -1,7 +1,7 @@
 package com.huellapositiva.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,9 +39,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
-        CredentialsVolunteerRequestDto userCredentials;
+        AuthenticationRequestDto userCredentials;
         try {
-            userCredentials = objectMapper.readValue(req.getInputStream(), CredentialsVolunteerRequestDto.class);
+            userCredentials = objectMapper.readValue(req.getInputStream(), AuthenticationRequestDto.class);
         } catch (IOException e) {
             throw new BadCredentialsException("Failed to authenticate user.", e);
         }

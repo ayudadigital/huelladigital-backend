@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
@@ -37,7 +37,7 @@ class IssueServiceShould {
     @Test
     void verify_save_a_email() {
         //GIVEN
-        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
+        AuthenticationRequestDto dto = new AuthenticationRequestDto("foo@huellapositiva.com", "plain-password");
 
         //WHEN
         issueService.registerVolunteerIssue(dto.getEmail(), new RuntimeException());

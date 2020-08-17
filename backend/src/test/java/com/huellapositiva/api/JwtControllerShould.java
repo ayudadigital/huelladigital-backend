@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -166,7 +166,7 @@ class JwtControllerShould {
 
         //WHEN
         // Login with second device
-        loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         //THEN
         // Access token from first login has been revoked due to the second login
         await().atMost(2, SECONDS).untilAsserted(() ->

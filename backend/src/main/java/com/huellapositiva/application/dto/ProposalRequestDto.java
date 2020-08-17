@@ -39,6 +39,18 @@ public class ProposalRequestDto {
 
     private boolean published;
 
+    @NotEmpty
+    private final String description;
+
+    @NotEmpty
+    private final Integer durationInDays;
+
+    @NotEmpty
+    private final String category;
+
+    @NotEmpty
+    private final String startingDate;
+
     /** This operation will be implemented in the entity Proposal
      * @see com.huellapositiva.domain.model.entities.Proposal
      * @deprecated

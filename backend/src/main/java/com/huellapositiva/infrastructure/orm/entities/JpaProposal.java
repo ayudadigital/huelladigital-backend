@@ -55,7 +55,7 @@ public class JpaProposal implements Serializable {
     private String description;
 
     @Column(name = "duration_in_days")
-    private Integer durationInDays;
+    private String durationInDays;
 
     @Column(name = "category")
     private String category;
@@ -69,4 +69,16 @@ public class JpaProposal implements Serializable {
             inverseJoinColumns = {@JoinColumn(name = "volunteer_id", referencedColumnName = "id")}
     )
     private Set<JpaVolunteer> inscribedVolunteers;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "proposal")
+    private Set<JpaProposalSkills> skills;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "proposal")
+    private Set<JpaProposalRequirements> requirements;
+
+    @Column(name = "extra_info")
+    private String extraInfo;
+
+    @Column(name = "instructions")
+    private String instructions;
 }

@@ -7,10 +7,12 @@ import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -71,8 +74,19 @@ public class TestData {
     @Autowired
     private final JpaESALRepository jpaESALRepository;
 
+    @Autowired
+    private final JpaProposalSkillsRepository jpaProposalSkillsRepository;
+
+    @Autowired
+    private final JpaProposalRequirementsRepository jpaProposalRequirementsRepository;
+
+    @Autowired
+    private final ProposalRepository proposalRepository;
+
 
     public void resetData() {
+        jpaProposalSkillsRepository.deleteAll();
+        jpaProposalRequirementsRepository.deleteAll();
         volunteerRepository.deleteAll();
         jpaContactPersonRepository.deleteAll();
         jpaProposalRepository.deleteAll();
@@ -184,9 +198,13 @@ public class TestData {
                 .maximumAge(26)
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate("25-08-2020")
                 .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
     }
 
@@ -200,7 +218,7 @@ public class TestData {
 
     @SneakyThrows
     public Proposal buildProposal(ESAL esal, boolean isPublished) {
-        return Proposal.builder()
+        Proposal proposal = Proposal.builder()
                 .id(Id.newId())
                 .title("Recogida de ropita")
                 .esal(esal)
@@ -211,10 +229,19 @@ public class TestData {
                 .maximumAge(26)
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .category(ProposalCategory.ON_SITE)
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
+
+        Arrays.asList(new MutablePair<>("Habilidad", "Descripción"), new MutablePair<>("Negociación", "Saber regatear"))
+                .forEach(s -> proposal.addSkill(s.getKey(), s.getValue()));
+        Arrays.asList("Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir")
+                .forEach(proposal::addRequirement);
+
+        return proposal;
     }
 
     public JpaProposal registerESALAndPublishedProposal() throws ParseException {
@@ -244,10 +271,39 @@ public class TestData {
                 .maximumAge(26)
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .category(ProposalCategory.ON_SITE.toString())
                 .build();
         return createProposal(proposal);
+    }
+
+    public String registerESALandPublishedProposalObject() throws ParseException {
+        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        createAndLinkESAL(contactPerson, esal);
+
+        Proposal proposal = Proposal.builder().id(Id.newId())
+                .title("Recogida de ropita")
+                .esal(new ESAL(esal.getName(), new Id(esal.getId())))
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .expirationDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .published(true)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .category(ProposalCategory.ON_SITE)
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .build();
+        Arrays.asList(new MutablePair<>("Habilidad", "Descripción"), new MutablePair<>("Negociación", "Saber regatear"))
+                .forEach(s -> proposal.addSkill(s.getKey(), s.getValue()));
+        Arrays.asList("Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir")
+                .forEach(proposal::addRequirement);
+
+        return proposalRepository.save(proposal);
     }
 }

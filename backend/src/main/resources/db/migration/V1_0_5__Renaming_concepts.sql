@@ -41,7 +41,7 @@ CREATE TABLE proposals
 (
     id              VARCHAR(255) UNIQUE NOT NULL,
     surrogate_key   SERIAL PRIMARY KEY,
-    title           VARCHAR(255) NOT NULL,
+    title           VARCHAR(75) NOT NULL,
     esal_id         VARCHAR(255) NOT NULL,
     location_id     VARCHAR(255) NOT NULL,
     required_days   VARCHAR(255) NOT NULL,
@@ -49,12 +49,31 @@ CREATE TABLE proposals
     max_age         INTEGER NOT NULL,
     expiration_date TIMESTAMP NOT NULL,
     published       BOOLEAN NOT NULL,
-    description        VARCHAR(500) NOT NULL,
-    duration_in_days   INTEGER NOT NULL,
+    description        VARCHAR(200) NOT NULL,
+    duration_in_days   VARCHAR(50) NOT NULL,
     category           proposal_category NOT NULL,
     starting_date      TIMESTAMP NOT NULL,
+    extra_info      VARCHAR(255),
+    instructions    VARCHAR(255),
     FOREIGN KEY (esal_id) REFERENCES ESALs(id),
     FOREIGN KEY (location_id) REFERENCES locations(id)
+);
+
+CREATE TABLE proposal_skills
+(
+    surrogate_key SERIAL PRIMARY KEY,
+    name          VARCHAR(75),
+    description   VARCHAR(100),
+    proposal_id   VARCHAR(255),
+    FOREIGN KEY (proposal_id) REFERENCES proposals(id)
+);
+
+CREATE TABLE proposal_requirements
+(
+    surrogate_key SERIAL PRIMARY KEY,
+    name          VARCHAR(75),
+    proposal_id   VARCHAR(255),
+    FOREIGN KEY (proposal_id) REFERENCES proposals(id)
 );
 
 CREATE TABLE volunteers

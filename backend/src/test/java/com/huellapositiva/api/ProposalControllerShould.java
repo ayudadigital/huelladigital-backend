@@ -107,9 +107,13 @@ class ProposalControllerShould {
                 .minimumAge(18)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate(invalidStartingDate)
                 .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -139,9 +143,13 @@ class ProposalControllerShould {
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate("25-08-2020")
                 .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -171,9 +179,13 @@ class ProposalControllerShould {
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
-                .durationInDays(5)
+                .durationInDays("1 semana")
                 .startingDate("25-08-2020")
                 .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -232,7 +244,7 @@ class ProposalControllerShould {
     void allow_a_volunteer_to_join() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String proposalId = testData.registerESALAndPublishedProposal().getId();
+        String proposalId = testData.registerESALandPublishedProposalObject();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN

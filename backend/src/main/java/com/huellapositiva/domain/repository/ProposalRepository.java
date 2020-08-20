@@ -8,14 +8,8 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
-import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,6 +38,12 @@ public class ProposalRepository {
     @Autowired
     private final JpaVolunteerRepository jpaVolunteerRepository;
 
+    @Autowired
+    private final JpaProposalSkillsRepository jpaProposalSkillsRepository;
+
+    @Autowired
+    private final JpaProposalRequirementsRepository jpaProposalRequirementsRepository;
+
     @Value("${huellapositiva.proposal.expiration-hour}")
     private Integer expirationHour;
 
@@ -65,6 +65,23 @@ public class ProposalRepository {
                 .stream()
                 .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
                 .collect(Collectors.toSet());
+
+        Set<JpaProposalSkills> skills = new HashSet<>();
+        proposal.getSkills()
+                .stream()
+                .map(s -> JpaProposalSkills.builder()
+                        .name(s.getKey())
+                        .description(s.getValue())
+                        .build())
+                .forEach(s -> skills.add(jpaProposalSkillsRepository.save(s)));
+        Set<JpaProposalRequirements> requirements = new HashSet<>();
+        proposal.getRequirements()
+                .stream()
+                .map(r -> JpaProposalRequirements.builder()
+                        .name(r)
+                        .build())
+                .forEach(r -> requirements.add(jpaProposalRequirementsRepository.save(r)));
+
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(proposal.getId().toString())
                 .title(proposal.getTitle())
@@ -80,12 +97,19 @@ public class ProposalRepository {
                 .startingDate(proposal.getStartingDate())
                 .category(proposal.getCategory().toString())
                 .inscribedVolunteers(volunteers)
+                .skills(skills)
+                .requirements(requirements)
+                .extraInfo(proposal.getExtraInfo())
+                .instructions(proposal.getInstructions())
                 .build();
 
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
         }
-        return jpaProposalRepository.save(jpaProposal).getId();
+
+        jpaProposalRepository.save(jpaProposal);
+
+        return proposal.getId().toString();
     }
 
     public JpaProposal save(JpaProposal proposal) {
@@ -112,11 +136,18 @@ public class ProposalRepository {
                 .durationInDays(jpaProposal.getDurationInDays())
                 .startingDate(jpaProposal.getStartingDate())
                 .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
+                .extraInfo(jpaProposal.getExtraInfo())
+                .instructions(jpaProposal.getInstructions())
                 .build();
         jpaProposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> new Volunteer(EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
                 .forEach(proposal::inscribeVolunteer);
+        jpaProposal.getSkills()
+                .forEach(s -> proposal.addSkill(s.getName(), s.getDescription()));
+        jpaProposal.getRequirements()
+                .forEach(r -> proposal.addRequirement(r.getName()));
+
         return proposal;
     }
 }

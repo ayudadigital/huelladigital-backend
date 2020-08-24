@@ -8,7 +8,10 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Date;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -57,7 +61,6 @@ public class ProposalRepository {
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())
                 .build());
-
         Date expirationDate = Date.from(proposal.getExpirationDate().toInstant().plus(expirationHour, ChronoUnit.HOURS).plus(expirationMinute, ChronoUnit.MINUTES));
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
                 .orElseThrow(ESALNotFound::new);
@@ -65,23 +68,6 @@ public class ProposalRepository {
                 .stream()
                 .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
                 .collect(Collectors.toSet());
-
-        Set<JpaProposalSkills> skills = new HashSet<>();
-        proposal.getSkills()
-                .stream()
-                .map(s -> JpaProposalSkills.builder()
-                        .name(s.getKey())
-                        .description(s.getValue())
-                        .build())
-                .forEach(s -> skills.add(jpaProposalSkillsRepository.save(s)));
-        Set<JpaProposalRequirements> requirements = new HashSet<>();
-        proposal.getRequirements()
-                .stream()
-                .map(r -> JpaProposalRequirements.builder()
-                        .name(r)
-                        .build())
-                .forEach(r -> requirements.add(jpaProposalRequirementsRepository.save(r)));
-
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(proposal.getId().toString())
                 .title(proposal.getTitle())
@@ -97,18 +83,17 @@ public class ProposalRepository {
                 .startingDate(proposal.getStartingDate())
                 .category(proposal.getCategory().toString())
                 .inscribedVolunteers(volunteers)
-                .skills(skills)
-                .requirements(requirements)
                 .extraInfo(proposal.getExtraInfo())
                 .instructions(proposal.getInstructions())
                 .build();
-
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
         }
-
         jpaProposalRepository.save(jpaProposal);
-
+        proposal.getSkills()
+                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getLeft(), skill.getRight(), proposal.getId().toString()));
+        proposal.getRequirements()
+                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement, proposal.getId().toString()));
         return proposal.getId().toString();
     }
 

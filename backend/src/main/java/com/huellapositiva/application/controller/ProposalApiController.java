@@ -71,7 +71,7 @@ public class ProposalApiController {
             }
     )
     @PostMapping
-    @RolesAllowed("CONTACT_PERSON")
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String contactPersonEmail, HttpServletResponse res) {

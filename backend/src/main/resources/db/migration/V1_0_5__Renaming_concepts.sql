@@ -1,14 +1,14 @@
-DROP TABLE organization_members CASCADE;
+DROP TABLE IF EXISTS organization_members CASCADE;
 
-DROP TABLE volunteers_proposals CASCADE;
+DROP TABLE IF EXISTS  volunteers_proposals CASCADE;
 
-DROP TABLE volunteer CASCADE;
+DROP TABLE IF EXISTS volunteer CASCADE;
 
-DROP TABLE organizations CASCADE;
+DROP TABLE IF EXISTS organizations CASCADE;
 
-DROP TABLE proposals CASCADE;
+DROP TABLE IF EXISTS proposals CASCADE;
 
-DROP TABLE locations CASCADE;
+DROP TABLE IF EXISTS locations CASCADE;
 
 CREATE TABLE ESALs (
     id              VARCHAR(255) UNIQUE NOT NULL,
@@ -35,7 +35,7 @@ CREATE TABLE locations
     address         VARCHAR(255) NOT NULL
 );
 
-CREATE TYPE proposal_category AS ENUM ('ON_SITE', 'REMOTE', 'MIXED');
+
 
 CREATE TABLE proposals
 (
@@ -51,7 +51,7 @@ CREATE TABLE proposals
     published       BOOLEAN NOT NULL,
     description        VARCHAR(200) NOT NULL,
     duration_in_days   VARCHAR(50) NOT NULL,
-    category           proposal_category NOT NULL,
+    category           VARCHAR(20) NOT NULL,
     starting_date      TIMESTAMP NOT NULL,
     extra_info      VARCHAR(255),
     instructions    VARCHAR(255),

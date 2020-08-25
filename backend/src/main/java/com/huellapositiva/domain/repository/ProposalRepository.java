@@ -4,10 +4,7 @@ import com.huellapositiva.application.exception.ESALNotFound;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.Location;
-import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
@@ -20,8 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,7 +56,6 @@ public class ProposalRepository {
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())
                 .build());
-        Date expirationDate = Date.from(proposal.getExpirationDate().toInstant().plus(expirationHour, ChronoUnit.HOURS).plus(expirationMinute, ChronoUnit.MINUTES));
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
                 .orElseThrow(ESALNotFound::new);
         Set<JpaVolunteer> volunteers = proposal.getInscribedVolunteers()
@@ -73,14 +67,14 @@ public class ProposalRepository {
                 .title(proposal.getTitle())
                 .esal(esal)
                 .location(jpaLocation)
-                .expirationDate(expirationDate)
+                .expirationDate(proposal.getExpirationDate().getDate())
                 .requiredDays(proposal.getRequiredDays())
-                .minimumAge(proposal.getMinimumAge())
-                .maximumAge(proposal.getMaximumAge())
+                .minimumAge(proposal.getPermitedAgeRange().getMinimum())
+                .maximumAge(proposal.getPermitedAgeRange().getMaximum())
                 .published(proposal.isPublished())
                 .description(proposal.getDescription())
                 .durationInDays(proposal.getDurationInDays())
-                .startingDate(proposal.getStartingDate())
+                .startingDate(proposal.getStartingDate().getDate())
                 .category(proposal.getCategory().toString())
                 .inscribedVolunteers(volunteers)
                 .extraInfo(proposal.getExtraInfo())
@@ -91,9 +85,9 @@ public class ProposalRepository {
         }
         jpaProposalRepository.save(jpaProposal);
         proposal.getSkills()
-                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getLeft(), skill.getRight(), proposal.getId().toString()));
+                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
         proposal.getRequirements()
-                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement, proposal.getId().toString()));
+                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
         return proposal.getId().toString();
     }
 
@@ -112,14 +106,13 @@ public class ProposalRepository {
                         jpaProposal.getLocation().getProvince(),
                         jpaProposal.getLocation().getTown(),
                         jpaProposal.getLocation().getAddress()))
-                .expirationDate(jpaProposal.getExpirationDate())
-                .minimumAge(jpaProposal.getMinimumAge())
-                .maximumAge(jpaProposal.getMaximumAge())
+                .expirationDate(new ProposalDate(jpaProposal.getExpirationDate()))
+                .permitedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
                 .requiredDays(jpaProposal.getRequiredDays())
                 .published(jpaProposal.getPublished())
                 .description(jpaProposal.getDescription())
                 .durationInDays(jpaProposal.getDurationInDays())
-                .startingDate(jpaProposal.getStartingDate())
+                .startingDate(new ProposalDate(jpaProposal.getStartingDate()))
                 .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
                 .extraInfo(jpaProposal.getExtraInfo())
                 .instructions(jpaProposal.getInstructions())
@@ -129,9 +122,9 @@ public class ProposalRepository {
                 .map(v -> new Volunteer(EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
                 .forEach(proposal::inscribeVolunteer);
         jpaProposal.getSkills()
-                .forEach(s -> proposal.addSkill(s.getName(), s.getDescription()));
+                .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));
         jpaProposal.getRequirements()
-                .forEach(r -> proposal.addRequirement(r.getName()));
+                .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
 
         return proposal;
     }

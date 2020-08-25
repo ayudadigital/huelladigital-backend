@@ -26,8 +26,8 @@ public class FetchProposalAction {
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())
                 .expirationDate(proposal.getExpirationDate().toString())
-                .maximumAge(proposal.getMaximumAge())
-                .minimumAge(proposal.getMinimumAge())
+                .maximumAge(proposal.getPermitedAgeRange().getMinimum())
+                .minimumAge(proposal.getPermitedAgeRange().getMaximum())
                 .requiredDays(proposal.getRequiredDays())
                 .published(proposal.isPublished())
                 .build();

@@ -7,15 +7,12 @@ import lombok.Getter;
 @Getter
 public class User {
 
-    private EmailAddress emailAddress;
+    private final EmailAddress emailAddress;
 
-    private Id id;
+    private final Id id;
 
     public User(EmailAddress emailAddress, Id id) {
         this.emailAddress = emailAddress;
         this.id = id;
     }
-
-    public User() {}
-
 }

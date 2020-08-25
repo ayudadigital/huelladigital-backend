@@ -3,16 +3,13 @@ package com.huellapositiva.util;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.Location;
-import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -223,22 +220,21 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(esal)
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
-                .expirationDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .expirationDate(ProposalDate.createExpirationDate("24-08-2030"))
                 .requiredDays("Weekends")
-                .minimumAge(18)
-                .maximumAge(26)
+                .permitedAgeRange(AgeRange.create(18, 26))
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .startingDate(ProposalDate.createExpirationDate("25-08-2030"))
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
 
-        Arrays.asList(new MutablePair<>("Habilidad", "Descripción"), new MutablePair<>("Negociación", "Saber regatear"))
-                .forEach(s -> proposal.addSkill(s.getKey(), s.getValue()));
-        Arrays.asList("Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir")
+        Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
+                .forEach(proposal::addSkill);
+        Arrays.asList(new Requirement("Forma física para cargar con la ropa"), new Requirement("Disponibilidad horaria"), new Requirement("Carnet de conducir"))
                 .forEach(proposal::addRequirement);
 
         return proposal;
@@ -256,7 +252,7 @@ public class TestData {
         JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
-        JpaProposal proposal = JpaProposal.builder()
+        JpaProposal jpaProposal = JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
                 .title("Recogida de ropita")
                 .location(JpaLocation.builder()
@@ -275,7 +271,7 @@ public class TestData {
                 .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .category(ProposalCategory.ON_SITE.toString())
                 .build();
-        return createProposal(proposal);
+        return createProposal(jpaProposal);
     }
 
     public String registerESALandPublishedProposalObject() throws ParseException {
@@ -287,21 +283,20 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(new ESAL(esal.getName(), new Id(esal.getId())))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
-                .expirationDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .expirationDate(ProposalDate.createExpirationDate("24-08-2030"))
                 .requiredDays("Weekends")
-                .minimumAge(18)
-                .maximumAge(26)
+                .permitedAgeRange(AgeRange.create(18, 26))
                 .published(true)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .startingDate(ProposalDate.createStartingDate("25-08-2030"))
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
-        Arrays.asList(new MutablePair<>("Habilidad", "Descripción"), new MutablePair<>("Negociación", "Saber regatear"))
-                .forEach(s -> proposal.addSkill(s.getKey(), s.getValue()));
-        Arrays.asList("Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir")
+        Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
+                .forEach(proposal::addSkill);
+        Arrays.asList(new Requirement("Forma física para cargar con la ropa"), new Requirement("Disponibilidad horaria"), new Requirement("Carnet de conducir"))
                 .forEach(proposal::addRequirement);
 
         return proposalRepository.save(proposal);

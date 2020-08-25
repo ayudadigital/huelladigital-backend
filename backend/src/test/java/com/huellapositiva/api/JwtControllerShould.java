@@ -1,12 +1,12 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
-import com.huellapositiva.domain.Roles;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.huellapositiva.domain.Roles.VOLUNTEER;
-import static com.huellapositiva.domain.Roles.VOLUNTEER_NOT_CONFIRMED;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
@@ -166,7 +166,7 @@ class JwtControllerShould {
 
         //WHEN
         // Login with second device
-        loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         //THEN
         // Access token from first login has been revoked due to the second login
         await().atMost(2, SECONDS).untilAsserted(() ->

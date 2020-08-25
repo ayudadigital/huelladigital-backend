@@ -1,14 +1,17 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.model.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface JpaProposalRepository extends JpaRepository<Proposal, Integer> {
+public interface JpaProposalRepository extends JpaRepository<JpaProposal, Integer> {
 
-    @Query("FROM Proposal p LEFT JOIN FETCH p.organization LEFT JOIN FETCH p.joinedVolunteers WHERE p.id = :id")
-    Optional<Proposal> findByIdWithOrganizationAndInscribedVolunteers(@Param("id") Integer id);
+    @Query("FROM JpaProposal p LEFT JOIN FETCH p.esal LEFT JOIN FETCH p.inscribedVolunteers WHERE p.id = :id")
+    Optional<JpaProposal> findByIdWithOrganizationAndInscribedVolunteers(@Param("id") String id);
+
+    @Query("FROM JpaProposal p WHERE p.id = :id")
+    Optional<JpaProposal> findByNaturalId(@Param("id") String id);
 }

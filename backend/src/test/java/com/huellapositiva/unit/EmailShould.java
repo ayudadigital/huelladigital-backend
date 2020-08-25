@@ -1,9 +1,9 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.domain.Email;
+import com.huellapositiva.domain.model.valueobjects.Email;
 import com.huellapositiva.domain.exception.EmailNotValidException;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
 import org.junit.jupiter.api.Test;
 
 import static com.huellapositiva.util.TestData.DEFAULT_FROM;

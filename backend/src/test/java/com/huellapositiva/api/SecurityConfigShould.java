@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +62,7 @@ class SecurityConfigShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
     }
 
     @Test
@@ -75,7 +75,7 @@ class SecurityConfigShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
-        MockHttpServletResponse postResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        MockHttpServletResponse postResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
 
         // THEN
         assertAll(
@@ -113,7 +113,7 @@ class SecurityConfigShould {
     void allow_access_when_csrf_token_is_valid() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
         Cookie xsrfCookie = loginResponse.getCookie("XSRF-TOKEN");
 
@@ -130,10 +130,10 @@ class SecurityConfigShould {
     @Test
     void allow_access_only_to_allowed_roles() throws Exception {
         // GIVEN
-        testData.createOrganizationMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse loginResponse = loginRequest(mvc, new CredentialsVolunteerRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        Integer proposalId = testData.registerOrganizationAndPublishedProposal().getId();
+        String proposalId = testData.registerESALAndPublishedProposal().getId();
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")

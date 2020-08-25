@@ -14,7 +14,7 @@ public class ProposalRequestDto {
     @NotEmpty
     private final String title;
 
-    private String organizationName;
+    private String esalName;
 
     @NotEmpty
     private final String province;
@@ -38,4 +38,39 @@ public class ProposalRequestDto {
     private final String expirationDate;
 
     private boolean published;
+
+    @NotEmpty
+    private final String description;
+
+    @NotEmpty
+    private final String durationInDays;
+
+    @NotEmpty
+    private final String category;
+
+    @NotEmpty
+    private final String startingDate;
+
+    @NotEmpty
+    private final String[][] skills;
+
+    @NotEmpty
+    private final String[] requirements;
+
+    @NotEmpty
+    private final String extraInfo;
+
+    @NotEmpty
+    private final String instructions;
+
+    /** This operation will be implemented in the entity Proposal
+     * @see com.huellapositiva.domain.model.entities.Proposal
+     * @deprecated
+     *  since = "Refactor to Domain Driven Design"
+     *  forRemoval = true
+     * */
+    @Deprecated(since = "Refactor to Domain Driven Design", forRemoval = true)
+    void publish() {
+        throw new UnsupportedOperationException();
+    }
 }

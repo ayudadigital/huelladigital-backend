@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.util.TestData;
@@ -34,7 +34,7 @@ class RegisterVolunteerActionShould {
     @Test
     void registering_a_volunteer_should_send_email_to_confirm_email_address(){
         //GIVEN
-        CredentialsVolunteerRequestDto dto = new CredentialsVolunteerRequestDto("foo@huellapositiva.com", "plain-password");
+        AuthenticationRequestDto dto = new AuthenticationRequestDto("foo@huellapositiva.com", "plain-password");
 
         //WHEN
         registerVolunteerAction.execute(dto);

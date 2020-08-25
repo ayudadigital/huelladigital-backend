@@ -1,6 +1,6 @@
 package com.huellapositiva;
 
-import com.huellapositiva.domain.service.AdminService;
+import com.huellapositiva.domain.service.ReviserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class App implements CommandLineRunner {
 
     @Autowired
-    AdminService adminService;
+    private ReviserService reviserService;
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
@@ -18,6 +18,6 @@ public class App implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        adminService.createDefaultAdmin();
+        reviserService.createDefaultReviser();
     }
 }

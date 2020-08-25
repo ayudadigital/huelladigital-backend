@@ -1,37 +1,39 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.domain.service.ProposalService;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationMemberRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaOrganizationRepository;
+import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.repository.ESALContactPersonRepository;
+import com.huellapositiva.domain.repository.ESALRepository;
+import com.huellapositiva.domain.repository.ProposalRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpServerErrorException;
+
+import java.text.ParseException;
 
 @RequiredArgsConstructor
 @Service
 public class RegisterProposalAction {
 
-    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
+    private final ESALRepository esalRepository;
 
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final ESALContactPersonRepository esalContactPersonRepository;
 
-    private final ProposalService proposalService;
+    @Autowired
+    private final ProposalRepository proposalRepository;
 
-    public Integer execute(ProposalRequestDto dto, String employeeEmail) {
-        Organization organization = jpaOrganizationMemberRepository.findByEmail(employeeEmail)
-                .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR))
-                .getJoinedOrganization();
-        dto.setOrganizationName(organization.getName());
-        return proposalService.registerProposal(dto);
+    public String execute(ProposalRequestDto dto, String contactPersonEmail) throws ParseException {
+        ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
+        Proposal proposal = Proposal.parseDto(dto, joinedESAL);
+        proposal.validate();
+        return proposalRepository.save(proposal);
     }
 
-    public Integer execute(ProposalRequestDto dto) {
-        Organization organization = jpaOrganizationRepository.findByName(dto.getOrganizationName())
-                .orElseThrow( () -> new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
-        dto.setOrganizationName(organization.getName());
-        return proposalService.registerProposal(dto);
+    public String execute(ProposalRequestDto dto) throws ParseException {
+        ESAL joinedESAL = esalRepository.findByName(dto.getEsalName());
+        Proposal proposal = Proposal.parseDto(dto, joinedESAL);
+        proposal.validate();
+        return proposalRepository.save(proposal);
     }
 }

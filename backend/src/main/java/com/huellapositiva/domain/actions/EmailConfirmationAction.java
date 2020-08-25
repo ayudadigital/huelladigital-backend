@@ -4,9 +4,9 @@ import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirme
 import com.huellapositiva.application.exception.EmailConfirmationExpired;
 import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
 import static java.time.Instant.now;
 
 @Service

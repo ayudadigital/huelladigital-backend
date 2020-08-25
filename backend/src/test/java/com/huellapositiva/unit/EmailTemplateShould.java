@@ -1,8 +1,8 @@
 package com.huellapositiva.unit;
 
 import com.huellapositiva.domain.exception.EmailNotValidException;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
 import com.huellapositiva.infrastructure.TemplateService;
 import org.junit.jupiter.api.Test;
 import java.util.HashMap;

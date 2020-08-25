@@ -1,10 +1,11 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.VolunteerService;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,10 @@ public class RegisterVolunteerAction {
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    public Integer execute(CredentialsVolunteerRequestDto dto) {
+    public Volunteer execute(AuthenticationRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
-        Integer id = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
+        Volunteer volunteer = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
-        return id;
+        return volunteer;
     }
 }

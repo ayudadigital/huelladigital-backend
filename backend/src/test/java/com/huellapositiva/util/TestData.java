@@ -1,10 +1,15 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.domain.Roles;
-import com.huellapositiva.infrastructure.orm.model.*;
+import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -24,19 +30,21 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
-    public static final String DEFAULT_ORGANIZATION_MEMBER_EMAIL = "organizationEmployee@huellapositiva.com";
+    public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
-    public static final String DEFAULT_ORGANIZATION = "Huella Digital";
+    public static final String DEFAULT_ESAL = "Huella Digital";
 
     public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
+
+    public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
     @Autowired
-    private final JpaOrganizationMemberRepository organizationMemberRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
     @Autowired
     private final JpaCredentialRepository jpaCredentialRepository;
@@ -56,22 +64,31 @@ public class TestData {
     @Autowired
     private final JpaLocationRepository jpaLocationRepository;
 
-    @Autowired
-    private final JpaOrganizationMemberRepository jpaOrganizationMemberRepository;
 
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private final JpaOrganizationRepository jpaOrganizationRepository;
+    private final JpaESALRepository jpaESALRepository;
+
+    @Autowired
+    private final JpaProposalSkillsRepository jpaProposalSkillsRepository;
+
+    @Autowired
+    private final JpaProposalRequirementsRepository jpaProposalRequirementsRepository;
+
+    @Autowired
+    private final ProposalRepository proposalRepository;
 
 
     public void resetData() {
+        jpaProposalSkillsRepository.deleteAll();
+        jpaProposalRequirementsRepository.deleteAll();
         volunteerRepository.deleteAll();
-        jpaOrganizationMemberRepository.deleteAll();
+        jpaContactPersonRepository.deleteAll();
         jpaProposalRepository.deleteAll();
         jpaLocationRepository.deleteAll();
-        jpaOrganizationRepository.deleteAll();
+        jpaESALRepository.deleteAll();
         jpaCredentialRepository.deleteAll();
         jpaEmailConfirmationRepository.deleteAll();
         failEmailConfirmationRepository.deleteAll();
@@ -111,85 +128,177 @@ public class TestData {
         return jpaCredentialRepository.save(credential);
     }
 
-    public Volunteer createVolunteer(String email, String password) {
+    public JpaVolunteer createVolunteer(String email, String password) {
         return createVolunteer(email, password, Roles.VOLUNTEER);
     }
 
-    public Volunteer createVolunteer(String email, String password, Roles role) {
+    public JpaVolunteer createVolunteer(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
-        Volunteer volunteer = Volunteer.builder().credential(credential).build();
+
+        JpaVolunteer volunteer = JpaVolunteer.builder()
+                .credential(credential)
+                .id(UUID.randomUUID().toString())
+                .build();
+
         return volunteerRepository.save(volunteer);
     }
 
-    public OrganizationMember createOrganizationMember(String email, String password) {
-        return createOrganizationMember(email, password, Roles.ORGANIZATION_MEMBER);
+    public JpaContactPerson createESALMember(String email, String password) {
+        return createESALMember(email, password, Roles.CONTACT_PERSON);
     }
 
-    public OrganizationMember createOrganizationMember(String email, String password, Roles role) {
+    public JpaContactPerson createESALMember(String email, String password, Roles role) {
         Credential credential = createCredential(email, UUID.randomUUID(), password, role);
-        OrganizationMember employee = OrganizationMember.builder().credential(credential).build();
-        return organizationMemberRepository.save(employee);
+        JpaContactPerson contactPerson = JpaContactPerson.builder()
+                .credential(credential)
+                .id(UUID.randomUUID().toString())
+                .build();
+        return jpaContactPersonRepository.save(contactPerson);
     }
 
-    public Integer createAndLinkOrganization(OrganizationMember employee, Organization organization) {
-        Integer id = createOrganization(organization);
-        organizationMemberRepository.updateJoinedOrganization(employee.getId(), organization);
+    public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
+        String id = createJpaESAL(esal);
+        jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         return id;
     }
 
-    public Integer createOrganization(Organization organization) {
-        return jpaOrganizationRepository.save(organization).getId();
+    public String createJpaESAL(JpaESAL esal) {
+        return jpaESALRepository.save(esal).getId();
     }
 
-    public Proposal createProposal(Proposal proposal) {
+    public ESAL createESAL(String id, String name) {
+        JpaESAL savedEsal = jpaESALRepository.save(JpaESAL.builder().id(id).name(name).build());
+        return new ESAL(savedEsal.getName(), new Id(savedEsal.getId()));
+    }
+
+    public JpaProposal createProposal(JpaProposal proposal) {
          return jpaProposalRepository.save(proposal);
     }
 
     public ProposalRequestDto buildPublishedProposalDto() {
         return buildProposalDto(true);
     }
+
     public ProposalRequestDto buildUnpublishedProposalDto() {
         return buildProposalDto(false);
     }
 
-    public ProposalRequestDto buildProposalDto(boolean isPublished) {
+    public ProposalRequestDto buildProposalDto(boolean isPublished){
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
+                .expirationDate("24-08-2030")
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingDate("25-08-2030")
+                .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
     }
 
-    public Proposal registerOrganizationAndPublishedProposal() throws ParseException {
-        return registerOrganizationAndProposal(true);
+    public Proposal buildPublishedProposalWithEsal(ESAL esal) {
+        return buildProposal(esal, true);
     }
 
-    public Proposal registerOrganizationAndNotPublishedProposal() throws ParseException {
-        return registerOrganizationAndProposal(false);
+    public Proposal buildUnpublishedProposalWithEsal(ESAL esal) {
+        return buildProposal(esal, false);
     }
 
-    private Proposal registerOrganizationAndProposal(boolean isPublished) throws ParseException {
-        OrganizationMember employee = createOrganizationMember(DEFAULT_ORGANIZATION_MEMBER_EMAIL, DEFAULT_PASSWORD);
-        Organization organization = Organization.builder().name(DEFAULT_ORGANIZATION).build();
-        createAndLinkOrganization(employee, organization);
+    @SneakyThrows
+    public Proposal buildProposal(ESAL esal, boolean isPublished) {
         Proposal proposal = Proposal.builder()
+                .id(Id.newId())
                 .title("Recogida de ropita")
-                .location(Location.builder().province("Santa Cruz de Tenerife")
+                .esal(esal)
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .expirationDate(ProposalDate.createExpirationDate("24-08-2030"))
+                .requiredDays("Weekends")
+                .permitedAgeRange(AgeRange.create(18, 26))
+                .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingDate(ProposalDate.createExpirationDate("25-08-2030"))
+                .category(ProposalCategory.ON_SITE)
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .build();
+
+        Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
+                .forEach(proposal::addSkill);
+        Arrays.asList(new Requirement("Forma física para cargar con la ropa"), new Requirement("Disponibilidad horaria"), new Requirement("Carnet de conducir"))
+                .forEach(proposal::addRequirement);
+
+        return proposal;
+    }
+
+    public JpaProposal registerESALAndPublishedProposal() throws ParseException {
+        return registerESALAndProposal(true);
+    }
+
+    public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
+        return registerESALAndProposal(false);
+    }
+
+    private JpaProposal registerESALAndProposal(boolean isPublished) throws ParseException {
+        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        createAndLinkESAL(contactPerson, esal);
+        JpaProposal jpaProposal = JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
+                .title("Recogida de ropita")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
-                .organization(organization)
+                .esal(esal)
                 .expirationDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .category(ProposalCategory.ON_SITE.toString())
                 .build();
-        return createProposal(proposal);
+        return createProposal(jpaProposal);
+    }
+
+    public String registerESALandPublishedProposalObject() throws ParseException {
+        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        createAndLinkESAL(contactPerson, esal);
+
+        Proposal proposal = Proposal.builder().id(Id.newId())
+                .title("Recogida de ropita")
+                .esal(new ESAL(esal.getName(), new Id(esal.getId())))
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .expirationDate(ProposalDate.createExpirationDate("24-08-2030"))
+                .requiredDays("Weekends")
+                .permitedAgeRange(AgeRange.create(18, 26))
+                .published(true)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingDate(ProposalDate.createStartingDate("25-08-2030"))
+                .category(ProposalCategory.ON_SITE)
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .build();
+        Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
+                .forEach(proposal::addSkill);
+        Arrays.asList(new Requirement("Forma física para cargar con la ropa"), new Requirement("Disponibilidad horaria"), new Requirement("Carnet de conducir"))
+                .forEach(proposal::addRequirement);
+
+        return proposalRepository.save(proposal);
     }
 }

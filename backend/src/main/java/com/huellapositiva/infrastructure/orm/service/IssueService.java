@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure.orm.service;
 
-import com.huellapositiva.infrastructure.orm.model.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

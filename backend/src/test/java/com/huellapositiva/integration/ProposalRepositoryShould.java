@@ -1,9 +1,9 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.model.Organization;
-import com.huellapositiva.infrastructure.orm.model.Proposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 import static java.util.Calendar.HOUR_OF_DAY;
 import static java.util.Calendar.MINUTE;
@@ -40,14 +41,13 @@ class ProposalRepositoryShould {
     @Test
     void persist_a_default_expiration_hour(){
         // WHEN
-        testData.createOrganization(Organization.builder().name("Huella Positiva").build());
-        ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
-        proposalRequestDto.setOrganizationName("Huella Positiva");
-        Integer id = proposalRepository.save(proposalRequestDto);
+        ESAL esal = testData.createESAL(UUID.randomUUID().toString(), "Huella Positiva");
+        Proposal proposal = testData.buildPublishedProposalWithEsal(esal);
+        String id = proposalRepository.save(proposal);
 
-        Proposal proposal = jpaProposalRepository.findById(id).get();
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).get();
         Calendar expirationTimestamp = Calendar.getInstance();
-        expirationTimestamp.setTime(proposal.getExpirationDate());
+        expirationTimestamp.setTime(jpaProposal.getExpirationDate());
         // THEN
         assertAll(
                 () -> assertThat(expirationTimestamp.get(HOUR_OF_DAY)).isEqualTo(23),

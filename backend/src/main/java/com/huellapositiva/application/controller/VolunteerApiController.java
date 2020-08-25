@@ -1,11 +1,12 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.infrastructure.orm.model.Role;
+import com.huellapositiva.domain.model.entities.Volunteer;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,13 +65,13 @@ public class VolunteerApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerVolunteer(@Validated @RequestBody CredentialsVolunteerRequestDto dto, HttpServletResponse res) {
+    public JwtResponseDto registerVolunteer(@Validated @RequestBody AuthenticationRequestDto dto, HttpServletResponse res) {
         try {
-            Integer id = registerVolunteerAction.execute(dto);
-            String username = dto.getEmail();
+            Volunteer volunteer = registerVolunteerAction.execute(dto);
+            String username = volunteer.getEmailAddress().toString();
             List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
+                    .path("/{id}").buildAndExpand(volunteer.getId().toString())
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
             return jwtService.create(username, roles);

@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.model.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

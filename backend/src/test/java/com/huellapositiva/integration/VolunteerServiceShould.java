@@ -1,12 +1,12 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
-import com.huellapositiva.domain.Roles;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.VolunteerService;
-import com.huellapositiva.domain.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.model.Credential;
-import com.huellapositiva.infrastructure.orm.model.Volunteer;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.PlainPassword;
+import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,16 +46,16 @@ class VolunteerServiceShould {
 
     @Test
     void registering_a_volunteer_should_create_the_corresponding_entities_in_the_db() {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();
 
-        Integer volunteerId = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        com.huellapositiva.domain.model.entities.Volunteer volunteerEntity = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
-        Optional<Volunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerId);
+        Optional<JpaVolunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerEntity.getId().toString());
         assertTrue(volunteerOptional.isPresent());
-        Volunteer volunteer = volunteerOptional.get();
+        JpaVolunteer volunteer = volunteerOptional.get();
         Credential credential = volunteer.getCredential();
         assertThat(credential.getEmail(), is(DEFAULT_EMAIL));
         assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, credential.getHashedPassword()), is(true));

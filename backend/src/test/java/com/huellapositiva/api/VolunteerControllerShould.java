@@ -1,9 +1,9 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsVolunteerRequestDto;
+import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.domain.Roles;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.UUID_REGEX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -59,7 +60,7 @@ class VolunteerControllerShould {
     @Test
     void registering_volunteer_should_return_201_and_tokens() throws Exception {
         // GIVEN
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password("password")
                 .build();
@@ -71,7 +72,7 @@ class VolunteerControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)\\d+")))
+                .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/volunteers/)" + UUID_REGEX)))
                 .andReturn()
                 .getResponse();
 
@@ -83,13 +84,13 @@ class VolunteerControllerShould {
         assertThat(userDetails.getSecond()).hasSize(1);
         assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
-        int id = Integer.parseInt(location.substring(location.lastIndexOf('/') + 1));
+        String id = location.substring(location.lastIndexOf('/') + 1);
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
     }
 
     @Test
     void registering_volunteer_without_password_should_return_400() throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .build();
 
@@ -104,7 +105,7 @@ class VolunteerControllerShould {
     @Test
     void registering_volunteer_with_short_password_should_return_400() throws Exception {
         String shortPassword = "12345";
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .password(shortPassword)
                 .build();
@@ -119,7 +120,7 @@ class VolunteerControllerShould {
 
     @Test
     void registering_volunteer_without_email_should_return_400() throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .password("password")
                 .build();
 
@@ -142,7 +143,7 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
     void registering_volunteer_with_malformed_email_should_return_400(String malformedEmail) throws Exception {
-        CredentialsVolunteerRequestDto dto = CredentialsVolunteerRequestDto.builder()
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(malformedEmail)
                 .password("password")
                 .build();

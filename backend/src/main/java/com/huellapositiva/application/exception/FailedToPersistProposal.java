@@ -8,4 +8,7 @@ public class FailedToPersistProposal extends RuntimeException {
     public FailedToPersistProposal(String message, Throwable cause) {
         super(message, cause);
     }
+    public FailedToPersistProposal(String message) {
+        super(message);
+    }
 }

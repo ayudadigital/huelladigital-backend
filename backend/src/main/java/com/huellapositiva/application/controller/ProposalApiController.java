@@ -21,12 +21,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
@@ -74,10 +76,13 @@ public class ProposalApiController {
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String contactPersonEmail, HttpServletResponse res) {
+    public void createProposal(@RequestBody ProposalRequestDto dto,
+                               @RequestParam("file") MultipartFile file,
+                               @AuthenticationPrincipal String contactPersonEmail,
+                               HttpServletResponse res) {
         dto.setPublished(true);
         try {
-            String id = registerProposalAction.execute(dto, contactPersonEmail);
+            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
@@ -88,6 +93,8 @@ public class ProposalApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
         } catch (InvalidProposalRequestException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

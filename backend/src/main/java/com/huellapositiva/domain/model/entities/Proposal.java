@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,8 +48,6 @@ public class Proposal {
     @NotEmpty
     private final ProposalDate startingDate;
 
-    private boolean published;
-
     @NotEmpty
     private final String description;
 
@@ -58,15 +57,21 @@ public class Proposal {
     @NotEmpty
     private final ProposalCategory category;
 
+    @NotEmpty
+    private final String extraInfo;
+
+    @NotEmpty
+    private final String instructions;
+
     private final List<Volunteer> inscribedVolunteers = new ArrayList<>();
 
     private final List<Skill> skills = new ArrayList<>();
 
     private final List<Requirement> requirements = new ArrayList<>();
 
-    private final String extraInfo;
+    private URL image;
 
-    private final String instructions;
+    private boolean published;
 
     public void inscribeVolunteer(Volunteer volunteer) {
         inscribedVolunteers.add(volunteer);

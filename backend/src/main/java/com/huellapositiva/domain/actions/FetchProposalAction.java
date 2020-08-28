@@ -7,6 +7,8 @@ import com.huellapositiva.domain.repository.ProposalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+
 @RequiredArgsConstructor
 @Service
 public class FetchProposalAction {

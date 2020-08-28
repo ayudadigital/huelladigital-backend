@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,6 +81,7 @@ public class ProposalRepository {
                 .inscribedVolunteers(volunteers)
                 .extraInfo(proposal.getExtraInfo())
                 .instructions(proposal.getInstructions())
+                .imageUrl(proposal.getImage().toExternalForm())
                 .build();
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
@@ -117,6 +120,13 @@ public class ProposalRepository {
                 .extraInfo(jpaProposal.getExtraInfo())
                 .instructions(jpaProposal.getInstructions())
                 .build();
+        if (jpaProposal.getImageUrl() != null) {
+            try {
+                proposal.setImage(new URL(jpaProposal.getImageUrl()));
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+            }
+        }
         jpaProposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> new Volunteer(EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))

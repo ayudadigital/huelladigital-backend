@@ -81,4 +81,7 @@ public class JpaProposal implements Serializable {
 
     @Column(name = "instructions")
     private String instructions;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 }

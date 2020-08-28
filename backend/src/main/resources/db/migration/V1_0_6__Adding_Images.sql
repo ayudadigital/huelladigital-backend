@@ -1,0 +1,2 @@
+ALTER TABLE proposals
+ADD COLUMN image_url VARCHAR(255);

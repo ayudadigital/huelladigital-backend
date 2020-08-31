@@ -36,6 +36,9 @@ public class ProposalRequestDto {
     private final int maximumAge;
 
     @NotEmpty
+    private final String startingProposalDate;
+
+    @NotEmpty
     private final String expirationDate;
 
     private boolean published;
@@ -63,9 +66,6 @@ public class ProposalRequestDto {
 
     @NotEmpty
     private final String instructions;
-
-    @NotEmpty
-    private final MultipartFile profileImage;
 
     /** This operation will be implemented in the entity Proposal
      * @see com.huellapositiva.domain.model.entities.Proposal

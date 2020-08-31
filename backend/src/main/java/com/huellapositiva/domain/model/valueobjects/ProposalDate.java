@@ -21,11 +21,15 @@ public class ProposalDate {
         this.date = date;
     }
 
-    public static ProposalDate createExpirationDate(String date) throws ParseException {
+    public static ProposalDate createStartingProposalDate(String date) throws ParseException {
+        return new ProposalDate(new SimpleDateFormat("dd-M-yyyy").parse(date));
+    }
+
+    public static ProposalDate createClosingProposalDate(String date) throws ParseException {
         return new ProposalDate(new SimpleDateFormat("dd-M-yyyy hh:mm:ss").parse(date + " 23:55:00"));
     }
 
-    public static ProposalDate createStartingDate(String date) throws ParseException {
+    public static ProposalDate createStartingVolunteeringDate(String date) throws ParseException {
         return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse(date));
     }
 

@@ -94,7 +94,8 @@ public class Proposal {
                 .id(Id.newId())
                 .title(dto.getTitle())
                 .esal(joinedESAL)
-                .closingProposalDate(ProposalDate.createExpirationDate(dto.getExpirationDate()))
+                .startingProposalDate(ProposalDate.createStartingProposalDate(dto.getStartingDate()))
+                .closingProposalDate(ProposalDate.createClosingProposalDate(dto.getExpirationDate()))
                 .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
                 .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress()))
                 .requiredDays(dto.getRequiredDays())
@@ -102,7 +103,7 @@ public class Proposal {
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
                 .category(ProposalCategory.valueOf(dto.getCategory()))
-                .startingVolunteeringDate(ProposalDate.createStartingDate(dto.getStartingDate()))
+                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate(dto.getStartingDate()))
                 .extraInfo(dto.getExtraInfo())
                 .instructions(dto.getInstructions())
                 .build();

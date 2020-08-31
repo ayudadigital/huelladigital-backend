@@ -14,6 +14,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -40,13 +41,16 @@ public class Proposal {
     private final String requiredDays;
 
     @NotEmpty
-    private final AgeRange permitedAgeRange;
+    private final AgeRange permittedAgeRange;
 
     @NotEmpty
-    private final ProposalDate expirationDate;
+    private final ProposalDate startingProposalDate;
 
     @NotEmpty
-    private final ProposalDate startingDate;
+    private final ProposalDate closingProposalDate;
+
+    @NotEmpty
+    private final ProposalDate startingVolunteeringDate;
 
     @NotEmpty
     private final String description;
@@ -90,15 +94,15 @@ public class Proposal {
                 .id(Id.newId())
                 .title(dto.getTitle())
                 .esal(joinedESAL)
-                .expirationDate(ProposalDate.createExpirationDate(dto.getExpirationDate()))
-                .permitedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
+                .closingProposalDate(ProposalDate.createExpirationDate(dto.getExpirationDate()))
+                .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
                 .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress()))
                 .requiredDays(dto.getRequiredDays())
                 .published(dto.isPublished())
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
                 .category(ProposalCategory.valueOf(dto.getCategory()))
-                .startingDate(ProposalDate.createStartingDate(dto.getStartingDate()))
+                .startingVolunteeringDate(ProposalDate.createStartingDate(dto.getStartingDate()))
                 .extraInfo(dto.getExtraInfo())
                 .instructions(dto.getInstructions())
                 .build();
@@ -112,8 +116,13 @@ public class Proposal {
     }
 
     public void validate(){
-        if(expirationDate.isBeforeNow() || startingDate.isBefore(expirationDate)){
+        if(closingProposalDate.isBeforeNow()
+                || startingVolunteeringDate.isBefore(closingProposalDate)
+                || startingProposalDate.isBefore(closingProposalDate)){
             throw new InvalidProposalRequestException("Date is not in a valid range.");
+        }
+        if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){
+            throw new InvalidProposalRequestException("Proposal must start at least within three business days from today.");
         }
     }
 }

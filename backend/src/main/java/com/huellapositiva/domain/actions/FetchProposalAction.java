@@ -7,8 +7,6 @@ import com.huellapositiva.domain.repository.ProposalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-
 @RequiredArgsConstructor
 @Service
 public class FetchProposalAction {
@@ -27,9 +25,9 @@ public class FetchProposalAction {
                 .province(proposal.getLocation().getProvince())
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())
-                .expirationDate(proposal.getExpirationDate().toString())
-                .maximumAge(proposal.getPermitedAgeRange().getMinimum())
-                .minimumAge(proposal.getPermitedAgeRange().getMaximum())
+                .expirationDate(proposal.getClosingProposalDate().toString())
+                .maximumAge(proposal.getPermittedAgeRange().getMinimum())
+                .minimumAge(proposal.getPermittedAgeRange().getMaximum())
                 .requiredDays(proposal.getRequiredDays())
                 .published(proposal.isPublished())
                 .build();

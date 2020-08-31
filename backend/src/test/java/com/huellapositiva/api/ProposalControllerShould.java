@@ -19,8 +19,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -75,11 +78,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(post(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(MockMvcRequestBuilders.multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("user-file","fileName", "text/plain", "test data".getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
@@ -154,7 +158,8 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(MockMvcRequestBuilders.multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("user-file","fileName", "text/plain", "test data".getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())

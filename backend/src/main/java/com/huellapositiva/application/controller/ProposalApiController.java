@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,12 +73,12 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestBody ProposalRequestDto dto,
-                               @RequestParam("file") MultipartFile file,
+    public void createProposal(@RequestPart("dto") ProposalRequestDto dto,
+                               @RequestPart("file") MultipartFile file,
                                @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) {
         dto.setPublished(true);

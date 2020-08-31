@@ -10,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -26,7 +24,7 @@ public class ProposalService {
         if (isNotPublished) {
             throw new ProposalNotPublished();
         }
-        boolean isEnrollmentClosed = proposal.getExpirationDate().isBeforeNow();
+        boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
         if (isEnrollmentClosed) {
             throw new ProposalEnrollmentClosed();
         }

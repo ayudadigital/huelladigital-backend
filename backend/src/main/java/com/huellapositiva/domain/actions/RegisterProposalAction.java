@@ -27,8 +27,8 @@ public class RegisterProposalAction {
     @Autowired
     private final ProposalRepository proposalRepository;
 
-    @Autowired
-    private final RemoteStorageService storageService;
+//    @Autowired
+//    private final RemoteStorageService storageService;
 
     public String execute(ProposalRequestDto dto,
                           MultipartFile file,
@@ -36,8 +36,8 @@ public class RegisterProposalAction {
         ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
         Proposal proposal = Proposal.parseDto(dto, joinedESAL);
         proposal.validate();
-        URL imageUrl = storageService.uploadProposalImage(file, proposal.getId().toString());
-        proposal.setImage(imageUrl);
+//        URL imageUrl = storageService.uploadProposalImage(file, proposal.getId().toString());
+//        proposal.setImage(imageUrl);
         return proposalRepository.save(proposal);
     }
 

@@ -1,5 +1,6 @@
 package com.huellapositiva.application.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,6 +31,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
@@ -44,6 +47,8 @@ public class ProposalApiController {
     private final FetchProposalAction fetchProposalAction;
 
     private final JoinProposalAction joinProposalAction;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Register a new proposal",
@@ -73,17 +78,18 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestPart("dto") ProposalRequestDto dto,
+    public void createProposal(@RequestPart("dto") MultipartFile dtoMultipart,
                                @RequestPart("file") MultipartFile file,
                                @AuthenticationPrincipal String contactPersonEmail,
-                               HttpServletResponse res) {
+                               HttpServletResponse res) throws IOException {
+        ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         dto.setPublished(true);
         try {
-            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
+            String id = registerProposalAction.execute(dto, new File(""), contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
@@ -91,6 +97,7 @@ public class ProposalApiController {
         } catch (ParseException e) {
             throw new FailedToPersistProposal("The given date(s) format is not valid.");
         } catch (IllegalArgumentException e){
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
         } catch (InvalidProposalRequestException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -191,11 +198,14 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/reviser")
+    @PostMapping(path = "/reviser", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposalAsReviser(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
+    public void createProposalAsReviser(@RequestPart("dto") MultipartFile dtoMultipart,
+                                        @RequestPart("file") MultipartFile file,
+                                        HttpServletResponse res) throws IOException {
+        ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
             String id = registerProposalAction.execute(dto);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()

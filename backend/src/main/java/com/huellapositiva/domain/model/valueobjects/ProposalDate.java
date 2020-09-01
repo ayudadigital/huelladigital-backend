@@ -46,7 +46,7 @@ public class ProposalDate {
         LocalDate targetLocalDate = LocalDate.ofInstant(targetDate.toInstant(), ZoneId.systemDefault());
         Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY
                 || date.getDayOfWeek() == DayOfWeek.SUNDAY;
-        long daysBetween = ChronoUnit.DAYS.between(proposalLocalDate, targetLocalDate);
+        long daysBetween = ChronoUnit.DAYS.between(targetLocalDate,proposalLocalDate);
         return Stream.iterate(proposalLocalDate, date -> date.plusDays(1)).limit(daysBetween)
                 .filter(isWeekend.negate()).count();
     }

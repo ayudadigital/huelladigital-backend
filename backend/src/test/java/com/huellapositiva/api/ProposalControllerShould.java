@@ -35,9 +35,9 @@ import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,12 +78,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(MockMvcRequestBuilders.multipart(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
                 .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
@@ -96,7 +96,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_date_is_invalid() throws Exception {
+    void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
@@ -122,11 +122,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -158,12 +159,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(MockMvcRequestBuilders.multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("user-file","fileName", "text/plain", "test data".getBytes()))
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -195,11 +196,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -324,14 +326,15 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
-        proposalRequestDto.setEsalName("Huella Positiva");
+        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        proposalDto.setEsalName("Huella Positiva");
 
-        mvc.perform(post("/api/v1/proposals/reviser")
+        mvc.perform(multipart("/api/v1/proposals/reviser")
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalRequestDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andExpect(status().isCreated());

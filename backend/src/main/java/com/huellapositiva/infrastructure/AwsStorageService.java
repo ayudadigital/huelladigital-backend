@@ -1,6 +1,5 @@
 package com.huellapositiva.infrastructure;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import java.net.URL;
 public class AwsStorageService implements StorageService {
 
     @Autowired
-    private AmazonS3 awsS3Client;
+    private AmazonS3Client awsS3Client;
 
     @Autowired
     private AwsS3Properties awsS3Properties;

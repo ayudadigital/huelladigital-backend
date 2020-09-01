@@ -3,7 +3,6 @@ package com.huellapositiva.infrastructure;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CreateBucketRequest;
@@ -24,10 +23,10 @@ public class AwsS3Config {
 
     @Bean
     @Profile({"dev", "prod"})
-    public AmazonS3 getAwsS3Client() {
+    public AmazonS3Client getAwsS3Client() {
         log.info("Amazon S3 client enabled");
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsS3Properties.getAccessKey(), awsS3Properties.getSecretKey());
-        AmazonS3 s3client = AmazonS3ClientBuilder
+        AmazonS3Client s3client = (AmazonS3Client) AmazonS3ClientBuilder
                 .standard()
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withRegion(awsS3Properties.getRegion())
@@ -43,20 +42,18 @@ public class AwsS3Config {
 
     @Bean
     @Profile("!dev & !prod")
-    public AmazonS3 getLocalstackAwsS3Client() {
+    public AmazonS3Client getLocalstackAwsS3Client() {
         log.info("Localstack Amazon S3 client enabled");
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsS3Properties.getAccessKey(), awsS3Properties.getSecretKey());
-        AmazonS3 s3client = AmazonS3ClientBuilder
+        AmazonS3Client s3client = (AmazonS3Client) AmazonS3ClientBuilder
                 .standard().withPathStyleAccessEnabled(true)
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsS3Properties.getEndpoint(), awsS3Properties.getRegion()))
                 .build();
-
         String bucketName = awsS3Properties.getBucketName();
         if(!s3client.doesBucketExistV2(bucketName)) {
             s3client.createBucket(new CreateBucketRequest(bucketName));
         }
-
         return s3client;
     }
 

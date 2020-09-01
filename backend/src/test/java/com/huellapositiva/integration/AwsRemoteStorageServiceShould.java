@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "s3" })
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"huellapositiva.feature.storage.enabled=true"})
-public class AwsRemoteStorageServiceShould {
+class AwsRemoteStorageServiceShould {
 
     @Autowired
     private AwsStorageService awsStorageService;
@@ -48,9 +48,7 @@ public class AwsRemoteStorageServiceShould {
         tmpFile = new File(System.currentTimeMillis() + ".txt");
         tmpFile.createNewFile();
         String key = "Images/Proposals/" + tmpFile.getName();
-
         URL imageUrl = awsStorageService.upload(tmpFile, key);
-
         get(imageUrl).then().assertThat().statusCode(HttpStatus.OK.value());
     }
 }

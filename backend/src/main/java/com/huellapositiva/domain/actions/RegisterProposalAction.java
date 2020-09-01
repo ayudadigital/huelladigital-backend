@@ -6,15 +6,12 @@ import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
 import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.domain.service.RemoteStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
 
 @RequiredArgsConstructor

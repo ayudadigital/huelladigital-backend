@@ -81,7 +81,7 @@ public class ProposalRepository {
                 .inscribedVolunteers(volunteers)
                 .extraInfo(proposal.getExtraInfo())
                 .instructions(proposal.getInstructions())
-                .imageUrl(proposal.getImage().toExternalForm())
+                .imageUrl(proposal.getImage() != null ? proposal.getImage().toExternalForm() : null)
                 .build();
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());

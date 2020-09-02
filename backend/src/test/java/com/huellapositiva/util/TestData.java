@@ -5,8 +5,9 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.AwsS3Properties;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -79,6 +81,9 @@ public class TestData {
 
     @Autowired
     private final ProposalRepository proposalRepository;
+
+    @Autowired
+    private final AwsS3Properties awsS3Properties;
 
 
     public void resetData() {
@@ -231,6 +236,7 @@ public class TestData {
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .image(createMockImageUrl())
                 .build();
 
         Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
@@ -249,6 +255,7 @@ public class TestData {
         return registerESALAndProposal(false);
     }
 
+    @SneakyThrows
     private JpaProposal registerESALAndProposal(boolean isPublished) throws ParseException {
         JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
@@ -271,6 +278,7 @@ public class TestData {
                 .durationInDays("1 semana")
                 .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .category(ProposalCategory.ON_SITE.toString())
+                .imageUrl(createMockImageUrl().toString())
                 .build();
         return createProposal(jpaProposal);
     }
@@ -294,6 +302,7 @@ public class TestData {
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .image(createMockImageUrl())
                 .build();
         Arrays.asList(new Skill("Habilidad", "Descripción"), new Skill("Negociación", "Saber regatear"))
                 .forEach(proposal::addSkill);
@@ -301,5 +310,11 @@ public class TestData {
                 .forEach(proposal::addRequirement);
 
         return proposalRepository.save(proposal);
+    }
+
+    @SneakyThrows
+    private URL createMockImageUrl() {
+        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
+
     }
 }

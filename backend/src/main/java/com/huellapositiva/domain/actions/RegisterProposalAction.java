@@ -33,7 +33,7 @@ public class RegisterProposalAction {
         ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
         Proposal proposal = Proposal.parseDto(dto, joinedESAL);
         proposal.validate();
-        URL imageUrl = storageService.uploadProposalImage(file);
+        URL imageUrl = storageService.uploadProposalImage(file, proposal.getId().getValue());
         proposal.setImage(imageUrl);
         return proposalRepository.save(proposal);
     }

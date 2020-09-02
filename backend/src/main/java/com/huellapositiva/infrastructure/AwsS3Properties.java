@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix="aws.s3")
-class AwsS3Properties {
+public class AwsS3Properties {
 
     private String accessKey;
 

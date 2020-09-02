@@ -1,13 +1,26 @@
 package com.huellapositiva;
 
 import com.huellapositiva.domain.service.ReviserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 
+@Slf4j
 @SpringBootApplication
 public class App implements CommandLineRunner {
+
+    @Autowired
+    private Environment env;
+
+    @Value("${bla.ble.bli}")
+    private String blaken;
+
+    @Value("${bla.ble.blo}")
+    private String servus;
 
     @Autowired
     private ReviserService reviserService;
@@ -18,6 +31,7 @@ public class App implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        log.info("===== SSM properties: {} -> {}, {}", env.getActiveProfiles(), blaken, servus);
         reviserService.createDefaultReviser();
     }
 }

@@ -77,7 +77,7 @@ class ProposalControllerShould {
 
         // WHEN
         MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("file",null, "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())

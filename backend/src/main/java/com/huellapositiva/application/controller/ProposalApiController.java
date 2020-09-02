@@ -88,7 +88,7 @@ public class ProposalApiController {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         dto.setPublished(true);
         try {
-            String id = registerProposalAction.execute(dto, new File(""), contactPersonEmail);
+            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();

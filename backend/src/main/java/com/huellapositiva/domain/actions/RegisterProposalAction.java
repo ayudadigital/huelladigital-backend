@@ -6,12 +6,13 @@ import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
 import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.domain.service.RemoteStorageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.ParseException;
 
 @RequiredArgsConstructor
@@ -22,20 +23,18 @@ public class RegisterProposalAction {
 
     private final ESALContactPersonRepository esalContactPersonRepository;
 
-    @Autowired
     private final ProposalRepository proposalRepository;
 
-//    @Autowired
-//    private final RemoteStorageService storageService;
+    private final RemoteStorageService storageService;
 
     public String execute(ProposalRequestDto dto,
-                          File file,
+                          MultipartFile file,
                           String contactPersonEmail) throws ParseException, IOException {
         ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
         Proposal proposal = Proposal.parseDto(dto, joinedESAL);
         proposal.validate();
-//        URL imageUrl = storageService.uploadProposalImage(file, proposal.getId().toString());
-//        proposal.setImage(imageUrl);
+        URL imageUrl = storageService.uploadProposalImage(file);
+        proposal.setImage(imageUrl);
         return proposalRepository.save(proposal);
     }
 

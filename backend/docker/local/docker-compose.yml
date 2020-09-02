@@ -45,6 +45,13 @@ services:
           sleep 1;
         done;
         echo 'Verified email address.';
+
+        set -e;
+        until aws s3 verify-email-identity --email-address noreply@huellapositiva.com --endpoint-url=http://localstack:4572 --region $${AWS_DEFAULT_REGION} --no-sign-request; do
+          >&2 echo 'AWS S3 is unavailable - sleeping'
+          sleep 1;
+          done;
+          echo 'Verified email address (S3).';
       "
     networks:
       - internal

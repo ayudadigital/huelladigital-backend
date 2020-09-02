@@ -94,8 +94,8 @@ public class Proposal {
                 .id(Id.newId())
                 .title(dto.getTitle())
                 .esal(joinedESAL)
-                .startingProposalDate(ProposalDate.createStartingProposalDate(dto.getStartingDate()))
-                .closingProposalDate(ProposalDate.createClosingProposalDate(dto.getExpirationDate()))
+                .startingProposalDate(ProposalDate.createStartingProposalDate(dto.getStartingProposalDate()))
+                .closingProposalDate(ProposalDate.createClosingProposalDate(dto.getClosingProposalDate()))
                 .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
                 .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress()))
                 .requiredDays(dto.getRequiredDays())
@@ -103,7 +103,7 @@ public class Proposal {
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
                 .category(ProposalCategory.valueOf(dto.getCategory()))
-                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate(dto.getStartingDate()))
+                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate(dto.getStartingVolunteeringDate()))
                 .extraInfo(dto.getExtraInfo())
                 .instructions(dto.getInstructions())
                 .build();
@@ -117,9 +117,9 @@ public class Proposal {
     }
 
     public void validate(){
-        if(closingProposalDate.isBeforeNow()
-                || startingVolunteeringDate.isBefore(closingProposalDate)
-                || startingProposalDate.isBefore(closingProposalDate)){
+        boolean closingBeforeStartingProposal = closingProposalDate.isBefore(startingProposalDate);
+        boolean startingVolunteeringBeforeClosing = startingVolunteeringDate.isBefore(closingProposalDate);
+        if(closingBeforeStartingProposal || startingVolunteeringBeforeClosing){
             throw new InvalidProposalRequestException("Date is not in a valid range.");
         }
         if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){

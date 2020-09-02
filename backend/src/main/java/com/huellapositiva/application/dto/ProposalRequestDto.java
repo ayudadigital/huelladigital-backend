@@ -38,7 +38,10 @@ public class ProposalRequestDto {
     private final String startingProposalDate;
 
     @NotEmpty
-    private final String expirationDate;
+    private final String closingProposalDate;
+
+    @NotEmpty
+    private final String startingVolunteeringDate;
 
     private boolean published;
 
@@ -50,9 +53,6 @@ public class ProposalRequestDto {
 
     @NotEmpty
     private final String category;
-
-    @NotEmpty
-    private final String startingDate;
 
     @NotEmpty
     private final String[][] skills;

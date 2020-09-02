@@ -56,5 +56,4 @@ public class AwsS3Config {
         }
         return s3client;
     }
-
 }

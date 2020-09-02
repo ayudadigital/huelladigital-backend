@@ -96,12 +96,9 @@ public class ProposalApiController {
         } catch (ParseException e) {
             throw new FailedToPersistProposal("The given date(s) format is not valid.");
         } catch (IllegalArgumentException e){
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
         } catch (InvalidProposalRequestException e){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -212,7 +209,7 @@ public class ProposalApiController {
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate());
+            throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
         }
     }
 }

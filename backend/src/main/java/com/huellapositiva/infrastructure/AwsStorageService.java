@@ -1,6 +1,8 @@
 package com.huellapositiva.infrastructure;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,9 +26,7 @@ public class AwsStorageService implements StorageService {
     public URL upload(File file, String key) {
         String bucketName = awsS3Properties.getBucketName();
         awsS3Client.putObject(
-                bucketName,
-                key,
-                file
+                new PutObjectRequest(bucketName, key, file).withCannedAcl(CannedAccessControlList.PublicRead)
         );
         return awsS3Client.getUrl(bucketName, key);
     }

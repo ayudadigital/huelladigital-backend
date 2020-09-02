@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "s3" })
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"huellapositiva.feature.storage.enabled=true"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"huellapositiva.feature.storage.enabled=true"})
 class AwsRemoteStorageServiceShould {
 
     @Autowired

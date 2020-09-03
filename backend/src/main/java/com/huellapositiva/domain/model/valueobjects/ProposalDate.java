@@ -8,9 +8,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static java.util.Calendar.DAY_OF_MONTH;
 
 @Getter
 public class ProposalDate {
@@ -22,11 +25,11 @@ public class ProposalDate {
     }
 
     public static ProposalDate createStartingProposalDate(String date) throws ParseException {
-        return new ProposalDate(new SimpleDateFormat("dd-M-yyyy").parse(date));
+        return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse(date));
     }
 
     public static ProposalDate createClosingProposalDate(String date) throws ParseException {
-        return new ProposalDate(new SimpleDateFormat("dd-M-yyyy hh:mm:ss").parse(date + " 23:55:00"));
+        return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(date + " 23:55:00"));
     }
 
     public static ProposalDate createStartingVolunteeringDate(String date) throws ParseException {
@@ -44,10 +47,17 @@ public class ProposalDate {
     public long getBusinessDaysFrom(Date targetDate){
         LocalDate proposalLocalDate = LocalDate.ofInstant(this.date.toInstant(), ZoneId.systemDefault());
         LocalDate targetLocalDate = LocalDate.ofInstant(targetDate.toInstant(), ZoneId.systemDefault());
-        Predicate<LocalDate> isWeekend = date -> date.getDayOfWeek() == DayOfWeek.SATURDAY
-                || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+        Predicate<LocalDate> isWeekend = d -> d.getDayOfWeek() == DayOfWeek.SATURDAY
+                || d.getDayOfWeek() == DayOfWeek.SUNDAY;
         long daysBetween = ChronoUnit.DAYS.between(targetLocalDate,proposalLocalDate);
-        return Stream.iterate(proposalLocalDate, date -> date.plusDays(1)).limit(daysBetween)
+        return Stream.iterate(proposalLocalDate, d -> d.plusDays(1)).limit(daysBetween)
                 .filter(isWeekend.negate()).count();
+    }
+
+    @Override
+    public String toString() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return String.format("%d-%d-%d", calendar.get(DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
     }
 }

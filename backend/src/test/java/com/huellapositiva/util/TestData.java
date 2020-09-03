@@ -226,13 +226,14 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(esal)
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .startingProposalDate(ProposalDate.createStartingProposalDate("20-08-2030"))
                 .closingProposalDate(ProposalDate.createClosingProposalDate("24-08-2030"))
+                .startingVolunteeringDate(ProposalDate.createClosingProposalDate("25-08-2030"))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate(ProposalDate.createClosingProposalDate("25-08-2030"))
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
@@ -256,7 +257,7 @@ public class TestData {
     }
 
     @SneakyThrows
-    private JpaProposal registerESALAndProposal(boolean isPublished) throws ParseException {
+    private JpaProposal registerESALAndProposal(boolean isPublished) {
         JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
@@ -269,18 +270,29 @@ public class TestData {
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
                 .esal(esal)
-                .expirationDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-08-2020"))
+                .closingProposalDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
+                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .published(isPublished)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
                 .category(ProposalCategory.ON_SITE.toString())
                 .imageUrl(createMockImageUrl().toString())
                 .build();
-        return createProposal(jpaProposal);
+        jpaProposal = createProposal(jpaProposal);
+        jpaProposalSkillsRepository.save(JpaProposalSkills.builder()
+                .name("Asertividad")
+                .description("Aprenderás habilidades para una mejor comunicación")
+                .proposal(jpaProposal)
+                .build());
+        jpaProposalRequirementsRepository.save(JpaProposalRequirements.builder()
+                .name("Disponer de vehículo")
+                .proposal(jpaProposal)
+                .build());
+        return jpaProposal;
     }
 
     public String registerESALandPublishedProposalObject() throws ParseException {
@@ -292,13 +304,14 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(new ESAL(esal.getName(), new Id(esal.getId())))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .startingProposalDate(ProposalDate.createStartingProposalDate("20-08-2030"))
                 .closingProposalDate(ProposalDate.createClosingProposalDate("24-08-2030"))
+                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate("25-08-2030"))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
                 .published(true)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate("25-08-2030"))
                 .category(ProposalCategory.ON_SITE)
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")

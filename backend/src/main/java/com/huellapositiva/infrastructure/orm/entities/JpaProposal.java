@@ -45,8 +45,14 @@ public class JpaProposal implements Serializable {
     @Column(name = "max_age", nullable = false)
     private Integer maximumAge;
 
-    @Column(name = "expiration_date", nullable = false)
-    private Date expirationDate;
+    @Column(name = "starting_proposal_date")
+    private Date startingProposalDate;
+
+    @Column(name = "closing_proposal_date", nullable = false)
+    private Date closingProposalDate;
+
+    @Column(name = "starting_volunteering_date")
+    private Date startingVolunteeringDate;
 
     @Column(name = "published")
     private Boolean published;
@@ -59,9 +65,6 @@ public class JpaProposal implements Serializable {
 
     @Column(name = "category")
     private String category;
-
-    @Column(name = "starting_date")
-    private Date startingDate;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "volunteers_proposals",

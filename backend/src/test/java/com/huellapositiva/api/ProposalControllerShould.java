@@ -28,10 +28,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -221,7 +224,12 @@ class ProposalControllerShould {
 
         // THEN
         ProposalResponseDto proposalResponseDto = objectMapper.readValue(fetchResponse.getContentAsString(), ProposalResponseDto.class);
-        assertThat(proposalResponseDto.getTitle()).isEqualTo("Recogida de ropita");
+        assertAll(
+                () -> assertThat(proposalResponseDto.getTitle()).isEqualTo("Recogida de ropita"),
+                () -> assertThat(proposalResponseDto.getSkills()).isNotEmpty(),
+                () -> assertThat(proposalResponseDto.getRequirements()).isNotEmpty(),
+                () -> assertThatCode(() -> createClosingProposalDate(proposalResponseDto.getClosingProposalDate())).doesNotThrowAnyException()
+        );
     }
 
     @Test
@@ -307,7 +315,7 @@ class ProposalControllerShould {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JpaProposal proposal = testData.registerESALAndPublishedProposal();
-        proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
+        proposal.setClosingProposalDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

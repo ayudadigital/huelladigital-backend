@@ -36,6 +36,7 @@ services:
       - AWS_ACCESS_KEY_ID=dummyaccess
       - AWS_SECRET_ACCESS_KEY=dummysecret
       - AWS_DEFAULT_REGION=eu-west-1
+      - AWS_LOCAL_BUCKET=backend-local
     entrypoint: /bin/sh -c
     command: >
       "
@@ -46,12 +47,11 @@ services:
         done;
         echo 'Verified email address.';
 
-        set -e;
-        until aws s3 verify-email-identity --email-address noreply@huellapositiva.com --endpoint-url=http://localstack:4572 --region $${AWS_DEFAULT_REGION} --no-sign-request; do
+        until aws s3api create-bucket --bucket $${AWS_LOCAL_BUCKET} --acl=private --endpoint-url=http://localstack:4572 --region $${AWS_DEFAULT_REGION}; do
           >&2 echo 'AWS S3 is unavailable - sleeping'
           sleep 1;
           done;
-          echo 'Verified email address (S3).';
+          echo 'Bucket created successfully (S3).';
       "
     networks:
       - internal

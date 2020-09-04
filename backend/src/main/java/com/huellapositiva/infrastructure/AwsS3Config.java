@@ -28,7 +28,7 @@ public class AwsS3Config {
                 .withRegion(awsS3Properties.getRegion())
                 .build();
 
-        createBucketIfNotExists(s3client, awsS3Properties.getBucketName());
+        failIfBucketDoesNotExist(s3client, awsS3Properties.getBucketName());
 
         return s3client;
     }
@@ -42,16 +42,18 @@ public class AwsS3Config {
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsS3Properties.getEndpoint(), awsS3Properties.getRegion()))
                 .build();
 
-        createBucketIfNotExists(s3client, awsS3Properties.getBucketName());
+        if(!s3client.doesBucketExistV2(awsS3Properties.getBucketName())) {
+            CreateBucketRequest request = new CreateBucketRequest(awsS3Properties.getBucketName());
+            request.setCannedAcl(CannedAccessControlList.Private);
+            s3client.createBucket(new CreateBucketRequest(awsS3Properties.getBucketName()));
+        }
 
         return s3client;
     }
 
-    private void createBucketIfNotExists(AmazonS3 s3client, String bucketName) {
+    private void failIfBucketDoesNotExist(AmazonS3 s3client, String bucketName) {
         if(!s3client.doesBucketExistV2(bucketName)) {
-            CreateBucketRequest request = new CreateBucketRequest(bucketName);
-            request.setCannedAcl(CannedAccessControlList.PublicRead);
-            s3client.createBucket(new CreateBucketRequest(bucketName));
+            throw new IllegalStateException("Bucket called " + bucketName + " does not exist.");
         }
     }
 }

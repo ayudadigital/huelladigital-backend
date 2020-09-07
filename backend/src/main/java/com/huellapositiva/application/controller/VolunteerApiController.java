@@ -5,6 +5,7 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
+import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -17,12 +18,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,6 +44,8 @@ public class VolunteerApiController {
     private final JpaRoleRepository roleRepository;
 
     private final RegisterVolunteerAction registerVolunteerAction;
+
+    private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -80,5 +88,14 @@ public class VolunteerApiController {
         } catch (ConflictPersistingUserException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");
         }
+    }
+
+    @PostMapping(path = "/cv-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
+                                      @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+        uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
     }
 }

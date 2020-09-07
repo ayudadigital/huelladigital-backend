@@ -166,7 +166,7 @@ public class ProposalApiController {
     }
 
     @Operation(
-            summary = "Register a new proposal as admin",
+            summary = "Register a new proposal as reviser",
             description = "Register a new proposal by providing the ESAL name through the DTO.",
             tags = "proposals",
             parameters = {
@@ -202,7 +202,7 @@ public class ProposalApiController {
                                         HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.execute(dto);
+            String id = registerProposalAction.execute(dto, file);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();

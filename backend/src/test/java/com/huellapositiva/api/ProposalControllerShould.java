@@ -350,4 +350,23 @@ class ProposalControllerShould {
 
         assertThat(jpaProposalRepository.findAll()).isNotEmpty();
     }
+
+    @Test
+    void return_400_when_multipart_file_is_missing() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        proposalDto.setEsalName("Huella Positiva");
+
+        mvc.perform(multipart("/api/v1/proposals/reviser")
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MULTIPART_FORM_DATA)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }

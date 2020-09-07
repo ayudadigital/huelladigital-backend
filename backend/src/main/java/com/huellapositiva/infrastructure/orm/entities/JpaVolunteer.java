@@ -32,4 +32,7 @@ public class JpaVolunteer implements Serializable {
 
     @ManyToMany(mappedBy = "inscribedVolunteers", cascade = CascadeType.ALL)
     private Set<JpaProposal> joinedProposals;
+
+    @Column(name = "curriculum_vitae_url")
+    private String curriculumVitaeUrl;
 }

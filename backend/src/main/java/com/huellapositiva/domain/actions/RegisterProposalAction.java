@@ -38,10 +38,12 @@ public class RegisterProposalAction {
         return proposalRepository.save(proposal);
     }
 
-    public String execute(ProposalRequestDto dto) throws ParseException {
-        ESAL joinedESAL = esalRepository.findByName(dto.getEsalName());
-        Proposal proposal = Proposal.parseDto(dto, joinedESAL);
+    public String execute(ProposalRequestDto dto, MultipartFile file) throws ParseException, IOException {
+        ESAL esal = esalRepository.findByName(dto.getEsalName());
+        Proposal proposal = Proposal.parseDto(dto, esal);
         proposal.validate();
+        URL imageUrl = storageService.uploadProposalImage(file, proposal.getId().getValue());
+        proposal.setImage(imageUrl);
         return proposalRepository.save(proposal);
     }
 }

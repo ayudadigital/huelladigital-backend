@@ -7,6 +7,7 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
+import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,16 +19,20 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
-import static com.huellapositiva.util.TestData.UUID_REGEX;
+import static com.huellapositiva.util.TestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -164,6 +169,34 @@ class VolunteerControllerShould {
                 "username@yahoo.c",
                 "username@yahoo.corporate"
         );
+    }
+
+    @Test
+    void upload_curriculum_vitae_successfully_and_return_200() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
+        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+                .file(new MockMultipartFile("cv", "pdf-test", "application/pdf", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_400_when_uploaded_file_is_not_PDF() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+                .file(new MockMultipartFile("cv", "huellapositiva-logo", "application/pdf", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
 

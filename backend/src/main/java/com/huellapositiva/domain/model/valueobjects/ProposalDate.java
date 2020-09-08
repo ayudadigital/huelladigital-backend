@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
@@ -59,5 +60,11 @@ public class ProposalDate {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         return String.format("%d-%d-%d", calendar.get(DAY_OF_MONTH), calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR));
+    }
+
+    public boolean isNotBeforeStipulatedDeadline() {
+        int stipulatedTimeInMonthsForDeadline = 6 * 30;
+        Date dateSixMonthsFromNow = Date.from(LocalDate.now().plusDays(stipulatedTimeInMonthsForDeadline).atStartOfDay().toInstant(OffsetDateTime.now().getOffset()));
+        return !this.date.before(dateSixMonthsFromNow);
     }
 }

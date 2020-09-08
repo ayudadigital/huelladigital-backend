@@ -12,8 +12,6 @@ import lombok.Setter;
 import javax.validation.constraints.NotEmpty;
 import java.net.URL;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -127,8 +125,7 @@ public class Proposal {
         if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){
             throw new InvalidProposalRequestException("Proposal must start at least within three business days from today.");
         }
-        Date dateSixMonthsFromNow = Date.from(LocalDate.now().plusDays(183).atStartOfDay().toInstant(OffsetDateTime.now().getOffset()));
-        if(!closingProposalDate.getDate().before(dateSixMonthsFromNow)){
+        if(closingProposalDate.isNotBeforeStipulatedDeadline()){
             throw new InvalidProposalRequestException("Proposal deadline must be less than six months from now.");
         }
     }

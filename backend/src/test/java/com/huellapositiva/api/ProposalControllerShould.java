@@ -101,14 +101,14 @@ class ProposalControllerShould {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        String invalidStartingDate = "20-08-2030";
+        String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .startingProposalDate("21-08-2030")
-                .closingProposalDate("24-08-2030")
+                .startingProposalDate("21-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -145,14 +145,14 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .startingProposalDate("20-08-2030")
-                .closingProposalDate("24-08-2030")
+                .startingProposalDate("20-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate("25-08-2030")
+                .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -183,14 +183,14 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .startingProposalDate("20-08-2030")
-                .closingProposalDate("24-08-2030")
+                .startingProposalDate("20-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate("25-08-2030")
+                .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -362,6 +362,43 @@ class ProposalControllerShould {
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MULTIPART_FORM_DATA)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
+        // GIVEN
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .startingProposalDate("21-08-2030")
+                .closingProposalDate("24-08-2030")
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingVolunteeringDate("20-08-2030")
+                .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .build();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())

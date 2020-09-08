@@ -127,7 +127,7 @@ public class Proposal {
         if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){
             throw new InvalidProposalRequestException("Proposal must start at least within three business days from today.");
         }
-        Date dateSixMonthsFromNow = Date.from(LocalDate.now().plusMonths(6).atStartOfDay().toInstant(OffsetDateTime.now().getOffset()));
+        Date dateSixMonthsFromNow = Date.from(LocalDate.now().plusDays(183).atStartOfDay().toInstant(OffsetDateTime.now().getOffset()));
         if(!closingProposalDate.getDate().before(dateSixMonthsFromNow)){
             throw new InvalidProposalRequestException("Proposal deadline must be less than six months from now.");
         }

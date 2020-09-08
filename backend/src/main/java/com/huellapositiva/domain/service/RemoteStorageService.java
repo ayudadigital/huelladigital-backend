@@ -19,17 +19,17 @@ public class RemoteStorageService {
     private final StorageService storageService;
 
     public URL uploadProposalImage(MultipartFile file, String proposalId) throws IOException {
-        String destinationFileName = UUID.randomUUID() + "." + getExtension(file.getOriginalFilename());
+        String destinationFileName = UUID.randomUUID() + getExtension(file.getOriginalFilename());
         String proposalImageRootKey = "images/proposals/" + proposalId + '/';
         return storageService.upload(proposalImageRootKey + destinationFileName, file.getInputStream(), file.getContentType());
     }
 
     public URL uploadVolunteerCV(MultipartFile file, String volunteerId) throws IOException {
         String extension = getExtension(file.getOriginalFilename());
-        if(!extension.equalsIgnoreCase("pdf")) {
+        if(!extension.equalsIgnoreCase(".pdf")) {
             throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
         }
-        String destinationFileName = UUID.randomUUID() + "." + extension;
+        String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerCVRootKey + destinationFileName, file.getInputStream(), file.getContentType());
     }

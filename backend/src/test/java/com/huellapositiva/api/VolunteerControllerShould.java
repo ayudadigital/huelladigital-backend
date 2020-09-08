@@ -177,7 +177,7 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
-                .file(new MockMultipartFile("cv", "pdf-test", "application/pdf", is))
+                .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -191,7 +191,7 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
-                .file(new MockMultipartFile("cv", "huellapositiva-logo", "application/pdf", is))
+                .file(new MockMultipartFile("cv", "huellapositiva-logo.png", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

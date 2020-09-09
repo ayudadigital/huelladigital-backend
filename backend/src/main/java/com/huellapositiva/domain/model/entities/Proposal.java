@@ -4,10 +4,8 @@ package com.huellapositiva.domain.model.entities;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.model.valueobjects.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 import java.net.URL;
@@ -114,6 +112,32 @@ public class Proposal {
                 .forEach(r -> proposal.addRequirement(new Requirement(r)));
 
         return proposal;
+    }
+
+    @SneakyThrows
+    public static Proposal parseJpa(JpaProposal jpaProposal) {
+        return Proposal.builder()
+                .surrogateKey(jpaProposal.getSurrogateKey())
+                .id(new Id(jpaProposal.getId()))
+                .esal(new ESAL(jpaProposal.getEsal().getName(), new Id(jpaProposal.getEsal().getId())))
+                .title(jpaProposal.getTitle())
+                .location(new Location(
+                        jpaProposal.getLocation().getProvince(),
+                        jpaProposal.getLocation().getTown(),
+                        jpaProposal.getLocation().getAddress()))
+                .startingProposalDate(new ProposalDate(jpaProposal.getStartingProposalDate()))
+                .closingProposalDate(new ProposalDate(jpaProposal.getClosingProposalDate()))
+                .startingVolunteeringDate(new ProposalDate(jpaProposal.getStartingVolunteeringDate()))
+                .permittedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
+                .requiredDays(jpaProposal.getRequiredDays())
+                .published(jpaProposal.getPublished())
+                .description(jpaProposal.getDescription())
+                .durationInDays(jpaProposal.getDurationInDays())
+                .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
+                .extraInfo(jpaProposal.getExtraInfo())
+                .instructions(jpaProposal.getInstructions())
+                .image(jpaProposal.getImageUrl() != null ? new URL(jpaProposal.getImageUrl()) : null)
+                .build();
     }
 
     public void validate(){

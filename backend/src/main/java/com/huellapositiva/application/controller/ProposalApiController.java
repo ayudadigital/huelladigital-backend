@@ -1,10 +1,12 @@
 package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.ListedProposalsDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.domain.actions.FetchPaginatedProposalsAction;
 import com.huellapositiva.domain.actions.FetchProposalAction;
 import com.huellapositiva.domain.actions.JoinProposalAction;
 import com.huellapositiva.domain.actions.RegisterProposalAction;
@@ -45,6 +47,8 @@ public class ProposalApiController {
     private final FetchProposalAction fetchProposalAction;
 
     private final JoinProposalAction joinProposalAction;
+
+    private final FetchPaginatedProposalsAction fetchPaginatedProposalsAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -210,5 +214,28 @@ public class ProposalApiController {
         } catch (ParseException pe) {
             throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
         }
+    }
+
+    @Operation(
+            summary = "Fetch a list of published proposals",
+            description = "Fetch a list of published proposals sorted by the proximity of their closing date",
+            tags = "proposals"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, published proposals fetched successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, no published proposals available to fetch, returning an empty list."
+                    )
+            }
+    )
+    @GetMapping("/{page}/{size}")
+    @ResponseStatus(HttpStatus.OK)
+    public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
+        return fetchPaginatedProposalsAction.execute(page, size);
     }
 }

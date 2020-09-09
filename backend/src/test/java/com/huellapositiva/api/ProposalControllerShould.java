@@ -2,12 +2,14 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.ListedProposalsDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -23,6 +25,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -80,8 +83,8 @@ class ProposalControllerShould {
 
         // WHEN
         MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file",null, "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", null, "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -102,7 +105,7 @@ class ProposalControllerShould {
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         String invalidStartingDate = "20-01-2021";
-        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
@@ -125,8 +128,8 @@ class ProposalControllerShould {
 
         // WHEN + THEN
         mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -140,7 +143,7 @@ class ProposalControllerShould {
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 17;
-        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
@@ -163,8 +166,8 @@ class ProposalControllerShould {
 
         // WHEN + THEN
         mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -178,7 +181,7 @@ class ProposalControllerShould {
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 30;
-        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
@@ -201,8 +204,8 @@ class ProposalControllerShould {
 
         // WHEN + THEN
         mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -339,8 +342,8 @@ class ProposalControllerShould {
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -362,7 +365,7 @@ class ProposalControllerShould {
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
@@ -375,7 +378,7 @@ class ProposalControllerShould {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+        ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
@@ -398,12 +401,81 @@ class ProposalControllerShould {
 
         // WHEN + THEN
         mvc.perform(multipart(REGISTER_PROPOSAL_URI)
-                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
-                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void fetch_a_paginated_list_of_published_proposals() throws Exception {
+        // GIVEN
+        testData.registerESALAndPublishedProposal();
+        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        testData.createProposal(JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
+                .title("Limpieza de playas")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
+                        .town("Santa Cruz de Tenerife")
+                        .address("Avenida Weyler 4").build())
+                .esal(different_esal)
+                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
+                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
+                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .published(true)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .category(ProposalCategory.ON_SITE.toString())
+                .imageUrl(testData.createMockImageUrl().toString())
+                .build());
+
+        // WHEN
+        String fetchResponse1 = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 1)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ListedProposalsDto proposalsFetch1 = objectMapper.readValue(fetchResponse1, ListedProposalsDto.class);
+
+        String fetchResponse2 = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 1 + "/" + 1)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ListedProposalsDto proposalsFetch2 = objectMapper.readValue(fetchResponse2, ListedProposalsDto.class);
+
+        // THEN
+        assertAll(
+                () -> assertThat(proposalsFetch1.getProposals()).isNotEmpty(),
+                () -> assertThat(proposalsFetch2.getProposals()).isNotEmpty(),
+                () -> assertThat(proposalsFetch1.getProposals().get(0).getId())
+                        .isNotEqualTo(proposalsFetch2.getProposals().get(0).getId())
+        );
+    }
+
+
+    @Test
+    void return_200_and_an_empty_collection_when_there_is_no_proposals_to_fetch() throws Exception {
+        // WHEN
+        String fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 1)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ListedProposalsDto proposalsFetch = objectMapper.readValue(fetchResponse, ListedProposalsDto.class);
+
+        // THEN
+        assertThat(proposalsFetch.getProposals()).isEmpty();
     }
 }

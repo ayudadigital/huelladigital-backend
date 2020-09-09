@@ -12,6 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class ProposalResponseDto {
 
+    private final String id;
+
     @NotEmpty
     private final String title;
 
@@ -65,6 +67,8 @@ public class ProposalResponseDto {
     private final String imageURL;
 
     private final List<VolunteerDto> inscribedVolunteers;
+
+    private final Integer inscribedVolunteersCount;
 
     private final List<SkillDto> skills;
 

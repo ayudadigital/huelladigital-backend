@@ -1,8 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.model.valueobjects.Email;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
@@ -38,5 +36,17 @@ public class EmailCommunicationService {
             log.error("Failed to send email:", ex);
             issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
         }
+    }
+
+    public void sendRevisionRequestEmail(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
+        EmailTemplate emailTemplate = templateService.getProposalRevisionRequestTemplate(proposalRevisionRequestEmail);
+        Email email = Email.createFrom(proposalRevisionRequestEmail, emailTemplate, from);
+        emailService.sendEmail(email);
+    }
+
+    public void sendSubmittedProposalRevision(ProposalRevisionEmail proposalRevisionEmail) {
+        EmailTemplate emailTemplate = templateService.getProposalRevisionTemplate(proposalRevisionEmail);
+        Email email = Email.createFrom(proposalRevisionEmail, emailTemplate, from);
+        emailService.sendEmail(email);
     }
 }

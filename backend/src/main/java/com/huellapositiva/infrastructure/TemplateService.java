@@ -3,6 +3,8 @@ package com.huellapositiva.infrastructure;
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -35,5 +37,24 @@ public class TemplateService {
         variables.put("CONFIRMATION_URL", url );
         return new EmailTemplate(template).parse(variables);
     }
+
+    public EmailTemplate getProposalRevisionRequestTemplate(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
+        String relativePath = "classpath:templates/emails/proposalRevisionRequest.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = proposalRevisionRequestEmail.getProposalUrl();
+        variables.put("PROPOSAL_URL", url );
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getProposalRevisionTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
+        String relativePath = "classpath:templates/emails/proposalRevisionResponseRequest.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = proposalRevisionRequestEmail.getProposalURL();
+        variables.put("PROPOSAL_URL", url );
+        return new EmailTemplate(template).parse(variables);
+    }
+
 
 }

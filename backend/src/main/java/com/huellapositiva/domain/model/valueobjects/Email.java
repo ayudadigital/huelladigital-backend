@@ -23,4 +23,30 @@ public class Email {
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
+
+    public static Email createFrom(ProposalRevisionRequestEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
+        if (proposalRevisionRequestEmail.getEmailAddress().isEmpty()) {
+            throw new EmailNotValidException("Error when build the email, the email address is empty");
+        }
+        return Email.builder()
+                .from(from)
+                .to(proposalRevisionRequestEmail.getEmailAddress())
+                .subject("Revisión de nuevas convocatorias requerida")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
+
+    public static Email createFrom(ProposalRevisionEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
+        if (proposalRevisionRequestEmail.getEmailAddress().isEmpty()) {
+            throw new EmailNotValidException("Error when build the email, the email address is empty");
+        }
+        return Email.builder()
+                .from(from)
+                .to(proposalRevisionRequestEmail.getEmailAddress())
+                .subject("Revisión de tu convocatoria.")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
+
+
 }

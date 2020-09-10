@@ -25,12 +25,12 @@ class EmailCommunicationServiceShould {
 
     @Test
     void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() {
-        //GIVEN
+        // GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "hello");
-        //WHEN
+        // WHEN
         lenient().doThrow(new RuntimeException()).when(emailService).sendEmail(any());
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
-        //THEN
+        // THEN
         verify(issueService).registerVolunteerIssue(any(), any());
     }
 }

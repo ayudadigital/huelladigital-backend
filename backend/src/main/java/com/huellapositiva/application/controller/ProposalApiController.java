@@ -1,15 +1,10 @@
 package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.ListedProposalsDto;
-import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ProposalNotPublished;
-import com.huellapositiva.domain.actions.FetchPaginatedProposalsAction;
-import com.huellapositiva.domain.actions.FetchProposalAction;
-import com.huellapositiva.domain.actions.JoinProposalAction;
-import com.huellapositiva.domain.actions.RegisterProposalAction;
+import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,6 +44,10 @@ public class ProposalApiController {
     private final JoinProposalAction joinProposalAction;
 
     private final FetchPaginatedProposalsAction fetchPaginatedProposalsAction;
+
+    private final RequestProposalRevisionAction requestProposalRevisionAction;
+
+    private final SubmitProposalRevisionAction submitProposalRevisionAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -95,6 +94,7 @@ public class ProposalApiController {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
+            requestProposalRevisionAction.execute(uri);
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
         } catch (ParseException e) {
             throw new FailedToPersistProposal("The given date(s) format is not valid.");
@@ -237,5 +237,18 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
         return fetchPaginatedProposalsAction.execute(page, size);
+    }
+
+    @PostMapping(path = "/{id}/revision")
+    @RolesAllowed("REVISER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void submitProposalRevision(@PathVariable String id,
+                                       @RequestBody ProposalRevisionDto dto,
+                                       HttpServletResponse res) throws IOException {
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}").buildAndExpand(id)
+                .toUri();
+        submitProposalRevisionAction.execute(id, dto, uri);
     }
 }

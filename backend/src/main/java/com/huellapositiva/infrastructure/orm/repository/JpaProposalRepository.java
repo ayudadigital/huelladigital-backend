@@ -14,7 +14,7 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     @Query("FROM JpaProposal p LEFT JOIN FETCH p.esal LEFT JOIN FETCH p.inscribedVolunteers WHERE p.id = :id")
     Optional<JpaProposal> findByIdWithOrganizationAndInscribedVolunteers(@Param("id") String id);
 
-    @Query("FROM JpaProposal p WHERE p.id = :id")
+    @Query("FROM JpaProposal p LEFT JOIN FETCH p.esal WHERE p.id = :id")
     Optional<JpaProposal> findByNaturalId(@Param("id") String id);
 
     Page<JpaProposal> findByPublished(boolean published, Pageable pageable);

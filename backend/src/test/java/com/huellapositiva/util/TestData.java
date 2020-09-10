@@ -13,8 +13,10 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.text.ParseException;
@@ -328,6 +330,9 @@ public class TestData {
     @SneakyThrows
     public URL createMockImageUrl() {
         return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
+    }
 
+    public MultipartFile createMockMultipartFile() {
+        return new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes());
     }
 }

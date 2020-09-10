@@ -9,6 +9,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ListedProposalsDto {
 
-    private final List<ProposalResponseDto> proposals;
+    private final List<ProposalLiteDto> proposals;
 
 }

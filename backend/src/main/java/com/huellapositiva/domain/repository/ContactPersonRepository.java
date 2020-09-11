@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.exception.UserNotFound;
-import com.huellapositiva.domain.model.valueobjects.ContactPerson;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;

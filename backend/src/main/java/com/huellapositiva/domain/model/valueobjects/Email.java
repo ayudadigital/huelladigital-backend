@@ -13,9 +13,7 @@ public class Email {
     private final String body;
 
     public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
-        if (emailConfirmation.getEmailAddress().isEmpty()) {
-            throw new EmailNotValidException("Error when build the email, the email address is empty");
-        }
+        validateEmail(emailConfirmation.getEmailAddress());
         return Email.builder()
                 .from(from)
                 .to(emailConfirmation.getEmailAddress())
@@ -25,9 +23,7 @@ public class Email {
     }
 
     public static Email createFrom(ProposalRevisionRequestEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
-        if (proposalRevisionRequestEmail.getEmailAddress().isEmpty()) {
-            throw new EmailNotValidException("Error when build the email, the email address is empty");
-        }
+        validateEmail(proposalRevisionRequestEmail.getEmailAddress());
         return Email.builder()
                 .from(from)
                 .to(proposalRevisionRequestEmail.getEmailAddress())
@@ -36,17 +32,19 @@ public class Email {
                 .build();
     }
 
-    public static Email createFrom(ProposalRevisionEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
-        if (proposalRevisionRequestEmail.getEmailAddress().isEmpty()) {
-            throw new EmailNotValidException("Error when build the email, the email address is empty");
-        }
+    public static Email createFrom(ProposalRevisionEmail proposalRevisionEmail, EmailTemplate emailTemplate, String from) {
+        validateEmail(proposalRevisionEmail.getEmailAddress());
         return Email.builder()
                 .from(from)
-                .to(proposalRevisionRequestEmail.getEmailAddress())
+                .to(proposalRevisionEmail.getEmailAddress())
                 .subject("Revisión de tu convocatoria.")
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
 
-
+    private static void validateEmail(String emailAddress) {
+        if (emailAddress.isEmpty()) {
+            throw new EmailNotValidException("Error when build the email, the email address is empty");
+        }
+    }
 }

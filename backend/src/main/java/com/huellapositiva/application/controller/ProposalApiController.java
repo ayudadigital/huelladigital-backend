@@ -244,10 +244,12 @@ public class ProposalApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void submitProposalRevision(@PathVariable String id,
-                                       @RequestBody ProposalRevisionDto dto) {
+                                       @RequestBody ProposalRevisionDto dto,
+                                       @AuthenticationPrincipal String reviserEmail) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(id)
                 .toUri();
+        dto.setReviserEmail(reviserEmail);
         submitProposalRevisionAction.execute(id, dto, uri);
     }
 }

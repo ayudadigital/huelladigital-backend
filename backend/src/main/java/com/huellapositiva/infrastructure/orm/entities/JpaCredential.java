@@ -15,7 +15,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Credential implements Serializable {
+public class JpaCredential implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,4 +40,10 @@ public class Credential implements Serializable {
     @OneToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "surname")
+    private String surname;
 }

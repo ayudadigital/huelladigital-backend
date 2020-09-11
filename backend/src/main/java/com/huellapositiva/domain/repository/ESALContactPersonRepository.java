@@ -47,7 +47,7 @@ public class ESALContactPersonRepository {
                 .hash(expressMember.getConfirmationToken())
                 .build();
         emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
-        Credential credential = Credential.builder()
+        JpaCredential jpaCredential = JpaCredential.builder()
                 .email(expressMember.getEmail())
                 .hashedPassword(expressMember.getHashedPassword())
                 .roles(Collections.singleton(role))
@@ -55,7 +55,7 @@ public class ESALContactPersonRepository {
                 .emailConfirmation(emailConfirmation)
                 .build();
         JpaContactPerson contactPerson = JpaContactPerson.builder()
-                .credential(credential)
+                .credential(jpaCredential)
                 .id(UUID.randomUUID().toString())
                 .build();
         contactPerson = jpaContactPersonRepository.save(contactPerson);

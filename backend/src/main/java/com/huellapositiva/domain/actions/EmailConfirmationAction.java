@@ -4,7 +4,7 @@ import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirme
 import com.huellapositiva.application.exception.EmailConfirmationExpired;
 import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
@@ -54,14 +54,14 @@ public class EmailConfirmationAction {
            throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }
 
-        Credential credential = emailConfirmation.getCredential();
-        credential.setEmailConfirmed(true);
+        JpaCredential jpaCredential = emailConfirmation.getCredential();
+        jpaCredential.setEmailConfirmed(true);
         Role newRole = jpaRoleRepository.findByName(VOLUNTEER.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
         Set<Role> newUserRole = new HashSet<>();
         newUserRole.add(newRole);
-        credential.setRoles(newUserRole);
-        credentialRepository.save(credential);
-        jwtService.revokeAccessTokens(credential.getEmail());
+        jpaCredential.setRoles(newUserRole);
+        credentialRepository.save(jpaCredential);
+        jwtService.revokeAccessTokens(jpaCredential.getEmail());
     }
 }

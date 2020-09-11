@@ -5,7 +5,7 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
@@ -44,7 +44,7 @@ public class VolunteerRepository {
                 .hash(expressVolunteer.getConfirmationToken())
                 .build();
         emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
-        Credential credential = Credential.builder()
+        JpaCredential jpaCredential = JpaCredential.builder()
                 .email(expressVolunteer.getEmail())
                 .hashedPassword(expressVolunteer.getHashedPassword())
                 .roles(Collections.singleton(role))
@@ -53,7 +53,7 @@ public class VolunteerRepository {
                 .build();
         JpaVolunteer volunteer = JpaVolunteer.builder()
                 .id(UUID.randomUUID().toString())
-                .credential(credential)
+                .credential(jpaCredential)
                 .build();
         volunteer = jpaVolunteerRepository.save(volunteer);
         return new com.huellapositiva.domain.model.entities.Volunteer(

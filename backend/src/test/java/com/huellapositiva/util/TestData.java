@@ -109,22 +109,22 @@ public class TestData {
         return jpaEmailConfirmationRepository.save(emailConfirmation);
     }
 
-    public Credential createCredential(String email, UUID token) {
+    public JpaCredential createCredential(String email, UUID token) {
         return createCredential(email, DEFAULT_PASSWORD, token);
     }
 
-    public Credential createCredential(String email, Roles role) {
+    public JpaCredential createCredential(String email, Roles role) {
         return createCredential(email, UUID.randomUUID(), DEFAULT_PASSWORD, role);
     }
 
-    public Credential createCredential(String email, String plainPassword, UUID token) {
+    public JpaCredential createCredential(String email, String plainPassword, UUID token) {
         return createCredential(email, token, plainPassword, Roles.VOLUNTEER_NOT_CONFIRMED);
     }
 
-    public Credential createCredential(String email, UUID token, String plainPassword, Roles userRole){
+    public JpaCredential createCredential(String email, UUID token, String plainPassword, Roles userRole){
         EmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(userRole.toString()).orElse(null);
-        Credential credential = Credential.builder()
+        JpaCredential jpaCredential = JpaCredential.builder()
                 .email(email)
                 .hashedPassword(passwordEncoder.encode(plainPassword))
                 .emailConfirmed(false)
@@ -132,7 +132,7 @@ public class TestData {
                 .roles(Collections.singleton(role))
                 .build();
 
-        return jpaCredentialRepository.save(credential);
+        return jpaCredentialRepository.save(jpaCredential);
     }
 
     public JpaVolunteer createVolunteer(String email, String password) {
@@ -140,10 +140,10 @@ public class TestData {
     }
 
     public JpaVolunteer createVolunteer(String email, String password, Roles role) {
-        Credential credential = createCredential(email, UUID.randomUUID(), password, role);
+        JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
 
         JpaVolunteer volunteer = JpaVolunteer.builder()
-                .credential(credential)
+                .credential(jpaCredential)
                 .id(UUID.randomUUID().toString())
                 .build();
 
@@ -155,9 +155,9 @@ public class TestData {
     }
 
     public JpaContactPerson createESALMember(String email, String password, Roles role) {
-        Credential credential = createCredential(email, UUID.randomUUID(), password, role);
+        JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
         JpaContactPerson contactPerson = JpaContactPerson.builder()
-                .credential(credential)
+                .credential(jpaCredential)
                 .id(UUID.randomUUID().toString())
                 .build();
         return jpaContactPersonRepository.save(contactPerson);

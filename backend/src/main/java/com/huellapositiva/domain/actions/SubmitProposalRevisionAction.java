@@ -1,12 +1,12 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
-import com.huellapositiva.domain.model.valueobjects.ContactPerson;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
+import com.huellapositiva.domain.model.entities.Reviser;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
+import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import lombok.RequiredArgsConstructor;
@@ -24,14 +24,18 @@ public class SubmitProposalRevisionAction {
 
     private final ContactPersonRepository contactPersonRepository;
 
-    public void execute(String proposalId, ProposalRevisionDto overview, URI proposalURI) {
+    private final CredentialsRepository credentialsRepository;
+
+    public void execute(String proposalId, ProposalRevisionDto revisionDto, URI proposalURI) {
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
+        Reviser reviser = Reviser.from(credentialsRepository.findByEmail(revisionDto.getReviserEmail()));
         ProposalRevisionEmail revision = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)
-                .overview(overview.getRevisionOverview())
-                .emailAddress(EmailAddress.from(contactPerson.getEmailAddress().toString()))
+                .overview(revisionDto.getRevisionOverview())
+                .esalContactPerson(contactPerson)
+                .reviser(reviser)
                 .build();
         communicationService.sendSubmittedProposalRevision(revision);
     }

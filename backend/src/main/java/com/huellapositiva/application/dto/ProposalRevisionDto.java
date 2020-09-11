@@ -9,4 +9,6 @@ public class ProposalRevisionDto {
 
     private final String revisionOverview;
 
+    private String reviserEmail;
+
 }

@@ -1,0 +1,5 @@
+ALTER TABLE credentials
+ADD COLUMN name VARCHAR(255);
+
+ALTER TABLE credentials
+ADD COLUMN surname VARCHAR(255);

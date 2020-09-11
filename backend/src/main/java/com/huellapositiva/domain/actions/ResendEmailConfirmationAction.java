@@ -4,7 +4,7 @@ import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirme
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.Token;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,10 +32,10 @@ public class ResendEmailConfirmationAction {
 
     public void execute() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Credential credential = jpaCredentialRepository.findByEmail(email)
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
 
-        boolean isEmailConfirmed = credential.getEmailConfirmed();
+        boolean isEmailConfirmed = jpaCredential.getEmailConfirmed();
         if (isEmailConfirmed) {
             throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
         }

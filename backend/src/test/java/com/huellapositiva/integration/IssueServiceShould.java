@@ -1,15 +1,12 @@
 package com.huellapositiva.integration;
 
-import cloud.localstack.docker.LocalstackDockerExtension;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
-import com.huellapositiva.util.AwsEnvVariablesExtension;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;

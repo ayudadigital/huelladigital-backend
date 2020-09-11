@@ -52,8 +52,10 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
-        variables.put("CONTACT_PERSON_NAME", "John Doe  (TemplateService placeholder)" );
-        variables.put("REVISER_NAME", "John Doe (TemplateService placeholder)" );
+        String contactPersonName = proposalRevisionRequestEmail.getEsalContactPerson().getFullName();
+        variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
+        String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
+        variables.put("REVISER_NAME",  reviserName != null ? reviserName : "un revisor");
         variables.put("REVISION_OVERVIEW", proposalRevisionRequestEmail.getOverview());
         return new EmailTemplate(template).parse(variables);
     }

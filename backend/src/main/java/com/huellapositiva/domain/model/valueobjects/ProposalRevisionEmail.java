@@ -1,5 +1,7 @@
 package com.huellapositiva.domain.model.valueobjects;
 
+import com.huellapositiva.domain.model.entities.ContactPerson;
+import com.huellapositiva.domain.model.entities.Reviser;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +18,16 @@ public class ProposalRevisionEmail {
 
     private final String overview;
 
-    private final EmailAddress emailAddress;
+    private final ContactPerson esalContactPerson;
 
     private final Token token;
 
     private final URI proposalURI;
 
-    private ProposalRevisionEmail(EmailAddress emailAddress, Token token, Id proposalId, String overview, URI proposalURI) {
-        this.emailAddress = emailAddress;
-        this.token = token;
-        this.proposalId = proposalId;
-        this.overview = overview;
-        this.proposalURI = proposalURI;
-    }
-
-    public static ProposalRevisionEmail from(String email, String proposalId, String overview, URI proposalURI) {
-        return new ProposalRevisionEmail(
-                EmailAddress.from(email), Token.createToken(), new Id(proposalId), overview, proposalURI);
-    }
+    private final Reviser reviser;
 
     public String getEmailAddress() {
-        return emailAddress.toString();
+        return esalContactPerson.getEmailAddress().toString();
     }
 
     public String getToken() {

@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -53,19 +53,19 @@ class EmailAddressConfirmationActionShould {
     void confirm_email() {
         // GIVEN
         UUID hash = UUID.randomUUID();
-        Credential credential = testData.createCredential(DEFAULT_EMAIL, hash, DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
+        JpaCredential jpaCredential = testData.createCredential(DEFAULT_EMAIL, hash, DEFAULT_PASSWORD, VOLUNTEER_NOT_CONFIRMED);
 
         // WHEN
         action.execute(hash);
 
         // THEN
-        Optional<Credential> credentialOptional = credentialRepository.findById(credential.getId());
+        Optional<JpaCredential> credentialOptional = credentialRepository.findById(jpaCredential.getId());
         assertTrue(credentialOptional.isPresent());
-        credential = credentialOptional.get();
-        assertThat(credential.getEmailConfirmed(), is(true));
-        String username = credential.getEmail();
+        jpaCredential = credentialOptional.get();
+        assertThat(jpaCredential.getEmailConfirmed(), is(true));
+        String username = jpaCredential.getEmail();
         verify(jwtService, times(1)).revokeAccessTokens(username);
-        Set<Role> roles = credential.getRoles();
+        Set<Role> roles = jpaCredential.getRoles();
         Assertions.assertThat(roles).hasSize(1);
         Assertions.assertThat(roles.iterator().next().getName()).isEqualTo(VOLUNTEER.toString());
     }

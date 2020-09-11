@@ -239,13 +239,12 @@ public class ProposalApiController {
         return fetchPaginatedProposalsAction.execute(page, size);
     }
 
-    @PostMapping(path = "/{id}/revision")
+    @PostMapping(path = "/revision/{id}")
     @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void submitProposalRevision(@PathVariable String id,
-                                       @RequestBody ProposalRevisionDto dto,
-                                       HttpServletResponse res) throws IOException {
+                                       @RequestBody ProposalRevisionDto dto) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(id)
                 .toUri();

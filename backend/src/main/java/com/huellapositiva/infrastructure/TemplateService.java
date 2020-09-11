@@ -51,10 +51,10 @@ public class TemplateService {
         String relativePath = "classpath:templates/emails/proposalRevisionResponseRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
-        String url = proposalRevisionRequestEmail.getProposalURL();
-        variables.put("PROPOSAL_URL", url );
+        variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
+        variables.put("CONTACT_PERSON_NAME", "John Doe  (TemplateService placeholder)" );
+        variables.put("REVISER_NAME", "John Doe (TemplateService placeholder)" );
+        variables.put("REVISION_OVERVIEW", proposalRevisionRequestEmail.getOverview());
         return new EmailTemplate(template).parse(variables);
     }
-
-
 }

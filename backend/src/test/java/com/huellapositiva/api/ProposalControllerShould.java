@@ -1,10 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.ListedProposalsDto;
-import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
@@ -463,7 +460,6 @@ class ProposalControllerShould {
         );
     }
 
-
     @Test
     void return_200_and_an_empty_collection_when_there_is_no_proposals_to_fetch() throws Exception {
         // WHEN
@@ -477,5 +473,24 @@ class ProposalControllerShould {
 
         // THEN
         assertThat(proposalsFetch.getProposals()).isEmpty();
+    }
+
+    @Test
+    void return_200_and_send_an_email_to_contact_person_when_submitting_a_revision_as_reviser() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        String proposalId = jpaProposal.getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().revisionOverview("Deberías profundizar más en la descripción").build();
+
+        // WHEN + THEN
+        mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(revisionDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

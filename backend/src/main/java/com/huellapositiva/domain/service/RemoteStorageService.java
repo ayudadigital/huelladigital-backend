@@ -26,7 +26,7 @@ public class RemoteStorageService {
 
     public URL uploadVolunteerCV(MultipartFile file, String volunteerId) throws IOException {
         String extension = getExtension(file.getOriginalFilename());
-        if(!extension.equalsIgnoreCase(".pdf")) {
+        if(!".pdf".equalsIgnoreCase(extension)) {
             throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
@@ -35,6 +35,9 @@ public class RemoteStorageService {
     }
 
     private String getExtension(String fileName) {
+        if (fileName == null) {
+            return "";
+        }
         int index = fileName.lastIndexOf('.');
         return index != -1 ? fileName.substring(index) : "";
     }

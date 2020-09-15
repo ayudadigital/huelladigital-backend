@@ -4,7 +4,10 @@ import com.huellapositiva.application.exception.ESALNotFound;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Requirement;
+import com.huellapositiva.domain.model.valueobjects.Skill;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
@@ -14,10 +17,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.List;
 import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -102,28 +108,7 @@ public class ProposalRepository {
     @SneakyThrows
     public Proposal fetch(String id) {
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
-        Proposal proposal = Proposal.builder()
-                .surrogateKey(jpaProposal.getSurrogateKey())
-                .id(new Id(jpaProposal.getId()))
-                .esal(new ESAL(jpaProposal.getEsal().getName(), new Id(jpaProposal.getEsal().getId())))
-                .title(jpaProposal.getTitle())
-                .location(new Location(
-                        jpaProposal.getLocation().getProvince(),
-                        jpaProposal.getLocation().getTown(),
-                        jpaProposal.getLocation().getAddress()))
-                .startingProposalDate(new ProposalDate(jpaProposal.getStartingProposalDate()))
-                .closingProposalDate(new ProposalDate(jpaProposal.getClosingProposalDate()))
-                .startingVolunteeringDate(new ProposalDate(jpaProposal.getStartingVolunteeringDate()))
-                .permittedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
-                .requiredDays(jpaProposal.getRequiredDays())
-                .published(jpaProposal.getPublished())
-                .description(jpaProposal.getDescription())
-                .durationInDays(jpaProposal.getDurationInDays())
-                .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
-                .extraInfo(jpaProposal.getExtraInfo())
-                .instructions(jpaProposal.getInstructions())
-                .image(jpaProposal.getImageUrl() != null ? new URL(jpaProposal.getImageUrl()) : null)
-                .build();
+        Proposal proposal = Proposal.parseJpa(jpaProposal);
         jpaProposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> new Volunteer(EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
@@ -134,5 +119,13 @@ public class ProposalRepository {
                 .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
 
         return proposal;
+    }
+
+    public List<Proposal> fetchAllPaginated(int page, int size) {
+        Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
+        return jpaProposalRepository.findByPublished(true, PageRequest.of(page, size, sortByClosingDateProximity))
+            .stream()
+            .map(Proposal::parseJpa)
+            .collect(Collectors.toList());
     }
 }

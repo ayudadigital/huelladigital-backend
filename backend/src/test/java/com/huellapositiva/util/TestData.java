@@ -162,13 +162,13 @@ public class TestData {
     }
 
     public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
-        String id = createJpaESAL(esal);
+        String id = createJpaESAL(esal).getId();
         jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         return id;
     }
 
-    public String createJpaESAL(JpaESAL esal) {
-        return jpaESALRepository.save(esal).getId();
+    public JpaESAL createJpaESAL(JpaESAL esal) {
+        return jpaESALRepository.save(esal);
     }
 
     public ESAL createESAL(String id, String name) {
@@ -176,8 +176,8 @@ public class TestData {
         return new ESAL(savedEsal.getName(), new Id(savedEsal.getId()));
     }
 
-    public JpaProposal createProposal(JpaProposal proposal) {
-         return jpaProposalRepository.save(proposal);
+    public JpaProposal createProposal(JpaProposal jpaProposal) {
+         return jpaProposalRepository.save(jpaProposal);
     }
 
     public ProposalRequestDto buildPublishedProposalDto() {
@@ -326,7 +326,7 @@ public class TestData {
     }
 
     @SneakyThrows
-    private URL createMockImageUrl() {
+    public URL createMockImageUrl() {
         return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
 
     }

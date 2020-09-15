@@ -1,11 +1,11 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ESALRequestDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +24,8 @@ import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -144,7 +144,7 @@ class ESALControllerShould {
     void return_401_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        String secondESALId = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Negativa").build());
+        String secondESALId = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Negativa").build()).getId();
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

@@ -10,9 +10,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -39,15 +41,16 @@ public class Proposal {
     private final String requiredDays;
 
     @NotEmpty
-    private final AgeRange permitedAgeRange;
+    private final AgeRange permittedAgeRange;
 
     @NotEmpty
-    private final ProposalDate expirationDate;
+    private final ProposalDate startingProposalDate;
 
     @NotEmpty
-    private final ProposalDate startingDate;
+    private final ProposalDate closingProposalDate;
 
-    private boolean published;
+    @NotEmpty
+    private final ProposalDate startingVolunteeringDate;
 
     @NotEmpty
     private final String description;
@@ -58,15 +61,21 @@ public class Proposal {
     @NotEmpty
     private final ProposalCategory category;
 
+    @NotEmpty
+    private final String extraInfo;
+
+    @NotEmpty
+    private final String instructions;
+
     private final List<Volunteer> inscribedVolunteers = new ArrayList<>();
 
     private final List<Skill> skills = new ArrayList<>();
 
     private final List<Requirement> requirements = new ArrayList<>();
 
-    private final String extraInfo;
+    private URL image;
 
-    private final String instructions;
+    private boolean published;
 
     public void inscribeVolunteer(Volunteer volunteer) {
         inscribedVolunteers.add(volunteer);
@@ -85,15 +94,16 @@ public class Proposal {
                 .id(Id.newId())
                 .title(dto.getTitle())
                 .esal(joinedESAL)
-                .expirationDate(ProposalDate.createExpirationDate(dto.getExpirationDate()))
-                .permitedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
+                .startingProposalDate(ProposalDate.createStartingProposalDate(dto.getStartingProposalDate()))
+                .closingProposalDate(ProposalDate.createClosingProposalDate(dto.getClosingProposalDate()))
+                .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
                 .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress()))
                 .requiredDays(dto.getRequiredDays())
                 .published(dto.isPublished())
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
                 .category(ProposalCategory.valueOf(dto.getCategory()))
-                .startingDate(ProposalDate.createStartingDate(dto.getStartingDate()))
+                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate(dto.getStartingVolunteeringDate()))
                 .extraInfo(dto.getExtraInfo())
                 .instructions(dto.getInstructions())
                 .build();
@@ -107,8 +117,16 @@ public class Proposal {
     }
 
     public void validate(){
-        if(expirationDate.isBeforeNow() || startingDate.isBefore(expirationDate)){
+        boolean closingBeforeStartingProposal = closingProposalDate.isBefore(startingProposalDate);
+        boolean startingVolunteeringBeforeClosing = startingVolunteeringDate.isBefore(closingProposalDate);
+        if(closingBeforeStartingProposal || startingVolunteeringBeforeClosing){
             throw new InvalidProposalRequestException("Date is not in a valid range.");
+        }
+        if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){
+            throw new InvalidProposalRequestException("Proposal must start at least within three business days from today.");
+        }
+        if(closingProposalDate.isNotBeforeStipulatedDeadline()){
+            throw new InvalidProposalRequestException("Proposal deadline must be less than six months from now.");
         }
     }
 }

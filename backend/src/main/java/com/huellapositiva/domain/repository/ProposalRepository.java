@@ -11,12 +11,14 @@ import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,18 +69,20 @@ public class ProposalRepository {
                 .title(proposal.getTitle())
                 .esal(esal)
                 .location(jpaLocation)
-                .expirationDate(proposal.getExpirationDate().getDate())
+                .startingProposalDate(proposal.getStartingProposalDate().getDate())
+                .closingProposalDate(proposal.getClosingProposalDate().getDate())
+                .startingVolunteeringDate(proposal.getStartingVolunteeringDate().getDate())
                 .requiredDays(proposal.getRequiredDays())
-                .minimumAge(proposal.getPermitedAgeRange().getMinimum())
-                .maximumAge(proposal.getPermitedAgeRange().getMaximum())
+                .minimumAge(proposal.getPermittedAgeRange().getMinimum())
+                .maximumAge(proposal.getPermittedAgeRange().getMaximum())
                 .published(proposal.isPublished())
                 .description(proposal.getDescription())
                 .durationInDays(proposal.getDurationInDays())
-                .startingDate(proposal.getStartingDate().getDate())
                 .category(proposal.getCategory().toString())
                 .inscribedVolunteers(volunteers)
                 .extraInfo(proposal.getExtraInfo())
                 .instructions(proposal.getInstructions())
+                .imageUrl(proposal.getImage() != null ? proposal.getImage().toExternalForm() : null)
                 .build();
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
@@ -95,6 +99,7 @@ public class ProposalRepository {
         return jpaProposalRepository.save(proposal);
     }
 
+    @SneakyThrows
     public Proposal fetch(String id) {
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
         Proposal proposal = Proposal.builder()
@@ -106,16 +111,18 @@ public class ProposalRepository {
                         jpaProposal.getLocation().getProvince(),
                         jpaProposal.getLocation().getTown(),
                         jpaProposal.getLocation().getAddress()))
-                .expirationDate(new ProposalDate(jpaProposal.getExpirationDate()))
-                .permitedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
+                .startingProposalDate(new ProposalDate(jpaProposal.getStartingProposalDate()))
+                .closingProposalDate(new ProposalDate(jpaProposal.getClosingProposalDate()))
+                .startingVolunteeringDate(new ProposalDate(jpaProposal.getStartingVolunteeringDate()))
+                .permittedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
                 .requiredDays(jpaProposal.getRequiredDays())
                 .published(jpaProposal.getPublished())
                 .description(jpaProposal.getDescription())
                 .durationInDays(jpaProposal.getDurationInDays())
-                .startingDate(new ProposalDate(jpaProposal.getStartingDate()))
                 .category(ProposalCategory.valueOf(jpaProposal.getCategory()))
                 .extraInfo(jpaProposal.getExtraInfo())
                 .instructions(jpaProposal.getInstructions())
+                .image(jpaProposal.getImageUrl() != null ? new URL(jpaProposal.getImageUrl()) : null)
                 .build();
         jpaProposal.getInscribedVolunteers()
                 .stream()

@@ -150,7 +150,7 @@ class JwtControllerShould {
         String accessToken = createVolunteerWithRoleAndGetAccessToken(VOLUNTEER_NOT_CONFIRMED).getAccessToken();
 
         //WHEN + THEN
-        await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() ->
+        await().atMost(3, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() ->
                 mvc.perform(get(testJwtUri)
                         .header(AUTHORIZATION, "Bearer " + accessToken)
                         .accept(APPLICATION_JSON))

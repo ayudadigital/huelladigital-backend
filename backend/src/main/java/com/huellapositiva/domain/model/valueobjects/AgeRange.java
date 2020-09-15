@@ -20,7 +20,7 @@ public class AgeRange {
     }
 
     public static AgeRange create(int minimum, int maximum){
-        if(minimum < 18 || maximum > 55){
+        if(minimum < 18 || maximum > 80){
             throw new InvalidProposalRequestException("Age is not in a valid range.");
         }
         if(minimum > maximum){

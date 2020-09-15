@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
@@ -27,14 +28,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,11 +79,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(post(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file",null, "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
@@ -92,23 +97,24 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_date_is_invalid() throws Exception {
+    void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        String invalidStartingDate = "20-08-2020";
+        String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
+                .startingProposalDate("21-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate(invalidStartingDate)
+                .startingVolunteeringDate(invalidStartingDate)
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -118,11 +124,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -138,13 +145,14 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
+                .startingProposalDate("20-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate("25-08-2020")
+                .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -154,11 +162,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -174,13 +183,14 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .expirationDate("24-08-2020")
+                .startingProposalDate("20-01-2021")
+                .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
                 .minimumAge(invalidMinimumAge)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingDate("25-08-2020")
+                .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -190,11 +200,12 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -213,7 +224,12 @@ class ProposalControllerShould {
 
         // THEN
         ProposalResponseDto proposalResponseDto = objectMapper.readValue(fetchResponse.getContentAsString(), ProposalResponseDto.class);
-        assertThat(proposalResponseDto.getTitle()).isEqualTo("Recogida de ropita");
+        assertAll(
+                () -> assertThat(proposalResponseDto.getTitle()).isEqualTo("Recogida de ropita"),
+                () -> assertThat(proposalResponseDto.getSkills()).isNotEmpty(),
+                () -> assertThat(proposalResponseDto.getRequirements()).isNotEmpty(),
+                () -> assertThatCode(() -> createClosingProposalDate(proposalResponseDto.getClosingProposalDate())).doesNotThrowAnyException()
+        );
     }
 
     @Test
@@ -299,7 +315,7 @@ class ProposalControllerShould {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JpaProposal proposal = testData.registerESALAndPublishedProposal();
-        proposal.setExpirationDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
+        proposal.setClosingProposalDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -319,18 +335,75 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalRequestDto = testData.buildProposalDto(true);
-        proposalRequestDto.setEsalName("Huella Positiva");
+        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        proposalDto.setEsalName("Huella Positiva");
 
-        mvc.perform(post("/api/v1/proposals/reviser")
+        mvc.perform(multipart("/api/v1/proposals/reviser")
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(proposalRequestDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
+                .contentType(MULTIPART_FORM_DATA)
                 .accept(APPLICATION_JSON))
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andExpect(status().isCreated());
 
         assertThat(jpaProposalRepository.findAll()).isNotEmpty();
+    }
+
+    @Test
+    void return_400_when_multipart_file_is_missing() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        proposalDto.setEsalName("Huella Positiva");
+
+        mvc.perform(multipart("/api/v1/proposals/reviser")
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MULTIPART_FORM_DATA)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
+        // GIVEN
+        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        ProposalRequestDto proposalDto =  ProposalRequestDto.builder()
+                .title("Recogida de ropita")
+                .province("Santa Cruz de Tenerife")
+                .town("Santa Cruz de Tenerife")
+                .address("Avenida Weyler 4")
+                .startingProposalDate("21-08-2030")
+                .closingProposalDate("24-08-2030")
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .startingVolunteeringDate("20-08-2030")
+                .category(ProposalCategory.ON_SITE.toString())
+                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
+                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .extraInfo("Es recomendable tener ganas de recoger ropa")
+                .instructions("Se seleccionarán a los primeros 100 voluntarios")
+                .build();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+                .file(new MockMultipartFile("file","fileName", "text/plain", "test data".getBytes()))
+                .file(new MockMultipartFile("dto","dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MULTIPART_FORM_DATA)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

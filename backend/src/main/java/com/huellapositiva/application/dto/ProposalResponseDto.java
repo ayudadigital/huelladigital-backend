@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -37,7 +37,13 @@ public class ProposalResponseDto {
     private final int maximumAge;
 
     @NotEmpty
-    private final String expirationDate;
+    private final String startingProposalDate;
+
+    @NotEmpty
+    private final String closingProposalDate;
+
+    @NotEmpty
+    private final String startingVolunteeringDate;
 
     private final boolean published;
 
@@ -45,11 +51,22 @@ public class ProposalResponseDto {
     private final String description;
 
     @NotEmpty
+    private final String instructions;
+
+    @NotEmpty
+    private final String extraInfo;
+
+    @NotEmpty
     private final Integer durationInDays;
 
     @NotEmpty
     private final String category;
 
-    @NotEmpty
-    private final Date startingDate;
+    private final String imageURL;
+
+    private final List<VolunteerDto> inscribedVolunteers;
+
+    private final List<SkillDto> skills;
+
+    private final List<String> requirements;
 }

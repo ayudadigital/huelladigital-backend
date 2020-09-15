@@ -1,5 +1,6 @@
 package com.huellapositiva.application.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
@@ -19,14 +20,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.security.RolesAllowed;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
@@ -41,6 +45,8 @@ public class ProposalApiController {
     private final FetchProposalAction fetchProposalAction;
 
     private final JoinProposalAction joinProposalAction;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Register a new proposal",
@@ -70,14 +76,18 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposal(@RequestBody ProposalRequestDto dto, @AuthenticationPrincipal String contactPersonEmail, HttpServletResponse res) {
+    public void createProposal(@RequestPart("dto") MultipartFile dtoMultipart,
+                               @RequestPart("file") MultipartFile file,
+                               @AuthenticationPrincipal String contactPersonEmail,
+                               HttpServletResponse res) throws IOException {
+        ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         dto.setPublished(true);
         try {
-            String id = registerProposalAction.execute(dto, contactPersonEmail);
+            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
@@ -156,7 +166,7 @@ public class ProposalApiController {
     }
 
     @Operation(
-            summary = "Register a new proposal as admin",
+            summary = "Register a new proposal as reviser",
             description = "Register a new proposal by providing the ESAL name through the DTO.",
             tags = "proposals",
             parameters = {
@@ -183,19 +193,22 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/reviser")
+    @PostMapping(path = "/reviser", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProposalAsReviser(@RequestBody ProposalRequestDto dto, HttpServletResponse res) {
+    public void createProposalAsReviser(@RequestPart("dto") MultipartFile dtoMultipart,
+                                        @RequestPart("file") MultipartFile file,
+                                        HttpServletResponse res) throws IOException {
+        ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.execute(dto);
+            String id = registerProposalAction.execute(dto, file);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(id)
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getExpirationDate());
+            throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
         }
     }
 }

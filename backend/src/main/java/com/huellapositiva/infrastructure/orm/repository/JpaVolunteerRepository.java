@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.orm.repository;
 
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -16,4 +17,8 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
 
     @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.credential.email = :email")
     Optional<JpaVolunteer> findByEmail(@Param("email") String email);
+
+    @Modifying
+    @Query("UPDATE JpaVolunteer v SET v.curriculumVitaeUrl = :cvUrl WHERE v.id = :id")
+    Integer updateCurriculumVitae(@Param("id") String id, @Param("cvUrl") String cvUrl);
 }

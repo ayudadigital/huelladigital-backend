@@ -16,10 +16,7 @@ public class App implements CommandLineRunner {
     @Autowired
     private Environment env;
 
-    @Value("${bla.ble.bli}")
-    private String blaken;
-
-    @Value("${bla.ble.blo}")
+    @Value("${spring.datasource.url}")
     private String servus;
 
     @Autowired
@@ -31,7 +28,7 @@ public class App implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("===== SSM properties: {} -> {}, {}", env.getActiveProfiles(), blaken, servus);
+        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), servus);
         reviserService.createDefaultReviser();
     }
 }

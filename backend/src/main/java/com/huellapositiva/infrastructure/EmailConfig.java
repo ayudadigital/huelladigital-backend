@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
@@ -25,6 +26,7 @@ public class EmailConfig {
     public AmazonSimpleEmailService getAwsSesClient() {
         log.info("AWS SES client enabled");
         return AmazonSimpleEmailServiceClientBuilder.standard()
+                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
                 .withRegion(awsSesProperties.getRegion())
                 .build();
     }

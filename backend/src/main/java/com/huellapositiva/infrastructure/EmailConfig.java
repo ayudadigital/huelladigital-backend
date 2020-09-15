@@ -1,7 +1,5 @@
 package com.huellapositiva.infrastructure;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -35,10 +33,8 @@ public class EmailConfig {
     @Profile("!dev & !prod")
     public AmazonSimpleEmailService getLocalstackAwsSesClient() {
         log.info("Localstack AWS SES client enabled");
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsSesProperties.getAccessKey(), awsSesProperties.getSecretKey());
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsSesProperties.getEndpoint(), awsSesProperties.getRegion()))
                 .build();
     }
-
 }

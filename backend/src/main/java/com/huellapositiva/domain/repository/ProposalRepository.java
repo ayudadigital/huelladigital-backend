@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.exception.ESALNotFound;
+import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,6 +117,7 @@ public class ProposalRepository {
                 .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));
         jpaProposal.getRequirements()
                 .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
+
         return proposal;
     }
 

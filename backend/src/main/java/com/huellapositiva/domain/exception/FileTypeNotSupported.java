@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class InvalidProposalRequestException extends RuntimeException {
-    public InvalidProposalRequestException(String message) {
+public class FileTypeNotSupported extends RuntimeException {
+    public FileTypeNotSupported(String message) {
         super(message);
     }
 }

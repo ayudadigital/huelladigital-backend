@@ -16,7 +16,7 @@ public interface JpaProposalSkillsRepository extends JpaRepository<JpaProposalSk
 
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO proposal_skills (name, description, proposal_id) values (:name, :description, :proposal_id)", nativeQuery = true)
-    void insert(@Param("name") String name, @Param("description") String description, @Param("proposal_id") String proposal_id);
+    @Query(value = "INSERT INTO proposal_skills (name, description, proposal_id) values (:name, :description, :proposalId)", nativeQuery = true)
+    void insert(@Param("name") String name, @Param("description") String description, @Param("proposalId") String proposalId);
 
 }

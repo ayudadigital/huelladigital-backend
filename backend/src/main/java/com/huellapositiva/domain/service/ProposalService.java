@@ -24,7 +24,7 @@ public class ProposalService {
         if (isNotPublished) {
             throw new ProposalNotPublished();
         }
-        boolean isEnrollmentClosed = proposal.getExpirationDate().isBeforeNow();
+        boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
         if (isEnrollmentClosed) {
             throw new ProposalEnrollmentClosed();
         }

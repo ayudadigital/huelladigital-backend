@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "ses" })
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, properties = {"huellapositiva.feature.email.enabled=true"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"huellapositiva.feature.email.enabled=true"})
 class AwsEmailServiceShould {
 
     private final static String emailAddress = "test@huellapositiva.com";

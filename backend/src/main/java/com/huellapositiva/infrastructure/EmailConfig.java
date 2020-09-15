@@ -38,7 +38,6 @@ public class EmailConfig {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsSesProperties.getAccessKey(), awsSesProperties.getSecretKey());
         return AmazonSimpleEmailServiceClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsSesProperties.getEndpoint(), awsSesProperties.getRegion()))
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
     }
 

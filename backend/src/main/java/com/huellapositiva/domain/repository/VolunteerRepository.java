@@ -70,4 +70,8 @@ public class VolunteerRepository {
                 EmailAddress.from(volunteer.getCredential().getEmail()),
                 new Id(volunteer.getId()));
     }
+
+    public void updateCurriculumVitae(Volunteer volunteer) {
+        jpaVolunteerRepository.updateCurriculumVitae(volunteer.getId().toString(), volunteer.getCurriculumVitae().toExternalForm());
+    }
 }

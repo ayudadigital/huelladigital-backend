@@ -47,7 +47,7 @@ class ProposalRepositoryShould {
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).get();
         Calendar expirationTimestamp = Calendar.getInstance();
-        expirationTimestamp.setTime(jpaProposal.getExpirationDate());
+        expirationTimestamp.setTime(jpaProposal.getClosingProposalDate());
         // THEN
         assertAll(
                 () -> assertThat(expirationTimestamp.get(HOUR_OF_DAY)).isEqualTo(23),

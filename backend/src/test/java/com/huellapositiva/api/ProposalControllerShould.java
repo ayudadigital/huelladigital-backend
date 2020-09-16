@@ -73,7 +73,7 @@ class ProposalControllerShould {
     @Test
     void persist_a_proposal() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -99,7 +99,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -137,7 +137,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_age_is_out_of_range() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 17;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -175,7 +175,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 30;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -333,7 +333,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildProposalDto(true);
         proposalDto.setEsalName("Huella Positiva");
@@ -356,7 +356,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildProposalDto(true);
         proposalDto.setEsalName("Huella Positiva");
@@ -373,7 +373,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -482,7 +482,7 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().revisionOverview("Deberías profundizar más en la descripción").build();
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().feedback("Deberías profundizar más en la descripción").build();
 
         // WHEN + THEN
         mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)

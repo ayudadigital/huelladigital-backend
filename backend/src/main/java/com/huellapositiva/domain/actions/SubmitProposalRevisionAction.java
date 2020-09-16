@@ -33,7 +33,8 @@ public class SubmitProposalRevisionAction {
         ProposalRevisionEmail revision = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)
-                .overview(revisionDto.getRevisionOverview())
+                .feedback(revisionDto.getFeedback())
+                .hasFeedback(revisionDto.getHasFeedback())
                 .esalContactPerson(contactPerson)
                 .reviser(reviser)
                 .build();

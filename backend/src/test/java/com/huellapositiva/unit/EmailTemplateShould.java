@@ -48,7 +48,7 @@ class EmailTemplateShould {
         EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
         Map<String, String> variables = new HashMap<>();
 
-        // WHEN THEN
+        // WHEN + THEN
         assertThrows(EmailNotValidException.class, () -> emailTemplate.parse(variables));
     }
 
@@ -59,11 +59,11 @@ class EmailTemplateShould {
                 .reviser(Reviser.from(new User(EmailAddress.from(DEFAULT_EMAIL), Id.newId())))
                 .esalContactPerson(new ContactPerson(EmailAddress.from(DEFAULT_ESAL_CONTACT_PERSON_EMAIL), Id.newId()))
                 .proposalURI(new URI("https://www.dummyURL.org/"))
-                .overview("This is an example of a revision overview")
+                .feedback("This is an example of a revision overview")
                 .proposalId(Id.newId())
                 .token(Token.createToken())
                 .build();
-        EmailTemplate result = templateService.getProposalRevisionTemplate(proposalRevisionEmail);
+        EmailTemplate result = templateService.getProposalRevisionWithFeedbackTemplate(proposalRevisionEmail);
 
         assertThat(result.getParsedTemplate().contains("null"), is(false));
     }

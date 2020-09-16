@@ -150,11 +150,11 @@ public class TestData {
         return volunteerRepository.save(volunteer);
     }
 
-    public JpaContactPerson createESALMember(String email, String password) {
-        return createESALMember(email, password, Roles.CONTACT_PERSON);
+    public JpaContactPerson createESALJpaContactPerson(String email, String password) {
+        return createESALJpaContactPerson(email, password, Roles.CONTACT_PERSON);
     }
 
-    public JpaContactPerson createESALMember(String email, String password, Roles role) {
+    public JpaContactPerson createESALJpaContactPerson(String email, String password, Roles role) {
         JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
         JpaContactPerson contactPerson = JpaContactPerson.builder()
                 .credential(jpaCredential)
@@ -260,7 +260,7 @@ public class TestData {
 
     @SneakyThrows
     private JpaProposal registerESALAndProposal(boolean isPublished) {
-        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
@@ -298,7 +298,7 @@ public class TestData {
     }
 
     public String registerESALandPublishedProposalObject() throws ParseException {
-        JpaContactPerson contactPerson = createESALMember(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
 

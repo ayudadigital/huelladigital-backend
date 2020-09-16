@@ -47,8 +47,8 @@ public class TemplateService {
         return new EmailTemplate(template).parse(variables);
     }
 
-    public EmailTemplate getProposalRevisionTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
-        String relativePath = "classpath:templates/emails/proposalRevisionResponseRequest.txt";
+    public EmailTemplate getProposalRevisionWithFeedbackTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
+        String relativePath = "classpath:templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
@@ -56,7 +56,19 @@ public class TemplateService {
         variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
         String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
         variables.put("REVISER_NAME",  reviserName != null ? reviserName : "un revisor");
-        variables.put("REVISION_OVERVIEW", proposalRevisionRequestEmail.getOverview());
+        variables.put("REVISION_FEEDBACK", proposalRevisionRequestEmail.getFeedback());
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getProposalRevisionWithoutFeedbackTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
+        String relativePath = "classpath:templates/emails/proposalRevisionResponseWithoutFeedbackRequest.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
+        String contactPersonName = proposalRevisionRequestEmail.getEsalContactPerson().getFullName();
+        variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
+        String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
+        variables.put("REVISER_NAME",  reviserName != null ? reviserName : "un revisor");
         return new EmailTemplate(template).parse(variables);
     }
 }

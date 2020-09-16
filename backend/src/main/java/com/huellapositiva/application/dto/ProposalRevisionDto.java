@@ -7,8 +7,9 @@ import lombok.Data;
 @Builder
 public class ProposalRevisionDto {
 
-    private final String revisionOverview;
+    private final String feedback;
 
     private String reviserEmail;
 
+    private Boolean hasFeedback;
 }

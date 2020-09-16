@@ -37,6 +37,8 @@ import java.text.ParseException;
 @RequestMapping("/api/v1/proposals")
 public class ProposalApiController {
 
+    private static final String PATH_ID = "/{id}";
+
     private final RegisterProposalAction registerProposalAction;
 
     private final FetchProposalAction fetchProposalAction;
@@ -92,7 +94,7 @@ public class ProposalApiController {
         try {
             String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
+                    .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             requestProposalRevisionAction.execute(uri);
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
@@ -208,7 +210,7 @@ public class ProposalApiController {
         try {
             String id = registerProposalAction.execute(dto, file);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
+                    .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
@@ -247,7 +249,7 @@ public class ProposalApiController {
                                        @RequestBody ProposalRevisionDto dto,
                                        @AuthenticationPrincipal String reviserEmail) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}").buildAndExpand(id)
+                .path(PATH_ID).buildAndExpand(id)
                 .toUri();
         dto.setReviserEmail(reviserEmail);
         submitProposalRevisionAction.execute(id, dto, uri);

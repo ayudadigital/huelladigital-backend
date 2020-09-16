@@ -16,7 +16,7 @@ public class ProposalRevisionEmail {
 
     private final Id proposalId;
 
-    private final String overview;
+    private final String feedback;
 
     private final ContactPerson esalContactPerson;
 
@@ -26,6 +26,8 @@ public class ProposalRevisionEmail {
 
     private final Reviser reviser;
 
+    private final Boolean hasFeedback;
+
     public String getEmailAddress() {
         return esalContactPerson.getEmailAddress().toString();
     }
@@ -34,16 +36,8 @@ public class ProposalRevisionEmail {
         return token.toString();
     }
 
-    public String getOverview() {
-        return this.overview;
-    }
-
-    public Id getProposalId() {
-        return this.proposalId;
-    }
-
-    public URI getProposalURI() {
-        return this.proposalURI;
+    public boolean hasFeedback(){
+        return hasFeedback;
     }
 
     public String getProposalURL() {

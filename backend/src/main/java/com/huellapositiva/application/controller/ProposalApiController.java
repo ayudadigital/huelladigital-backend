@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+
 @RestController
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
@@ -90,7 +92,7 @@ public class ProposalApiController {
                                @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
-        dto.setPublished(true);
+        dto.setStatus(PUBLISHED.getId());
         try {
             String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -248,10 +250,16 @@ public class ProposalApiController {
     public void submitProposalRevision(@PathVariable String id,
                                        @RequestBody ProposalRevisionDto dto,
                                        @AuthenticationPrincipal String reviserEmail) {
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path(PATH_ID).buildAndExpand(id)
-                .toUri();
-        dto.setReviserEmail(reviserEmail);
-        submitProposalRevisionAction.execute(id, dto, uri);
+        try {
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path(PATH_ID).buildAndExpand(id)
+                    .toUri();
+            dto.setReviserEmail(reviserEmail);
+            submitProposalRevisionAction.execute(id, dto, uri);
+        } catch (NullPointerException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not parse the revision, due to missing data.");
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+        }
     }
 }

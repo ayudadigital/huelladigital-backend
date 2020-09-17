@@ -2,12 +2,8 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
@@ -29,6 +25,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -335,7 +332,7 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        ProposalRequestDto proposalDto = testData.buildProposalDto(PUBLISHED.getId());
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
@@ -358,7 +355,7 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildProposalDto(true);
+        ProposalRequestDto proposalDto = testData.buildProposalDto(PUBLISHED.getId());
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
@@ -427,7 +424,7 @@ class ProposalControllerShould {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .published(true)
+                .status(testData.getJpaStatus(PUBLISHED))
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE.toString())
@@ -482,7 +479,10 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().feedback("Deberías profundizar más en la descripción").build();
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
+                .hasFeedback(true)
+                .feedback("Deberías profundizar más en la descripción")
+                .build();
 
         // WHEN + THEN
         mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)
@@ -492,5 +492,46 @@ class ProposalControllerShould {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_400_when_submitting_an_invalid_revision() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        String proposalId = jpaProposal.getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto invalidRevisionDto = ProposalRevisionDto.builder()
+                .hasFeedback(true)
+                .build();
+
+        // WHEN + THEN
+
+        // WHEN + THEN
+        mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(invalidRevisionDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_the_given_proposal_id_does_not_exist() throws Exception {
+        // GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().feedback("Deberías profundizar más en la descripción").build();
+        String nonExistingProposalId = "abcdefg";
+
+        // WHEN + THEN
+        mvc.perform(post( "/api/v1/proposals/revision/" + nonExistingProposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(revisionDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

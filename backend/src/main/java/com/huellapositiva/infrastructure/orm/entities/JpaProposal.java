@@ -54,8 +54,9 @@ public class JpaProposal implements Serializable {
     @Column(name = "starting_volunteering_date")
     private Date startingVolunteeringDate;
 
-    @Column(name = "published")
-    private Boolean published;
+    @JoinColumn(name = "status_id", referencedColumnName = "id")
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private JpaStatus status;
 
     @Column(name = "description")
     private String description;

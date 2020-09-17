@@ -1,6 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.domain.exception.InvalidStatusId;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
@@ -24,6 +25,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
+
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.UNPUBLISHED;
 
 @AllArgsConstructor
 @TestComponent
@@ -86,6 +90,9 @@ public class TestData {
 
     @Autowired
     private final AwsS3Properties awsS3Properties;
+
+    @Autowired
+    private final JpaStatusRepository jpaStatusRepository;
 
 
     public void resetData() {
@@ -183,14 +190,14 @@ public class TestData {
     }
 
     public ProposalRequestDto buildPublishedProposalDto() {
-        return buildProposalDto(true);
+        return buildProposalDto(PUBLISHED.getId());
     }
 
     public ProposalRequestDto buildUnpublishedProposalDto() {
-        return buildProposalDto(false);
+        return buildProposalDto(UNPUBLISHED.getId());
     }
 
-    public ProposalRequestDto buildProposalDto(boolean isPublished){
+    public ProposalRequestDto buildProposalDto(int status){
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -201,7 +208,7 @@ public class TestData {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .published(isPublished)
+                .status(status)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("30-01-2021")
@@ -214,15 +221,15 @@ public class TestData {
     }
 
     public Proposal buildPublishedProposalWithEsal(ESAL esal) {
-        return buildProposal(esal, true);
+        return buildProposal(esal, PUBLISHED);
     }
 
     public Proposal buildUnpublishedProposalWithEsal(ESAL esal) {
-        return buildProposal(esal, false);
+        return buildProposal(esal, UNPUBLISHED);
     }
 
     @SneakyThrows
-    public Proposal buildProposal(ESAL esal, boolean isPublished) {
+    public Proposal buildProposal(ESAL esal, ProposalStatus status) {
         Proposal proposal = Proposal.builder()
                 .id(Id.newId())
                 .title("Recogida de ropita")
@@ -233,7 +240,7 @@ public class TestData {
                 .startingVolunteeringDate(ProposalDate.createClosingProposalDate("25-01-2021"))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
-                .published(isPublished)
+                .status(status)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE)
@@ -251,15 +258,15 @@ public class TestData {
     }
 
     public JpaProposal registerESALAndPublishedProposal() throws ParseException {
-        return registerESALAndProposal(true);
+        return registerESALAndProposal(PUBLISHED);
     }
 
     public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
-        return registerESALAndProposal(false);
+        return registerESALAndProposal(UNPUBLISHED);
     }
 
     @SneakyThrows
-    private JpaProposal registerESALAndProposal(boolean isPublished) {
+    private JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
@@ -278,7 +285,7 @@ public class TestData {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .published(isPublished)
+                .status(getJpaStatus(proposalStatus))
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE.toString())
@@ -311,7 +318,7 @@ public class TestData {
                 .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate("25-01-2021"))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
-                .published(true)
+                .status(PUBLISHED)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE)
@@ -334,5 +341,10 @@ public class TestData {
 
     public MultipartFile createMockMultipartFile() {
         return new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes());
+    }
+
+    public JpaStatus getJpaStatus(ProposalStatus proposalStatus) {
+        return jpaStatusRepository.findById(proposalStatus.getId())
+            .orElseThrow(InvalidStatusId::new);
     }
 }

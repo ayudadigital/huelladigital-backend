@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+
 @RequiredArgsConstructor
 @Service
 public class FetchProposalAction {
@@ -20,8 +22,7 @@ public class FetchProposalAction {
 
     public ProposalResponseDto execute(String proposalId) {
         Proposal proposal = proposalRepository.fetch(proposalId);
-        boolean isNotPublished = !proposal.isPublished();
-        if (isNotPublished) {
+        if (proposal.getStatus() != PUBLISHED) {
             throw new ProposalNotPublished();
         }
         return ProposalResponseDto.builder()
@@ -36,7 +37,7 @@ public class FetchProposalAction {
                 .maximumAge(proposal.getPermittedAgeRange().getMinimum())
                 .minimumAge(proposal.getPermittedAgeRange().getMaximum())
                 .requiredDays(proposal.getRequiredDays())
-                .published(proposal.isPublished())
+                .status(proposal.getStatus().getId())
                 .instructions(proposal.getInstructions())
                 .extraInfo(proposal.getExtraInfo())
                 .imageURL(proposal.getImage().toExternalForm())

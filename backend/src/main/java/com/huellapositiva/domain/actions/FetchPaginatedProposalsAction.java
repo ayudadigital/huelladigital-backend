@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+
 @RequiredArgsConstructor
 @Service
 public class FetchPaginatedProposalsAction {
@@ -18,6 +20,7 @@ public class FetchPaginatedProposalsAction {
         return new ListedProposalsDto(
             proposalRepository.fetchAllPaginated(page, size)
             .stream()
+            .filter(proposal -> proposal.getStatus() == PUBLISHED)
             .map(proposal ->
                     ProposalLiteDto.builder()
                             .id(proposal.getId().toString())
@@ -29,7 +32,6 @@ public class FetchPaginatedProposalsAction {
                             .startingVolunteeringDate(proposal.getStartingVolunteeringDate().toString())
                             .maximumAge(proposal.getPermittedAgeRange().getMinimum())
                             .minimumAge(proposal.getPermittedAgeRange().getMaximum())
-                            .published(proposal.isPublished())
                             .duration(proposal.getDurationInDays())
                             .imageURL(proposal.getImage().toExternalForm())
                             .build())

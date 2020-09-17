@@ -46,9 +46,9 @@ public class EmailCommunicationService {
 
     public void sendSubmittedProposalRevision(ProposalRevisionEmail proposalRevisionEmail) {
         EmailTemplate emailTemplate;
-        if(proposalRevisionEmail.hasFeedback()){
+        if(proposalRevisionEmail.hasFeedback()) {
             emailTemplate = templateService.getProposalRevisionWithFeedbackTemplate(proposalRevisionEmail);
-        }else {
+        } else {
             emailTemplate = templateService.getProposalRevisionWithoutFeedbackTemplate(proposalRevisionEmail);
         }
         Email email = Email.createFrom(proposalRevisionEmail, emailTemplate, from);

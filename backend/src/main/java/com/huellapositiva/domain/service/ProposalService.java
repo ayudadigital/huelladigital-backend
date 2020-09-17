@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -20,8 +22,7 @@ public class ProposalService {
 
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
-        boolean isNotPublished = !proposal.isPublished();
-        if (isNotPublished) {
+        if (proposal.getStatus() != PUBLISHED) {
             throw new ProposalNotPublished();
         }
         boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();

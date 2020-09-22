@@ -62,7 +62,7 @@ public class ESALContactPersonRepository {
         return new Id(contactPerson.getId());
     }
 
-    public Integer updateOrganization(String employeeId, JpaESAL organization) {
+    public Integer updateESAL(String employeeId, JpaESAL organization) {
         return jpaContactPersonRepository.updateJoinedESAL(employeeId, organization);
     }
 

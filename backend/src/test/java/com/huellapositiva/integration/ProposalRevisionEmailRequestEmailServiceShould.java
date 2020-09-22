@@ -1,12 +1,9 @@
 package com.huellapositiva.integration;
 
-import cloud.localstack.docker.LocalstackDockerExtension;
 import com.huellapositiva.domain.actions.RequestProposalRevisionAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.util.AwsEnvVariablesExtension;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,8 +15,6 @@ import java.net.URI;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(AwsEnvVariablesExtension.class)
-@ExtendWith(LocalstackDockerExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
 class ProposalRevisionEmailRequestEmailServiceShould {

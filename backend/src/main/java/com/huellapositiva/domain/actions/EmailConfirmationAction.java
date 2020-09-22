@@ -40,6 +40,15 @@ public class EmailConfirmationAction {
     @Value("${huellapositiva.email-confirmation.expiration-time}")
     private long emailExpirationTime;
 
+    /**
+     * This method confirms if the given hash is valid and in that case it gives the user the role of VOLUNTEER.
+     * When finished all previous access tokens are revoked.
+     *
+     * @param hash this parameter is given in a request path variable. Its value is stored in DB
+     * @throws EmailConfirmationHashNotFound hash not found in the DB
+     * @throws EmailConfirmationAlreadyConfirmed email already confirmed
+     * @throws EmailConfirmationExpired hash has expired
+     */
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
                 .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));

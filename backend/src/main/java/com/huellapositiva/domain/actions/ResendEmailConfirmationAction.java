@@ -7,11 +7,13 @@ import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class ResendEmailConfirmationAction {
 
@@ -24,12 +26,14 @@ public class ResendEmailConfirmationAction {
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
-    public ResendEmailConfirmationAction(JpaEmailConfirmationRepository jpaEmailConfirmationRepository, JpaCredentialRepository jpaCredentialRepository, EmailCommunicationService communicationService) {
-        this.jpaEmailConfirmationRepository = jpaEmailConfirmationRepository;
-        this.jpaCredentialRepository = jpaCredentialRepository;
-        this.communicationService = communicationService;
-    }
 
+    /**
+     * This method fetches the user credentials from the DB and checks if that email is confirmed.
+     * In case it is not confirmed, creates a new hash and resends the confirmation email.
+     *
+     * @throws UsernameNotFoundException
+     * @throws EmailConfirmationAlreadyConfirmed
+     */
     public void execute() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)

@@ -54,7 +54,7 @@ class ESALContactPersonServiceShould {
                 .build();
 
         // WHEN
-        Id contactPersonId = ESALContactPersonService.registerMember(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Id contactPersonId = ESALContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());

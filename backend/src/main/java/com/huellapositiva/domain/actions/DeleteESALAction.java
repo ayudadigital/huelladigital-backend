@@ -14,8 +14,15 @@ public class DeleteESALAction {
 
     private final ESALContactPersonRepository esalContactPersonRepository;
 
-    public void execute(String memberEmail, String requesterId){
-        String esalId = esalContactPersonRepository.getJoinedESAL(memberEmail).getId().toString();
+    /**
+     * This method fetches the ESAL associated to the contact person email and deletes it from DB.
+     *
+     * @param contactPersonEmail email associated to the ESAL to be deleted.
+     * @param requesterId ESAL id given from a request path variable.
+     * @throws OperationNotAllowed if the requesterId and the id from the DB are not the same.
+     */
+    public void execute(String contactPersonEmail, String requesterId){
+        String esalId = esalContactPersonRepository.getJoinedESAL(contactPersonEmail).getId().toString();
         if(!requesterId.equals(esalId)){
             throw new OperationNotAllowed("The given ESAL ID does not match the user's ESAL ID.");
         }

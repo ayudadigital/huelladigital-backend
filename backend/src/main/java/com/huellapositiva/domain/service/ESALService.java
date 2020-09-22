@@ -24,23 +24,16 @@ public class ESALService {
     @Autowired
     private final JpaContactPersonRepository jpaContactPersonRepository;
 
-    public String create(ESALRequestDto dto) {
-        try {
-            return esalRepository.save(new ExpressRegistrationESAL(dto.getName()));
-        } catch (DataIntegrityViolationException ex) {
-            log.error("Unable to persist the proposal due to a conflict.", ex);
-            throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
-        }
-    }
-
+    /**
+     * This method checks if a contactPerson is linked to an ESAL
+     *
+     * @param contactPersonEmail
+     * @return true if it is linked
+     */
     public boolean isUserAssociatedWithAnESAL(EmailAddress contactPersonEmail) {
         return jpaContactPersonRepository.findByEmail(contactPersonEmail.toString())
                 .stream()
                 .anyMatch(n -> n.getJoinedEsal() != null);
     }
 
-
-    public JpaESAL findById(Integer id) {
-        return esalRepository.findById(id);
-    }
 }

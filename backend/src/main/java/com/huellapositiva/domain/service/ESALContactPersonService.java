@@ -25,7 +25,15 @@ public class ESALContactPersonService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public Id registerMember(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
+    /**
+     * This method registers a contactPerson in the DB
+     *
+     * @param plainPassword
+     * @param emailConfirmation
+     * @return id of the contactPerson
+     * @throws ConflictPersistingUserException when there's a problem with the data to be inserted in the DB
+     */
+    public Id registerContactPerson(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
             ExpressRegistrationESALMember expressOrganization = new ExpressRegistrationESALMember(hash, emailConfirmation);
@@ -36,12 +44,12 @@ public class ESALContactPersonService {
         }
     }
 
-    public Integer updateJoinedOrganization(JpaContactPerson employee, JpaESAL organization) {
-        return esalContactPersonRepository.updateOrganization(employee.getId(), organization);
-    }
-
-    public Optional<JpaContactPerson> findByEmail(String email){
-        return esalContactPersonRepository.findByEmail(email);
+    /**
+     *
+     * TO BE DEFINED
+     */
+    public Integer updateJoinedESAL(JpaContactPerson jpaContactPerson, JpaESAL jpaESAL) {
+        return esalContactPersonRepository.updateESAL(jpaContactPerson.getId(), jpaESAL);
     }
 
 }

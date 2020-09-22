@@ -19,6 +19,11 @@ public class RequestProposalRevisionAction {
     @Value("${huellapositiva.revision.email.from}")
     private String reviserEmail;
 
+    /**
+     * This method asks for a reviser to revise a proposal from the given URI. It sends him a notification through email.
+     *
+     * @param proposalUri
+     */
     public void execute(URI proposalUri) {
         ProposalRevisionRequestEmail email = ProposalRevisionRequestEmail.from(reviserEmail, proposalUri.toString());
         communicationService.sendRevisionRequestEmail(email);

@@ -21,6 +21,12 @@ public class RegisterVolunteerAction {
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
 
+    /**
+     * This method registers a volunteer and sends a registration confirmation email
+     *
+     * @param dto info with the email and password of the volunteer
+     * @return volunteer entity
+     */
     public Volunteer execute(AuthenticationRequestDto dto) {
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         Volunteer volunteer = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), emailConfirmation);

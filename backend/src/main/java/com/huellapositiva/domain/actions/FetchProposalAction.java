@@ -20,6 +20,13 @@ public class FetchProposalAction {
 
     private final ProposalRepository proposalRepository;
 
+    /**
+     * This method fetches a proposal based on its id
+     *
+     * @param proposalId passed as path variable parameter
+     * @return ProposalResponseDto
+     * @throws ProposalNotPublished if the proposal is not PUBLISHED
+     */
     public ProposalResponseDto execute(String proposalId) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED) {

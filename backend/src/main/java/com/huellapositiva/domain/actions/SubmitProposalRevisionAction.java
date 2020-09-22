@@ -26,6 +26,10 @@ public class SubmitProposalRevisionAction {
 
     private final CredentialsRepository credentialsRepository;
 
+    /**
+     * TO BE DEFINED!!
+     *
+     */
     public void execute(String proposalId, ProposalRevisionDto revisionDto, URI proposalURI) {
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());

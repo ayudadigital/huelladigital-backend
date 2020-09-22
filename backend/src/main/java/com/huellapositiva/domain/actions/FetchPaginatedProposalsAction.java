@@ -16,6 +16,14 @@ public class FetchPaginatedProposalsAction {
 
     private final ProposalRepository proposalRepository;
 
+    /**
+     * This method fetches published proposals (following the requested pagination)
+     * and maps them into a ListedProposalsDto.
+     *
+     * @param page page number to be fetched
+     * @param size number of elements to be fetched
+     * @return ListedProposalsDto (a collection of ProposalLiteDto)
+     */
     public ListedProposalsDto execute(int page, int size) {
         return new ListedProposalsDto(
             proposalRepository.fetchAllPaginated(page, size)

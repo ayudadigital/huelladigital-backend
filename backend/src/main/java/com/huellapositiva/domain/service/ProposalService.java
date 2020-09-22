@@ -20,6 +20,12 @@ public class ProposalService {
     @Autowired
     private final ProposalRepository proposalRepository;
 
+    /**
+     * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
+     *
+     * @param proposalId
+     * @param volunteer
+     */
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED) {

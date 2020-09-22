@@ -18,22 +18,44 @@ public class RemoteStorageService {
     @Autowired
     private final StorageService storageService;
 
-    public URL uploadProposalImage(MultipartFile file, String proposalId) throws IOException {
-        String destinationFileName = UUID.randomUUID() + getExtension(file.getOriginalFilename());
+    /**
+     * This method reads the bytes from the image of a proposal and uploads it to the storage service
+     *
+     * @param image
+     * @param proposalId
+     * @return URL with the image location in the storage
+     * @throws IOException
+     */
+    public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
+        String destinationFileName = UUID.randomUUID() + getExtension(image.getOriginalFilename());
         String proposalImageRootKey = "images/proposals/" + proposalId + '/';
-        return storageService.upload(proposalImageRootKey + destinationFileName, file.getInputStream(), file.getContentType());
+        return storageService.upload(proposalImageRootKey + destinationFileName, image.getInputStream(), image.getContentType());
     }
 
-    public URL uploadVolunteerCV(MultipartFile file, String volunteerId) throws IOException {
-        String extension = getExtension(file.getOriginalFilename());
+    /**
+     * This method reads the bytes from the CV of a proposal and uploads it to the storage service
+     *
+     * @param cv
+     * @param volunteerId
+     * @return URL with the cv location in the storage
+     * @throws IOException
+     */
+    public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
+        String extension = getExtension(cv.getOriginalFilename());
         if(!extension.equalsIgnoreCase(".pdf")) {
             throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
-        return storageService.upload(volunteerCVRootKey + destinationFileName, file.getInputStream(), file.getContentType());
+        return storageService.upload(volunteerCVRootKey + destinationFileName, cv.getInputStream(), cv.getContentType());
     }
 
+    /**
+     * This method extracts the extension of the fileName
+     *
+     * @param fileName
+     * @return the extension or an empty string when there is no extension
+     */
     private String getExtension(String fileName) {
         int index = fileName.lastIndexOf('.');
         return index != -1 ? fileName.substring(index) : "";

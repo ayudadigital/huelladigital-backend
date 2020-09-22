@@ -1,16 +1,21 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
+import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.service.ESALService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class RegisterESALAction {
@@ -21,6 +26,13 @@ public class RegisterESALAction {
 
     private final ESALRepository esalRepository;
 
+    /**
+     * This method creates an ESAL and links it to the logged user.
+     *
+     * @param dto contains the info to create a new ESAL
+     * @param loggedContactPersonEmail
+     * @throws UserAlreadyHasESALException in case that loggedContactPersonEmail is associated already with an ESAL
+     */
     public void execute(ESALRequestDto dto, EmailAddress loggedContactPersonEmail) {
         if (esalService.isUserAssociatedWithAnESAL(loggedContactPersonEmail)) {
             throw new UserAlreadyHasESALException();
@@ -30,7 +42,17 @@ public class RegisterESALAction {
         esalRepository.save(esal);
     }
 
+    /**
+     * This method creates an ESAL, only for revisers
+     *
+     * @param dto contains the info to create a new ESAL
+     */
     public void execute(ESALRequestDto dto) {
-        esalService.create(dto);
+        try {
+            esalRepository.save(new ExpressRegistrationESAL(dto.getName()));
+        } catch (DataIntegrityViolationException ex) {
+            log.error("Unable to persist the proposal due to a conflict.", ex);
+            throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
+        }
     }
 }

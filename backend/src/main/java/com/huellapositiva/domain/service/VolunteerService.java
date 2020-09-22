@@ -36,7 +36,4 @@ public class VolunteerService {
         }
     }
 
-    public Volunteer findVolunteerByEmail(String email) {
-        return volunteerRepository.findByEmail(email);
-    }
 }

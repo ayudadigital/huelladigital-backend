@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class FetchProposalAction {

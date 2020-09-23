@@ -182,4 +182,14 @@ class JwtControllerShould {
                 .andReturn().getResponse().getContentAsString();
         assertThat(objectMapper.readValue(refreshResponse, JwtResponseDto.class).getAccessToken()).isNotNull();
     }
+
+    @Test
+    void return_400_when_body_is_empty_in_refresh_request() throws Exception {
+        //WHEN + THEN
+        mvc.perform(post("/api/v1/refresh")
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 }

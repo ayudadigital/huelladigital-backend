@@ -9,6 +9,7 @@ public enum ProposalStatus {
     CHANGED_REQUESTED (2),
     PUBLISHED (3),
     UNPUBLISHED (4),
+    FINISHED(5),
     REJECTED (999);
 
     private final int id;

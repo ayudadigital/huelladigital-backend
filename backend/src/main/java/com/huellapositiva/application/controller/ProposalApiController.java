@@ -1,8 +1,12 @@
 package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.*;
+import com.huellapositiva.application.dto.ListedProposalsDto;
+import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.ProposalNotPublic;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
@@ -31,7 +35,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @RestController
 @AllArgsConstructor
@@ -102,9 +106,9 @@ public class ProposalApiController {
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
         } catch (ParseException e) {
             throw new FailedToPersistProposal("The given date(s) format is not valid.");
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
-        } catch (InvalidProposalRequestException e){
+        } catch (InvalidProposalRequestException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -129,11 +133,16 @@ public class ProposalApiController {
     )
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto getProposal(@PathVariable String id) {
+    public ProposalResponseDto getProposal(@PathVariable String id, HttpServletResponse res) throws IOException {
         try {
             return fetchProposalAction.execute(id);
-        } catch (EntityNotFoundException | ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist or is not published.");
+        } catch (EntityNotFoundException | ProposalNotPublic e) {
+            res.sendRedirect(
+                    ServletUriComponentsBuilder.fromCurrentRequest()
+                            .fragment("/api/v1/proposals/1/5")
+                            .toUriString()
+            );
+            return null;
         }
     }
 

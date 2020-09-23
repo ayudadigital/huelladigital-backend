@@ -3,6 +3,7 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.dto.SkillDto;
 import com.huellapositiva.application.dto.VolunteerDto;
+import com.huellapositiva.application.exception.ProposalNotPublic;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.Requirement;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.FINISHED;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @RequiredArgsConstructor
@@ -29,8 +31,8 @@ public class FetchProposalAction {
      */
     public ProposalResponseDto execute(String proposalId) {
         Proposal proposal = proposalRepository.fetch(proposalId);
-        if (proposal.getStatus() != PUBLISHED) {
-            throw new ProposalNotPublished();
+        if (proposal.getStatus() != PUBLISHED && proposal.getStatus() != FINISHED) {
+            throw new ProposalNotPublic();
         }
         return ProposalResponseDto.builder()
                 .title(proposal.getTitle())

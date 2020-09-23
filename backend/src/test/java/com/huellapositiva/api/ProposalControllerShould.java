@@ -2,8 +2,12 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.domain.model.valueobjects.*;
-import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
+import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
@@ -14,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,15 +30,13 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -81,8 +84,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andReturn().getResponse();
@@ -126,8 +129,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -164,8 +167,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -202,8 +205,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -214,8 +217,8 @@ class ProposalControllerShould {
 
         // WHEN
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
@@ -230,27 +233,35 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_404_when_fetching_a_non_existent_proposal() throws Exception {
+    void return_302_when_fetching_a_non_existent_proposal() throws Exception {
         // GIVEN
         int id = 999;
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + id)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isFound());
+        /*RestAssured.given().when()
+                .redirects().follow(true)
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .get(FETCH_PROPOSAL_URI + id)
+                .then().assertThat()
+                .statusCode(HttpStatus.FOUND.value());
+                */
     }
 
     @Test
-    void return_404_when_fetching_a_not_published_proposal() throws Exception {
+    void return_302_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
         JpaProposal proposal = testData.registerESALAndNotPublishedProposal();
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isFound());
     }
 
     @Test
@@ -263,9 +274,9 @@ class ProposalControllerShould {
         // WHEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
-                .accept(APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         // THEN
@@ -285,9 +296,9 @@ class ProposalControllerShould {
         // WHEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
-                .accept(APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -301,9 +312,9 @@ class ProposalControllerShould {
         // WHEN + THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + id + "/join")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
-                .accept(APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -319,9 +330,9 @@ class ProposalControllerShould {
         // WHEN
         mvc.perform(post("/api/v1/proposals/" + proposal.getId() + "/join")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
-                .accept(APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isGone());
     }
 
@@ -340,8 +351,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(header().string(HttpHeaders.LOCATION, matchesPattern("\\S+(/api/v1/proposals/)" + UUID_REGEX)))
                 .andExpect(status().isCreated());
 
@@ -362,8 +373,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -399,8 +410,8 @@ class ProposalControllerShould {
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MULTIPART_FORM_DATA)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -433,16 +444,16 @@ class ProposalControllerShould {
 
         // WHEN
         String fetchResponse1 = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 1)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse()
                 .getContentAsString();
         ListedProposalsDto proposalsFetch1 = objectMapper.readValue(fetchResponse1, ListedProposalsDto.class);
 
         String fetchResponse2 = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 1 + "/" + 1)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse()
                 .getContentAsString();
@@ -461,8 +472,8 @@ class ProposalControllerShould {
     void return_200_and_an_empty_collection_when_there_is_no_proposals_to_fetch() throws Exception {
         // WHEN
         String fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 1)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse()
                 .getContentAsString();
@@ -485,12 +496,12 @@ class ProposalControllerShould {
                 .build();
 
         // WHEN + THEN
-        mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -508,12 +519,12 @@ class ProposalControllerShould {
         // WHEN + THEN
 
         // WHEN + THEN
-        mvc.perform(post( "/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(invalidRevisionDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
@@ -526,12 +537,12 @@ class ProposalControllerShould {
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN
-        mvc.perform(post( "/api/v1/proposals/revision/" + nonExistingProposalId)
+        mvc.perform(post("/api/v1/proposals/revision/" + nonExistingProposalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 }

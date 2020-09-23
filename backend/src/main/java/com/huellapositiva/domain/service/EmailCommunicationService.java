@@ -39,7 +39,7 @@ public class EmailCommunicationService {
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);
-            issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
+            issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
         }
     }
 

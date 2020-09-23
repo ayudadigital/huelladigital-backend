@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.*;
 import static java.time.Instant.now;
 
 @Service
@@ -60,16 +60,20 @@ public class EmailConfirmationAction {
 
         Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
         if(expirationTimestamp.isBefore(now())) {
-           throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
+            throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }
 
         JpaCredential jpaCredential = emailConfirmation.getCredential();
         jpaCredential.setEmailConfirmed(true);
-        Role newRole = jpaRoleRepository.findByName(VOLUNTEER.toString())
-                .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
-        Set<Role> newUserRole = new HashSet<>();
-        newUserRole.add(newRole);
-        jpaCredential.setRoles(newUserRole);
+        boolean isVolunteer = emailConfirmation.getCredential().getRoles()
+                .stream()
+                .allMatch(role -> role.getName().equals(VOLUNTEER_NOT_CONFIRMED.toString()));
+        String roleToBeSet = isVolunteer ? VOLUNTEER.toString() : CONTACT_PERSON.toString();
+        Role newJpaRole = jpaRoleRepository.findByName(roleToBeSet)
+                .orElseThrow(() -> new RoleNotFoundException("Role " + roleToBeSet + "not found."));
+        Set<Role> newUserRoles = new HashSet<>();
+        newUserRoles.add(newJpaRole);
+        jpaCredential.setRoles(newUserRoles);
         credentialRepository.save(jpaCredential);
         jwtService.revokeAccessTokens(jpaCredential.getEmail());
     }

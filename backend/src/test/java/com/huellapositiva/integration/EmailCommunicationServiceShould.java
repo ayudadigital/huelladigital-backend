@@ -34,6 +34,6 @@ class EmailCommunicationServiceShould {
         lenient().doThrow(new RuntimeException()).when(emailService).sendEmail(any());
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
         // THEN
-        verify(issueService).registerVolunteerIssue(any(), any());
+        verify(issueService).registerEmailConfirmationIssue(any(), any());
     }
 }

@@ -3,7 +3,6 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.service.ProposalService;
-import com.huellapositiva.domain.service.VolunteerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -126,7 +126,9 @@ public class ProposalRepository {
 
     public List<Proposal> fetchAllPaginated(int page, int size) {
         Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
-        return jpaProposalRepository.findByStatusIs(jpaStatusRepository.findById(PUBLISHED.getId()).get(), PageRequest.of(page, size, sortByClosingDateProximity))
+        JpaStatus statusPublished = jpaStatusRepository.findById(PUBLISHED.getId())
+                .orElseThrow(() -> new RuntimeException("Status PUBLISHED not found."));
+        return jpaProposalRepository.findByStatusIs(statusPublished, PageRequest.of(page, size, sortByClosingDateProximity))
             .stream()
             .map(Proposal::parseJpa)
             .collect(Collectors.toList());

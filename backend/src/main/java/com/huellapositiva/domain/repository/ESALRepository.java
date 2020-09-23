@@ -2,7 +2,6 @@ package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.exception.ESALAlreadyExists;
 import com.huellapositiva.domain.model.entities.ESAL;
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.UUID;
-
 @Component
 @Transactional
 @AllArgsConstructor
@@ -28,14 +25,6 @@ public class ESALRepository {
 
     @Autowired
     private final JpaContactPersonRepository jpaContactPersonRepository;
-
-    public String save(ExpressRegistrationESAL expressOrganization) {
-        JpaESAL organization = JpaESAL.builder()
-                .id(UUID.randomUUID().toString())
-                .name(expressOrganization.getName())
-                .build();
-        return jpaESALRepository.save(organization).getId();
-    }
 
     public JpaESAL findById(Integer id) {
         return jpaESALRepository.findById(id)
@@ -62,6 +51,18 @@ public class ESALRepository {
             String id = jpaESALRepository.save(esal).getId();
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
             return id;
+        } catch (DataIntegrityViolationException ex) {
+            throw new ESALAlreadyExists();
+        }
+    }
+
+    public String saveAsReviser(ESAL model) {
+        JpaESAL esal = JpaESAL.builder()
+                .id(model.getId().toString())
+                .name(model.getName())
+                .build();
+        try {
+            return jpaESALRepository.save(esal).getId();
         } catch (DataIntegrityViolationException ex) {
             throw new ESALAlreadyExists();
         }

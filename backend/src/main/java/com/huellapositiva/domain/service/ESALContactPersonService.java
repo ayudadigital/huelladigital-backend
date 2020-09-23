@@ -1,18 +1,17 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -36,8 +35,8 @@ public class ESALContactPersonService {
     public Id registerContactPerson(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
-            ExpressRegistrationESALMember expressOrganization = new ExpressRegistrationESALMember(hash, emailConfirmation);
-            return esalContactPersonRepository.save(expressOrganization);
+            ContactPerson contactPerson = new ContactPerson(EmailAddress.from(emailConfirmation.getEmailAddress()), hash, Id.newId());
+            return esalContactPersonRepository.save(contactPerson, emailConfirmation);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist organization due to a conflict.", ex);
             throw new ConflictPersistingUserException("Conflict encountered while storing organization in database. Constraints were violated.", ex);

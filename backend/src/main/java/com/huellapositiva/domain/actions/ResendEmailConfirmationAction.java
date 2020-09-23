@@ -38,16 +38,11 @@ public class ResendEmailConfirmationAction {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
-
         boolean isEmailConfirmed = jpaCredential.getEmailConfirmed();
         if (isEmailConfirmed) {
             throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
         }
-
-        Integer updateOperation = jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
-        if (updateOperation != 1) {
-            throw new RuntimeException("No modifying anything hash or you have modified several hashes");
-        }
+        jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
         EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);
         communicationService.sendRegistrationConfirmationEmail(emailConfirmationValueObject);
     }

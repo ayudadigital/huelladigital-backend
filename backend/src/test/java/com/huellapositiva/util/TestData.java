@@ -26,8 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.UNPUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 
 @AllArgsConstructor
 @TestComponent
@@ -263,6 +262,10 @@ public class TestData {
 
     public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
         return registerESALAndProposal(UNPUBLISHED);
+    }
+
+    public JpaProposal registerESALAndFinishedProposal() throws ParseException {
+        return registerESALAndProposal(FINISHED);
     }
 
     @SneakyThrows

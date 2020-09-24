@@ -39,8 +39,7 @@ import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -241,15 +240,8 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isFound());
-        /*RestAssured.given().when()
-                .redirects().follow(true)
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .get(FETCH_PROPOSAL_URI + id)
-                .then().assertThat()
-                .statusCode(HttpStatus.FOUND.value());
-                */
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrlPattern("**/localhost/api/v1/proposals/1/5"));
     }
 
     @Test
@@ -262,6 +254,35 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isFound());
+    }
+
+    @Test
+    void fetch_a_finished_proposal_but_do_not_list_it() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndFinishedProposal();
+
+        // WHEN
+        String singleFetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + jpaProposal.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ProposalResponseDto singleProposal = objectMapper.readValue(singleFetchResponse, ProposalResponseDto.class);
+
+        String paginatedFetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ListedProposalsDto listedProposals = objectMapper.readValue(paginatedFetchResponse, ListedProposalsDto.class);
+
+        // THEN
+        assertAll(
+                () -> assertThat(singleProposal.getId()).isEqualTo(jpaProposal.getId()),
+                () -> assertThat(listedProposals.getProposals()).isEmpty()
+        );
     }
 
     @Test

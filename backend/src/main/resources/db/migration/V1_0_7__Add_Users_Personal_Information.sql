@@ -24,4 +24,5 @@ INSERT INTO statuses (id, name) values
 (2, 'changes_requested'),
 (3, 'published'),
 (4, 'unpublished'),
+(5, 'finished'),
 (999, 'rejected');

@@ -139,7 +139,7 @@ public class ProposalApiController {
         } catch (EntityNotFoundException | ProposalNotPublic e) {
             res.sendRedirect(
                     ServletUriComponentsBuilder.fromCurrentRequest()
-                            .fragment("/api/v1/proposals/1/5")
+                            .replacePath("/api/v1/proposals/1/5") // Endpoint of proposal listing
                             .toUriString()
             );
             return null;

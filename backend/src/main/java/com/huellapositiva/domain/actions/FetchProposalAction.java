@@ -35,6 +35,7 @@ public class FetchProposalAction {
             throw new ProposalNotPublic();
         }
         return ProposalResponseDto.builder()
+                .id(proposal.getId().getValue())
                 .title(proposal.getTitle())
                 .esalName(proposal.getEsal().getName())
                 .province(proposal.getLocation().getProvince())

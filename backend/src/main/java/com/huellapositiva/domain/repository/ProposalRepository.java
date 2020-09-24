@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.INADEQUATE;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @Component
@@ -124,7 +125,7 @@ public class ProposalRepository {
         return proposal;
     }
 
-    public List<Proposal> fetchAllPaginated(int page, int size) {
+    public List<Proposal> fetchAllPublishedPaginated(int page, int size) {
         Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
         JpaStatus statusPublished = jpaStatusRepository.findById(PUBLISHED.getId())
                 .orElseThrow(() -> new RuntimeException("Status PUBLISHED not found."));
@@ -132,5 +133,15 @@ public class ProposalRepository {
             .stream()
             .map(Proposal::parseJpa)
             .collect(Collectors.toList());
+    }
+
+    public List<Proposal> fetchAllPaginated(int page, int size) {
+        Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
+        JpaStatus statusInadequate = jpaStatusRepository.findById(INADEQUATE.getId())
+                .orElseThrow(() -> new RuntimeException("Status INADEQUATE not found."));
+        return jpaProposalRepository.findByStatusNot(statusInadequate, PageRequest.of(page, size, sortByClosingDateProximity))
+                .stream()
+                .map(Proposal::parseJpa)
+                .collect(Collectors.toList());
     }
 }

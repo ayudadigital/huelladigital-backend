@@ -19,4 +19,8 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     Optional<JpaProposal> findByNaturalId(@Param("id") String id);
 
     Page<JpaProposal> findByStatusIs(JpaStatus status, Pageable pageable);
+
+    Page<JpaProposal> findByStatusNot(JpaStatus status, Pageable pageable);
+
+
 }

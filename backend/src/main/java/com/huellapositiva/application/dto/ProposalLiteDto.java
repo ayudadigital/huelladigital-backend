@@ -16,6 +16,8 @@ public class ProposalLiteDto {
     @NotEmpty
     private final String title;
 
+    private final String status;
+
     @NotEmpty
     private final String province;
 

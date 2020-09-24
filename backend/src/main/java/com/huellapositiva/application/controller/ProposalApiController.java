@@ -248,8 +248,15 @@ public class ProposalApiController {
     )
     @GetMapping("/{page}/{size}")
     @ResponseStatus(HttpStatus.OK)
-    public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
+    public ListedProposalsDto fetchListedPublishedProposals(@PathVariable Integer page, @PathVariable Integer size) {
         return fetchPaginatedProposalsAction.execute(page, size);
+    }
+
+    @RolesAllowed("REVISER")
+    @GetMapping("/{page}/{size}/reviser")
+    @ResponseStatus(HttpStatus.OK)
+    public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
+        return fetchPaginatedProposalsAction.executeAsReviser(page, size);
     }
 
     @PostMapping(path = "/revision/{id}")

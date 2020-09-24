@@ -25,4 +25,4 @@ INSERT INTO statuses (id, name) values
 (3, 'published'),
 (4, 'unpublished'),
 (5, 'finished'),
-(999, 'rejected');
+(99, 'inadequate');

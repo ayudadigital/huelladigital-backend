@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -565,5 +566,47 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void list_every_existing_proposal_that_is_not_inadequate_as_reviser() throws Exception {
+        // GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.registerESALAndFinishedProposal();
+        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        testData.createProposal(JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
+                .title("Limpieza de playas")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
+                        .town("Santa Cruz de Tenerife")
+                        .address("Avenida Weyler 4").build())
+                .esal(different_esal)
+                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
+                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
+                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .status(testData.getJpaStatus(REVIEW_PENDING))
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .category(ProposalCategory.ON_SITE.toString())
+                .imageUrl(testData.createMockImageUrl().toString())
+                .build());
+
+        // WHEN
+        String fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + "/" + 0 + "/" + 5 + "/reviser")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
+        ListedProposalsDto listedProposals = objectMapper.readValue(fetchResponse, ListedProposalsDto.class);
+
+        assertThat(listedProposals.getProposals().size()).isEqualTo(2);
     }
 }

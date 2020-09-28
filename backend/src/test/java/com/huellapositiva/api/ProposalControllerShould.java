@@ -8,6 +8,7 @@ import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
+import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,11 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -610,43 +608,63 @@ class ProposalControllerShould {
         assertThat(listedProposals.getProposals().size()).isEqualTo(2);
     }
 
+    //
+    // IT NEEDS TO BE FINISHED
+    //
+    @Ignore
     @Test
-    public void endpoint_should_return_200() throws Exception{
+    public void return_200_and_a_list_of_volunteers_from_a_proposal_as_reviser() throws Exception {
 
-        Set<JpaVolunteer> setVolunteer = new HashSet<>();
-        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        setVolunteer.add(jpaVolunteer);
+        // GIVEN
+        String proposalId = testData.registerESALAndPublishedProposal().getId();
 
-        testData.registerESALAndPublishedProposal();
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
-        testData.createProposal(JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
-                .title("Limpieza de playas")
-                .location(JpaLocation.builder()
-                        .id(UUID.randomUUID().toString())
-                        .province("Santa Cruz de Tenerife")
-                        .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
-                .esal(different_esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
-                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
-                .requiredDays("Weekends")
-                .minimumAge(18)
-                .maximumAge(26)
-                .status(testData.getJpaStatus(PUBLISHED))
-                .description("Recogida de ropa en la laguna")
-                .durationInDays("1 semana")
-                .category(ProposalCategory.ON_SITE.toString())
-                .imageUrl(testData.createMockImageUrl().toString())
-                .inscribedVolunteers(setVolunteer)
-                .build());
-
-        mvc.perform(get(FETCH_PROPOSAL_URI + jpaVolunteer.getId() + "/volunteers")
+        MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId + "/volunteers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andReturn().getResponse()
-                .getContentAsString();
+                .andReturn().getResponse();
+
+        String idResponse = fetchResponse.getContentAsString();
+
+        assertThat(idResponse).isEqualTo(proposalId);
     }
+
+    @Test
+    public void endpoint_should_return_200() throws Exception{
+
+        // GIVEN
+        String proposalId = testData.registerESALAndPublishedProposal().getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId + "/volunteers")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        // THEN
+        String idResponse = fetchResponse.getContentAsString();
+        assertThat(idResponse).isNotEmpty();
+    }
+
+
+    @Test
+    public void return_400_when_proposal_not_found() throws Exception{
+
+        // GIVEN
+        String proposalId = "999";
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        mvc.perform(get(FETCH_PROPOSAL_URI + proposalId + "/volunteers")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
 }

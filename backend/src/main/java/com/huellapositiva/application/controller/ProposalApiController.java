@@ -7,7 +7,6 @@ import com.huellapositiva.application.exception.ProposalNotPublic;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
-import com.huellapositiva.domain.model.entities.Proposal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -280,9 +279,14 @@ public class ProposalApiController {
 
 
     @GetMapping("/{idProposal}/volunteers")
+    @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.OK)
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
-        ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
-        return proposalResponseDto.getInscribedVolunteers();
+        try{
+            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
+            return proposalResponseDto.getInscribedVolunteers();
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+        }
     }
 }

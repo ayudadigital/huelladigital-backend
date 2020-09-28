@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
@@ -22,11 +19,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -608,5 +608,45 @@ class ProposalControllerShould {
         ListedProposalsDto listedProposals = objectMapper.readValue(fetchResponse, ListedProposalsDto.class);
 
         assertThat(listedProposals.getProposals().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void endpoint_should_return_200() throws Exception{
+
+        Set<JpaVolunteer> setVolunteer = new HashSet<>();
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        setVolunteer.add(jpaVolunteer);
+
+        testData.registerESALAndPublishedProposal();
+        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        testData.createProposal(JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
+                .title("Limpieza de playas")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
+                        .town("Santa Cruz de Tenerife")
+                        .address("Avenida Weyler 4").build())
+                .esal(different_esal)
+                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
+                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
+                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .status(testData.getJpaStatus(PUBLISHED))
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .category(ProposalCategory.ON_SITE.toString())
+                .imageUrl(testData.createMockImageUrl().toString())
+                .inscribedVolunteers(setVolunteer)
+                .build());
+
+        mvc.perform(get(FETCH_PROPOSAL_URI + jpaVolunteer.getId() + "/volunteers")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse()
+                .getContentAsString();
     }
 }

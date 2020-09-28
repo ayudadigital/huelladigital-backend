@@ -1,15 +1,13 @@
 package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.ListedProposalsDto;
-import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.application.dto.ProposalRevisionDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.application.exception.ProposalNotPublic;
 import com.huellapositiva.application.exception.ProposalNotPublished;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
+import com.huellapositiva.domain.model.entities.Proposal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.List;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
@@ -277,5 +276,13 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
         }
+    }
+
+
+    @GetMapping("/{idProposal}/volunteers")
+    @ResponseStatus(HttpStatus.OK)
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
+        ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
+        return proposalResponseDto.getInscribedVolunteers();
     }
 }

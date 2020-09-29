@@ -608,25 +608,25 @@ class ProposalControllerShould {
         assertThat(listedProposals.getProposals().size()).isEqualTo(2);
     }
 
-    //
-    // IT NEEDS TO BE FINISHED
-    //
-    @Ignore
+
     @Test
     public void return_200_and_a_list_of_volunteers_from_a_proposal_as_reviser() throws Exception {
 
         // GIVEN
-        String proposalId = testData.registerESALAndPublishedProposal().getId();
+        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        //testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        //JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId + "/volunteers")
+                //.header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
-        String idResponse = fetchResponse.getContentAsString();
+        String response = fetchResponse.getContentAsString();
 
-        assertThat(idResponse).isEqualTo(proposalId);
+        assertThat(response).isEqualTo(proposalId);
     }
 
     @Test

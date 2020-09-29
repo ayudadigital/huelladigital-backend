@@ -279,7 +279,7 @@ public class ProposalApiController {
 
 
     @GetMapping("/{idProposal}/volunteers")
-    @RolesAllowed("REVISER")
+    //@RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.OK)
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
         try{

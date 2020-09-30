@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
@@ -624,9 +625,10 @@ class ProposalControllerShould {
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
-        String response = fetchResponse.getContentAsString();
 
-        assertThat(response).isEqualTo(proposalId);
+        ArrayList<VolunteerDto> listedVolunteers = objectMapper.readValue(fetchResponse.getContentAsString(), ArrayList.class);
+        assertThat(listedVolunteers.size()).isEqualTo(1);
+
     }
 
     @Test

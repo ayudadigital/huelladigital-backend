@@ -289,4 +289,15 @@ public class ProposalApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
         }
     }
+
+    @GetMapping("/{idProposal}/proposal")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.OK)
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal){
+        try{
+            return fetchProposalAction.execute(idProposal);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+        }
+    }
 }

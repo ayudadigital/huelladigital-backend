@@ -125,8 +125,8 @@ public class ESALApiController {
     }
 
     @Operation(
-            summary = "Register a new ESAL",
-            description = "Register an ESAL with no linked member.",
+            summary = "Register a new ESAL as reviser",
+            description = "Register an ESAL as reviser with no linked member.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

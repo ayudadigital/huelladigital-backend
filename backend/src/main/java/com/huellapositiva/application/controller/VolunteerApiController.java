@@ -90,6 +90,29 @@ public class VolunteerApiController {
         }
     }
 
+    @Operation(
+            summary = "Upload Curriculum Vitae",
+            description = "Upload Curriculum Vitae as a volunteer",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "201",
+                            description = "Ok, uploaded curriculum successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, could not register. The user already exist on db",
+                            content = @Content()
+                    )
+            }
+    )
     @PostMapping(path = "/cv-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody

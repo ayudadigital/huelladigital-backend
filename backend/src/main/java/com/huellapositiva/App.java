@@ -17,7 +17,7 @@ public class App implements CommandLineRunner {
     private Environment env;
 
     @Value("${spring.datasource.url}")
-    private String servus;
+    private String datasourceUrl;
 
     @Autowired
     private ReviserService reviserService;
@@ -27,8 +27,8 @@ public class App implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), servus);
+    public void run(String... args) {
+        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), datasourceUrl);
         reviserService.createDefaultReviser();
     }
 }

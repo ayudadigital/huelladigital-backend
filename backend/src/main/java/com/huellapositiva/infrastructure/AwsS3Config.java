@@ -1,5 +1,6 @@
 package com.huellapositiva.infrastructure;
 
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -25,6 +26,7 @@ public class AwsS3Config {
     public AmazonS3 getAwsS3Client() {
         log.info("Amazon S3 client enabled");
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()
+                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
                 .withRegion(awsS3Properties.getRegion())
                 .build();
 

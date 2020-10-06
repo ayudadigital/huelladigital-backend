@@ -20,7 +20,7 @@ public class DockerCondition implements ExecutionCondition {
         int exitCode = process.waitFor();
 
         String message = "docker ps exit code: " + exitCode;
-        log.debug(message);
+        log.info(message);
         return exitCode == 0 ? ConditionEvaluationResult.enabled(message) : ConditionEvaluationResult.disabled(message);
     }
 }

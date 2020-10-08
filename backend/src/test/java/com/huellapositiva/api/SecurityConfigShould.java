@@ -62,7 +62,9 @@ class SecurityConfigShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        MockHttpServletResponse httpServletResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+
+        assertNotNull(httpServletResponse.getCookie("XSRF-TOKEN"));
     }
 
     @Test

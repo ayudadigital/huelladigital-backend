@@ -1,10 +1,7 @@
 package com.huellapositiva.infrastructure;
 
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
+import com.huellapositiva.domain.model.valueobjects.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -14,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -71,6 +69,15 @@ public class TemplateService {
         variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
         String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
         variables.put("REVISER_NAME",  reviserName != null ? reviserName : "un revisor");
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getRecoveryEmailTemplate(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailConfirmation){
+        String relativePath = "classpath:templates/emails/recoveryPasswordEmail.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = emailConfirmation.getHash(); // contains the hash/UUID
+        variables.put("RECOVERY_PASSWORD_URL", url);
         return new EmailTemplate(template).parse(variables);
     }
 }

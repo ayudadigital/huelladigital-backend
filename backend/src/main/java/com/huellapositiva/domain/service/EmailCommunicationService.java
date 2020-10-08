@@ -69,4 +69,21 @@ public class EmailCommunicationService {
         Email email = Email.createFrom(proposalRevisionEmail, emailTemplate, from);
         emailService.sendEmail(email);
     }
+
+
+    /**
+     * This method parses an email and sends it to the volunteer/contactPerson to recover the password
+     *
+     * @param emailAddress contains a hash and the volunteer/contactPerson email
+     */
+    public void sendRecoveryPasswordEmail(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailAddress) {
+        try {
+            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailAddress);
+            Email email = Email.createFrom(emailAddress, emailTemplate, from);
+            emailService.sendEmail(email);
+        } catch (RuntimeException ex) {
+            log.error("Failed to send email:", ex);
+            //issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
+        }
+    }
 }

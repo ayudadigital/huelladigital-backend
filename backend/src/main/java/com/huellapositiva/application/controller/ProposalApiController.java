@@ -43,6 +43,8 @@ public class ProposalApiController {
 
     private static final String PATH_ID = "/{id}";
 
+    private static final String PROPOSAL_DOESNT_EXIST = "The given proposal does not exist.";
+
     private final RegisterProposalAction registerProposalAction;
 
     private final FetchProposalAction fetchProposalAction;
@@ -331,7 +333,7 @@ public class ProposalApiController {
         } catch (NullPointerException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not parse the revision, due to missing data.");
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -372,7 +374,7 @@ public class ProposalApiController {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
             return proposalResponseDto.getInscribedVolunteers();
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -411,7 +413,7 @@ public class ProposalApiController {
         try{
             return fetchProposalAction.execute(idProposal);
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given proposal does not exist.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
         }
     }
 }

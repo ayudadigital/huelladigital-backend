@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import static io.restassured.RestAssured.given;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class SwaggerTest {
+class SwaggerShould {
 
     @LocalServerPort
     private int port;

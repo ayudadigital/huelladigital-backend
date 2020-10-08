@@ -611,7 +611,7 @@ class ProposalControllerShould {
 
 
     @Test
-    public void return_200_and_a_list_of_volunteers_from_a_proposal_as_reviser() throws Exception {
+    void return_200_and_a_list_of_volunteers_from_a_proposal_as_reviser() throws Exception {
 
         // GIVEN
         String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
@@ -632,7 +632,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    public void return_400_when_proposal_not_found() throws Exception{
+    void return_400_when_proposal_not_found() throws Exception{
 
         // GIVEN
         String proposalId = "999";
@@ -648,7 +648,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    public void return_200_and_the_proposal_with_volunteers_as_reviser() throws Exception {
+    void return_200_and_the_proposal_with_volunteers_as_reviser() throws Exception {
 
         // GIVEN
         String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
@@ -664,12 +664,12 @@ class ProposalControllerShould {
 
         ProposalResponseDto proposalDto = objectMapper.readValue(fetchResponse.getContentAsString(), ProposalResponseDto.class);
         assertThat(proposalDto.getId()).isEqualTo(proposalId);
-        assertThat(proposalDto.getInscribedVolunteers().size()).isGreaterThan(0);
+        assertThat(proposalDto.getInscribedVolunteers().size()).isPositive();
 
     }
 
     @Test
-    public void return_400_when_proposal_with_volunteers_not_found() throws Exception{
+    void return_400_when_proposal_with_volunteers_not_found() throws Exception{
 
         // GIVEN
         String proposalId = "999";

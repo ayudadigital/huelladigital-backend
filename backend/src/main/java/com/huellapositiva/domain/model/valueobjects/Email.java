@@ -41,6 +41,15 @@ public class Email {
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
+    public static Email createFrom(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailAddress, EmailTemplate emailTemplate, String from) {
+        validateEmail(emailAddress.getEmail());
+        return Email.builder()
+                .from(from)
+                .to(emailAddress.getEmail())
+                .subject("Revisión de tu convocatoria.")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
 
     private static void validateEmail(String emailAddress) {
         if (emailAddress.isEmpty()) {

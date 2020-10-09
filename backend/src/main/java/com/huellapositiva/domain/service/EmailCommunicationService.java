@@ -3,6 +3,7 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -71,19 +72,14 @@ public class EmailCommunicationService {
     }
 
 
-    /**
-     * This method parses an email and sends it to the volunteer/contactPerson to recover the password
-     *
-     * @param emailAddress contains a hash and the volunteer/contactPerson email
-     */
-    public void sendRecoveryPasswordEmail(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailAddress) {
+
+    public void sendRecoveryPasswordEmail(JpaCredential jpaCredential) {
         try {
-            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailAddress);
-            Email email = Email.createFrom(emailAddress, emailTemplate, from);
+            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(jpaCredential.getHashedPassword());
+            Email email = Email.createFrom(jpaCredential, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);
-            //issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
         }
     }
 }

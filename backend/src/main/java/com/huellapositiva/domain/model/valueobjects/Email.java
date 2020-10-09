@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.domain.exception.EmailNotValidException;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -41,11 +42,11 @@ public class Email {
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
-    public static Email createFrom(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailAddress, EmailTemplate emailTemplate, String from) {
-        validateEmail(emailAddress.getEmail());
+    public static Email createFrom(JpaCredential jpaCredential, EmailTemplate emailTemplate, String from) {
+        validateEmail(jpaCredential.getEmail());
         return Email.builder()
                 .from(from)
-                .to(emailAddress.getEmail())
+                .to(jpaCredential.getEmail())
                 .subject("Revisión de tu convocatoria.")
                 .body(emailTemplate.getParsedTemplate())
                 .build();

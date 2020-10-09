@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -72,11 +71,11 @@ public class TemplateService {
         return new EmailTemplate(template).parse(variables);
     }
 
-    public EmailTemplate getRecoveryEmailTemplate(com.huellapositiva.infrastructure.orm.entities.EmailConfirmation emailConfirmation){
+    public EmailTemplate getRecoveryEmailTemplate(String hashPassword){
         String relativePath = "classpath:templates/emails/recoveryPasswordEmail.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
-        String url = emailConfirmation.getHash(); // contains the hash/UUID
+        String url = "/api/v1/restore-password/" + hashPassword;
         variables.put("RECOVERY_PASSWORD_URL", url);
         return new EmailTemplate(template).parse(variables);
     }

@@ -1,7 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.domain.actions.FetchCredentialsAction;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +17,14 @@ public class RecoveryPasswordApiController {
     FetchCredentialsAction credentialsAction;
 
     @GetMapping("/email")
-    public void sendEmailRecovery(EmailConfirmation emailAddress){
+    public void sendEmailRecovery(EmailAddress emailAddress){
         credentialsAction.execute(emailAddress);
+        // A partir de la cuenta de email --> recuperar el hash
+        //  añadir ese hash al enlace en el email de recuperación
         // send email through the service
-        // In the email send an unique hash/UUID to identify the user.
-        // this hash will be added to the endpoint
     }
 
-    @GetMapping("/change-password/{hash}")
+    @GetMapping("/{hash}")
     public void changePassword(@PathVariable UUID hash){
         // user inserts new password (get in the signature?)
         // action --> repository (set the new password in DB);

@@ -59,7 +59,10 @@ public class RemoteStorageService {
      * @return the extension or an empty string when there is no extension
      */
     private String getExtension(String fileName) {
-        int index = fileName.lastIndexOf('.');
-        return index != -1 ? fileName.substring(index) : "";
+        if (fileName != null) {
+            int index = fileName.lastIndexOf('.');
+            return index != -1 ? fileName.substring(index) : "";
+        }
+        return "";
     }
 }

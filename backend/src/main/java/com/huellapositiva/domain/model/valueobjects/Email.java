@@ -42,12 +42,12 @@ public class Email {
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
-    public static Email createFrom(JpaCredential jpaCredential, EmailTemplate emailTemplate, String from) {
-        validateEmail(jpaCredential.getEmail());
+    public static Email createFrom(EmailRecoveryPassword emailRecoveryPassword, EmailTemplate emailTemplate, String from) {
+        validateEmail(emailRecoveryPassword.getEmail());
         return Email.builder()
                 .from(from)
-                .to(jpaCredential.getEmail())
-                .subject("Revisión de tu convocatoria.")
+                .to(emailRecoveryPassword.getEmail())
+                .subject("Cambio de tu contraseña")
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }

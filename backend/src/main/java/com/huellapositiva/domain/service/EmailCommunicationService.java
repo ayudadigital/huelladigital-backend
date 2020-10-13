@@ -73,10 +73,10 @@ public class EmailCommunicationService {
 
 
 
-    public void sendRecoveryPasswordEmail(JpaCredential jpaCredential) {
+    public void sendRecoveryPasswordEmail(EmailRecoveryPassword emailRecoveryPassword) {
         try {
-            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(jpaCredential.getHashedPassword());
-            Email email = Email.createFrom(jpaCredential, emailTemplate, from);
+            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailRecoveryPassword.getHash());
+            Email email = Email.createFrom(emailRecoveryPassword, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);

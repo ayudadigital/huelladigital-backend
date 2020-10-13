@@ -268,7 +268,7 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "Ok, proposal list fetched."
                     ),
                     @ApiResponse(
@@ -304,8 +304,8 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Ok, proposal list fetched."
+                            responseCode = "200",
+                            description = "Ok, email with proposal sent to reviser."
                     ),
                     @ApiResponse(
                             responseCode = "400",
@@ -353,7 +353,7 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "Ok, list of volunteers fetched."
                     ),
                     @ApiResponse(
@@ -393,8 +393,8 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Ok, proposal fetched successfully."
+                            responseCode = "200",
+                            description = "Ok, proposal fetched successfully and listed the list of volunteers."
                     ),
                     @ApiResponse(
                             responseCode = "400",

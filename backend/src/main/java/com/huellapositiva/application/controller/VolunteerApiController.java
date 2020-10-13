@@ -98,7 +98,7 @@ public class VolunteerApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "Ok, uploaded curriculum successfully"
                     ),
                     @ApiResponse(

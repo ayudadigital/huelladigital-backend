@@ -15,11 +15,12 @@ public class RecoveryPasswordApiController {
     @Autowired
     FetchCredentialsAction credentialsAction;
 
-    @GetMapping("/email")
+    @GetMapping("/{email}")
     public void sendEmailRecovery(@PathVariable String email){
+        // comprobar si el email está confirmado??
+        // qué token se envía en la url, crear un token nuevo y almacenarlo en BD hasta que cambie la contraseña??
         credentialsAction.execute(email);
     }
-
 
     @GetMapping("/{hash}")
     public void changePassword(@PathVariable UUID hash){
@@ -28,6 +29,5 @@ public class RecoveryPasswordApiController {
         // action --> repository (set the new password in DB);
         // send email, password changed successfully
     }
-
 
 }

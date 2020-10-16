@@ -632,10 +632,10 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_proposal_not_found() throws Exception{
+    void return_404_when_proposal_not_found() throws Exception{
 
         // GIVEN
-        String proposalId = "999";
+        String proposalId = "5be08393-7a09-465a-931f-239b168c4642";
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -644,7 +644,7 @@ class ProposalControllerShould {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -669,7 +669,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_proposal_with_volunteers_not_found() throws Exception{
+    void return_404_when_proposal_with_volunteers_not_found() throws Exception{
 
         // GIVEN
         String proposalId = "999";
@@ -681,6 +681,6 @@ class ProposalControllerShould {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

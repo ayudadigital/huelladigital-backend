@@ -272,6 +272,7 @@ public class TestData {
 
     @SneakyThrows
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
         JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
 
@@ -287,9 +288,9 @@ public class TestData {
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
                 .esal(esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-08-2020"))
-                .closingProposalDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .startingProposalDate(simpleDateFormat.parse("20-08-2020"))
+                .closingProposalDate( simpleDateFormat.parse("24-08-2020"))
+                .startingVolunteeringDate(simpleDateFormat.parse("25-08-2020"))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)

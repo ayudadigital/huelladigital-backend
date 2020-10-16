@@ -357,8 +357,8 @@ public class ProposalApiController {
                             description = "Ok, list of volunteers fetched."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal. Requested proposal not found."
+                            responseCode = "404",
+                            description = "Requested proposal not found."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -374,7 +374,7 @@ public class ProposalApiController {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
             return proposalResponseDto.getInscribedVolunteers();
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -397,8 +397,8 @@ public class ProposalApiController {
                             description = "Ok, proposal fetched successfully and listed the list of volunteers."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal. Requested proposal not found."
+                            responseCode = "404",
+                            description = "Requested proposal not found."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -413,7 +413,7 @@ public class ProposalApiController {
         try{
             return fetchProposalAction.execute(idProposal);
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 }

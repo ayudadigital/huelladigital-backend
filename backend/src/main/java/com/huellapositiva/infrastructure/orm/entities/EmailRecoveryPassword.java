@@ -28,9 +28,10 @@ public class EmailRecoveryPassword implements Serializable{
         private String hash;
 
         @CreationTimestamp
-        @Column(name = "created_on")
-        private Date createdOn;
+        @Column(name = "sent_on")
+        private Date sentOn;
 
+        /// ¿¿??
         @OneToOne(mappedBy = "emailConfirmation")
         private JpaCredential credential;
 

@@ -19,6 +19,8 @@ import java.util.Map;
 @Service
 public class TemplateService {
 
+    public static final String PROPOSAL_URL ="PROPOSAL_URL";
+
     private String getFileContent(String relativePath) {
         try {
             File file = ResourceUtils.getFile(relativePath);
@@ -43,7 +45,7 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = proposalRevisionRequestEmail.getProposalUrl();
-        variables.put("PROPOSAL_URL", url );
+        variables.put(PROPOSAL_URL, url );
         return new EmailTemplate(template).parse(variables);
     }
 
@@ -51,7 +53,7 @@ public class TemplateService {
         String relativePath = "classpath:templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
-        variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
+        variables.put(PROPOSAL_URL, proposalRevisionRequestEmail.getProposalURL());
         String contactPersonName = proposalRevisionRequestEmail.getEsalContactPerson().getFullName();
         variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
         String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
@@ -64,7 +66,7 @@ public class TemplateService {
         String relativePath = "classpath:templates/emails/proposalRevisionResponseWithoutFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
-        variables.put("PROPOSAL_URL", proposalRevisionRequestEmail.getProposalURL());
+        variables.put(PROPOSAL_URL, proposalRevisionRequestEmail.getProposalURL());
         String contactPersonName = proposalRevisionRequestEmail.getEsalContactPerson().getFullName();
         variables.put("CONTACT_PERSON_NAME", contactPersonName != null ? contactPersonName : "usuario de Huella Positiva");
         String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();

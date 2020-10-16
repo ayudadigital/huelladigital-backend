@@ -27,7 +27,8 @@ public class RemoteStorageService {
      * @throws IOException
      */
     public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
-        String destinationFileName = UUID.randomUUID() + getExtension(image.getOriginalFilename());
+        String destinationFileName = UUID.randomUUID().toString();
+        destinationFileName += getExtension(image.getOriginalFilename());
         String proposalImageRootKey = "images/proposals/" + proposalId + '/';
         return storageService.upload(proposalImageRootKey + destinationFileName, image.getInputStream(), image.getContentType());
     }
@@ -41,8 +42,9 @@ public class RemoteStorageService {
      * @throws IOException
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
-        String extension = getExtension(cv.getOriginalFilename());
-        if(!extension.equalsIgnoreCase(".pdf")) {
+        String extension;
+        extension = getExtension(cv.getOriginalFilename());
+        if(!".pdf".equalsIgnoreCase(extension)) {
             throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
@@ -57,7 +59,10 @@ public class RemoteStorageService {
      * @return the extension or an empty string when there is no extension
      */
     private String getExtension(String fileName) {
-        int index = fileName.lastIndexOf('.');
-        return index != -1 ? fileName.substring(index) : "";
+        if (fileName != null) {
+            int index = fileName.lastIndexOf('.');
+            return index != -1 ? fileName.substring(index) : "";
+        }
+        return "";
     }
 }

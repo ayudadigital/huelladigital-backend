@@ -21,6 +21,6 @@ public interface JpaCredentialRepository extends JpaRepository<JpaCredential, In
 
     @Modifying
     @Transactional
-    @Query("UPDATE JpaCredential c SET c.hash_recovery_password = :hash, c.created_recovery_hash_on = current_timestamp WHERE c.email = :email")
+    @Query("UPDATE JpaCredential c SET c.hashRecoveryPassword = :hash, c.createdRecoveryHashOn = current_timestamp WHERE c.email = :email")
     Integer updateHashByEmail(@Param("email") String email, @Param("hash") String hash);
 }

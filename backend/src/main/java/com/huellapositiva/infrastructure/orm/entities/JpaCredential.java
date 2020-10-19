@@ -52,7 +52,7 @@ public class JpaCredential implements Serializable {
     @Column(name = "hash_recovery_password", unique = true)
     private String hashRecoveryPassword;
 
-    @CreationTimestamp
+    //@CreationTimestamp
     @Column(name = "created_recovery_hash_on")
     private Date createdRecoveryHashOn;
 

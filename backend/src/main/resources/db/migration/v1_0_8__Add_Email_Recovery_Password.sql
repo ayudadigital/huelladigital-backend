@@ -1,7 +1,5 @@
-CREATE TABLE email_recovery_password
-(
-    id              SERIAL PRIMARY KEY NOT NULL,
-    email           VARCHAR NOT NULL ,
-    hash            VARCHAR NOT NULL UNIQUE ,
-    sent_on         TIMESTAMP
-);
+ALTER TABLE credentials
+ADD COLUMN hash_recovery_password VARCHAR UNIQUE;
+
+ALTER TABLE credentials
+ADD COLUMN created_recovery_hash_on TIMESTAMP;

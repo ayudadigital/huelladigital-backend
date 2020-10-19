@@ -17,8 +17,6 @@ public class RecoveryPasswordApiController {
 
     @GetMapping("/{email}")
     public void sendEmailRecovery(@PathVariable String email){
-        // comprobar si el email está confirmado??
-        // qué token se envía en la url, crear un token nuevo y almacenarlo en BD hasta que cambie la contraseña??
         credentialsAction.execute(email);
     }
 

@@ -22,9 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.UUID;
+import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 
@@ -266,6 +264,54 @@ public class TestData {
 
     public JpaProposal registerESALAndFinishedProposal() throws ParseException {
         return registerESALAndProposal(FINISHED);
+    }
+
+    public JpaProposal registerESALAndProposalWithInscribedVolunteers() throws ParseException {
+        return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
+    }
+
+    @SneakyThrows
+    private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+
+        JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
+
+        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        createAndLinkESAL(contactPerson, esal);
+        JpaProposal jpaProposal = JpaProposal.builder()
+                .id(UUID.randomUUID().toString())
+                .title("Recogida de ropita")
+                .location(JpaLocation.builder()
+                        .id(UUID.randomUUID().toString())
+                        .province("Santa Cruz de Tenerife")
+                        .town("Santa Cruz de Tenerife")
+                        .address("Avenida Weyler 4").build())
+                .esal(esal)
+                .startingProposalDate(simpleDateFormat.parse("20-08-2020"))
+                .closingProposalDate( simpleDateFormat.parse("24-08-2020"))
+                .startingVolunteeringDate(simpleDateFormat.parse("25-08-2020"))
+                .requiredDays("Weekends")
+                .minimumAge(18)
+                .maximumAge(26)
+                .status(getJpaStatus(proposalStatus))
+                .description("Recogida de ropa en la laguna")
+                .durationInDays("1 semana")
+                .inscribedVolunteers(Collections.singleton(jpaVolunteer))
+                .category(ProposalCategory.ON_SITE.toString())
+                .imageUrl(createMockImageUrl().toString())
+                .build();
+        jpaProposal = createProposal(jpaProposal);
+        jpaProposalSkillsRepository.save(JpaProposalSkills.builder()
+                .name("Asertividad")
+                .description("Aprenderás habilidades para una mejor comunicación")
+                .proposal(jpaProposal)
+                .build());
+        jpaProposalRequirementsRepository.save(JpaProposalRequirements.builder()
+                .name("Disponer de vehículo")
+                .proposal(jpaProposal)
+                .build());
+        return jpaProposal;
     }
 
     @SneakyThrows

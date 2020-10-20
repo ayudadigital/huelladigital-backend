@@ -8,7 +8,7 @@ import javax.annotation.security.RolesAllowed;
 
 @RestController
 @RequestMapping("api/v1/test-jwt-authorization")
-public class TestApiController {
+public class ApiControllerShould {
 
     @RolesAllowed({"VOLUNTEER"})
     @GetMapping

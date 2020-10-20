@@ -29,9 +29,11 @@ public class UploadCurriculumVitaeAction {
      * @throws IOException when the cv is corrupted
      */
     public void execute(MultipartFile cv, String volunteerEmail) throws IOException {
-        Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
-        URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
-        volunteer.setCurriculumVitae(cvUrl);
-        volunteerRepository.updateCurriculumVitae(volunteer);
+        if (cv != null) {
+            Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
+            URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
+            volunteer.setCurriculumVitae(cvUrl);
+            volunteerRepository.updateCurriculumVitae(volunteer);
+        }
     }
 }

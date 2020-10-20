@@ -44,8 +44,10 @@ public class RegisterProposalAction {
         ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
         Proposal proposal = Proposal.parseDto(dto, joinedESAL);
         proposal.validate();
-        URL imageUrl = storageService.uploadProposalImage(image, proposal.getId().getValue());
-        proposal.setImage(imageUrl);
+        if (image != null) {
+            URL imageUrl = storageService.uploadProposalImage(image, proposal.getId().getValue());
+            proposal.setImage(imageUrl);
+        }
         return proposalRepository.save(proposal);
     }
 
@@ -63,8 +65,10 @@ public class RegisterProposalAction {
         ESAL esal = esalRepository.findByName(dto.getEsalName());
         Proposal proposal = Proposal.parseDto(dto, esal);
         proposal.validate();
-        URL imageUrl = storageService.uploadProposalImage(image, proposal.getId().getValue());
-        proposal.setImage(imageUrl);
+        if (image != null) {
+            URL imageUrl = storageService.uploadProposalImage(image, proposal.getId().getValue());
+            proposal.setImage(imageUrl);
+        }
         return proposalRepository.save(proposal);
     }
 }

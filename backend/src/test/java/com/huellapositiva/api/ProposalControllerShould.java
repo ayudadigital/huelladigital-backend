@@ -527,30 +527,49 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_submitting_an_invalid_revision() throws Exception {
+    void return_200_when_submitting_revision_as_revisor_has_feedback_but_not_feedback_text() throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto invalidRevisionDto = ProposalRevisionDto.builder()
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
                 .hasFeedback(true)
                 .build();
 
         // WHEN + THEN
+        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(revisionDto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_200_when_submitting_revision_as_revisor_but_has_not_feedback() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        String proposalId = jpaProposal.getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
+                .hasFeedback(false)
+                .build();
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(invalidRevisionDto))
+                .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
-    void return_400_when_the_given_proposal_id_does_not_exist() throws Exception {
+    void return_404_when_the_given_proposal_id_does_not_exist() throws Exception {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -564,7 +583,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test

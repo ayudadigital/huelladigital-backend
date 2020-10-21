@@ -34,6 +34,9 @@ public class SubmitProposalRevisionAction {
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
         Reviser reviser = Reviser.from(credentialsRepository.findByEmail(revisionDto.getReviserEmail()));
+        if (revisionDto.getHasFeedback() == true && revisionDto.getFeedback() == null) {
+            revisionDto.setHasFeedback(false);
+        }
         ProposalRevisionEmail revision = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)

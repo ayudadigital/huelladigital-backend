@@ -308,12 +308,8 @@ public class ProposalApiController {
                             description = "Ok, email with proposal sent to reviser."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposals. Requested proposal not found or not published."
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            responseCode = "404",
+                            description = "Not found, requested proposal not found or not published."
                     )
             }
     )
@@ -330,10 +326,8 @@ public class ProposalApiController {
                     .toUri();
             dto.setReviserEmail(reviserEmail);
             submitProposalRevisionAction.execute(id, dto, uri);
-        } catch (NullPointerException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not parse the revision, due to missing data.");
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 

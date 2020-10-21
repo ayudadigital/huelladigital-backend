@@ -40,41 +40,19 @@ class RecoveryPasswordApiControllerShould {
 
     @Test
     void return_204_when_sends_a_recovery_password_email() throws Exception{
-
-        //UUID uuid = UUID.randomUUID();
-
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
-        // Este no es el método adecuado. No quiero hacer login.
-        // Algo tal que así: getTokenForRecoveryPassword(mvc, DEFAULT_EMAIL);
-
-        /*
-        - Recuperamos EMAIL y PASSWORD.
-        - Un logueo en diferido. Devuelve nuestro TOKEN
-        - Capturo el token de logueo.
-        - El resto coser y cantar
-         */
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
         mvc.perform(get(baseUri + "/sendRecoveryPasswordEmail/" + DEFAULT_EMAIL)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken()) // Le pasamos el token que hay en variable de sesión
-                .with(csrf())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void return_404_when_user_email_not_found() throws Exception {
-        // Le pasa lo mismo que al test anterior, necesitamos un Token SIN loguearse.
-        // GIVEN
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
         // WHEN + THEN
         mvc.perform(get(baseUri + "/sendRecoveryPasswordEmail/" + "emailNotFound@huellapositiva.com")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken()) // Le pasamos el token que hay en variable de sesión
-                .with(csrf())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }

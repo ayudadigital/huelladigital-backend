@@ -137,12 +137,7 @@ public class ProposalApiController {
         try {
             return fetchProposalAction.execute(id);
         } catch (EntityNotFoundException | ProposalNotPublic e) {
-            res.sendRedirect(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .replacePath("/api/v1/proposals/1/5") // Endpoint of proposal listing
-                            .toUriString()
-            );
-            return null;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 

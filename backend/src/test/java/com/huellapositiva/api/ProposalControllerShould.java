@@ -232,7 +232,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_302_when_fetching_a_non_existent_proposal() throws Exception {
+    void return_404_when_fetching_a_non_existent_proposal() throws Exception {
         // GIVEN
         int id = 999;
 
@@ -240,12 +240,11 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrlPattern("**/localhost/api/v1/proposals/1/5"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void return_302_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
+    void return_404_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
         JpaProposal proposal = testData.registerESALAndNotPublishedProposal();
 
@@ -253,7 +252,7 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test

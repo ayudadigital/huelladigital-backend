@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.service.RemoteStorageService;
@@ -29,11 +30,13 @@ public class UploadCurriculumVitaeAction {
      * @throws IOException when the cv is corrupted
      */
     public void execute(MultipartFile cv, String volunteerEmail) throws IOException {
-        if (cv != null) {
+        if (cv.getInputStream().available() != 0) {
             Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
             URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
             volunteer.setCurriculumVitae(cvUrl);
             volunteerRepository.updateCurriculumVitae(volunteer);
+        } else {
+            throw new EmptyFileException("There is not any cv attached or is empty.");
         }
     }
 }

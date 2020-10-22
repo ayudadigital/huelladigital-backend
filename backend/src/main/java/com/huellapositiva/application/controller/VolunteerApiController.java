@@ -6,6 +6,7 @@ import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowed;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
+import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +35,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @Tag(name = "Volunteer", description = "The volunteer API")
@@ -119,6 +122,11 @@ public class VolunteerApiController {
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
                                       @AuthenticationPrincipal String contactPersonEmail) throws IOException {
-        uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
+        try {
+            uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
+        } catch (EmptyFileException ex){
+            log.error("There is not any cv attached or is empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }

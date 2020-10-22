@@ -55,7 +55,7 @@ public class JpaProposal implements Serializable {
 
     @JoinColumn(name = "status_id", referencedColumnName = "id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    private JpaStatus status;
+    private JpaProposalStatus status;
 
     @Column(name = "description")
     private String description;

@@ -89,7 +89,7 @@ public class TestData {
     private final AwsS3Properties awsS3Properties;
 
     @Autowired
-    private final JpaStatusRepository jpaStatusRepository;
+    private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
 
     public void resetData() {
@@ -392,8 +392,8 @@ public class TestData {
         return new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes());
     }
 
-    public JpaStatus getJpaStatus(ProposalStatus proposalStatus) {
-        return jpaStatusRepository.findById(proposalStatus.getId())
+    public JpaProposalStatus getJpaStatus(ProposalStatus proposalStatus) {
+        return jpaProposalStatusRepository.findById(proposalStatus.getId())
             .orElseThrow(InvalidStatusIdException::new);
     }
 }

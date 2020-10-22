@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.exception.FileTypeNotSupported;
+import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class RemoteStorageService {
         String extension;
         extension = getExtension(cv.getOriginalFilename());
         if(!".pdf".equalsIgnoreCase(extension)) {
-            throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
+            throw new FileTypeNotSupportedException("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';

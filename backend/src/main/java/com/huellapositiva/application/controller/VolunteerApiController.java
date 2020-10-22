@@ -3,7 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
-import com.huellapositiva.application.exception.PasswordNotAllowed;
+import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
@@ -86,7 +86,7 @@ public class VolunteerApiController {
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
             return jwtService.create(username, roles);
-        } catch (PasswordNotAllowed pna) {
+        } catch (PasswordNotAllowedException pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
         } catch (ConflictPersistingUserException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Could not register the user");

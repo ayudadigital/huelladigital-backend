@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-import com.huellapositiva.domain.exception.InvalidStatusId;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 
 import java.util.Arrays;
 
@@ -26,6 +26,6 @@ public enum ProposalStatus {
         return Arrays.stream(ProposalStatus.values())
                 .filter(s -> s.getId() == id)
                 .findFirst()
-                .orElseThrow(InvalidStatusId::new);
+                .orElseThrow(InvalidStatusIdException::new);
     }
 }

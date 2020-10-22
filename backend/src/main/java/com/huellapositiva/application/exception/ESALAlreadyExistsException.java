@@ -3,9 +3,9 @@ package com.huellapositiva.application.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
-public class ESALNotFound extends RuntimeException{
-    public ESALNotFound() {
+@ResponseStatus(HttpStatus.CONFLICT)
+public class ESALAlreadyExistsException extends RuntimeException{
+    public ESALAlreadyExistsException() {
         super();
     }
 }

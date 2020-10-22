@@ -3,8 +3,8 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.application.dto.SkillDto;
 import com.huellapositiva.application.dto.VolunteerDto;
-import com.huellapositiva.application.exception.ProposalNotPublic;
-import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.application.exception.ProposalNotPublicException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.Requirement;
 import com.huellapositiva.domain.repository.ProposalRepository;
@@ -27,12 +27,12 @@ public class FetchProposalAction {
      *
      * @param proposalId passed as path variable parameter
      * @return ProposalResponseDto
-     * @throws ProposalNotPublished if the proposal is not PUBLISHED
+     * @throws ProposalNotPublishedException if the proposal is not PUBLISHED
      */
     public ProposalResponseDto execute(String proposalId) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED && proposal.getStatus() != FINISHED) {
-            throw new ProposalNotPublic();
+            throw new ProposalNotPublicException();
         }
         return ProposalResponseDto.builder()
                 .id(proposal.getId().getValue())

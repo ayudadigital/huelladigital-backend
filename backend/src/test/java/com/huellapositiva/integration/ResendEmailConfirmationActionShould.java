@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmedException;
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -94,6 +94,6 @@ class ResendEmailConfirmationActionShould {
         // WHEN + THEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authReq);
-        assertThrows(EmailConfirmationAlreadyConfirmed.class, () -> resendEmailConfirmationAction.execute());
+        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute());
     }
 }

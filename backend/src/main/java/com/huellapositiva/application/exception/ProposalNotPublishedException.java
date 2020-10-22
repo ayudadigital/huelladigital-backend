@@ -3,14 +3,14 @@ package com.huellapositiva.application.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.GONE)
-public class ProposalEnrollmentClosed extends RuntimeException {
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class ProposalNotPublishedException extends RuntimeException {
 
-    public ProposalEnrollmentClosed(){
+    public ProposalNotPublishedException(){
         super();
     }
 
-    public ProposalEnrollmentClosed(String message) {
+    public ProposalNotPublishedException(String message) {
         super(message);
     }
 }

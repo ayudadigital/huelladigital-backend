@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
-import com.huellapositiva.application.exception.FailedToPersistProposal;
+import com.huellapositiva.application.exception.FailedToPersistProposalException;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -52,7 +52,7 @@ public class RegisterESALAction {
             esalRepository.saveAsReviser(esal);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist the proposal due to a conflict.", ex);
-            throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
+            throw new FailedToPersistProposalException("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
         }
     }
 }

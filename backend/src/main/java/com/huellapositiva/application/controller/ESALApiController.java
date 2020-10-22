@@ -1,7 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.RegisterESALAction;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import com.huellapositiva.application.exception.ESALAlreadyExists;
+import com.huellapositiva.application.exception.ESALAlreadyExistsException;
 import com.huellapositiva.domain.actions.DeleteESALAction;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -74,11 +74,11 @@ public class ESALApiController {
     public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
         try {
             registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
-        } catch (ESALAlreadyExists ex) {
+        } catch (ESALAlreadyExistsException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The user attempting to create the ESAL has already registered another one.");
-        } catch (UserNotFound ex) {
+        } catch (UserNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }
     }
@@ -119,7 +119,7 @@ public class ESALApiController {
     public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
         try {
             deleteESALAction.execute(memberEmail, id);
-        } catch (UserNotFound ex) {
+        } catch (UserNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not delete the ESAL caused by a connectivity issue.");
         }
     }

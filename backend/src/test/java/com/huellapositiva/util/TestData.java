@@ -1,7 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.domain.exception.InvalidStatusId;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
@@ -394,6 +394,6 @@ public class TestData {
 
     public JpaStatus getJpaStatus(ProposalStatus proposalStatus) {
         return jpaStatusRepository.findById(proposalStatus.getId())
-            .orElseThrow(InvalidStatusId::new);
+            .orElseThrow(InvalidStatusIdException::new);
     }
 }

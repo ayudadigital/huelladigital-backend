@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ESALAlreadyExists extends RuntimeException{
-    public ESALAlreadyExists() {
-        super();
+public class EmailConfirmationAlreadyConfirmedException extends RuntimeException{
+    public EmailConfirmationAlreadyConfirmedException(String message) {
+        super(message);
     }
 }

@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.ESALNotFound;
-import com.huellapositiva.domain.exception.InvalidStatusId;
+import com.huellapositiva.application.exception.ESALNotFoundException;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -67,13 +67,13 @@ public class ProposalRepository {
                 .address(proposal.getLocation().getAddress())
                 .build());
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
-                .orElseThrow(ESALNotFound::new);
+                .orElseThrow(ESALNotFoundException::new);
         Set<JpaVolunteer> volunteers = proposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
                 .collect(Collectors.toSet());
         JpaStatus jpaStatus = jpaStatusRepository.findById(proposal.getStatus().getId())
-                .orElseThrow(InvalidStatusId::new);
+                .orElseThrow(InvalidStatusIdException::new);
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(proposal.getId().toString())
                 .title(proposal.getTitle())

@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.ESALAlreadyExists;
+import com.huellapositiva.application.exception.ESALAlreadyExistsException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
@@ -52,7 +52,7 @@ public class ESALRepository {
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
             return id;
         } catch (DataIntegrityViolationException ex) {
-            throw new ESALAlreadyExists();
+            throw new ESALAlreadyExistsException();
         }
     }
 
@@ -64,7 +64,7 @@ public class ESALRepository {
         try {
             return jpaESALRepository.save(esal).getId();
         } catch (DataIntegrityViolationException ex) {
-            throw new ESALAlreadyExists();
+            throw new ESALAlreadyExistsException();
         }
     }
 

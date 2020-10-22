@@ -2,9 +2,9 @@ package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.application.exception.ProposalNotPublic;
-import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.application.exception.FailedToPersistProposalException;
+import com.huellapositiva.application.exception.ProposalNotPublicException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -105,7 +105,7 @@ public class ProposalApiController {
             requestProposalRevisionAction.execute(uri);
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
         } catch (ParseException e) {
-            throw new FailedToPersistProposal("The given date(s) format is not valid.");
+            throw new FailedToPersistProposalException("The given date(s) format is not valid.");
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
         } catch (InvalidProposalRequestException e) {
@@ -136,7 +136,7 @@ public class ProposalApiController {
     public ProposalResponseDto getProposal(@PathVariable String id, HttpServletResponse res) throws IOException {
         try {
             return fetchProposalAction.execute(id);
-        } catch (EntityNotFoundException | ProposalNotPublic e) {
+        } catch (EntityNotFoundException | ProposalNotPublicException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
@@ -172,7 +172,7 @@ public class ProposalApiController {
     public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
-        } catch (EntityNotFoundException | ProposalNotPublished e) {
+        } catch (EntityNotFoundException | ProposalNotPublishedException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
     }
@@ -220,7 +220,7 @@ public class ProposalApiController {
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
+            throw new FailedToPersistProposalException("Could not format the following date: " + dto.getClosingProposalDate());
         }
     }
 

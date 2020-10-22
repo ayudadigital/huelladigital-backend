@@ -44,8 +44,11 @@ public class ESALContactPersonService {
     }
 
     /**
+     * This method updates the ESAL name linked with the contactPerson.
      *
-     * TO BE DEFINED
+     * @param jpaContactPerson Contactperson to be updated
+     * @param jpaESAL JpaESAL to be linked with the contactPerson
+     * @return the number of rows updated in the DB
      */
     public Integer updateJoinedESAL(JpaContactPerson jpaContactPerson, JpaESAL jpaESAL) {
         return esalContactPersonRepository.updateESAL(jpaContactPerson.getId(), jpaESAL);

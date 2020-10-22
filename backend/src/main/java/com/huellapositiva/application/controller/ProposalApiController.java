@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
 
 @RestController
 @AllArgsConstructor
@@ -96,7 +97,7 @@ public class ProposalApiController {
                                @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
-        dto.setStatus(PUBLISHED.getId());
+        dto.setStatus(REVIEW_PENDING.getId()); // Setting the status when a proposal is created the first time.
         try {
             String id = registerProposalAction.execute(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()

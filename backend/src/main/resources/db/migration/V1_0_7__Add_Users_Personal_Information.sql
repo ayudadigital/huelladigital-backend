@@ -8,7 +8,7 @@ ALTER TABLE proposals
 DROP COLUMN published;
 
 ALTER TABLE proposals
-ADD COLUMN status_id INTEGER;
+ADD COLUMN status_id INTEGER DEFAULT(1);
 
 CREATE TABLE statuses (
     id              INTEGER         UNIQUE NOT NULL,

@@ -3,6 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.exception.UserNotFound;
 import com.huellapositiva.domain.actions.FetchCredentialsAction;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
+import java.text.ParseException;
 import java.util.UUID;
 
 @Controller
@@ -30,27 +32,18 @@ public class RecoveryPasswordApiController {
     }
 
     @PostMapping("/changePassword")
-    public void changePassword(@RequestParam String hash, @RequestParam String password){
+    public void changePassword(@RequestParam("hash") String hash, @RequestParam("newPassword") String password){
         /*
-        1º. Ir a la base de datos y comprobar si ha expirado o no el tiempo del hash.
+        1º. Ir a la base de datos y comprobar si ha expirado o no el tiempo del hash. TERMINADO
         2º. Buscar en la base de datos por hash y cambiar la password.
-        Y si ha expirado
-        3º. Le mandamos una excepción "ha expirado"
-         */
-
-
-
-        // check time of email recovery password sent --> if not expired:
-        // user inserts new password (get in the signature?)
-        // action --> repository (set the new password in DB);
-        // send email, password changed successfully
+        3º. Le mandamos una excepción "ha expirado". TERMINADO
+        4º. Enviar email cuando la contraseña se haya cambiado con EXITO.
+        */
 
         try {
-
+            credentialsAction.executePasswordChanging(hash, password);
         } catch (TimeForRecoveringPasswordExpiredException e) {
-
-            // Le redireccionamos al endpoint para volver a empezar de nuevo para enviar el email, esto en front
-            // De alguna forma hay que hacerle saber al front que el tiempo ha expirado.
+            throw new ResponseStatusException(HttpStatus.LOCKED, "The resource is locked because time for recovery password has expired");
         }
     }
 

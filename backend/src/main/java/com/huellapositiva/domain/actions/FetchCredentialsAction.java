@@ -37,7 +37,7 @@ public class FetchCredentialsAction {
         emailCommunicationService.sendRecoveryPasswordEmail(emailRecoveryPassword);
     }
 
-    public void executePasswordChanging(String hash, String password) throws ParseException {
+    public void executePasswordChanging(String hash, String password) {
         JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hash).orElseThrow(UserNotFound::new);
 
         Date dateInAHour = addAnHour(jpaCredential.getCreatedRecoveryHashOn());
@@ -46,7 +46,6 @@ public class FetchCredentialsAction {
         if (dateInAHour.after(dateNow)) {
             // Cambiamos la contrasña
         } else {
-            // Tiramos excepción
             throw new TimeForRecoveringPasswordExpiredException("The time to recovery password has expired");
         }
 

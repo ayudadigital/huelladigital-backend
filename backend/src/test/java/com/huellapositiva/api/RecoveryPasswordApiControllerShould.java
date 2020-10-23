@@ -1,6 +1,9 @@
 package com.huellapositiva.api;
 
-import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,17 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
-import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -29,6 +33,12 @@ class RecoveryPasswordApiControllerShould {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    FetchCredentialsAction credentialsAction;
+
+    @Autowired
+    private JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
     private TestData testData;
@@ -55,5 +65,27 @@ class RecoveryPasswordApiControllerShould {
         mvc.perform(get(baseUri + "/sendRecoveryPasswordEmail/" + "emailNotFound@huellapositiva.com")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_423_when_trying_to_change_password_and_time_has_expired() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
+        credentialsAction.execute(DEFAULT_EMAIL);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFound::new);
+
+        Calendar c = Calendar.getInstance();
+        c.setTime(jpaCredential.getCreatedRecoveryHashOn());
+        c.add(Calendar.HOUR, -2);  // number of days to add
+
+        jpaCredential.setCreatedRecoveryHashOn(c.getTime());
+        jpaCredentialRepository.save(jpaCredential);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/changePassword")
+                .with(csrf())
+                .param("hash", jpaCredential.getHashRecoveryPassword())
+                .param("newPassword", "NEWPASSWORD")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isLocked());
     }
 }

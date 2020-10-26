@@ -122,16 +122,16 @@ pipeline {
                 }
             }
         }
-        stage("AWS deploy") {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    label 'docker'
-                }
-            }
-            steps {
-                configFileProvider([configFile(fileId: 'huellapositiva_backend_task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
-                    withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+        configFileProvider([configFile(fileId: 'huellapositiva_backend_task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
+            withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                stage("AWS deploy") {
+                    agent {
+                        docker {
+                            image 'amazon/aws-cli'
+                            label 'docker'
+                        }
+                    }
+                    steps {
                         sh "bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}"
                     }
                 }

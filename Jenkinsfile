@@ -21,9 +21,6 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
     docker.withRegistry('', 'docker-token') {
         def customImage = docker.build("${env.DOCKER_ORGANIZATION}/huelladigital-backend:${nextReleaseNumber}", '--pull --no-cache backend')
         customImage.push()
-        if (nextReleaseNumber != 'beta') {
-            customImage.push('latest')
-        }
     }
 }
 
@@ -112,9 +109,9 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
-            when { branch 'develop' }
+            when { branch 'aws-ssm' }
             steps {
-                buildAndPublishDockerImages('beta')
+                buildAndPublishDockerImages('beta-aws-ibai')
             }
         }
         stage("Remote deploy") {
@@ -123,6 +120,22 @@ pipeline {
             steps {
                 sshagent (credentials: ['jpl-ssh-credentials']) {
                     sh "bin/deploy.sh dev"
+                }
+            }
+        }
+        stage("AWS deploy") {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    label 'docker'
+                }
+            }
+            when { branch 'aws-ssm' }
+            steps {
+                configFileProvider([configFile(fileId: 'huellapositiva_backend_task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
+                    withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh "bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}"
+                    }
                 }
             }
         }

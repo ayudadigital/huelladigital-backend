@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
 public class ESALAlreadyExistsException extends RuntimeException{
-    public ESALAlreadyExistsException() {
-        super();
+    public ESALAlreadyExistsException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 }

@@ -23,7 +23,7 @@ public class DeleteESALAction {
      */
     public void execute(String contactPersonEmail, String requesterId){
         String esalId = esalContactPersonRepository.getJoinedESAL(contactPersonEmail).getId().toString();
-        if(!requesterId.equals(esalId)){
+        if(!requesterId.equals(esalId)) {
             throw new OperationNotAllowedException("The given ESAL ID does not match the user's ESAL ID.");
         }
         esalRepository.delete(esalId);

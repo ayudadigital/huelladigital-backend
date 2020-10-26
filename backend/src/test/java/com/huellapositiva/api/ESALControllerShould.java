@@ -141,7 +141,7 @@ class ESALControllerShould {
     }
 
     @Test
-    void return_401_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
+    void return_403_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         String secondESALId = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Negativa").build()).getId();
@@ -153,6 +153,6 @@ class ESALControllerShould {
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

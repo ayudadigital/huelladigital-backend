@@ -186,15 +186,8 @@ public class TestData {
          return jpaProposalRepository.save(jpaProposal);
     }
 
-    public ProposalRequestDto buildPublishedProposalDto() {
-        return buildProposalDto(PUBLISHED.getId());
-    }
 
-    public ProposalRequestDto buildUnpublishedProposalDto() {
-        return buildProposalDto(UNPUBLISHED.getId());
-    }
-
-    public ProposalRequestDto buildProposalDto(int status){
+    public ProposalRequestDto buildProposalDto(){
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -205,7 +198,6 @@ public class TestData {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .status(status)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("30-01-2021")

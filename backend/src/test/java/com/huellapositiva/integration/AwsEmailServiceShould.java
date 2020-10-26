@@ -8,6 +8,7 @@ import com.huellapositiva.domain.model.valueobjects.Email;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
 import com.huellapositiva.util.DockerCondition;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
+@Disabled
 @ExtendWith(DockerCondition.class)
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)

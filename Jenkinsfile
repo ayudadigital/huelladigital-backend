@@ -109,7 +109,6 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
-            when { branch 'aws-ssm' }
             steps {
                 buildAndPublishDockerImages('beta-aws-ibai')
             }
@@ -130,7 +129,6 @@ pipeline {
                     label 'docker'
                 }
             }
-            when { branch 'aws-ssm' }
             steps {
                 configFileProvider([configFile(fileId: 'huellapositiva_backend_task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
                     withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {

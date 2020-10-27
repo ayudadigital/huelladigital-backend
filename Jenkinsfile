@@ -42,6 +42,7 @@ pipeline {
                     label 'docker'
                 }
             }
+            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend build'
             }
@@ -114,10 +115,10 @@ pipeline {
         stage("Docker Publish") {
             agent { label 'docker' }
             steps {
-                buildAndPublishDockerImages('beta-aws-ibai')
+//                buildAndPublishDockerImages('beta-aws-ibai')
                 configFileProvider([configFile(fileId: 'huellapositiva-backend-task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
                     script {
-                        env.HUELLAPOSITIVA_BACKEND_ECS_TASK = sh(script:"cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK}", returnStdout: true).trim()
+                        env.HUELLAPOSITIVA_BACKEND_ECS_TASK = sh(script:"cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK} | jq -c", returnStdout: true).trim()
                     }
                 }
             }

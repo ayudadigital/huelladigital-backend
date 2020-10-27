@@ -135,6 +135,7 @@ pipeline {
             agent {
                 docker {
                     image 'amazon/aws-cli'
+                    args '--entrypoint='
                     label 'docker'
                 }
             }

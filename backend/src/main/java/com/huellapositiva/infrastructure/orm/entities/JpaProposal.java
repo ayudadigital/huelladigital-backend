@@ -2,7 +2,6 @@ package com.huellapositiva.infrastructure.orm.entities;
 
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -54,8 +53,9 @@ public class JpaProposal implements Serializable {
     @Column(name = "starting_volunteering_date")
     private Date startingVolunteeringDate;
 
-    @Column(name = "published")
-    private Boolean published;
+    @JoinColumn(name = "status_id", referencedColumnName = "id")
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    private JpaProposalStatus status;
 
     @Column(name = "description")
     private String description;

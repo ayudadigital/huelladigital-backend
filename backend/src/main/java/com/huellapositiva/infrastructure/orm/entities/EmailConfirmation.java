@@ -37,5 +37,5 @@ public class EmailConfirmation implements Serializable {
     private Date updatedOn;
 
     @OneToOne(mappedBy = "emailConfirmation")
-    private Credential credential;
+    private JpaCredential credential;
 }

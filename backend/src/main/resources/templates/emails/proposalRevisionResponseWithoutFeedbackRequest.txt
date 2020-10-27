@@ -1,0 +1,3 @@
+Estimado ${CONTACT_PERSON_NAME},
+${REVISER_NAME} ha revisado tu convocatoria y te pide que la revises.
+<a href="${PROPOSAL_URL}">Enlace a la convocatoria</a>

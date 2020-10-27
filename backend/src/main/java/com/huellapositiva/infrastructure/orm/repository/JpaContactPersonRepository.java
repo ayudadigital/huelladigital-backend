@@ -29,4 +29,7 @@ public interface JpaContactPersonRepository extends JpaRepository<JpaContactPers
 
     @Query("FROM JpaContactPerson o LEFT JOIN FETCH o.credential c LEFT JOIN FETCH c.roles WHERE o.id = :id")
     Optional<JpaContactPerson> findByUUID(@Param("id") String id);
+
+    @Query("FROM JpaContactPerson cp LEFT JOIN FETCH cp.joinedEsal je WHERE je.id = :id")
+    Optional<JpaContactPerson> findByEsalId(@Param("id") String id);
 }

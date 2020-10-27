@@ -17,7 +17,7 @@ public class IssueService {
     @Autowired
     private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
 
-    public void registerVolunteerIssue(String email, Exception ex) {
+    public void registerEmailConfirmationIssue(String email, Exception ex) {
         FailEmailConfirmation failEmailConfirmation = FailEmailConfirmation.builder()
                 .emailAddress(email)
                 .exceptionTrace(Arrays.toString(ex.getStackTrace()))

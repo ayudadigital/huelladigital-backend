@@ -5,7 +5,7 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
@@ -56,10 +56,10 @@ class VolunteerServiceShould {
         Optional<JpaVolunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerEntity.getId().toString());
         assertTrue(volunteerOptional.isPresent());
         JpaVolunteer volunteer = volunteerOptional.get();
-        Credential credential = volunteer.getCredential();
-        assertThat(credential.getEmail(), is(DEFAULT_EMAIL));
-        assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, credential.getHashedPassword()), is(true));
-        assertThat(credential.getRoles(), hasSize(1));
-        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER_NOT_CONFIRMED.toString()));
+        JpaCredential jpaCredential = volunteer.getCredential();
+        assertThat(jpaCredential.getEmail(), is(DEFAULT_EMAIL));
+        assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, jpaCredential.getHashedPassword()), is(true));
+        assertThat(jpaCredential.getRoles(), hasSize(1));
+        assertThat(jpaCredential.getRoles().iterator().next().getName(), is(Roles.VOLUNTEER_NOT_CONFIRMED.toString()));
     }
 }

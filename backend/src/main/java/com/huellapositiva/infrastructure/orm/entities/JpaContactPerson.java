@@ -24,7 +24,7 @@ public class JpaContactPerson {
 
     @JoinColumn(name = "credential_id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private Credential credential;
+    private JpaCredential credential;
 
     @JoinColumn(name = "esal_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)

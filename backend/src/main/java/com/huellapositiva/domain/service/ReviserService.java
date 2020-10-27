@@ -2,7 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
@@ -43,6 +43,9 @@ public class ReviserService {
     @Value("${huellapositiva.web-admin.email}")
     private String reviserEmail;
 
+    /**
+     * This methods creates a default reviser based on the credentials taken from the application.properties
+     */
     public void createDefaultReviser() {
         if (jpaCredentialRepository.findByEmail(reviserEmail).isEmpty()) {
             Role role = jpaRoleRepository.findByName(REVISER.toString())
@@ -52,14 +55,14 @@ public class ReviserService {
                     .hash(UUID.randomUUID().toString())
                     .build();
             emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
-            Credential credential = Credential.builder()
+            JpaCredential jpaCredential = JpaCredential.builder()
                     .email(reviserEmail)
                     .hashedPassword(new PasswordHash(passwordEncoder.encode(reviserPassword)).toString())
                     .roles(Collections.singleton(role))
                     .emailConfirmed(true)
                     .emailConfirmation(emailConfirmation)
                     .build();
-            jpaCredentialRepository.save(credential);
+            jpaCredentialRepository.save(jpaCredential);
         }
     }
 }

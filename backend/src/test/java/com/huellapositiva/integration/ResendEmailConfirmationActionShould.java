@@ -1,10 +1,10 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmedException;
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
@@ -64,8 +64,8 @@ class ResendEmailConfirmationActionShould {
     void update_hash_and_update_timestamp_and_resend_email() {
         // GIVEN
         UUID initialHash = UUID.randomUUID();
-        Credential credential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
-        Instant updateTimestamp = credential.getEmailConfirmation().getUpdatedOn().toInstant();
+        JpaCredential jpaCredential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, initialHash);
+        Instant updateTimestamp = jpaCredential.getEmailConfirmation().getUpdatedOn().toInstant();
 
         // WHEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
@@ -94,6 +94,6 @@ class ResendEmailConfirmationActionShould {
         // WHEN + THEN
         UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
         SecurityContextHolder.getContext().setAuthentication(authReq);
-        assertThrows(EmailConfirmationAlreadyConfirmed.class, () -> resendEmailConfirmationAction.execute());
+        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute());
     }
 }

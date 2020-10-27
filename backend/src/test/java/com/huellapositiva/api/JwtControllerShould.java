@@ -5,7 +5,7 @@ import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -62,7 +62,7 @@ class JwtControllerShould {
     }
 
     private JwtResponseDto createVolunteerWithRoleAndGetAccessToken(Roles role) {
-        Credential credentials = testData.createCredential(DEFAULT_EMAIL, role);
+        JpaCredential credentials = testData.createCredential(DEFAULT_EMAIL, role);
         List<String> roles = credentials.getRoles().stream().map(Role::getName).collect(Collectors.toList());
         return jwtService.create(DEFAULT_EMAIL, roles);
     }
@@ -181,5 +181,15 @@ class JwtControllerShould {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         assertThat(objectMapper.readValue(refreshResponse, JwtResponseDto.class).getAccessToken()).isNotNull();
+    }
+
+    @Test
+    void return_400_when_body_is_empty_in_refresh_request() throws Exception {
+        //WHEN + THEN
+        mvc.perform(post("/api/v1/refresh")
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

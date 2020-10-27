@@ -73,7 +73,7 @@ public class Proposal {
 
     private URL image;
 
-    private boolean published;
+    private ProposalStatus status;
 
     public void inscribeVolunteer(Volunteer volunteer) {
         inscribedVolunteers.add(volunteer);
@@ -97,7 +97,6 @@ public class Proposal {
                 .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
                 .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress()))
                 .requiredDays(dto.getRequiredDays())
-                .published(dto.isPublished())
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
                 .category(ProposalCategory.valueOf(dto.getCategory()))
@@ -130,7 +129,7 @@ public class Proposal {
                 .startingVolunteeringDate(new ProposalDate(jpaProposal.getStartingVolunteeringDate()))
                 .permittedAgeRange(AgeRange.create(jpaProposal.getMinimumAge(), jpaProposal.getMaximumAge()))
                 .requiredDays(jpaProposal.getRequiredDays())
-                .published(jpaProposal.getPublished())
+                .status(ProposalStatus.getStatus(jpaProposal.getStatus().getId()))
                 .description(jpaProposal.getDescription())
                 .durationInDays(jpaProposal.getDurationInDays())
                 .category(ProposalCategory.valueOf(jpaProposal.getCategory()))

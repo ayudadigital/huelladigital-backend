@@ -111,6 +111,11 @@ pipeline {
             agent { label 'docker' }
             steps {
                 buildAndPublishDockerImages('beta-aws-ibai')
+                configFileProvider([configFile(fileId: 'huellapositiva-backend-task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
+                    script {
+                        env.HUELLAPOSITIVA_BACKEND_ECS_TASK = sh(script:"cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK}", returnStdout: true).trim()
+                    }
+                }
             }
         }
         stage("Remote deploy") {
@@ -122,18 +127,16 @@ pipeline {
                 }
             }
         }
-        configFileProvider([configFile(fileId: 'huellapositiva_backend_task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
-            withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                stage("AWS deploy") {
-                    agent {
-                        docker {
-                            image 'amazon/aws-cli'
-                            label 'docker'
-                        }
-                    }
-                    steps {
-                        sh "bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}"
-                    }
+        stage("AWS deploy") {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    label 'docker'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh "bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${env.HUELLAPOSITIVA_BACKEND_ECS_TASK}"
                 }
             }
         }

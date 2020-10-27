@@ -10,7 +10,7 @@ CLUSTER_NAME=default
 TASK_FAMILY=backend-task
 SERVICE_NAME=backend-service-ssm
 
-sudo yum install jq -y
+yum install jq -y
 
 #TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_DEFINITION_NAME} --region us-east-1)
 #TASK_DEFINITION=$(cat ~/Documents/ayudadigital/backend_task_definition_template.json)

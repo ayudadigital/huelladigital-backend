@@ -14,7 +14,7 @@ SERVICE_NAME=backend-service-ssm
 #TASK_DEFINITION=$(cat ~/Documents/ayudadigital/backend_task_definition_template.json)
 echo ${TASK_DEFINITION} | jq '.containerDefinitions[0].image='\"${DOCKER_IMAGE}\"
 echo ${TASK_DEFINITION} | jq '.containerDefinitions[0].image='\"${DOCKER_IMAGE}\" > /tmp/new_task_defintion.json
-NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family ${TASK_FAMILY} --region us-east-1 --cli-input-json file:///tmp/new_task_defintion.json)
+NEW_TASK_DEFINITION=$(aws ecs register-task-definition --family ${TASK_FAMILY} --region us-east-1 file:///tmp/new_task_defintion.json)
 echo "======================================"
 echo "New task definition:"
 echo "$NEW_TASK_DEFINITION"

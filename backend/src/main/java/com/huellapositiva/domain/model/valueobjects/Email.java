@@ -52,6 +52,16 @@ public class Email {
                 .build();
     }
 
+    public static Email createFrom(EmailAddress emailAddress, EmailTemplate emailTemplate, String from) {
+        validateEmail(emailAddress.toString());
+        return Email.builder()
+                .from(from)
+                .to(emailAddress.toString())
+                .subject("Confirmacion de cambio de contraseña")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
+
     private static void validateEmail(String emailAddress) {
         if (emailAddress.isEmpty()) {
             throw new EmailNotValidException("Error when build the email, the email address is empty");

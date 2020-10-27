@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Repository
@@ -26,4 +27,14 @@ public interface JpaCredentialRepository extends JpaRepository<JpaCredential, In
 
     @Query("FROM JpaCredential c WHERE c.hashRecoveryPassword = :hash")
     Optional<JpaCredential> findByHashRecoveryPassword(@Param("hash") String hash);
+
+    @Modifying
+    @Query("UPDATE JpaCredential c SET c.hashedPassword = :hash WHERE c.email = :email")
+    Integer updatePassword(@Param("hash") String hash, @Param("email") String email);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE JpaCredential c SET c.hashRecoveryPassword = :hash, c.createdRecoveryHashOn = :date WHERE c.email = :email")
+    Integer updateRecoveryPasswordHashAndDate(@Param("email") String email, @Param("hash") String hash, @Param("recoveryDate") Date date);
+
 }

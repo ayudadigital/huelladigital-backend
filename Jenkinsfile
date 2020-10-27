@@ -53,12 +53,14 @@ pipeline {
                     label 'docker'
                 }
             }
+            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend unit-tests'
             }
         }
         stage('Integration tests') {
             agent { label 'docker'}
+            when { branch 'servus' }
             steps {
                 script {
                     docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
@@ -79,6 +81,7 @@ pipeline {
                     label 'docker'
                 }
             }
+            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend acceptance-tests'
             }
@@ -90,6 +93,7 @@ pipeline {
                     label 'docker'
                 }
             }
+            when { branch 'servus' }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
                     sh 'bin/devcontrol.sh backend sonar'

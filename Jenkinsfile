@@ -133,10 +133,10 @@ pipeline {
         }
         stage("AWS deploy") {
             agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args '--privileged --entrypoint=/bin/bash'
-                    label 'docker'
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'docker/build/aws-ibai'
+                    args '--entrypoint='
                 }
             }
             steps {

@@ -135,7 +135,7 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile'
-                    dir 'docker/build/aws-ibai'
+                    dir 'backend/docker/build/aws-ibai'
                     args '--entrypoint='
                 }
             }

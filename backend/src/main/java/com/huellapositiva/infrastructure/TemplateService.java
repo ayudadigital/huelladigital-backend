@@ -79,4 +79,10 @@ public class TemplateService {
         variables.put("RECOVERY_PASSWORD_URL", url);
         return new EmailTemplate(template).parse(variables);
     }
+
+    public EmailTemplate getConfirmationPasswordChangedTemplate(String email){
+        String relativePath = "classpath:templates/emails/confirmationPasswordChanged.txt";
+        String template = getFileContent(relativePath);
+        return new EmailTemplate(template);
+    }
 }

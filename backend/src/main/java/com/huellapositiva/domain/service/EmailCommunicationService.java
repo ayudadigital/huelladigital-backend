@@ -82,4 +82,14 @@ public class EmailCommunicationService {
             log.error("Failed to send email:", ex);
         }
     }
+
+    public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
+        try {
+            EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate(emailAddress.toString());
+            Email email = Email.createFrom(emailAddress, emailTemplate, from);
+            emailService.sendEmail(email);
+        } catch (RuntimeException ex) {
+            log.error("Failed to send email:", ex);
+        }
+    }
 }

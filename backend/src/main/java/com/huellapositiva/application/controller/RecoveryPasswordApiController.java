@@ -33,13 +33,6 @@ public class RecoveryPasswordApiController {
 
     @PostMapping("/changePassword")
     public void changePassword(@RequestParam("hash") String hash, @RequestParam("newPassword") String password){
-        /*
-        1º. Ir a la base de datos y comprobar si ha expirado o no el tiempo del hash. TERMINADO
-        2º. Buscar en la base de datos por hash y cambiar la password.
-        3º. Le mandamos una excepción "ha expirado". TERMINADO
-        4º. Enviar email cuando la contraseña se haya cambiado con EXITO.
-        */
-
         try {
             credentialsAction.executePasswordChanging(hash, password);
         } catch (TimeForRecoveringPasswordExpiredException e) {

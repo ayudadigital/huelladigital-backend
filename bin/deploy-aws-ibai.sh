@@ -10,6 +10,8 @@ CLUSTER_NAME=default
 TASK_FAMILY=backend-task
 SERVICE_NAME=backend-service-ssm
 
+yum install jq -y
+
 #TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_DEFINITION_NAME} --region us-east-1)
 #TASK_DEFINITION=$(cat ~/Documents/ayudadigital/backend_task_definition_template.json)
 echo ${TASK_DEFINITION} | jq '.containerDefinitions[0].image='\"${DOCKER_IMAGE}\"

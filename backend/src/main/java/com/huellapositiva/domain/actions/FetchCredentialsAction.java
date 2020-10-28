@@ -34,7 +34,12 @@ public class FetchCredentialsAction {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    public void execute(String email) {
+    /**
+     * This method generates a link to recovery the password and sends it
+     *
+     * @param email Email account from de volunteer or contact person.
+     */
+    public void executeGenerationRecoveryPasswordEmail(String email) {
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFound::new);
         String hash = Token.createToken().toString();
         jpaCredentialRepository.updateHashByEmail(email, hash);
@@ -42,15 +47,22 @@ public class FetchCredentialsAction {
         emailCommunicationService.sendRecoveryPasswordEmail(emailRecoveryPassword);
     }
 
-    public void executePasswordChanging(String hash, String password) {
-        JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hash).orElseThrow(UserNotFound::new);
+    /**
+     * This method updates the password, updates the hashRecoveryPassword and createdRecoveryHashOn to null in database
+     * and sends a confirmation email.
+     *
+     * @param hashRecoveryPassword Unique identifier to recover password
+     * @param password New password
+     */
+    public void executePasswordChanging(String hashRecoveryPassword, String password) {
+        JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hashRecoveryPassword).orElseThrow(UserNotFound::new);
         Date timeOfExpiration = addAnHour(jpaCredential.getCreatedRecoveryHashOn());
         Date dateNow = Calendar.getInstance().getTime();
 
         if (timeOfExpiration.after(dateNow)) {
             PasswordHash passwordHash = new PasswordHash(passwordEncoder.encode(password));
             jpaCredentialRepository.updatePassword(passwordHash.toString(), jpaCredential.getEmail());
-            jpaCredentialRepository.updateRecoveryPasswordHashAndDate(jpaCredential.getEmail(), null, null);
+            jpaCredentialRepository.setRecoveryPasswordHashAndDate(jpaCredential.getEmail(), null, null);
 
             EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
             emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
@@ -59,6 +71,12 @@ public class FetchCredentialsAction {
         }
     }
 
+    /**
+     * This method adds an hour to the date
+     *
+     * @param date
+     * @return It is the date with an hour added.
+     */
     private Date addAnHour(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);

@@ -2,7 +2,7 @@ package com.huellapositiva.api;
 
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.actions.EmailConfirmationAction;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,8 +117,8 @@ class EmailAddressConfirmationControllerShould {
     void expired_email_should_return_410() throws Exception {
         // GIVEN
         UUID token = UUID.randomUUID();
-        Credential credential = testData.createCredential("email@huellapositiva.com", token, "password", VOLUNTEER_NOT_CONFIRMED);
-        Instant expirationTimestamp = credential.getEmailConfirmation().getUpdatedOn().toInstant().plusMillis(expirationTime);
+        JpaCredential jpaCredential = testData.createCredential("email@huellapositiva.com", token, "password", VOLUNTEER_NOT_CONFIRMED);
+        Instant expirationTimestamp = jpaCredential.getEmailConfirmation().getUpdatedOn().toInstant().plusMillis(expirationTime);
         await().until(() -> expirationTimestamp.isBefore(now()));
 
         // WHEN + THEN

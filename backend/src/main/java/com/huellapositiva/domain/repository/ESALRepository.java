@@ -1,8 +1,7 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.ESALAlreadyExists;
+import com.huellapositiva.application.exception.ESALAlreadyExistsException;
 import com.huellapositiva.domain.model.entities.ESAL;
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.UUID;
-
 @Component
 @Transactional
 @AllArgsConstructor
@@ -28,14 +25,6 @@ public class ESALRepository {
 
     @Autowired
     private final JpaContactPersonRepository jpaContactPersonRepository;
-
-    public String save(ExpressRegistrationESAL expressOrganization) {
-        JpaESAL organization = JpaESAL.builder()
-                .id(UUID.randomUUID().toString())
-                .name(expressOrganization.getName())
-                .build();
-        return jpaESALRepository.save(organization).getId();
-    }
 
     public JpaESAL findById(Integer id) {
         return jpaESALRepository.findById(id)
@@ -53,7 +42,7 @@ public class ESALRepository {
 
     public String save(ESAL model) {
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEmail(model.getContactPersonEmail().toString())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact person not found"));
         JpaESAL esal = JpaESAL.builder()
                 .id(model.getId().toString())
                 .name(model.getName())
@@ -63,7 +52,19 @@ public class ESALRepository {
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
             return id;
         } catch (DataIntegrityViolationException ex) {
-            throw new ESALAlreadyExists();
+            throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
+        }
+    }
+
+    public String saveAsReviser(ESAL model) {
+        JpaESAL esal = JpaESAL.builder()
+                .id(model.getId().toString())
+                .name(model.getName())
+                .build();
+        try {
+            return jpaESALRepository.save(esal).getId();
+        } catch (DataIntegrityViolationException ex) {
+            throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
         }
     }
 

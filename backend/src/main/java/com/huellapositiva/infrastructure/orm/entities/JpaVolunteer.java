@@ -28,7 +28,7 @@ public class JpaVolunteer implements Serializable {
 
     @JoinColumn(name = "credential_id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Credential credential;
+    private JpaCredential credential;
 
     @ManyToMany(mappedBy = "inscribedVolunteers", cascade = CascadeType.ALL)
     private Set<JpaProposal> joinedProposals;

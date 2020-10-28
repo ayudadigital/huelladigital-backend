@@ -24,5 +24,5 @@ public class Role implements Serializable {
     private String name;
 
     @ManyToMany(mappedBy = "roles")
-    private List<Credential> credentials;
+    private List<JpaCredential> credentials;
 }

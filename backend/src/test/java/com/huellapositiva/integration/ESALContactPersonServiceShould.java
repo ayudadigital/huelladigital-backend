@@ -6,7 +6,7 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.util.TestData;
@@ -54,16 +54,16 @@ class ESALContactPersonServiceShould {
                 .build();
 
         // WHEN
-        Id contactPersonId = ESALContactPersonService.registerMember(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Id contactPersonId = ESALContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());
         assertTrue(employeeOptional.isPresent());
         JpaContactPerson contactPerson = employeeOptional.get();
-        Credential credential = contactPerson.getCredential();
-        assertThat(credential.getEmail(), is(DEFAULT_EMAIL));
-        assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, credential.getHashedPassword()), is(true));
-        assertThat(credential.getRoles(), hasSize(1));
-        assertThat(credential.getRoles().iterator().next().getName(), is(Roles.CONTACT_PERSON_NOT_CONFIRMED.toString()));
+        JpaCredential jpaCredential = contactPerson.getCredential();
+        assertThat(jpaCredential.getEmail(), is(DEFAULT_EMAIL));
+        assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, jpaCredential.getHashedPassword()), is(true));
+        assertThat(jpaCredential.getRoles(), hasSize(1));
+        assertThat(jpaCredential.getRoles().iterator().next().getName(), is(Roles.CONTACT_PERSON_NOT_CONFIRMED.toString()));
     }
 }

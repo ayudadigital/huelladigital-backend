@@ -1,15 +1,11 @@
 package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.ListedProposalsDto;
-import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.application.dto.ProposalResponseDto;
-import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.application.exception.ProposalNotPublished;
-import com.huellapositiva.domain.actions.FetchPaginatedProposalsAction;
-import com.huellapositiva.domain.actions.FetchProposalAction;
-import com.huellapositiva.domain.actions.JoinProposalAction;
-import com.huellapositiva.domain.actions.RegisterProposalAction;
+import com.huellapositiva.application.dto.*;
+import com.huellapositiva.application.exception.FailedToPersistProposalException;
+import com.huellapositiva.application.exception.ProposalNotPublicException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
+import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,12 +31,17 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
 @RequestMapping("/api/v1/proposals")
 public class ProposalApiController {
+
+    private static final String PATH_ID = "/{id}";
+
+    private static final String PROPOSAL_DOESNT_EXIST = "The given proposal does not exist.";
 
     private final RegisterProposalAction registerProposalAction;
 
@@ -49,6 +50,10 @@ public class ProposalApiController {
     private final JoinProposalAction joinProposalAction;
 
     private final FetchPaginatedProposalsAction fetchPaginatedProposalsAction;
+
+    private final RequestProposalRevisionAction requestProposalRevisionAction;
+
+    private final SubmitProposalRevisionAction submitProposalRevisionAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -89,18 +94,18 @@ public class ProposalApiController {
                                @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
-        dto.setPublished(true);
         try {
-            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
+            String id = registerProposalAction.executeByContactPerson(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
+                    .path(PATH_ID).buildAndExpand(id)
                     .toUri();
+            requestProposalRevisionAction.execute(uri);
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
         } catch (ParseException e) {
-            throw new FailedToPersistProposal("The given date(s) format is not valid.");
-        } catch (IllegalArgumentException e){
+            throw new FailedToPersistProposalException("The given date(s) format is not valid.");
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
-        } catch (InvalidProposalRequestException e){
+        } catch (InvalidProposalRequestException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -125,11 +130,11 @@ public class ProposalApiController {
     )
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto getProposal(@PathVariable String id) {
+    public ProposalResponseDto getProposal(@PathVariable String id, HttpServletResponse res) throws IOException {
         try {
             return fetchProposalAction.execute(id);
-        } catch (EntityNotFoundException | ProposalNotPublished e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + "does not exist or is not published.");
+        } catch (EntityNotFoundException | ProposalNotPublicException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -164,7 +169,7 @@ public class ProposalApiController {
     public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
-        } catch (EntityNotFoundException | ProposalNotPublished e) {
+        } catch (EntityNotFoundException | ProposalNotPublishedException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
     }
@@ -206,13 +211,13 @@ public class ProposalApiController {
                                         HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.execute(dto, file);
+            String id = registerProposalAction.executeByReviser(dto, file);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}").buildAndExpand(id)
+                    .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
+            throw new FailedToPersistProposalException("Could not format the following date: " + dto.getClosingProposalDate());
         }
     }
 
@@ -235,7 +240,166 @@ public class ProposalApiController {
     )
     @GetMapping("/{page}/{size}")
     @ResponseStatus(HttpStatus.OK)
-    public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
+    public ListedProposalsDto fetchListedPublishedProposals(@PathVariable Integer page, @PathVariable Integer size) {
         return fetchPaginatedProposalsAction.execute(page, size);
+    }
+
+
+    @Operation(
+            summary = "Fetch list of proposals",
+            description = "Fetch a list of proposals based on the page requested.",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, proposal list fetched."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposals."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @RolesAllowed("REVISER")
+    @GetMapping("/{page}/{size}/reviser")
+    @ResponseStatus(HttpStatus.OK)
+    public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
+        return fetchPaginatedProposalsAction.executeAsReviser(page, size);
+    }
+
+
+    @Operation(
+            summary = "Submit proposal revision",
+            description = "Submit a proposal for revision to the reviser",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, email with proposal sent to reviser."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, requested proposal not found or not published."
+                    )
+            }
+    )
+    @PostMapping(path = "/revision/{id}")
+    @RolesAllowed("REVISER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void submitProposalRevision(@PathVariable String id,
+                                       @RequestBody ProposalRevisionDto dto,
+                                       @AuthenticationPrincipal String reviserEmail) {
+        try {
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path(PATH_ID).buildAndExpand(id)
+                    .toUri();
+            dto.setReviserEmail(reviserEmail);
+            submitProposalRevisionAction.execute(id, dto, uri);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }
+    }
+
+
+    @Operation(
+            summary = "Fetch list of volunteers in a proposal",
+            description = "Fetch list of volunteers in a proposal by the reviser",
+            tags = {"proposals, volunteers"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, list of volunteers fetched."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Requested proposal not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @GetMapping("/{idProposal}/volunteers")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.OK)
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
+        try{
+            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
+            return proposalResponseDto.getInscribedVolunteers();
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }
+    }
+
+    @Operation(
+            summary = "Fetch a proposal with the list of volunteers",
+            description = "Fetch a proposal with the list of volunteers by the reviser",
+            tags = {"proposals, volunteers"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, proposal fetched successfully and listed the list of volunteers."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Requested proposal not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @GetMapping("/{idProposal}/proposal")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.OK)
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal){
+        try{
+            return fetchProposalAction.execute(idProposal);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }
     }
 }

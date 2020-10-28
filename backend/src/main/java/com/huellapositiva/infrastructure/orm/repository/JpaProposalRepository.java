@@ -1,6 +1,7 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,8 +15,11 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     @Query("FROM JpaProposal p LEFT JOIN FETCH p.esal LEFT JOIN FETCH p.inscribedVolunteers WHERE p.id = :id")
     Optional<JpaProposal> findByIdWithOrganizationAndInscribedVolunteers(@Param("id") String id);
 
-    @Query("FROM JpaProposal p WHERE p.id = :id")
+    @Query("FROM JpaProposal p LEFT JOIN FETCH p.esal LEFT JOIN FETCH p.inscribedVolunteers WHERE p.id = :id")
     Optional<JpaProposal> findByNaturalId(@Param("id") String id);
 
-    Page<JpaProposal> findByPublished(boolean published, Pageable pageable);
+    Page<JpaProposal> findByStatusIs(JpaProposalStatus status, Pageable pageable);
+
+    Page<JpaProposal> findByStatusNot(JpaProposalStatus status, Pageable pageable);
+
 }

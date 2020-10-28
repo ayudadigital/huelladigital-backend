@@ -1,14 +1,13 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.ExpressRegistrationVolunteer;
-import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.entities.Role;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
@@ -36,30 +34,27 @@ public class VolunteerRepository {
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
 
-    public com.huellapositiva.domain.model.entities.Volunteer save(ExpressRegistrationVolunteer expressVolunteer) {
+    public Volunteer save(Volunteer volunteer, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER_NOT_CONFIRMED not found."));
-        EmailConfirmation emailConfirmation = EmailConfirmation.builder()
-                .email(expressVolunteer.getEmail())
-                .hash(expressVolunteer.getConfirmationToken())
+        EmailConfirmation jpaEmailConfirmation = EmailConfirmation.builder()
+                .email(volunteer.getEmailAddress().toString())
+                .hash(emailConfirmation.getToken())
                 .build();
-        emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
-        Credential credential = Credential.builder()
-                .email(expressVolunteer.getEmail())
-                .hashedPassword(expressVolunteer.getHashedPassword())
+        jpaEmailConfirmation = jpaEmailConfirmationRepository.save(jpaEmailConfirmation);
+        JpaCredential jpaCredential = JpaCredential.builder()
+                .email(volunteer.getEmailAddress().toString())
+                .hashedPassword(volunteer.getPasswordHash().toString())
                 .roles(Collections.singleton(role))
                 .emailConfirmed(false)
-                .emailConfirmation(emailConfirmation)
+                .emailConfirmation(jpaEmailConfirmation)
                 .build();
-        JpaVolunteer volunteer = JpaVolunteer.builder()
-                .id(UUID.randomUUID().toString())
-                .credential(credential)
+        JpaVolunteer jpaVolunteer = JpaVolunteer.builder()
+                .id(volunteer.getId().getValue())
+                .credential(jpaCredential)
                 .build();
-        volunteer = jpaVolunteerRepository.save(volunteer);
-        return new com.huellapositiva.domain.model.entities.Volunteer(
-                EmailAddress.from(volunteer.getCredential().getEmail()),
-                new Id(volunteer.getId())
-        );
+        jpaVolunteerRepository.save(jpaVolunteer);
+        return volunteer;
     }
 
     public Volunteer findByEmail(String email) {

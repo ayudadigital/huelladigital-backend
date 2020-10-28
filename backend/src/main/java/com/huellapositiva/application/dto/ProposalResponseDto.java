@@ -47,7 +47,7 @@ public class ProposalResponseDto {
     @NotEmpty
     private final String startingVolunteeringDate;
 
-    private final boolean published;
+    private final int status;
 
     @NotEmpty
     private final String description;

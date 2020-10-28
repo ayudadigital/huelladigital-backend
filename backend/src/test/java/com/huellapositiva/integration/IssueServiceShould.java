@@ -40,7 +40,7 @@ class IssueServiceShould {
         AuthenticationRequestDto dto = new AuthenticationRequestDto("foo@huellapositiva.com", "plain-password");
 
         //WHEN
-        issueService.registerVolunteerIssue(dto.getEmail(), new RuntimeException());
+        issueService.registerEmailConfirmationIssue(dto.getEmail(), new RuntimeException());
 
         //THEN
         Optional<FailEmailConfirmation> email = failEmailConfirmationRepository.findByEmail(dto.getEmail());

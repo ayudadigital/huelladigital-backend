@@ -16,21 +16,24 @@ import static org.mockito.Mockito.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"aws.paramstore.enabled=false"})
 @ExtendWith(MockitoExtension.class)
 class EmailCommunicationServiceShould {
+
     @MockBean
     EmailService emailService;
+
     @MockBean
     IssueService issueService;
+
     @Autowired
     EmailCommunicationService communicationService;
 
     @Test
     void fail_on_registering_a_volunteer_should_save_a_email_and_stacktrace() {
-        //GIVEN
+        // GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "hello");
-        //WHEN
+        // WHEN
         lenient().doThrow(new RuntimeException()).when(emailService).sendEmail(any());
         communicationService.sendRegistrationConfirmationEmail(emailConfirmation);
-        //THEN
-        verify(issueService).registerVolunteerIssue(any(), any());
+        // THEN
+        verify(issueService).registerEmailConfirmationIssue(any(), any());
     }
 }

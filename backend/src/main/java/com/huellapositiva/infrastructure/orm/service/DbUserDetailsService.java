@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure.orm.service;
 
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,14 +24,14 @@ public class DbUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        Credential credential = jpaCredentialRepository.findByEmail(email)
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Patient with username: " + email + " was not found."));
 
-        return new User(credential.getEmail(), credential.getHashedPassword(), getAuthority(credential));
+        return new User(jpaCredential.getEmail(), jpaCredential.getHashedPassword(), getAuthority(jpaCredential));
     }
 
-    private List<GrantedAuthority> getAuthority(Credential credential) {
-        return credential.getRoles().stream()
+    private List<GrantedAuthority> getAuthority(JpaCredential jpaCredential) {
+        return jpaCredential.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
     }

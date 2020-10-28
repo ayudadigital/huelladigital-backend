@@ -62,7 +62,9 @@ class SecurityConfigShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+        MockHttpServletResponse httpServletResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
+
+        assertNotNull(httpServletResponse.getCookie("XSRF-TOKEN"));
     }
 
     @Test
@@ -130,7 +132,7 @@ class SecurityConfigShould {
     @Test
     void allow_access_only_to_allowed_roles() throws Exception {
         // GIVEN
-        testData.createESALMember(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
         String proposalId = testData.registerESALAndPublishedProposal().getId();

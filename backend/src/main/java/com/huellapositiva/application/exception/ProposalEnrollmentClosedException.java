@@ -4,13 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.GONE)
-public class ProposalEnrollmentClosed extends RuntimeException {
+public class ProposalEnrollmentClosedException extends RuntimeException {
 
-    public ProposalEnrollmentClosed(){
+    public ProposalEnrollmentClosedException(){
         super();
     }
 
-    public ProposalEnrollmentClosed(String message) {
+    public ProposalEnrollmentClosedException(String message) {
         super(message);
     }
 }

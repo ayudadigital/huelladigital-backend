@@ -1,22 +1,22 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.ESALAlreadyExistsException;
+import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.actions.DeleteESALAction;
 import com.huellapositiva.domain.actions.RegisterESALAction;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import com.huellapositiva.application.exception.ESALAlreadyExists;
-import com.huellapositiva.domain.actions.DeleteESALAction;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -74,11 +74,11 @@ public class ESALApiController {
     public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
         try {
             registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
-        } catch (ESALAlreadyExists ex) {
+        } catch (ESALAlreadyExistsException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The user attempting to create the ESAL has already registered another one.");
-        } catch (UserNotFound ex) {
+        } catch (UserNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }
     }
@@ -102,13 +102,8 @@ public class ESALApiController {
                             description = "Ok, ESAL deleted successfully."
                     ),
                     @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            description = "Unauthorized, the user has no permissions to delete the ESAL.",
+                            responseCode = "403",
+                            description = "Forbidden, the user has no permissions to delete the ESAL.",
                             content = @Content()
                     )
             }
@@ -117,16 +112,12 @@ public class ESALApiController {
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
     public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
-        try {
-            deleteESALAction.execute(memberEmail, id);
-        } catch (UserNotFound ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not delete the ESAL caused by a connectivity issue.");
-        }
+        deleteESALAction.execute(memberEmail, id);
     }
 
     @Operation(
-            summary = "Register a new ESAL",
-            description = "Register an ESAL with no linked member.",
+            summary = "Register a new ESAL as reviser",
+            description = "Register an ESAL as reviser with no linked member.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -139,8 +130,8 @@ public class ESALApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error, could not register the ESAL.",
+                            responseCode = "409",
+                            description = "ESAL already exists.",
                             content = @Content()
                     )
             }

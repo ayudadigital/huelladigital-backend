@@ -1,8 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.model.valueobjects.Email;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
@@ -29,6 +27,11 @@ public class EmailCommunicationService {
     @Value("${huellapositiva.feature.email.from}")
     private String from;
 
+    /**
+     * This method parses an emailConfirmation and sends it to the volunteer/contactPerson
+     *
+     * @param emailConfirmation contains a hash and the volunteer/contactPerson email
+     */
     public void sendRegistrationConfirmationEmail(EmailConfirmation emailConfirmation) {
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
@@ -36,7 +39,34 @@ public class EmailCommunicationService {
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);
-            issueService.registerVolunteerIssue(emailConfirmation.getEmailAddress(), ex);
+            issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
         }
+    }
+
+    /**
+     * This method parses a proposalRevisionRequestEmail and sends it to the reviser
+     *
+     * @param proposalRevisionRequestEmail contains the url to the proposal and the reviser email
+     */
+    public void sendRevisionRequestEmail(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
+        EmailTemplate emailTemplate = templateService.getProposalRevisionRequestTemplate(proposalRevisionRequestEmail);
+        Email email = Email.createFrom(proposalRevisionRequestEmail, emailTemplate, from);
+        emailService.sendEmail(email);
+    }
+
+    /**
+     * This method parses a proposalRevisionEmail with the revision from the reviser and sends it to the contactPerson
+     *
+     * @param proposalRevisionEmail contains the feedback and information about the revision
+     */
+    public void sendSubmittedProposalRevision(ProposalRevisionEmail proposalRevisionEmail) {
+        EmailTemplate emailTemplate;
+        if(proposalRevisionEmail.hasFeedback()) {
+            emailTemplate = templateService.getProposalRevisionWithFeedbackTemplate(proposalRevisionEmail);
+        } else {
+            emailTemplate = templateService.getProposalRevisionWithoutFeedbackTemplate(proposalRevisionEmail);
+        }
+        Email email = Email.createFrom(proposalRevisionEmail, emailTemplate, from);
+        emailService.sendEmail(email);
     }
 }

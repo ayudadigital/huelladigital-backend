@@ -1,0 +1,3 @@
+Se requiere de tu revisión para una nueva convocatoria en en huellapositiva.com
+Para revisar la convocatoria, haz clic en el enlace
+<a href="${PROPOSAL_URL}">Clic aquí</a>

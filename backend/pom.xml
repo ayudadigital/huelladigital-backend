@@ -59,6 +59,8 @@
         <system.rules.version>1.17.2</system.rules.version>
         <springfox.version>2.9.2</springfox.version>
         <swagger.core.version>2.1.1</swagger.core.version>
+        <powermock-api-mockito2.version>2.0.7</powermock-api-mockito2.version>
+        <powermock-module-junit4.version>2.0.7</powermock-module-junit4.version>
     </properties>
 
     <parent>
@@ -283,6 +285,18 @@
             <groupId>com.github.stefanbirkner</groupId>
             <artifactId>system-rules</artifactId>
             <version>${system.rules.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>${powermock-api-mockito2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock-module-junit4.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

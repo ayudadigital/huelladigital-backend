@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.ProposalEnrollmentClosed;
-import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.repository.ProposalRepository;
@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @Slf4j
 @Service
@@ -18,15 +20,20 @@ public class ProposalService {
     @Autowired
     private final ProposalRepository proposalRepository;
 
+    /**
+     * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
+     *
+     * @param proposalId
+     * @param volunteer
+     */
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
-        boolean isNotPublished = !proposal.isPublished();
-        if (isNotPublished) {
-            throw new ProposalNotPublished();
+        if (proposal.getStatus() != PUBLISHED) {
+            throw new ProposalNotPublishedException();
         }
         boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
         if (isEnrollmentClosed) {
-            throw new ProposalEnrollmentClosed();
+            throw new ProposalEnrollmentClosedException();
         }
         proposal.inscribeVolunteer(volunteer);
         proposalRepository.save(proposal);

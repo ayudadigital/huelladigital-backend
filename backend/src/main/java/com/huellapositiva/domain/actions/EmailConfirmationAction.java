@@ -1,10 +1,10 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
-import com.huellapositiva.application.exception.EmailConfirmationExpired;
-import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmedException;
+import com.huellapositiva.application.exception.EmailConfirmationExpiredException;
+import com.huellapositiva.application.exception.EmailConfirmationHashNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.infrastructure.orm.entities.Credential;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.*;
 import static java.time.Instant.now;
 
 @Service
@@ -40,28 +40,41 @@ public class EmailConfirmationAction {
     @Value("${huellapositiva.email-confirmation.expiration-time}")
     private long emailExpirationTime;
 
+    /**
+     * This method confirms if the given hash is valid and in that case it gives the user the role of VOLUNTEER.
+     * When finished all previous access tokens are revoked.
+     *
+     * @param hash this parameter is given in a request path variable. Its value is stored in DB
+     * @throws EmailConfirmationHashNotFoundException hash not found in the DB
+     * @throws EmailConfirmationAlreadyConfirmedException email already confirmed
+     * @throws EmailConfirmationExpiredException hash has expired
+     */
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
-                .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
+                .orElseThrow(() -> new EmailConfirmationHashNotFoundException("Hash " + hash + " not found."));
 
         boolean isEmailConfirmed = emailConfirmation.getCredential().getEmailConfirmed();
         if (isEmailConfirmed) {
-            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
+            throw new EmailConfirmationAlreadyConfirmedException("Email is already confirmed");
         }
 
         Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
         if(expirationTimestamp.isBefore(now())) {
-           throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
+            throw new EmailConfirmationExpiredException("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }
 
-        Credential credential = emailConfirmation.getCredential();
-        credential.setEmailConfirmed(true);
-        Role newRole = jpaRoleRepository.findByName(VOLUNTEER.toString())
-                .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER not found."));
-        Set<Role> newUserRole = new HashSet<>();
-        newUserRole.add(newRole);
-        credential.setRoles(newUserRole);
-        credentialRepository.save(credential);
-        jwtService.revokeAccessTokens(credential.getEmail());
+        JpaCredential jpaCredential = emailConfirmation.getCredential();
+        jpaCredential.setEmailConfirmed(true);
+        boolean isVolunteer = emailConfirmation.getCredential().getRoles()
+                .stream()
+                .allMatch(role -> role.getName().equals(VOLUNTEER_NOT_CONFIRMED.toString()));
+        String roleToBeSet = isVolunteer ? VOLUNTEER.toString() : CONTACT_PERSON.toString();
+        Role newJpaRole = jpaRoleRepository.findByName(roleToBeSet)
+                .orElseThrow(() -> new RoleNotFoundException("Role " + roleToBeSet + "not found."));
+        Set<Role> newUserRoles = new HashSet<>();
+        newUserRoles.add(newJpaRole);
+        jpaCredential.setRoles(newUserRoles);
+        credentialRepository.save(jpaCredential);
+        jwtService.revokeAccessTokens(jpaCredential.getEmail());
     }
 }

@@ -1,17 +1,14 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.ESALNotFound;
-import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.application.exception.ESALNotFoundException;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Requirement;
 import com.huellapositiva.domain.model.valueobjects.Skill;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -24,9 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.net.URL;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.INADEQUATE;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @Component
 @Transactional
@@ -51,6 +50,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalRequirementsRepository jpaProposalRequirementsRepository;
 
+    @Autowired
+    private final JpaProposalStatusRepository jpaProposalStatusRepository;
+
     @Value("${huellapositiva.proposal.expiration-hour}")
     private Integer expirationHour;
 
@@ -65,11 +67,13 @@ public class ProposalRepository {
                 .address(proposal.getLocation().getAddress())
                 .build());
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
-                .orElseThrow(ESALNotFound::new);
+                .orElseThrow(ESALNotFoundException::new);
         Set<JpaVolunteer> volunteers = proposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
                 .collect(Collectors.toSet());
+        JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findById(proposal.getStatus().getId())
+                .orElseThrow(InvalidStatusIdException::new);
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(proposal.getId().toString())
                 .title(proposal.getTitle())
@@ -81,7 +85,7 @@ public class ProposalRepository {
                 .requiredDays(proposal.getRequiredDays())
                 .minimumAge(proposal.getPermittedAgeRange().getMinimum())
                 .maximumAge(proposal.getPermittedAgeRange().getMaximum())
-                .published(proposal.isPublished())
+                .status(jpaProposalStatus)
                 .description(proposal.getDescription())
                 .durationInDays(proposal.getDurationInDays())
                 .category(proposal.getCategory().toString())
@@ -107,7 +111,8 @@ public class ProposalRepository {
 
     @SneakyThrows
     public Proposal fetch(String id) {
-        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id)
+                .orElseThrow(EntityNotFoundException::new);
         Proposal proposal = Proposal.parseJpa(jpaProposal);
         jpaProposal.getInscribedVolunteers()
                 .stream()
@@ -117,15 +122,26 @@ public class ProposalRepository {
                 .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));
         jpaProposal.getRequirements()
                 .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
-
         return proposal;
+    }
+
+    public List<Proposal> fetchAllPublishedPaginated(int page, int size) {
+        Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
+        JpaProposalStatus statusPublished = jpaProposalStatusRepository.findById(PUBLISHED.getId())
+                .orElseThrow(() -> new RuntimeException("Status PUBLISHED not found."));
+        return jpaProposalRepository.findByStatusIs(statusPublished, PageRequest.of(page, size, sortByClosingDateProximity))
+            .stream()
+            .map(Proposal::parseJpa)
+            .collect(Collectors.toList());
     }
 
     public List<Proposal> fetchAllPaginated(int page, int size) {
         Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
-        return jpaProposalRepository.findByPublished(true, PageRequest.of(page, size, sortByClosingDateProximity))
-            .stream()
-            .map(Proposal::parseJpa)
-            .collect(Collectors.toList());
+        JpaProposalStatus statusInadequate = jpaProposalStatusRepository.findById(INADEQUATE.getId())
+                .orElseThrow(() -> new RuntimeException("Status INADEQUATE not found."));
+        return jpaProposalRepository.findByStatusNot(statusInadequate, PageRequest.of(page, size, sortByClosingDateProximity))
+                .stream()
+                .map(Proposal::parseJpa)
+                .collect(Collectors.toList());
     }
 }

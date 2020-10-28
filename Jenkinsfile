@@ -115,11 +115,9 @@ pipeline {
         stage("Docker Publish") {
             agent { label 'docker' }
             steps {
-//                buildAndPublishDockerImages('beta-aws-ibai')
-                configFileProvider([configFile(fileId: 'huellapositiva-backend-task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
-                    script {
-                        env.HUELLAPOSITIVA_BACKEND_ECS_TASK = sh(script:"cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK} | jq -c", returnStdout: true).trim()
-                    }
+                buildAndPublishDockerImages('beta-aws-ibai')
+                script {
+                    env.DOCKER_TAG = "beta-aws-ibai"
                 }
             }
         }
@@ -134,15 +132,28 @@ pipeline {
         }
         stage("AWS deploy") {
             agent {
-                dockerfile {
-                    filename 'Dockerfile'
-                    dir 'backend/docker/build/aws-ibai'
-                    args '--entrypoint='
-                }
+                label 'docker'
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${env.HUELLAPOSITIVA_BACKEND_ECS_TASK}"
+                configFileProvider([configFile(fileId: 'huellapositiva-backend-task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
+                    withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                         sh "echo \"Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}\""
+                        // sh 'bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} $env.HUELLAPOSITIVA_BACKEND_ECS_TASK'
+                        script {
+                            // def customImage = docker.build("my-image:${env.BUILD_ID}", "-f ./backend/docker/build/aws-ibai/Dockerfile ./backend/docker/build/aws-ibai")
+                            // customImage.withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE" --entrypoint ""') { c ->
+                            // docker.image('ibaiul/aws-cli').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE" --entrypoint "/bin/bash"') { c ->
+                            docker.image('ibaiul/aws-cli').inside {
+                                sh """
+                            #sleep 5
+                            echo 'Deploying to AWS ... ======================================================='
+                            TASK=\$(cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK} | jq -c .)
+                            bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK}
+                            """
+                                // sh 'bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}'
+                            }
+                        }
+                    }
                 }
             }
         }

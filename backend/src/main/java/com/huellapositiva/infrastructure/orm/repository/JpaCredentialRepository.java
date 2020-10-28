@@ -29,12 +29,13 @@ public interface JpaCredentialRepository extends JpaRepository<JpaCredential, In
     Optional<JpaCredential> findByHashRecoveryPassword(@Param("hash") String hash);
 
     @Modifying
+    @Transactional
     @Query("UPDATE JpaCredential c SET c.hashedPassword = :hash WHERE c.email = :email")
     Integer updatePassword(@Param("hash") String hash, @Param("email") String email);
 
     @Modifying
     @Transactional
-    @Query("UPDATE JpaCredential c SET c.hashRecoveryPassword = :hash, c.createdRecoveryHashOn = :date WHERE c.email = :email")
-    Integer updateRecoveryPasswordHashAndDate(@Param("email") String email, @Param("hash") String hash, @Param("recoveryDate") Date date);
+    @Query("UPDATE JpaCredential c SET c.hashRecoveryPassword = :hash, c.createdRecoveryHashOn = :recoveryDate WHERE c.email = :email")
+    Integer setRecoveryPasswordHashAndDate(@Param("email") String email, @Param("hash") String hash, @Param("recoveryDate") Date date);
 
 }

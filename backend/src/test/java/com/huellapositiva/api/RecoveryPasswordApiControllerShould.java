@@ -68,9 +68,24 @@ class RecoveryPasswordApiControllerShould {
     }
 
     @Test
+    void return_204_when_changing_password_is_successful() throws Exception {
+        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
+        credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFound::new);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/changePassword")
+                .with(csrf())
+                .param("hash", jpaCredential.getHashRecoveryPassword())
+                .param("newPassword", "NEWPASSWORD")
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void return_423_when_trying_to_change_password_and_time_has_expired() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
-        credentialsAction.execute(DEFAULT_EMAIL);
+        credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFound::new);
 
         Calendar c = Calendar.getInstance();

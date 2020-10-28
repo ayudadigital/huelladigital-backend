@@ -27,13 +27,20 @@ public class SubmitProposalRevisionAction {
     private final CredentialsRepository credentialsRepository;
 
     /**
-     * TO BE DEFINED!!
+     * Fecht the ESAL of the database for get the ContacPerson and send an email with the revision of the revisor.
      *
+     * @param proposalId : The identificator of the proposal to be revised.
+     * @param revisionDto : Contains the email reviser and the feedback if has it.
+     * @param proposalURI : URI the proposal to revise.
      */
+
     public void execute(String proposalId, ProposalRevisionDto revisionDto, URI proposalURI) {
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
         Reviser reviser = Reviser.from(credentialsRepository.findByEmail(revisionDto.getReviserEmail()));
+        if (revisionDto.getHasFeedback() == true && revisionDto.getFeedback() == null) {
+            revisionDto.setHasFeedback(false);
+        }
         ProposalRevisionEmail revision = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)

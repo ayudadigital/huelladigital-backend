@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.ESALNotFound;
-import com.huellapositiva.domain.exception.InvalidStatusId;
+import com.huellapositiva.application.exception.ESALNotFoundException;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -51,7 +51,7 @@ public class ProposalRepository {
     private final JpaProposalRequirementsRepository jpaProposalRequirementsRepository;
 
     @Autowired
-    private final JpaStatusRepository jpaStatusRepository;
+    private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
     @Value("${huellapositiva.proposal.expiration-hour}")
     private Integer expirationHour;
@@ -67,13 +67,13 @@ public class ProposalRepository {
                 .address(proposal.getLocation().getAddress())
                 .build());
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
-                .orElseThrow(ESALNotFound::new);
+                .orElseThrow(ESALNotFoundException::new);
         Set<JpaVolunteer> volunteers = proposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
                 .collect(Collectors.toSet());
-        JpaStatus jpaStatus = jpaStatusRepository.findById(proposal.getStatus().getId())
-                .orElseThrow(InvalidStatusId::new);
+        JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findById(proposal.getStatus().getId())
+                .orElseThrow(InvalidStatusIdException::new);
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(proposal.getId().toString())
                 .title(proposal.getTitle())
@@ -85,7 +85,7 @@ public class ProposalRepository {
                 .requiredDays(proposal.getRequiredDays())
                 .minimumAge(proposal.getPermittedAgeRange().getMinimum())
                 .maximumAge(proposal.getPermittedAgeRange().getMaximum())
-                .status(jpaStatus)
+                .status(jpaProposalStatus)
                 .description(proposal.getDescription())
                 .durationInDays(proposal.getDurationInDays())
                 .category(proposal.getCategory().toString())
@@ -127,7 +127,7 @@ public class ProposalRepository {
 
     public List<Proposal> fetchAllPublishedPaginated(int page, int size) {
         Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
-        JpaStatus statusPublished = jpaStatusRepository.findById(PUBLISHED.getId())
+        JpaProposalStatus statusPublished = jpaProposalStatusRepository.findById(PUBLISHED.getId())
                 .orElseThrow(() -> new RuntimeException("Status PUBLISHED not found."));
         return jpaProposalRepository.findByStatusIs(statusPublished, PageRequest.of(page, size, sortByClosingDateProximity))
             .stream()
@@ -137,7 +137,7 @@ public class ProposalRepository {
 
     public List<Proposal> fetchAllPaginated(int page, int size) {
         Sort sortByClosingDateProximity = Sort.by("closingProposalDate");
-        JpaStatus statusInadequate = jpaStatusRepository.findById(INADEQUATE.getId())
+        JpaProposalStatus statusInadequate = jpaProposalStatusRepository.findById(INADEQUATE.getId())
                 .orElseThrow(() -> new RuntimeException("Status INADEQUATE not found."));
         return jpaProposalRepository.findByStatusNot(statusInadequate, PageRequest.of(page, size, sortByClosingDateProximity))
                 .stream()

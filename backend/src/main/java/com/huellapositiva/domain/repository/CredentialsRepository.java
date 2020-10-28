@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.User;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -18,7 +18,7 @@ public class CredentialsRepository {
     private JpaCredentialRepository jpaCredentialRepository;
 
     public User findByEmail(String email) {
-        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFound::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         return new User(
                 EmailAddress.from(jpaCredential.getEmail()),
                 new Id(jpaCredential.getId()),

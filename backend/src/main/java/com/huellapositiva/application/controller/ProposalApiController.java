@@ -2,9 +2,9 @@ package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.application.exception.FailedToPersistProposal;
-import com.huellapositiva.application.exception.ProposalNotPublic;
-import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.application.exception.FailedToPersistProposalException;
+import com.huellapositiva.application.exception.ProposalNotPublicException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
-
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 
 @RestController
 @AllArgsConstructor
@@ -96,16 +94,15 @@ public class ProposalApiController {
                                @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
-        dto.setStatus(PUBLISHED.getId());
         try {
-            String id = registerProposalAction.execute(dto, file, contactPersonEmail);
+            String id = registerProposalAction.executeByContactPerson(dto, file, contactPersonEmail);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             requestProposalRevisionAction.execute(uri);
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
         } catch (ParseException e) {
-            throw new FailedToPersistProposal("The given date(s) format is not valid.");
+            throw new FailedToPersistProposalException("The given date(s) format is not valid.");
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The given category in not valid.");
         } catch (InvalidProposalRequestException e) {
@@ -136,13 +133,8 @@ public class ProposalApiController {
     public ProposalResponseDto getProposal(@PathVariable String id, HttpServletResponse res) throws IOException {
         try {
             return fetchProposalAction.execute(id);
-        } catch (EntityNotFoundException | ProposalNotPublic e) {
-            res.sendRedirect(
-                    ServletUriComponentsBuilder.fromCurrentRequest()
-                            .replacePath("/api/v1/proposals/1/5") // Endpoint of proposal listing
-                            .toUriString()
-            );
-            return null;
+        } catch (EntityNotFoundException | ProposalNotPublicException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -177,7 +169,7 @@ public class ProposalApiController {
     public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
-        } catch (EntityNotFoundException | ProposalNotPublished e) {
+        } catch (EntityNotFoundException | ProposalNotPublishedException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
     }
@@ -219,13 +211,13 @@ public class ProposalApiController {
                                         HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.execute(dto, file);
+            String id = registerProposalAction.executeByReviser(dto, file);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString().replace("/reviser", ""));
         } catch (ParseException pe) {
-            throw new FailedToPersistProposal("Could not format the following date: " + dto.getClosingProposalDate());
+            throw new FailedToPersistProposalException("Could not format the following date: " + dto.getClosingProposalDate());
         }
     }
 
@@ -268,7 +260,7 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "Ok, proposal list fetched."
                     ),
                     @ApiResponse(
@@ -304,16 +296,12 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Ok, proposal list fetched."
+                            responseCode = "200",
+                            description = "Ok, email with proposal sent to reviser."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposals. Requested proposal not found or not published."
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            responseCode = "404",
+                            description = "Not found, requested proposal not found or not published."
                     )
             }
     )
@@ -330,10 +318,8 @@ public class ProposalApiController {
                     .toUri();
             dto.setReviserEmail(reviserEmail);
             submitProposalRevisionAction.execute(id, dto, uri);
-        } catch (NullPointerException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Could not parse the revision, due to missing data.");
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -353,12 +339,12 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
+                            responseCode = "200",
                             description = "Ok, list of volunteers fetched."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal. Requested proposal not found."
+                            responseCode = "404",
+                            description = "Requested proposal not found."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -374,7 +360,7 @@ public class ProposalApiController {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
             return proposalResponseDto.getInscribedVolunteers();
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 
@@ -393,12 +379,12 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "201",
-                            description = "Ok, proposal fetched successfully."
+                            responseCode = "200",
+                            description = "Ok, proposal fetched successfully and listed the list of volunteers."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal. Requested proposal not found."
+                            responseCode = "404",
+                            description = "Requested proposal not found."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -413,7 +399,7 @@ public class ProposalApiController {
         try{
             return fetchProposalAction.execute(idProposal);
         } catch (EntityNotFoundException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, PROPOSAL_DOESNT_EXIST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
     }
 }

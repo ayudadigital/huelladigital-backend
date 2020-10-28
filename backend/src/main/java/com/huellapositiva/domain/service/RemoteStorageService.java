@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.exception.FileTypeNotSupported;
+import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +28,7 @@ public class RemoteStorageService {
      */
     public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
         String destinationFileName = UUID.randomUUID().toString();
-        try {
-            destinationFileName += getExtension(image.getOriginalFilename());
-        } catch (NullPointerException exception) {
-            throw new FileTypeNotSupported("Image file must have an extension");
-        }
+        destinationFileName += getExtension(image.getOriginalFilename());
         String proposalImageRootKey = "images/proposals/" + proposalId + '/';
         return storageService.upload(proposalImageRootKey + destinationFileName, image.getInputStream(), image.getContentType());
     }
@@ -47,13 +43,9 @@ public class RemoteStorageService {
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
         String extension;
-        try {
-            extension = getExtension(cv.getOriginalFilename());
-        } catch (NullPointerException exception) {
-            throw new FileTypeNotSupported("Curriculum vitae file must have extension (and be .pdf)");
-        }
-        if(!extension.equalsIgnoreCase(".pdf")) {
-            throw new FileTypeNotSupported("Curriculum vitae file must be .pdf");
+        extension = getExtension(cv.getOriginalFilename());
+        if(!".pdf".equalsIgnoreCase(extension)) {
+            throw new FileTypeNotSupportedException("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
@@ -67,7 +59,10 @@ public class RemoteStorageService {
      * @return the extension or an empty string when there is no extension
      */
     private String getExtension(String fileName) {
-        int index = fileName.lastIndexOf('.');
-        return index != -1 ? fileName.substring(index) : "";
+        if (fileName != null) {
+            int index = fileName.lastIndexOf('.');
+            return index != -1 ? fileName.substring(index) : "";
+        }
+        return "";
     }
 }

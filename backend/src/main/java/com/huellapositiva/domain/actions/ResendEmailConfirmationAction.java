@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmedException;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.Token;
@@ -32,7 +32,7 @@ public class ResendEmailConfirmationAction {
      * In case it is not confirmed, creates a new hash and resends the confirmation email.
      *
      * @throws UsernameNotFoundException
-     * @throws EmailConfirmationAlreadyConfirmed
+     * @throws EmailConfirmationAlreadyConfirmedException
      */
     public void execute() {
         String email = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -40,7 +40,7 @@ public class ResendEmailConfirmationAction {
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + email + " was not found."));
         boolean isEmailConfirmed = jpaCredential.getEmailConfirmed();
         if (isEmailConfirmed) {
-            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
+            throw new EmailConfirmationAlreadyConfirmedException("Email is already confirmed");
         }
         jpaEmailConfirmationRepository.updateHashByEmail(email, Token.createToken().toString());
         EmailConfirmation emailConfirmationValueObject = EmailConfirmation.from(email, emailConfirmationBaseUrl);

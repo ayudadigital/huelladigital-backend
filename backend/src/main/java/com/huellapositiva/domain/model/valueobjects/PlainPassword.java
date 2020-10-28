@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-import com.huellapositiva.application.exception.PasswordNotAllowed;
+import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -14,7 +14,7 @@ public class PlainPassword {
     public static PlainPassword from(String password) {
        int minimumNumberOfCharactersAllowed = 6;
         if(password.length() < minimumNumberOfCharactersAllowed){
-            throw new PasswordNotAllowed("Not allowed password less than six characters");
+            throw new PasswordNotAllowedException("Not allowed password less than six characters");
         }
         return new PlainPassword(password);
     }

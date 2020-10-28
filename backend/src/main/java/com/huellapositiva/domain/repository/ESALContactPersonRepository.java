@@ -1,11 +1,12 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.CONTACT_PERSON_NOT_CONFIRMED;
 
@@ -71,7 +73,7 @@ public class ESALContactPersonRepository {
 
     public ESAL getJoinedESAL(String contactPersonEmail) {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(contactPersonEmail)
-                .orElseThrow(UserNotFound::new);
+                .orElseThrow(UserNotFoundException::new);
         return new ESAL(jpaContactPerson.getJoinedEsal().getName(),
                 new Id(jpaContactPerson.getJoinedEsal().getId()),
                 EmailAddress.from(contactPersonEmail));

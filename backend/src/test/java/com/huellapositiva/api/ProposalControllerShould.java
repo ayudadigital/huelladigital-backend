@@ -74,7 +74,7 @@ class ProposalControllerShould {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildUnpublishedProposalDto();
+        ProposalRequestDto proposalDto = testData.buildProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -232,7 +232,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_302_when_fetching_a_non_existent_proposal() throws Exception {
+    void return_404_when_fetching_a_non_existent_proposal() throws Exception {
         // GIVEN
         int id = 999;
 
@@ -240,12 +240,11 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrlPattern("**/localhost/api/v1/proposals/1/5"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void return_302_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
+    void return_404_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
         JpaProposal proposal = testData.registerESALAndNotPublishedProposal();
 
@@ -253,7 +252,7 @@ class ProposalControllerShould {
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isFound());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -364,7 +363,7 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildProposalDto(PUBLISHED.getId());
+        ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
@@ -387,7 +386,7 @@ class ProposalControllerShould {
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        ProposalRequestDto proposalDto = testData.buildProposalDto(PUBLISHED.getId());
+        ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
         mvc.perform(multipart("/api/v1/proposals/reviser")
@@ -527,30 +526,49 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_submitting_an_invalid_revision() throws Exception {
+    void return_200_when_submitting_revision_as_revisor_has_feedback_but_not_feedback_text() throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto invalidRevisionDto = ProposalRevisionDto.builder()
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
                 .hasFeedback(true)
                 .build();
 
         // WHEN + THEN
+        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(revisionDto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_200_when_submitting_revision_as_revisor_but_has_not_feedback() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        String proposalId = jpaProposal.getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
+                .hasFeedback(false)
+                .build();
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(invalidRevisionDto))
+                .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
-    void return_400_when_the_given_proposal_id_does_not_exist() throws Exception {
+    void return_404_when_the_given_proposal_id_does_not_exist() throws Exception {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -564,7 +582,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -632,10 +650,10 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_proposal_not_found() throws Exception{
+    void return_404_when_proposal_not_found() throws Exception{
 
         // GIVEN
-        String proposalId = "999";
+        String proposalId = "5be08393-7a09-465a-931f-239b168c4642";
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -644,7 +662,7 @@ class ProposalControllerShould {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -669,7 +687,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_proposal_with_volunteers_not_found() throws Exception{
+    void return_404_when_proposal_with_volunteers_not_found() throws Exception{
 
         // GIVEN
         String proposalId = "999";
@@ -681,6 +699,6 @@ class ProposalControllerShould {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

@@ -4,11 +4,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class FailedToPersistProposal extends RuntimeException {
-    public FailedToPersistProposal(String message, Throwable cause) {
+public class FailedToPersistProposalException extends RuntimeException {
+    public FailedToPersistProposalException(String message, Throwable cause) {
         super(message, cause);
     }
-    public FailedToPersistProposal(String message) {
+    public FailedToPersistProposalException(String message) {
         super(message);
     }
 }

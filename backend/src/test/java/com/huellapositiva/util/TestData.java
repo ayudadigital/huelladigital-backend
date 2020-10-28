@@ -1,7 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.domain.exception.InvalidStatusId;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
@@ -89,7 +89,7 @@ public class TestData {
     private final AwsS3Properties awsS3Properties;
 
     @Autowired
-    private final JpaStatusRepository jpaStatusRepository;
+    private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
 
     public void resetData() {
@@ -186,15 +186,8 @@ public class TestData {
          return jpaProposalRepository.save(jpaProposal);
     }
 
-    public ProposalRequestDto buildPublishedProposalDto() {
-        return buildProposalDto(PUBLISHED.getId());
-    }
 
-    public ProposalRequestDto buildUnpublishedProposalDto() {
-        return buildProposalDto(UNPUBLISHED.getId());
-    }
-
-    public ProposalRequestDto buildProposalDto(int status){
+    public ProposalRequestDto buildProposalDto(){
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -205,7 +198,6 @@ public class TestData {
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
-                .status(status)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("30-01-2021")
@@ -272,6 +264,7 @@ public class TestData {
 
     @SneakyThrows
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
         JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
 
@@ -287,9 +280,9 @@ public class TestData {
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4").build())
                 .esal(esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-08-2020"))
-                .closingProposalDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .startingProposalDate(simpleDateFormat.parse("20-08-2020"))
+                .closingProposalDate( simpleDateFormat.parse("24-08-2020"))
+                .startingVolunteeringDate(simpleDateFormat.parse("25-08-2020"))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -391,8 +384,8 @@ public class TestData {
         return new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes());
     }
 
-    public JpaStatus getJpaStatus(ProposalStatus proposalStatus) {
-        return jpaStatusRepository.findById(proposalStatus.getId())
-            .orElseThrow(InvalidStatusId::new);
+    public JpaProposalStatus getJpaStatus(ProposalStatus proposalStatus) {
+        return jpaProposalStatusRepository.findById(proposalStatus.getId())
+            .orElseThrow(InvalidStatusIdException::new);
     }
 }

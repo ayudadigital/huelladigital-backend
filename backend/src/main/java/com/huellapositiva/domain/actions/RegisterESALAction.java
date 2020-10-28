@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
-import com.huellapositiva.application.exception.FailedToPersistProposal;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -11,7 +10,6 @@ import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.service.ESALService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -47,12 +45,7 @@ public class RegisterESALAction {
      * @param dto contains the info to create a new ESAL
      */
     public void execute(ESALRequestDto dto) {
-        try {
-            ESAL esal = new ESAL(dto.getName(), esalRepository.newId());
-            esalRepository.saveAsReviser(esal);
-        } catch (DataIntegrityViolationException ex) {
-            log.error("Unable to persist the proposal due to a conflict.", ex);
-            throw new FailedToPersistProposal("Conflict encountered while storing the proposal in database. Constraints were violated.", ex);
-        }
+        ESAL esal = new ESAL(dto.getName(), esalRepository.newId());
+        esalRepository.saveAsReviser(esal);
     }
 }

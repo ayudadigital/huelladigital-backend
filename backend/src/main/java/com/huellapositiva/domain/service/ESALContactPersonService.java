@@ -4,8 +4,8 @@ import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +44,11 @@ public class ESALContactPersonService {
     }
 
     /**
+     * This method updates the ESAL name linked with the contactPerson.
      *
-     * TO BE DEFINED
+     * @param jpaContactPerson Contactperson to be updated
+     * @param jpaESAL JpaESAL to be linked with the contactPerson
+     * @return the number of rows updated in the DB
      */
     public Integer updateJoinedESAL(JpaContactPerson jpaContactPerson, JpaESAL jpaESAL) {
         return esalContactPersonRepository.updateESAL(jpaContactPerson.getId(), jpaESAL);

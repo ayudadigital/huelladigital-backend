@@ -1,8 +1,8 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmed;
-import com.huellapositiva.application.exception.EmailConfirmationExpired;
-import com.huellapositiva.application.exception.EmailConfirmationHashNotFound;
+import com.huellapositiva.application.exception.EmailConfirmationAlreadyConfirmedException;
+import com.huellapositiva.application.exception.EmailConfirmationExpiredException;
+import com.huellapositiva.application.exception.EmailConfirmationHashNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
@@ -45,22 +45,22 @@ public class EmailConfirmationAction {
      * When finished all previous access tokens are revoked.
      *
      * @param hash this parameter is given in a request path variable. Its value is stored in DB
-     * @throws EmailConfirmationHashNotFound hash not found in the DB
-     * @throws EmailConfirmationAlreadyConfirmed email already confirmed
-     * @throws EmailConfirmationExpired hash has expired
+     * @throws EmailConfirmationHashNotFoundException hash not found in the DB
+     * @throws EmailConfirmationAlreadyConfirmedException email already confirmed
+     * @throws EmailConfirmationExpiredException hash has expired
      */
     public void execute(UUID hash) {
         EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
-                .orElseThrow(() -> new EmailConfirmationHashNotFound("Hash " + hash + " not found."));
+                .orElseThrow(() -> new EmailConfirmationHashNotFoundException("Hash " + hash + " not found."));
 
         boolean isEmailConfirmed = emailConfirmation.getCredential().getEmailConfirmed();
         if (isEmailConfirmed) {
-            throw new EmailConfirmationAlreadyConfirmed("Email is already confirmed");
+            throw new EmailConfirmationAlreadyConfirmedException("Email is already confirmed");
         }
 
         Instant expirationTimestamp = emailConfirmation.getUpdatedOn().toInstant().plusMillis(emailExpirationTime);
         if(expirationTimestamp.isBefore(now())) {
-            throw new EmailConfirmationExpired("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
+            throw new EmailConfirmationExpiredException("Hash " + hash + " has expired on " + expirationTimestamp.toString() + ".");
         }
 
         JpaCredential jpaCredential = emailConfirmation.getCredential();

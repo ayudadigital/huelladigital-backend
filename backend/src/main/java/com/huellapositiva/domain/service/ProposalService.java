@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.ProposalEnrollmentClosed;
-import com.huellapositiva.application.exception.ProposalNotPublished;
+import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.repository.ProposalRepository;
@@ -29,11 +29,11 @@ public class ProposalService {
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED) {
-            throw new ProposalNotPublished();
+            throw new ProposalNotPublishedException();
         }
         boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
         if (isEnrollmentClosed) {
-            throw new ProposalEnrollmentClosed();
+            throw new ProposalEnrollmentClosedException();
         }
         proposal.inscribeVolunteer(volunteer);
         proposalRepository.save(proposal);

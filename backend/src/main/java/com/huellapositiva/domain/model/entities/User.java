@@ -44,9 +44,8 @@ public class User {
     public String getFullName() {
         if (name == null) {
             return null;
-        }
-        if (surname == null) {
-            return String.format("%s", name);
+        } else if (surname == null) {
+            return name;
         }
         return String.format("%s %s", name, surname);
     }

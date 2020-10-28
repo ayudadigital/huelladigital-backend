@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.repository;
 
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -18,7 +18,7 @@ public class ContactPersonRepository {
     private JpaContactPersonRepository jpaContactPersonRepository;
 
     public ContactPerson findByJoinedEsalId(String esalId) {
-        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(UserNotFound::new);
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(UserNotFoundException::new);
         return new ContactPerson(EmailAddress.from(jpaContactPerson.getCredential().getEmail()),new Id(jpaContactPerson.getId()));
     }
 }

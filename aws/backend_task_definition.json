@@ -1,0 +1,42 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "backend-container",
+      "image": "283609209591.dkr.ecr.us-east-1.amazonaws.com/huellapositiva/backend:1.13",
+      "cpu": 256,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "us-east-1"
+        },
+        {
+          "name": "BASE_URI",
+          "value": "https://dev.huellpositiva.ibai.eus"
+        },
+        {
+          "name": "PROFILE",
+          "value": "dev"
+        }
+      ],
+      "mountPoints": [],
+      "volumesFrom": []
+    }
+  ],
+  "family": "backend-task",
+  "taskRoleArn": "arn:aws:iam::283609209591:role/huellapositivaEcsRole",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "EC2"
+  ],
+  "cpu": "512",
+  "memory": "512"
+}

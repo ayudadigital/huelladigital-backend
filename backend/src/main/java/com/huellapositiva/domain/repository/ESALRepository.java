@@ -68,17 +68,6 @@ public class ESALRepository {
         }
     }
 
-    public String saveAsReviser(ESAL model) {
-        JpaESAL esal = JpaESAL.builder()
-                .id(model.getId().toString())
-                .name(model.getName())
-                .build();
-        try {
-            return jpaESALRepository.save(esal).getId();
-        } catch (DataIntegrityViolationException ex) {
-            throw new ESALAlreadyExists();
-        }
-    }
 
     public void delete(String id) {
         jpaContactPersonRepository.unlinkMembersOfESAL(id);

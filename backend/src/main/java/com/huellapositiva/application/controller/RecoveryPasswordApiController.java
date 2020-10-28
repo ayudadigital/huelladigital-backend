@@ -1,24 +1,17 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.FetchCredentialsAction;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import net.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
-import java.text.ParseException;
-import java.util.UUID;
 
 @Controller
 @RequestMapping("/api/v1/restore-password")
@@ -53,7 +46,7 @@ public class RecoveryPasswordApiController {
     public void sendEmailRecovery(@PathVariable String email){
         try {
             credentialsAction.executeGenerationRecoveryPasswordEmail(email);
-        } catch (UserNotFound e) {
+        } catch (UserNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found");
         }
     }

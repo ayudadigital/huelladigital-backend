@@ -1,6 +1,6 @@
 package com.huellapositiva.api;
 
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.FetchCredentialsAction;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
@@ -71,7 +71,7 @@ class RecoveryPasswordApiControllerShould {
     void return_204_when_changing_password_is_successful() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
         credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
-        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFound::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFoundException::new);
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/changePassword")
@@ -86,7 +86,7 @@ class RecoveryPasswordApiControllerShould {
     void return_423_when_trying_to_change_password_and_time_has_expired() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
         credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
-        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFound::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFoundException::new);
 
         Calendar c = Calendar.getInstance();
         c.setTime(jpaCredential.getCreatedRecoveryHashOn());

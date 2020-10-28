@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.actions;
 
-import com.amazonaws.services.kms.model.ExpiredImportTokenException;
-import com.huellapositiva.application.exception.UserNotFound;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -10,15 +9,11 @@ import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.UUID;
 
 
 @Service
@@ -40,7 +35,7 @@ public class FetchCredentialsAction {
      * @param email Email account from de volunteer or contact person.
      */
     public void executeGenerationRecoveryPasswordEmail(String email) {
-        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFound::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         String hash = Token.createToken().toString();
         jpaCredentialRepository.updateHashByEmail(email, hash);
         EmailRecoveryPassword emailRecoveryPassword = EmailRecoveryPassword.from(jpaCredential.getEmail(), hash);
@@ -55,7 +50,7 @@ public class FetchCredentialsAction {
      * @param password New password
      */
     public void executePasswordChanging(String hashRecoveryPassword, String password) {
-        JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hashRecoveryPassword).orElseThrow(UserNotFound::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hashRecoveryPassword).orElseThrow(UserNotFoundException::new);
         Date timeOfExpiration = addAnHour(jpaCredential.getCreatedRecoveryHashOn());
         Date dateNow = Calendar.getInstance().getTime();
 

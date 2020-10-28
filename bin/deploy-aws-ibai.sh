@@ -4,8 +4,9 @@ env=$1
 AWS_ACCESS_KEY_ID=$2
 AWS_SECRET_ACCESS_KEY=$3
 TASK_DEFINITION=$4
+DOCKER_TAG=$5
 
-DOCKER_IMAGE=ayudadigital/huelladigital-backend:beta-aws-ibai
+DOCKER_IMAGE=ayudadigital/huelladigital-backend:${DOCKER_TAG}
 CLUSTER_NAME=default
 TASK_FAMILY=backend-task
 SERVICE_NAME=backend-service-ssm

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import;
 
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"aws.paramstore.enabled=false"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
 class RegisterVolunteerActionShould {
 

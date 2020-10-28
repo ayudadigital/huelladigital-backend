@@ -20,7 +20,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "ses" }, imageTag = "0.11.5")
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"huellapositiva.feature.email.enabled=true", "aws.paramstore.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"huellapositiva.feature.email.enabled=true"})
 class AwsEmailServiceShould {
 
     private final static String emailAddress = "test@huellapositiva.com";

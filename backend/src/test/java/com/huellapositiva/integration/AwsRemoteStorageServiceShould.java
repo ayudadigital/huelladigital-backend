@@ -25,7 +25,7 @@ import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "s3" }, imageTag = "0.11.5")
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"huellapositiva.feature.storage.enabled=true", "aws.paramstore.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"huellapositiva.feature.storage.enabled=true"})
 class AwsRemoteStorageServiceShould {
 
     @Autowired

@@ -148,7 +148,7 @@ pipeline {
                             #sleep 5
                             echo 'Deploying to AWS ... ======================================================='
                             TASK=\$(cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK} | jq -c .)
-                            bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK}
+                            bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK} ${env.DOCKER_TAG}
                             """
                                 // sh 'bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}'
                             }

@@ -1,13 +1,13 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.ESALContactPersonService;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.PlainPassword;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,13 +19,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
-import static com.huellapositiva.util.TestData.*;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"aws.paramstore.enabled=false"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
 class ESALContactPersonServiceShould {
     @Autowired

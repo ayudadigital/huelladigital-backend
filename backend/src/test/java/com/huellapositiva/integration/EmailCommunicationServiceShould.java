@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"aws.paramstore.enabled=false"})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
 class EmailCommunicationServiceShould {
 

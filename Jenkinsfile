@@ -42,7 +42,6 @@ pipeline {
                     label 'docker'
                 }
             }
-            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend build'
             }
@@ -54,14 +53,12 @@ pipeline {
                     label 'docker'
                 }
             }
-            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend unit-tests'
             }
         }
         stage('Integration tests') {
             agent { label 'docker'}
-            when { branch 'servus' }
             steps {
                 script {
                     docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
@@ -82,7 +79,6 @@ pipeline {
                     label 'docker'
                 }
             }
-            when { branch 'servus' }
             steps {
                 sh 'bin/devcontrol.sh backend acceptance-tests'
             }
@@ -94,7 +90,6 @@ pipeline {
                     label 'docker'
                 }
             }
-            when { branch 'servus' }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
                     sh 'bin/devcontrol.sh backend sonar'
@@ -115,10 +110,12 @@ pipeline {
         stage("Docker Publish") {
             agent { label 'docker' }
             steps {
-                buildAndPublishDockerImages('beta-aws-ibai')
                 script {
-                    env.DOCKER_TAG = "beta-aws-ibai"
+                    env.DOCKER_TAG = "${BUILD_NUMBER}"
                 }
+                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
+                buildAndPublishDockerImages("${env.DOCKER_TAG}")
+
             }
         }
         stage("Remote deploy") {
@@ -135,23 +132,15 @@ pipeline {
                 label 'docker'
             }
             steps {
-                configFileProvider([configFile(fileId: 'huellapositiva-backend-task-definition', variable: 'HUELLAPOSITIVA_BACKEND_ECS_TASK')]) {
-                    withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                         sh "echo \"Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}\""
-                        // sh 'bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} $env.HUELLAPOSITIVA_BACKEND_ECS_TASK'
-                        script {
-                            // def customImage = docker.build("my-image:${env.BUILD_ID}", "-f ./backend/docker/build/aws-ibai/Dockerfile ./backend/docker/build/aws-ibai")
-                            // customImage.withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE" --entrypoint ""') { c ->
-                            // docker.image('ibaiul/aws-cli').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE" --entrypoint "/bin/bash"') { c ->
-                            docker.image('ibaiul/aws-cli').inside {
-                                sh """
-                            #sleep 5
-                            echo 'Deploying to AWS ... ======================================================='
-                            TASK=\$(cat ${HUELLAPOSITIVA_BACKEND_ECS_TASK} | jq -c .)
-                            bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK} ${env.DOCKER_TAG}
-                            """
-                                // sh 'bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${HUELLAPOSITIVA_BACKEND_ECS_TASK}'
-                            }
+                withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh "echo \"Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}\""
+                    script {
+                        docker.build('huellapositiva/aws-cli', '--pull backend/docker/build/aws-ibai').inside {
+                            sh """
+                                echo 'Deploying to AWS ... ======================================================='
+                                TASK=\$(cat aws/backend_task_definition.json | jq -c .)
+                                bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK} ${env.DOCKER_TAG}
+                             """
                         }
                     }
                 }

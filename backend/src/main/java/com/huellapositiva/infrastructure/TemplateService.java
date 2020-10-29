@@ -80,7 +80,7 @@ public class TemplateService {
         return new EmailTemplate(template).parse(variables);
     }
 
-    public EmailTemplate getConfirmationPasswordChangedTemplate(String email){
+    public EmailTemplate getConfirmationPasswordChangedTemplate(){
         String relativePath = "classpath:templates/emails/confirmationPasswordChanged.txt";
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);

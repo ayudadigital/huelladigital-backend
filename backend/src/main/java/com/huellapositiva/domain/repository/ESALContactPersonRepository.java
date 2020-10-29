@@ -8,7 +8,6 @@ import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.CONTACT_PERSON_NOT_CONFIRMED;
 

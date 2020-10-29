@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.domain.exception.EmailNotValidException;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import lombok.Builder;
 import lombok.Getter;
 

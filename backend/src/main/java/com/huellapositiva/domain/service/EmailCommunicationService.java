@@ -3,7 +3,6 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.TemplateService;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -85,7 +84,7 @@ public class EmailCommunicationService {
 
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
         try {
-            EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate(emailAddress.toString());
+            EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
             Email email = Email.createFrom(emailAddress, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {

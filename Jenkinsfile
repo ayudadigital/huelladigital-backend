@@ -115,7 +115,6 @@ pipeline {
                 }
                 sh "echo \"Building tag: ${env.DOCKER_TAG}\""
                 buildAndPublishDockerImages("${env.DOCKER_TAG}")
-
             }
         }
         stage("Remote deploy") {
@@ -129,20 +128,19 @@ pipeline {
         }
         stage("AWS deploy") {
             agent {
-                label 'docker'
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'backend/docker/build/aws-ibai'
+                }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh "echo \"Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}\""
-                    script {
-                        docker.build('huellapositiva/aws-cli', '--pull backend/docker/build/aws-ibai').inside {
-                            sh """
-                                echo 'Deploying to AWS ... ======================================================='
-                                TASK=\$(cat aws/backend_task_definition.json | jq -c .)
-                                bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK} ${env.DOCKER_TAG}
-                             """
-                        }
-                    }
+                    sh """
+                        echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
+                        echo 'Deploying ... ======================================================='
+                        TASK=\$(cat aws/backend_task_definition.json | jq -c .)
+                        bin/deploy-aws-ibai.sh dev ${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} \${TASK} ${env.DOCKER_TAG}
+                    """
                 }
             }
         }

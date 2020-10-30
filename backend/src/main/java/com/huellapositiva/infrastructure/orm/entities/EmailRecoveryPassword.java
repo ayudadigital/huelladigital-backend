@@ -5,7 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "email_recovery_password")
@@ -29,11 +29,8 @@ public class EmailRecoveryPassword implements Serializable{
 
         @CreationTimestamp
         @Column(name = "sent_on")
-        private Date sentOn;
+        private LocalDateTime sentOn;
 
-        /// ¿¿??
         @OneToOne(mappedBy = "emailConfirmation")
         private JpaCredential credential;
-
-
 }

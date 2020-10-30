@@ -11,10 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Calendar;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
@@ -51,10 +48,10 @@ public class FetchCredentialsAction {
      */
     public void executePasswordChanging(String hashRecoveryPassword, String password) {
         JpaCredential jpaCredential = jpaCredentialRepository.findByHashRecoveryPassword(hashRecoveryPassword).orElseThrow(UserNotFoundException::new);
-        Date timeOfExpiration = addAnHour(jpaCredential.getCreatedRecoveryHashOn());
-        Date dateNow = Calendar.getInstance().getTime();
+        LocalDateTime timeOfExpiration = jpaCredential.getCreatedRecoveryHashOn().plusHours(1);
+        LocalDateTime dateNow = LocalDateTime.now();
 
-        if (timeOfExpiration.after(dateNow)) {
+        if (timeOfExpiration.isAfter(dateNow)) {
             PasswordHash passwordHash = new PasswordHash(passwordEncoder.encode(password));
             jpaCredentialRepository.updatePassword(passwordHash.toString(), jpaCredential.getEmail());
             jpaCredentialRepository.setRecoveryPasswordHashAndDate(jpaCredential.getEmail(), null, null);
@@ -65,19 +62,4 @@ public class FetchCredentialsAction {
             throw new TimeForRecoveringPasswordExpiredException("The time to recovery password has expired");
         }
     }
-
-    /**
-     * This method adds an hour to the date
-     *
-     * @param date
-     * @return It is the date with an hour added.
-     */
-    private Date addAnHour(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.add(Calendar.HOUR, 1);  // number of days to add
-        return c.getTime();
-    }
-
-
 }

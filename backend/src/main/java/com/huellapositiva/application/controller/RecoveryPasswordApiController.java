@@ -41,9 +41,9 @@ public class RecoveryPasswordApiController {
                     )
             }
     )
-    @GetMapping("/sendRecoveryPasswordEmail/{email}")
+    @PostMapping("/sendRecoveryPasswordEmail")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void sendEmailRecovery(@PathVariable String email){
+    public void sendEmailRecovery(@RequestParam("email") String email){
         try {
             credentialsAction.executeGenerationRecoveryPasswordEmail(email);
         } catch (UserNotFoundException e) {
@@ -63,8 +63,8 @@ public class RecoveryPasswordApiController {
                             description = "No content, password updated and confirmation email sent successfully."
                     ),
                     @ApiResponse(
-                            responseCode = "423",
-                            description = "Locked, can not access to the resource because the time has expired."
+                            responseCode = "403",
+                            description = "Forbidden, can not access to the resource because the time has expired."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -72,13 +72,13 @@ public class RecoveryPasswordApiController {
                     )
             }
     )
-    @PostMapping("/changePassword")
+    @PostMapping("/changePassword/{hash}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@RequestParam("hash") String hash, @RequestParam("newPassword") String password){
+    public void changePassword(@PathVariable("hash") String hash, @RequestParam("newPassword") String password){
         try {
             credentialsAction.executePasswordChanging(hash, password);
         } catch (TimeForRecoveringPasswordExpiredException e) {
-            throw new ResponseStatusException(HttpStatus.LOCKED, "The resource is locked because time for recovery password has expired");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The resource is locked because time for recovery password has expired");
         }
     }
 

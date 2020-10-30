@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -54,7 +55,9 @@ class RecoveryPasswordApiControllerShould {
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
 
         // WHEN + THEN
-        mvc.perform(get(baseUri + "/sendRecoveryPasswordEmail/" + DEFAULT_EMAIL)
+        mvc.perform(post(baseUri + "/sendRecoveryPasswordEmail")
+                .with(csrf())
+                .param("email", DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
@@ -62,7 +65,9 @@ class RecoveryPasswordApiControllerShould {
     @Test
     void return_404_when_user_email_not_found() throws Exception {
         // WHEN + THEN
-        mvc.perform(get(baseUri + "/sendRecoveryPasswordEmail/" + "emailNotFound@huellapositiva.com")
+        mvc.perform(post(baseUri + "/sendRecoveryPasswordEmail")
+                .with(csrf())
+                .param("email", DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -73,34 +78,34 @@ class RecoveryPasswordApiControllerShould {
         credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFoundException::new);
 
+        String hash = jpaCredential.getHashRecoveryPassword();
+
         // WHEN + THEN
-        mvc.perform(post(baseUri + "/changePassword")
+        mvc.perform(post(baseUri + "/changePassword/" + hash)
                 .with(csrf())
-                .param("hash", jpaCredential.getHashRecoveryPassword())
                 .param("newPassword", "NEWPASSWORD")
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void return_423_when_trying_to_change_password_and_time_has_expired() throws Exception {
+    void return_403_when_trying_to_change_password_and_time_has_expired() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, UUID.randomUUID());
         credentialsAction.executeGenerationRecoveryPasswordEmail(DEFAULT_EMAIL);
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).orElseThrow(UserNotFoundException::new);
 
-        Calendar c = Calendar.getInstance();
-        c.setTime(jpaCredential.getCreatedRecoveryHashOn());
-        c.add(Calendar.HOUR, -2);  // number of days to add
+        LocalDateTime timeOfExpiration = jpaCredential.getCreatedRecoveryHashOn();
 
-        jpaCredential.setCreatedRecoveryHashOn(c.getTime());
+        jpaCredential.setCreatedRecoveryHashOn(timeOfExpiration.minusHours(2));
         jpaCredentialRepository.save(jpaCredential);
 
+        String hash = jpaCredential.getHashRecoveryPassword();
+
         // WHEN + THEN
-        mvc.perform(post(baseUri + "/changePassword")
+        mvc.perform(post(baseUri + "/changePassword/" + hash)
                 .with(csrf())
-                .param("hash", jpaCredential.getHashRecoveryPassword())
                 .param("newPassword", "NEWPASSWORD")
                 .contentType(APPLICATION_JSON))
-                .andExpect(status().isLocked());
+                .andExpect(status().isForbidden());
     }
 }

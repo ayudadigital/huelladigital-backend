@@ -2,11 +2,10 @@ package com.huellapositiva.infrastructure.orm.entities;
 
 
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -52,8 +51,7 @@ public class JpaCredential implements Serializable {
     @Column(name = "hash_recovery_password", unique = true)
     private String hashRecoveryPassword;
 
-    //@CreationTimestamp
     @Column(name = "created_recovery_hash_on")
-    private Date createdRecoveryHashOn;
+    private LocalDateTime createdRecoveryHashOn;
 
 }

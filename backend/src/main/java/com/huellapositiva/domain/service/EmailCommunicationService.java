@@ -38,7 +38,7 @@ public class EmailCommunicationService {
             Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
             emailService.sendEmail(email);
         } catch (RuntimeException ex) {
-            log.error("Failed to send emairegisterVolunteerIssuel:", ex);
+            log.error("Failed to send emailregisterVolunteerIssue:", ex);
             issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
         }
     }

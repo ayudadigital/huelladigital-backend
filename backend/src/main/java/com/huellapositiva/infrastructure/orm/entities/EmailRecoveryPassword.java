@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailRecoveryPassword implements Serializable{
+public class EmailRecoveryPassword implements Serializable {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

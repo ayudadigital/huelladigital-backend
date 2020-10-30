@@ -68,7 +68,6 @@ public class ESALRepository {
         }
     }
 
-
     public void delete(String id) {
         jpaContactPersonRepository.unlinkMembersOfESAL(id);
         jpaESALRepository.deleteByNaturalId(id);

@@ -75,11 +75,6 @@ public class RecoveryPasswordApiController {
     @PostMapping("/changePassword/{hash}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@PathVariable("hash") String hash, @RequestParam("newPassword") String password){
-        try {
-            credentialsAction.executePasswordChanging(hash, password);
-        } catch (TimeForRecoveringPasswordExpiredException e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "The resource is locked because time for recovery password has expired");
-        }
+        credentialsAction.executePasswordChanging(hash, password);
     }
-
 }

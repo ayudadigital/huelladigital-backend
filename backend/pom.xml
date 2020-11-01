@@ -26,7 +26,7 @@
         <java.version>11</java.version>
         <json.path>2.4.0</json.path>
         <junit5.version>5.5.2</junit5.version>
-        <junit4.version>4.13</junit4.version>
+        <junit4.version>4.13.1</junit4.version>
         <localstack.version>1.14.1</localstack.version>
         <localstack-utils.version>0.2.1</localstack-utils.version>
         <lombok.version>1.18.10</lombok.version>

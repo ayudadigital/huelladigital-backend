@@ -130,7 +130,7 @@ public class ProposalApiController {
     )
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto getProposal(@PathVariable String id, HttpServletResponse res) throws IOException {
+    public ProposalResponseDto getProposal(@PathVariable String id) {
         try {
             return fetchProposalAction.execute(id);
         } catch (EntityNotFoundException | ProposalNotPublicException e) {

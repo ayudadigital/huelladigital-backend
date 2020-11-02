@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -46,4 +47,11 @@ public class JpaCredential implements Serializable {
 
     @Column(name = "surname")
     private String surname;
+
+    @Column(name = "hash_recovery_password", unique = true)
+    private String hashRecoveryPassword;
+
+    @Column(name = "created_recovery_hash_on")
+    private LocalDateTime createdRecoveryHashOn;
+
 }

@@ -41,6 +41,25 @@ public class Email {
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
+    public static Email createFrom(EmailRecoveryPassword emailRecoveryPassword, EmailTemplate emailTemplate, String from) {
+        validateEmail(emailRecoveryPassword.getEmail());
+        return Email.builder()
+                .from(from)
+                .to(emailRecoveryPassword.getEmail())
+                .subject("Cambio de tu contraseña")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
+
+    public static Email createFrom(EmailAddress emailAddress, EmailTemplate emailTemplate, String from) {
+        validateEmail(emailAddress.toString());
+        return Email.builder()
+                .from(from)
+                .to(emailAddress.toString())
+                .subject("Confirmacion de cambio de contraseña")
+                .body(emailTemplate.getParsedTemplate())
+                .build();
+    }
 
     private static void validateEmail(String emailAddress) {
         if (emailAddress.isEmpty()) {

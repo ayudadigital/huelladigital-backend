@@ -1,10 +1,7 @@
 package com.huellapositiva.infrastructure;
 
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
+import com.huellapositiva.domain.model.valueobjects.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -72,5 +69,20 @@ public class TemplateService {
         String reviserName = proposalRevisionRequestEmail.getReviser().getFullName();
         variables.put("REVISER_NAME",  reviserName != null ? reviserName : "un revisor");
         return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getRecoveryEmailTemplate(String hashPassword){
+        String relativePath = "classpath:templates/emails/recoveryPasswordEmail.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = "/api/v1/restore-password/" + hashPassword;
+        variables.put("RECOVERY_PASSWORD_URL", url);
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getConfirmationPasswordChangedTemplate(){
+        String relativePath = "classpath:templates/emails/confirmationPasswordChanged.txt";
+        String template = getFileContent(relativePath);
+        return new EmailTemplate(template);
     }
 }

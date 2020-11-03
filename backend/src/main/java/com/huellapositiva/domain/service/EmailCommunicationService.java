@@ -29,6 +29,8 @@ public class EmailCommunicationService {
 
     /**
      * This method parses an emailConfirmation and sends it to the volunteer/contactPerson
+     * In case email is not sent, an error message is stored in the database to detect possible
+     * issues during the volunteer/contactPerson registration
      *
      * @param emailConfirmation contains a hash and the volunteer/contactPerson email
      */
@@ -73,22 +75,14 @@ public class EmailCommunicationService {
 
 
     public void sendRecoveryPasswordEmail(EmailRecoveryPassword emailRecoveryPassword) {
-        try {
-            EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailRecoveryPassword.getHash());
-            EmailMessage emailMessage = EmailMessage.createFrom(emailRecoveryPassword, emailTemplate, from);
-            emailService.sendEmail(emailMessage);
-        } catch (RuntimeException ex) {
-            log.error("Failed to send email:", ex);
-        }
+        EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailRecoveryPassword.getHash());
+        EmailMessage emailMessage = EmailMessage.createFrom(emailRecoveryPassword, emailTemplate, from);
+        emailService.sendEmail(emailMessage);
     }
 
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
-        try {
-            EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
-            EmailMessage emailMessage = EmailMessage.createFrom(emailAddress, emailTemplate, from);
-            emailService.sendEmail(emailMessage);
-        } catch (RuntimeException ex) {
-            log.error("Failed to send email:", ex);
-        }
+        EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
+        EmailMessage emailMessage = EmailMessage.createFrom(emailAddress, emailTemplate, from);
+        emailService.sendEmail(emailMessage);
     }
 }

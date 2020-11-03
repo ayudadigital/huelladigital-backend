@@ -1,8 +1,8 @@
 package com.huellapositiva.infrastructure;
 
-import com.huellapositiva.domain.model.valueobjects.Email;
+import com.huellapositiva.domain.model.valueobjects.EmailMessage;
 
 public interface EmailService {
 
-    void sendEmail (Email email);
+    void sendEmail (EmailMessage emailMessage);
 }

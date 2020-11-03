@@ -1,6 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.domain.model.valueobjects.Email;
+import com.huellapositiva.domain.model.valueobjects.EmailMessage;
 import com.huellapositiva.domain.exception.EmailNotValidException;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
@@ -11,7 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.*;
 
-class EmailShould {
+class EmailMessageShould {
 
     @Test
     void not_allow_empty_fields() {
@@ -19,7 +19,7 @@ class EmailShould {
         EmailConfirmation emailConfirmation = EmailConfirmation.from("", "");
         EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN +THEN
-        assertThrows(EmailNotValidException.class, () -> Email.createFrom(emailConfirmation, emailTemplate, DEFAULT_FROM));
+        assertThrows(EmailNotValidException.class, () -> EmailMessage.createFrom(emailConfirmation, emailTemplate, DEFAULT_FROM));
     }
 
     @Test
@@ -28,12 +28,12 @@ class EmailShould {
         EmailConfirmation emailConfirmation = EmailConfirmation.from("foo@huellapositiva.com", "");
         EmailTemplate emailTemplate = new EmailTemplate("template-body");
         //WHEN
-        Email email = Email.createFrom(emailConfirmation, emailTemplate, DEFAULT_FROM);
+        EmailMessage emailMessage = EmailMessage.createFrom(emailConfirmation, emailTemplate, DEFAULT_FROM);
         //THEN
-        assertThat(email.getFrom(), is(DEFAULT_FROM));
-        assertThat(email.getTo(), is(emailConfirmation.getEmailAddress()));
-        assertThat(email.getSubject(), is("Confirmación de la cuenta en huellapositiva"));
-        assertThat(email.getBody(), is(emailTemplate.getParsedTemplate()));
+        assertThat(emailMessage.getFrom(), is(DEFAULT_FROM));
+        assertThat(emailMessage.getTo(), is(emailConfirmation.getEmailAddress()));
+        assertThat(emailMessage.getSubject(), is("Confirmación de la cuenta en huellapositiva"));
+        assertThat(emailMessage.getBody(), is(emailTemplate.getParsedTemplate()));
     }
 
 }

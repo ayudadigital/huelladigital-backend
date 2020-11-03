@@ -35,8 +35,8 @@ public class EmailCommunicationService {
     public void sendRegistrationConfirmationEmail(EmailConfirmation emailConfirmation) {
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-            Email email = Email.createFrom(emailConfirmation, emailTemplate, from);
-            emailService.sendEmail(email);
+            EmailMessage emailMessage = EmailMessage.createFrom(emailConfirmation, emailTemplate, from);
+            emailService.sendEmail(emailMessage);
         } catch (RuntimeException ex) {
             log.error("Failed to send emailregisterVolunteerIssue:", ex);
             issueService.registerEmailConfirmationIssue(emailConfirmation.getEmailAddress(), ex);
@@ -50,8 +50,8 @@ public class EmailCommunicationService {
      */
     public void sendRevisionRequestEmail(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
         EmailTemplate emailTemplate = templateService.getProposalRevisionRequestTemplate(proposalRevisionRequestEmail);
-        Email email = Email.createFrom(proposalRevisionRequestEmail, emailTemplate, from);
-        emailService.sendEmail(email);
+        EmailMessage emailMessage = EmailMessage.createFrom(proposalRevisionRequestEmail, emailTemplate, from);
+        emailService.sendEmail(emailMessage);
     }
 
     /**
@@ -66,8 +66,8 @@ public class EmailCommunicationService {
         } else {
             emailTemplate = templateService.getProposalRevisionWithoutFeedbackTemplate(proposalRevisionEmail);
         }
-        Email email = Email.createFrom(proposalRevisionEmail, emailTemplate, from);
-        emailService.sendEmail(email);
+        EmailMessage emailMessage = EmailMessage.createFrom(proposalRevisionEmail, emailTemplate, from);
+        emailService.sendEmail(emailMessage);
     }
 
 
@@ -75,8 +75,8 @@ public class EmailCommunicationService {
     public void sendRecoveryPasswordEmail(EmailRecoveryPassword emailRecoveryPassword) {
         try {
             EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailRecoveryPassword.getHash());
-            Email email = Email.createFrom(emailRecoveryPassword, emailTemplate, from);
-            emailService.sendEmail(email);
+            EmailMessage emailMessage = EmailMessage.createFrom(emailRecoveryPassword, emailTemplate, from);
+            emailService.sendEmail(emailMessage);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);
         }
@@ -85,8 +85,8 @@ public class EmailCommunicationService {
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
         try {
             EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
-            Email email = Email.createFrom(emailAddress, emailTemplate, from);
-            emailService.sendEmail(email);
+            EmailMessage emailMessage = EmailMessage.createFrom(emailAddress, emailTemplate, from);
+            emailService.sendEmail(emailMessage);
         } catch (RuntimeException ex) {
             log.error("Failed to send email:", ex);
         }

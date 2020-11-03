@@ -6,15 +6,15 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class Email {
+public class EmailMessage {
     private final String subject;
     private final String from;
     private final String to;
     private final String body;
 
-    public static Email createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
+    public static EmailMessage createFrom(EmailConfirmation emailConfirmation, EmailTemplate emailTemplate, String from) {
         validateEmail(emailConfirmation.getEmailAddress());
-        return Email.builder()
+        return EmailMessage.builder()
                 .from(from)
                 .to(emailConfirmation.getEmailAddress())
                 .subject("Confirmación de la cuenta en huellapositiva")
@@ -22,9 +22,9 @@ public class Email {
                 .build();
     }
 
-    public static Email createFrom(ProposalRevisionRequestEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
+    public static EmailMessage createFrom(ProposalRevisionRequestEmail proposalRevisionRequestEmail, EmailTemplate emailTemplate, String from) {
         validateEmail(proposalRevisionRequestEmail.getEmailAddress());
-        return Email.builder()
+        return EmailMessage.builder()
                 .from(from)
                 .to(proposalRevisionRequestEmail.getEmailAddress())
                 .subject("Revisión de nuevas convocatorias requerida")
@@ -32,18 +32,18 @@ public class Email {
                 .build();
     }
 
-    public static Email createFrom(ProposalRevisionEmail proposalRevisionEmail, EmailTemplate emailTemplate, String from) {
+    public static EmailMessage createFrom(ProposalRevisionEmail proposalRevisionEmail, EmailTemplate emailTemplate, String from) {
         validateEmail(proposalRevisionEmail.getEmailAddress());
-        return Email.builder()
+        return EmailMessage.builder()
                 .from(from)
                 .to(proposalRevisionEmail.getEmailAddress())
                 .subject("Revisión de tu convocatoria.")
                 .body(emailTemplate.getParsedTemplate())
                 .build();
     }
-    public static Email createFrom(EmailRecoveryPassword emailRecoveryPassword, EmailTemplate emailTemplate, String from) {
+    public static EmailMessage createFrom(EmailRecoveryPassword emailRecoveryPassword, EmailTemplate emailTemplate, String from) {
         validateEmail(emailRecoveryPassword.getEmail());
-        return Email.builder()
+        return EmailMessage.builder()
                 .from(from)
                 .to(emailRecoveryPassword.getEmail())
                 .subject("Cambio de tu contraseña")
@@ -51,9 +51,9 @@ public class Email {
                 .build();
     }
 
-    public static Email createFrom(EmailAddress emailAddress, EmailTemplate emailTemplate, String from) {
+    public static EmailMessage createFrom(EmailAddress emailAddress, EmailTemplate emailTemplate, String from) {
         validateEmail(emailAddress.toString());
-        return Email.builder()
+        return EmailMessage.builder()
                 .from(from)
                 .to(emailAddress.toString())
                 .subject("Confirmacion de cambio de contraseña")

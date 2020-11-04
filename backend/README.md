@@ -88,3 +88,4 @@ On the another hand the documentation is disable with the profile `prod`, only w
 
 ## Useful information
 * [How to start backend and frontend to use backend API](https://airanschez.wordpress.com/2020/06/06/cronicas-del-proyecto-huella-digital-parte-1/)
+

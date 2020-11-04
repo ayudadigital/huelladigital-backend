@@ -33,6 +33,8 @@ public class TestData {
 
     public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
+    public static final String DEFAULT_SUBJECT = "Asunto del email";
+
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
     public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";

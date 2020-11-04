@@ -37,7 +37,7 @@ public class EmailCommunicationService {
     public void sendRegistrationConfirmationEmail(EmailConfirmation emailConfirmation) {
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-            EmailMessage emailMessage = EmailMessage.createFrom(emailConfirmation, emailTemplate, from);
+            EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(), "Confirmación de la cuenta en huellapositiva", emailTemplate);
             emailService.sendEmail(emailMessage);
         } catch (RuntimeException ex) {
             log.error("Failed to send emailregisterVolunteerIssue:", ex);
@@ -52,7 +52,7 @@ public class EmailCommunicationService {
      */
     public void sendRevisionRequestEmail(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
         EmailTemplate emailTemplate = templateService.getProposalRevisionRequestTemplate(proposalRevisionRequestEmail);
-        EmailMessage emailMessage = EmailMessage.createFrom(proposalRevisionRequestEmail, emailTemplate, from);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionRequestEmail.getEmailAddress(), "Revisión de nuevas convocatorias requerida", emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
@@ -68,21 +68,21 @@ public class EmailCommunicationService {
         } else {
             emailTemplate = templateService.getProposalRevisionWithoutFeedbackTemplate(proposalRevisionEmail);
         }
-        EmailMessage emailMessage = EmailMessage.createFrom(proposalRevisionEmail, emailTemplate, from);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionEmail.getEmailAddress(), "Revisión de tu convocatoria", emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
 
 
-    public void sendRecoveryPasswordEmail(EmailRecoveryPassword emailRecoveryPassword) {
-        EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(emailRecoveryPassword.getHash());
-        EmailMessage emailMessage = EmailMessage.createFrom(emailRecoveryPassword, emailTemplate, from);
+    public void sendRecoveryPasswordEmail(RecoveryPasswordEmail recoveryPasswordEmail) {
+        EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(recoveryPasswordEmail.getHash());
+        EmailMessage emailMessage = EmailMessage.createFrom(from, recoveryPasswordEmail.getEmail(), "Cambio de tu contraseña", emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
         EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
-        EmailMessage emailMessage = EmailMessage.createFrom(emailAddress, emailTemplate, from);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), "Confirmacion de cambio de contraseña", emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 }

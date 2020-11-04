@@ -27,9 +27,9 @@ public class SubmitProposalRevisionAction {
     private final CredentialsRepository credentialsRepository;
 
     /**
-     * Fecht the ESAL of the database for get the ContacPerson and send an email with the revision of the revisor.
+     * Fetch the ESAL of the database for get the ContactPerson and send an email with the revision of the reviser.
      *
-     * @param proposalId : The identificator of the proposal to be revised.
+     * @param proposalId : The id of the proposal to be revised.
      * @param revisionDto : Contains the email reviser and the feedback if has it.
      * @param proposalURI : URI the proposal to revise.
      */

@@ -10,6 +10,7 @@ public enum ProposalStatus {
     PUBLISHED (3),
     UNPUBLISHED (4),
     FINISHED(5),
+    CANCELLED(6),
     INADEQUATE (99);
 
     private final int id;

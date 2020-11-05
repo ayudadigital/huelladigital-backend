@@ -5,8 +5,10 @@ import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -21,5 +23,10 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     Page<JpaProposal> findByStatusIs(JpaProposalStatus status, Pageable pageable);
 
     Page<JpaProposal> findByStatusNot(JpaProposalStatus status, Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE JpaProposal p SET p.status = :status WHERE p.id = :id")
+    Integer updateStatusById(@Param("id") String id, @Param("status") JpaProposalStatus status);
 
 }

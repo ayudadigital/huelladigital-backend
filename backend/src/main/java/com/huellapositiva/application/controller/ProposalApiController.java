@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
@@ -54,6 +56,8 @@ public class ProposalApiController {
     private final RequestProposalRevisionAction requestProposalRevisionAction;
 
     private final SubmitProposalRevisionAction submitProposalRevisionAction;
+
+    private final CancelProposalAction cancelProposalAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -401,5 +405,16 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
+    }
+
+
+
+
+
+    @PostMapping("/{id}/cancel")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelProposalAsReviser (@PathVariable ("id") String idProposal){
+        cancelProposalAction.executeByReviser(idProposal);
     }
 }

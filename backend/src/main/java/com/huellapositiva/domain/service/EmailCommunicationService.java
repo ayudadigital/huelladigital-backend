@@ -35,9 +35,12 @@ public class EmailCommunicationService {
      * @param emailConfirmation contains a hash and the volunteer/contactPerson email
      */
     public void sendRegistrationConfirmationEmail(EmailConfirmation emailConfirmation) {
+        final String CONFIRMATION_EMAIL_SUBJECT = "Confirmación de la cuenta en huellapositiva";
+
         try {
             EmailTemplate emailTemplate = templateService.getEmailConfirmationTemplate(emailConfirmation);
-            EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(), "Confirmación de la cuenta en huellapositiva", emailTemplate);
+            EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(),
+                                                                CONFIRMATION_EMAIL_SUBJECT, emailTemplate);
             emailService.sendEmail(emailMessage);
         } catch (RuntimeException ex) {
             log.error("Failed to send emailregisterVolunteerIssue:", ex);
@@ -51,8 +54,9 @@ public class EmailCommunicationService {
      * @param proposalRevisionRequestEmail contains the url to the proposal and the reviser email
      */
     public void sendRevisionRequestEmail(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
+        final String REVISION_REQUIRED_SUBJECT = "Revisión de nuevas convocatorias requerida";
         EmailTemplate emailTemplate = templateService.getProposalRevisionRequestTemplate(proposalRevisionRequestEmail);
-        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionRequestEmail.getEmailAddress(), "Revisión de nuevas convocatorias requerida", emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionRequestEmail.getEmailAddress(), REVISION_REQUIRED_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
@@ -62,27 +66,30 @@ public class EmailCommunicationService {
      * @param proposalRevisionEmail contains the feedback and information about the revision
      */
     public void sendSubmittedProposalRevision(ProposalRevisionEmail proposalRevisionEmail) {
+        final String FEEDBACK_REVISION_SUBJECT = "Revisión de tu convocatoria";
         EmailTemplate emailTemplate;
         if(proposalRevisionEmail.hasFeedback()) {
             emailTemplate = templateService.getProposalRevisionWithFeedbackTemplate(proposalRevisionEmail);
         } else {
             emailTemplate = templateService.getProposalRevisionWithoutFeedbackTemplate(proposalRevisionEmail);
         }
-        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionEmail.getEmailAddress(), "Revisión de tu convocatoria", emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionEmail.getEmailAddress(), FEEDBACK_REVISION_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
 
 
     public void sendRecoveryPasswordEmail(RecoveryPasswordEmail recoveryPasswordEmail) {
+        final String RECOVERY_PASSWORD_SUBJECT = "Cambio de tu contraseña";
         EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(recoveryPasswordEmail.getHash());
-        EmailMessage emailMessage = EmailMessage.createFrom(from, recoveryPasswordEmail.getEmail(), "Cambio de tu contraseña", emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, recoveryPasswordEmail.getEmail(), RECOVERY_PASSWORD_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
+        final String UPDATE_PASSWORD_SUBJECT = "Confirmacion de cambio de contraseña";
         EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
-        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), "Confirmacion de cambio de contraseña", emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASSWORD_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 }

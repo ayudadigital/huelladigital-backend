@@ -1,17 +1,17 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-public class EmailRecoveryPassword {
+public class RecoveryPasswordEmail {
 
     private EmailAddress email;
     private String hash;
 
-    public EmailRecoveryPassword (EmailAddress email, String hash){
+    public RecoveryPasswordEmail(EmailAddress email, String hash){
         this.email = email;
         this.hash = hash;
     }
 
-    public static EmailRecoveryPassword from(String email, String hash) {
-        return new EmailRecoveryPassword(
+    public static RecoveryPasswordEmail from(String email, String hash) {
+        return new RecoveryPasswordEmail(
                 EmailAddress.from(email), hash);
     }
 

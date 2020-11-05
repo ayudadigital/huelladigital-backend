@@ -2,7 +2,7 @@ package com.huellapositiva.infrastructure;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
-import com.huellapositiva.domain.model.valueobjects.Email;
+import com.huellapositiva.domain.model.valueobjects.EmailMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -17,17 +17,17 @@ public class AwsEmailService implements EmailService{
     private AmazonSimpleEmailService awsSesClient;
 
     @Override
-    public void sendEmail(Email email) {
+    public void sendEmail(EmailMessage emailMessage) {
             SendEmailRequest request = new SendEmailRequest()
                     .withDestination(
-                            new Destination().withToAddresses(email.getTo()))
+                            new Destination().withToAddresses(emailMessage.getTo()))
                     .withMessage(new Message()
                             .withBody(new Body()
                                     .withHtml(new Content()
-                                            .withCharset("UTF-8").withData(email.getBody())))
+                                            .withCharset("UTF-8").withData(emailMessage.getBody())))
                             .withSubject(new Content()
-                                    .withCharset("UTF-8").withData(email.getSubject())))
-                    .withSource(email.getFrom());
+                                    .withCharset("UTF-8").withData(emailMessage.getSubject())))
+                    .withSource(emailMessage.getFrom());
             awsSesClient.sendEmail(request);
     }
 }

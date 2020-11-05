@@ -14,7 +14,7 @@ The backend is being developed with:
 
 ## Setup the local development environment
 
-We are using mostly IntelliJ IDE to develop the project. Currently using
+We are using mostly IntelliJ IDE to develop the project. Currently, using
 **IntelliJ 2019.3.**
 
 First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version. This is not necessarily a project.
@@ -24,17 +24,21 @@ choose the `backend` folder in this repository. The project should be imported c
 
     Failure to find junit:junit:pom:5.5.2 in https://repo.maven.apache.org/maven2 was cached in the local repository, resolution will not be reattempted until the update interval of central has elapsed or updates are forced
 
-Don't worry the project should build and the tests run. It's complaining because of the dependency tree but it's working.
+Don't worry the project should build, and the tests run. It's complaining because of the dependency tree but it's working.
 
-We are using **Lombok** project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
+### Plugins
 
-Go to `Settings > Build, Execution, Deployment > Compiler > Annotation Processors` and select `Enable annotation processing`.
+In order to install plugins, go to `Settings > Build, Execution, Deployment > Compiler > Annotation Processors` and select `Enable annotation processing`.
 
-Then go to `Settings > Plugins` and search for `Lombok` in the Marketplace tab. Install the first one and restart the IDE.
+We are using:
+ * **[Lombok](https://projectlombok.org/)** project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
+ * **[SonarLint](https://www.sonarlint.org/)** highlights Bugs and Security Vulnerabilities as you write code. Before pushing the code into the repository, it's recommended to run SonarLint to solve possible issues.
+
+Then go to `Settings > Plugins` and search for `Lombok` and `SonarLint` in the Marketplace tab. Install them and restart the IDE.
 
 From now, no more warnings should be displayed in the `Project` window.
 
-⚠️ **Before running the the backend locally, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
+⚠️ **Before running the backend locally, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
 
 You can run the docker compose file from the IDE or from the terminal with `docker-compose up -d` but you must be in the directory of docker-compose file.
 
@@ -62,4 +66,25 @@ Notice that the platform can also be run directly from the IDE by just right cli
 
 On the another hand the documentation is disable with the profile `prod`, only works in `dev` and `local`profiles.
 
-[Swagger docs](https://dev.huelladigital.ayudadigital.org/swagger-ui/)
+* [Swagger dev](https://dev.huelladigital.ayudadigital.org/swagger-ui/)
+* [Swagger local](http://localhost:8080/swagger-ui)
+
+## Handling errors
+* _Migration checksum mismatch for migration version 1.0.x_: It may appear during `mvn clean compile spring-boot:run`, and it happens due to conflicts with migration versions of the Flyway. In order to fix this error, you have two options:
+  * Open terminal and type 
+    * `docker rm <container_id>` using as <container_id> the id corresponding to the container with IMAGE _postgres_ and NAMES _local_huellapositiva_database_1_ (you can obtain the id by typing `docker ps -a`).
+    * `docker volume rm local_postgres-data` which deletes your local postgres configuration.
+    * `docker-compose up -d` (the flag _-d_ runs the command in background).
+  * In case you have IntelliJ Ultimate, you can manually delete the tables of the database (locally).
+  
+  Then, you can restart the project, and the latest migration version will be loaded.
+* _cloud.localstack.docker.exception.LocalstackDockerException: Could not start the localstack docker container_: 
+  * Restart docker containers. Afterwards, lift up only **local_huellapositiva_database_1** (postgres).
+  * Be sure that your environment variable 'Path' includes both paths to your Docker and Docker Desktop bin folders. 
+  They are usually found at:
+     * "C:\Program Files\Docker\Docker\resources\bin"
+     * "C:\ProgramData\DockerDesktop\version-bin"
+  * Create a new system environment variable "DOCKER_LOCATION". Its value should be the path to docker.exe. It is usually found at "C:\Program Files\Docker\Docker\resources\docker.exe".
+
+## Useful information
+* [How to start backend and frontend to use backend API](https://airanschez.wordpress.com/2020/06/06/cronicas-del-proyecto-huella-digital-parte-1/)

@@ -4,7 +4,7 @@ import cloud.localstack.docker.LocalstackDockerExtension;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.VerifyEmailIdentityRequest;
-import com.huellapositiva.domain.model.valueobjects.Email;
+import com.huellapositiva.domain.model.valueobjects.EmailMessage;
 import com.huellapositiva.infrastructure.AwsEmailService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
 import org.junit.jupiter.api.Test;
@@ -34,13 +34,13 @@ class AwsEmailServiceShould {
     void send_an_email() {
         VerifyEmailIdentityRequest request = new VerifyEmailIdentityRequest().withEmailAddress(emailAddress);
         sesClient.verifyEmailIdentity(request);
-        Email email = Email.builder()
+        EmailMessage emailMessage = EmailMessage.builder()
                 .from(emailAddress)
                 .to(emailAddress)
                 .subject("test subject")
                 .body("test body")
                 .build();
 
-        assertThatCode(() -> awsEmailService.sendEmail(email)).doesNotThrowAnyException();
+        assertThatCode(() -> awsEmailService.sendEmail(emailMessage)).doesNotThrowAnyException();
     }
 }

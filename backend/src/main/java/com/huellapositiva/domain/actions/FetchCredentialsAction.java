@@ -35,8 +35,8 @@ public class FetchCredentialsAction {
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         String hash = Token.createToken().toString();
         jpaCredentialRepository.updateHashByEmail(email, hash);
-        EmailRecoveryPassword emailRecoveryPassword = EmailRecoveryPassword.from(jpaCredential.getEmail(), hash);
-        emailCommunicationService.sendRecoveryPasswordEmail(emailRecoveryPassword);
+        RecoveryPasswordEmail recoveryPasswordEmail = RecoveryPasswordEmail.from(jpaCredential.getEmail(), hash);
+        emailCommunicationService.sendRecoveryPasswordEmail(recoveryPasswordEmail);
     }
 
     /**

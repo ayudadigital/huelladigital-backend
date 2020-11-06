@@ -88,3 +88,12 @@ On the another hand the documentation is disable with the profile `prod`, only w
 
 ## Useful information
 * [How to start backend and frontend to use backend API](https://airanschez.wordpress.com/2020/06/06/cronicas-del-proyecto-huella-digital-parte-1/)
+
+
+## Information for frontend developers
+The project has different roles:
+* VOLUNTEER: He can see the list of published proposals and join them.
+* VOLUNTEER_NOT_CONFIRMED: He can see the list of published proposals. (He must confirm the email in order to join a proposal)
+* CONTACT_PERSON: He can see the list of published proposals with the volunteers that have joined it. He is allowed to create proposals, modify them and request their cancellation.
+* CONTACT_PERSON_NOT_CONFIRMED: He can see the list of published proposals with the volunteers that have joined it. He is allowed to create proposals, modify them and request their cancellation. (He must confirm the email)
+* REVISER: He can see the list of published proposals with the volunteers. He is allowed to create proposals, review, modify and cancel them. 

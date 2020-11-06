@@ -717,15 +717,29 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
-/*
-        MockHttpServletResponse fetchResponseGet = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
+    }
+
+    @Test
+    void return_404_when_trying_to_fetch_a_cancelled_proposal() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
-        ProposalResponseDto proposalDto = objectMapper.readValue(fetchResponse.getContentAsString(), ProposalResponseDto.class);
-        assertThat(proposalDto.getStatus()).isEqualTo(CANCELLED); */
+        MockHttpServletResponse fetchResponseGet = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse();
 
     }
 }

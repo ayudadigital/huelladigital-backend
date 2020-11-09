@@ -8,7 +8,6 @@ import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -703,7 +702,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_200_when_a_proposal_is_successfully_cancelled() throws Exception {
+    void cancel_a_proposal_successfully() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -717,12 +716,27 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
+
+        MockHttpServletResponse fetchResponseAllProposals = mvc.perform(get(FETCH_PROPOSAL_URI + "0/5/reviser")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        ListedProposalsDto listedProposalsDto = objectMapper.readValue(fetchResponseAllProposals.getContentAsString(), ListedProposalsDto.class);
+        Optional<ProposalLiteDto> proposalLiteDto = listedProposalsDto.getProposals()
+                .stream()
+                .filter(proposal -> proposal.getId().contains(proposalId)).findFirst();
+
+        assertThat(proposalLiteDto.get().getStatus().contains(CANCELLED.toString())).isTrue();
     }
 
     @Test
-    void return_404_when_trying_to_fetch_a_cancelled_proposal() throws Exception {
+    void return_404_when_trying_to_cancel_a_non_existing_proposal() throws Exception {
         //GIVEN
-        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        String proposalId = "999";
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
@@ -730,16 +744,9 @@ class ProposalControllerShould {
         MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse();
-
-        MockHttpServletResponse fetchResponseGet = mvc.perform(get(FETCH_PROPOSAL_URI + proposalId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn().getResponse();
-
     }
 }

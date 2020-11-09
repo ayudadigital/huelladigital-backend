@@ -359,8 +359,8 @@ public class ProposalApiController {
     @GetMapping("/{idProposal}/volunteers")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.OK)
-    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
-        try{
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
+        try {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
             return proposalResponseDto.getInscribedVolunteers();
         } catch (EntityNotFoundException ex) {
@@ -399,8 +399,8 @@ public class ProposalApiController {
     @GetMapping("/{idProposal}/proposal")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal){
-        try{
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
+        try {
             return fetchProposalAction.execute(idProposal);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
@@ -408,13 +408,42 @@ public class ProposalApiController {
     }
 
 
-
-
-
+    @Operation(
+            summary = "Cancel a proposal",
+            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it.",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, proposal status changed to CANCELLED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Requested proposal not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping("/{id}/cancel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.OK)
-    public void cancelProposalAsReviser (@PathVariable ("id") String idProposal){
-        cancelProposalAction.executeByReviser(idProposal);
+    public void cancelProposalAsReviser(@PathVariable("id") String idProposal) {
+        try {
+            cancelProposalAction.executeByReviser(idProposal);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ public class CancelProposalAction {
 
     public void executeByReviser(String id){
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
-                .id(6)
+                .id(ProposalStatus.CANCELLED.getId())
                 .name("CANCELLED").build();
         proposalRepository.updateProposalStatus(id, jpaProposalStatus);
     }

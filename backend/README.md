@@ -85,6 +85,7 @@ On the another hand the documentation is disable with the profile `prod`, only w
      * "C:\Program Files\Docker\Docker\resources\bin"
      * "C:\ProgramData\DockerDesktop\version-bin"
   * Create a new system environment variable "DOCKER_LOCATION". Its value should be the path to docker.exe. It is usually found at "C:\Program Files\Docker\Docker\resources\docker.exe".
+  * Restart the IDE to enable the new configuration.
 
 ## Useful information
 * [How to start backend and frontend to use backend API](https://airanschez.wordpress.com/2020/06/06/cronicas-del-proyecto-huella-digital-parte-1/)

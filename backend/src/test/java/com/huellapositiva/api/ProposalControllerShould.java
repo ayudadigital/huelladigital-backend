@@ -714,7 +714,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andReturn().getResponse();
 
         MockHttpServletResponse fetchResponseAllProposals = mvc.perform(get(FETCH_PROPOSAL_URI + "0/5/reviser")

@@ -438,7 +438,7 @@ public class ProposalApiController {
     )
     @PostMapping("/{id}/cancel")
     @RolesAllowed("REVISER")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancelProposalAsReviser(@PathVariable("id") String idProposal) {
         try {
             cancelProposalAction.executeByReviser(idProposal);

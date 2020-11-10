@@ -702,7 +702,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void cancel_a_proposal_successfully() throws Exception {
+    void return_204_when_cancel_a_proposal_successfully() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -717,20 +717,8 @@ class ProposalControllerShould {
                 .andExpect(status().isNoContent())
                 .andReturn().getResponse();
 
-        MockHttpServletResponse fetchResponseAllProposals = mvc.perform(get(FETCH_PROPOSAL_URI + "0/5/reviser")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn().getResponse();
-
-        ListedProposalsDto listedProposalsDto = objectMapper.readValue(fetchResponseAllProposals.getContentAsString(), ListedProposalsDto.class);
-        Optional<ProposalLiteDto> proposalLiteDto = listedProposalsDto.getProposals()
-                .stream()
-                .filter(proposal -> proposal.getId().contains(proposalId)).findFirst();
-
-        assertThat(proposalLiteDto.get().getStatus().contains(CANCELLED.toString())).isTrue();
+        Optional <JpaProposal> jpaProposal = jpaProposalRepository.findByNaturalId(proposalId);
+        assertThat(jpaProposal.get().getStatus().getId().equals(CANCELLED.getId())).isTrue();
     }
 
     @Test

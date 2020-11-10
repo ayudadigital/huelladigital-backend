@@ -423,8 +423,8 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
-                            description = "Ok, proposal status changed to CANCELLED successfully."
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to CANCELLED successfully."
                     ),
                     @ApiResponse(
                             responseCode = "404",

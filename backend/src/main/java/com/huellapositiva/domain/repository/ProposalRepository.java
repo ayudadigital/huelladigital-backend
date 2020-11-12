@@ -144,4 +144,8 @@ public class ProposalRepository {
                 .map(Proposal::parseJpa)
                 .collect(Collectors.toList());
     }
+
+    public Integer updateProposalStatus (String id, JpaProposalStatus status) {
+        return jpaProposalRepository.updateStatusById(id, status);
+    }
 }

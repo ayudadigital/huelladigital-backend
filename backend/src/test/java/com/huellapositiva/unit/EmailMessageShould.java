@@ -18,8 +18,9 @@ class EmailMessageShould {
         //GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from("", "");
         EmailTemplate emailTemplate = new EmailTemplate("template-body");
+        String emailAddress = emailConfirmation.getEmailAddress();
         //WHEN +THEN
-        assertThrows(EmailNotValidException.class, () -> EmailMessage.createFrom(DEFAULT_FROM, emailConfirmation.getEmailAddress(), DEFAULT_SUBJECT, emailTemplate));
+        assertThrows(EmailNotValidException.class, () -> EmailMessage.createFrom(DEFAULT_FROM, emailAddress, DEFAULT_SUBJECT, emailTemplate));
     }
 
     @Test

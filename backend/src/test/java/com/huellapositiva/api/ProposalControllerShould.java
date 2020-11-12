@@ -8,7 +8,6 @@ import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +25,11 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -700,5 +699,42 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_204_when_cancel_a_proposal_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        Optional <JpaProposal> jpaProposal = jpaProposalRepository.findByNaturalId(proposalId);
+        assertThat(jpaProposal.get().getStatus().getId().equals(CANCELLED.getId())).isTrue();
+    }
+
+    @Test
+    void return_404_when_trying_to_cancel_a_non_existing_proposal() throws Exception {
+        //GIVEN
+        String proposalId = "999";
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse();
     }
 }

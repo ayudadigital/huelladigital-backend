@@ -13,8 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 @Controller
-@RequestMapping("/api/v1/restore-password")
-public class RecoveryPasswordApiController {
+@RequestMapping("/api/v1/handling-password")
+public class HandlerPasswordApiController {
 
     @Autowired
     FetchCredentialsAction credentialsAction;

@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(TestData.class)
 class RecoveryPasswordApiControllerShould {
-    private static final String baseUri = "/api/v1/restore-password";
+    private static final String baseUri = "/api/v1/handling-password";
 
     @Autowired
     private MockMvc mvc;

@@ -2,14 +2,19 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.domain.exception.InvalidNewPasswordException;
+import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.annotation.security.RolesAllowed;
 
 
 @Controller
@@ -75,5 +80,39 @@ public class HandlerPasswordApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@PathVariable("hash") String hash, @RequestParam("newPassword") String password){
         credentialsAction.executePasswordChanging(hash, password);
+    }
+
+    @Operation(
+            summary = "Update the password from profile",
+            description = "The user access his profile to update his password.",
+            tags = {"contactPerson, volunteers, profile"}
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, password updated and confirmation email sent successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the old password does not match or the new password is invalid."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @RolesAllowed({"VOLUNTEER", "CONTACT_PERSON"})
+    @PostMapping("/editPassword")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editProfilePassword(@RequestParam("newPassword") String newPassword,
+                                    @RequestParam("oldPassword") String oldPassword,
+                                    @AuthenticationPrincipal String email){
+        try {
+            credentialsAction.executeUpdatePassword(newPassword, oldPassword, email);
+        } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid: " + e.getMessage());
+        }
     }
 }

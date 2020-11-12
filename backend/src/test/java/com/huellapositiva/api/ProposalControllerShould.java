@@ -718,7 +718,7 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
 
         Optional <JpaProposal> jpaProposal = jpaProposalRepository.findByNaturalId(proposalId);
-        assertThat(jpaProposal.get().getStatus().getId().equals(CANCELLED.getId())).isTrue();
+        assertThat(jpaProposal.get().getStatus().getId()).isEqualTo(CANCELLED.getId());
     }
 
     @Test

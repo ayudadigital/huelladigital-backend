@@ -1,6 +1,8 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.exception.InvalidNewPasswordException;
+import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -11,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Service
@@ -61,5 +64,31 @@ public class FetchCredentialsAction {
         } else {
             throw new TimeForRecoveringPasswordExpiredException("The time to recovery password has expired");
         }
+    }
+
+    /**
+     * This method updates the password in database from the profile and sends an email.
+     *
+     * @param newPassword the new password for the user
+     * @param oldPassword to check if the user has permission to change the password
+     * @param email The emails user
+     */
+    public void executeUpdatePassword(String newPassword, String oldPassword, String email) {
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        PasswordHash oldPasswordHash = new PasswordHash(passwordEncoder.encode(oldPassword));
+        PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(newPassword));
+
+        if (!jpaCredential.getHashedPassword().equals(oldPasswordHash.toString())) {
+            throw new NonMatchingPasswordException("The old password inserted does not match with the one stored in the system");
+        } else if (!jpaCredential.getHashedPassword().equals(newPasswordHash.toString())) {
+            throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
+        } else {
+            jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);
+
+            EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
+            emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
+        }
+
+
     }
 }

@@ -74,13 +74,13 @@ public class FetchCredentialsAction {
      * @param email The emails user
      */
     public void executeUpdatePassword(String newPassword, String oldPassword, String email) {
+
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        PasswordHash oldPasswordHash = new PasswordHash(passwordEncoder.encode(oldPassword));
         PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(newPassword));
 
-        if (!jpaCredential.getHashedPassword().equals(oldPasswordHash.toString())) {
+        if (!passwordEncoder.matches(oldPassword,jpaCredential.getHashedPassword())) {
             throw new NonMatchingPasswordException("The old password inserted does not match with the one stored in the system");
-        } else if (!jpaCredential.getHashedPassword().equals(newPasswordHash.toString())) {
+        } else if (passwordEncoder.matches(newPassword,jpaCredential.getHashedPassword())) {
             throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
         } else {
             jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);

@@ -10,6 +10,7 @@ import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,16 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class FetchCredentialsAction {
+public class UpdatePasswordAction {
 
     @Autowired
-    EmailCommunicationService emailCommunicationService;
+    protected EmailCommunicationService emailCommunicationService;
 
     @Autowired
-    private JpaCredentialRepository jpaCredentialRepository;
+    protected JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
-    private final PasswordEncoder passwordEncoder;
+    protected final PasswordEncoder passwordEncoder;
 
     /**
      * This method generates a link to recovery the password and sends it
@@ -88,7 +89,5 @@ public class FetchCredentialsAction {
             EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
             emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
         }
-
-
     }
 }

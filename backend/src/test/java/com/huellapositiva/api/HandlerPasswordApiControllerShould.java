@@ -2,13 +2,12 @@ package com.huellapositiva.api;
 
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -44,7 +41,7 @@ class HandlerPasswordApiControllerShould {
     private MockMvc mvc;
 
     @Autowired
-    FetchCredentialsAction credentialsAction;
+    UpdatePasswordAction credentialsAction;
 
     @Autowired
     private JpaCredentialRepository jpaCredentialRepository;

@@ -1,7 +1,7 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,7 +22,7 @@ import javax.annotation.security.RolesAllowed;
 public class HandlerPasswordApiController {
 
     @Autowired
-    FetchCredentialsAction credentialsAction;
+    UpdatePasswordAction credentialsAction;
 
     @Operation(
             summary = "Send an email to recovery password",

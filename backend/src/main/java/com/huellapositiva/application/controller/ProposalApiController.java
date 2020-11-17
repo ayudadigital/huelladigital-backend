@@ -59,6 +59,8 @@ public class ProposalApiController {
 
     private final CancelProposalAction cancelProposalAction;
 
+    private final RejectVolunteerAction rejectVolunteerAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
@@ -445,5 +447,13 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
+    }
+
+    @PostMapping("/{idProposal}/{idVolunteer}/rejectVolunteer")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void rejectVolunteerInProposal(@PathVariable("idProposal") String idProposal,
+                                          @PathVariable("idVolunteer") String idVolunteer) {
+        rejectVolunteerAction.execute(idProposal, idVolunteer);
     }
 }

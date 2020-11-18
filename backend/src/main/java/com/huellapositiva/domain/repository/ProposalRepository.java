@@ -53,6 +53,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
+    @Autowired
+    private final JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+
     @Value("${huellapositiva.proposal.expiration-hour}")
     private Integer expirationHour;
 

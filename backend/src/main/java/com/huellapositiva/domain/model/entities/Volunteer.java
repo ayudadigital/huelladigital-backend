@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
+import com.huellapositiva.application.dto.VolunteerDto;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
@@ -20,5 +21,9 @@ public class Volunteer extends User {
 
     public Volunteer(EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
         super(emailAddress, passwordHash,id);
+    }
+
+    public static Volunteer parseDto(VolunteerDto dto){
+        return new Volunteer(EmailAddress.from(dto.getEmailAddress()), new Id(dto.getId()));
     }
 }

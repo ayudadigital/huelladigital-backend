@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
@@ -20,6 +21,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -736,5 +738,25 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn().getResponse();
+    }
+
+    @Test
+    void return_204_xxxx() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposalWithInscribedVolunteers();
+        Volunteer volunteer = jpaProposal.getInscribedVolunteers().stream()
+                .map(jpaVolunteer -> new VolunteerDto(jpaVolunteer.getId(), jpaVolunteer.getCredential().getEmail()))
+                .map(volunteerDto -> Volunteer.parseDto(volunteerDto)).findFirst().get();
+        String idVolunteer = volunteer.getId().toString();
+        String idCredential = jpaProposal.getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        mvc.perform(post("/api/v1/proposals/" + idCredential + "/" + idVolunteer + "/rejectVolunteer")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }

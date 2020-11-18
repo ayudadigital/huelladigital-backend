@@ -61,7 +61,7 @@ public class FetchProposalAction {
                         .collect(Collectors.toList()))
                 .inscribedVolunteers(proposal.getInscribedVolunteers()
                         .stream()
-                        .map(v -> new VolunteerDto(v.getId().toString()))
+                        .map(v -> new VolunteerDto(v.getId().toString(), v.getEmailAddress().toString()))
                         .collect(Collectors.toList()))
                 .build();
     }

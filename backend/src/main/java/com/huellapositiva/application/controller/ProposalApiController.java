@@ -454,6 +454,6 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void rejectVolunteerInProposal(@PathVariable("idProposal") String idProposal,
                                           @PathVariable("idVolunteer") String idVolunteer) {
-        rejectVolunteerAction.execute(idProposal, idVolunteer);
+        rejectVolunteerAction.execute(idVolunteer, idProposal);
     }
 }

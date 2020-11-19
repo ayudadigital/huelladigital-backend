@@ -758,11 +758,11 @@ class ProposalControllerShould {
         jpaVolunteersProposalsRepository.findAll();
 
         // WHEN
-        /*mvc.perform(post("/api/v1/proposals/" + idCredential + "/" + idVolunteer + "/rejectVolunteer")
+        mvc.perform(post("/api/v1/proposals/" + idCredential + "/" + idVolunteer + "/rejectVolunteer")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());*/
+                .andExpect(status().isNoContent());
     }
 }

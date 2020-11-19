@@ -7,13 +7,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Repository
 public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolunteerProposal, Integer> {
     @Modifying
-    @Query("UPDATE JpaVolunteerProposal v SET v.rejected = 'true' WHERE v.volunteerId = :idVolunteer AND v.proposalId = :idProposal")
+    @Transactional
+    @Query("UPDATE JpaVolunteerProposal v SET v.rejected = true WHERE v.volunteer_id = :idVolunteer AND v.proposal_id = :idProposal")
     Integer updateVolunteerInProposalRejected(@Param("idVolunteer") String idVolunteer, @Param("idProposal") String idProposal);
 
     //@Query("FROM JpaVolunteerProposal v LEFT JOIN FETCH v.proposalId c WHERE v.proposalId = :id")

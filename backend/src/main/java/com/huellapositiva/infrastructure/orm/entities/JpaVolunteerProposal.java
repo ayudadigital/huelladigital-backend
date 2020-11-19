@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@IdClass(VolunteersProposals.class)
 @Table(name = "volunteers_proposals")
 @Data
 @Builder
@@ -18,10 +19,11 @@ public class JpaVolunteerProposal implements Serializable {
 
     @Id
     @Column(name = "proposal_id")
-    private String proposalId;
+    private String proposal_id;
 
+    @Id
     @Column(name = "volunteer_id")
-    private String volunteerId;
+    private String volunteer_id;
 
     @Column(name = "rejected")
     private boolean rejected;

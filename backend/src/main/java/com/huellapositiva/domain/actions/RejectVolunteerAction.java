@@ -27,15 +27,14 @@ public class RejectVolunteerAction {
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
-
     public void execute(String idVolunteer, String idProposal){
-        jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(idVolunteer, idProposal);
+        /*jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(idVolunteer, idProposal);
         JpaVolunteer volunteer = jpaVolunteerRepository.findById(idVolunteer).get();
         String volunteerEmail = volunteer.getCredential().getEmail();
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).get();
         String proposalTitle = proposal.getTitle();
         EmailAddress emailAddress = EmailAddress.from(volunteerEmail);
-        communicationService.sendVolunteerRejectionEmail(emailAddress, proposalTitle);
+        communicationService.sendVolunteerRejectionEmail(emailAddress, proposalTitle);*/
     }
 
 }

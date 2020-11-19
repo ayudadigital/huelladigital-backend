@@ -17,16 +17,11 @@ import java.io.Serializable;
 public class JpaVolunteerProposal implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer surrogateKey;
+    @Column(name = "proposal_id")
+    private String proposalId;
 
-    @JoinColumn(name = "proposal_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private JpaProposal proposalId;
-
-    @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private JpaVolunteer volunteerId;
+    @Column(name = "volunteer_id")
+    private String volunteerId;
 
     @Column(name = "rejected")
     private boolean rejected;

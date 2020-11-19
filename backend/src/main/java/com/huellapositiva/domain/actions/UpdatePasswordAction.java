@@ -22,13 +22,13 @@ import java.time.LocalDateTime;
 public class UpdatePasswordAction {
 
     @Autowired
-    protected EmailCommunicationService emailCommunicationService;
+    private final EmailCommunicationService emailCommunicationService;
 
     @Autowired
-    protected JpaCredentialRepository jpaCredentialRepository;
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
-    protected final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * This method generates a link to recovery the password and sends it
@@ -83,11 +83,11 @@ public class UpdatePasswordAction {
             throw new NonMatchingPasswordException("The old password inserted does not match with the one stored in the system");
         } else if (passwordEncoder.matches(newPassword,jpaCredential.getHashedPassword())) {
             throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
-        } else {
-            jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);
-
-            EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
-            emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
         }
+
+        jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);
+
+        EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
+        emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
     }
 }

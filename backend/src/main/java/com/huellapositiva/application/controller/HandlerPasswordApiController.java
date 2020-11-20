@@ -1,5 +1,7 @@
 package com.huellapositiva.application.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
@@ -12,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
+import java.io.IOException;
 
 
 @Controller
@@ -23,6 +27,8 @@ public class HandlerPasswordApiController {
 
     @Autowired
     UpdatePasswordAction credentialsAction;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Send an email to recovery password",
@@ -106,11 +112,11 @@ public class HandlerPasswordApiController {
     @RolesAllowed({"VOLUNTEER", "CONTACT_PERSON"})
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void editProfilePassword(@RequestParam("newPassword") String newPassword,
-                                    @RequestParam("oldPassword") String oldPassword,
-                                    @AuthenticationPrincipal String email){
+    public void editProfilePassword(@RequestPart("dto") MultipartFile dtoMultipart,
+                                    @AuthenticationPrincipal String email) throws IOException {
+        ChangePasswordDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ChangePasswordDto.class);
         try {
-            credentialsAction.executeUpdatePassword(newPassword, oldPassword, email);
+            credentialsAction.executeUpdatePassword(dto, email);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid: " + e.getMessage());
         }

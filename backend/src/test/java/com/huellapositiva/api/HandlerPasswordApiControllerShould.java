@@ -1,5 +1,7 @@
 package com.huellapositiva.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.UpdatePasswordAction;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -27,9 +30,9 @@ import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -54,6 +57,8 @@ class HandlerPasswordApiControllerShould {
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
@@ -125,13 +130,13 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ChangePasswordDto dto = new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
+        mvc.perform(multipart(baseUri + "/editPassword/")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .param("newPassword", "NEWPASSWORD")
-                .param("oldPassword", DEFAULT_PASSWORD)
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -145,17 +150,16 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ChangePasswordDto dto = new ChangePasswordDto("NEWPASSWORD", "12345678");
 
         // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
+        mvc.perform(multipart(baseUri + "/editPassword/")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .param("newPassword", "NEWPASSWORD")
-                .param("oldPassword", "12345678")
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isConflict());
-
     }
 
     @Test
@@ -163,16 +167,16 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ChangePasswordDto dto = new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD);
+
 
         // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
+        mvc.perform(multipart(baseUri + "/editPassword/")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
-                .param("newPassword", DEFAULT_PASSWORD)
-                .param("oldPassword", DEFAULT_PASSWORD)
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isConflict());
-
     }
 }

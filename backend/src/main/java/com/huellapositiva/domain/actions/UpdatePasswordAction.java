@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
@@ -70,18 +71,17 @@ public class UpdatePasswordAction {
     /**
      * This method updates the password in database from the profile and sends an email.
      *
-     * @param newPassword the new password for the user
-     * @param oldPassword to check if the user has permission to change the password
+     * @param dto an object with de old password and the new password
      * @param email The emails user
      */
-    public void executeUpdatePassword(String newPassword, String oldPassword, String email) {
+    public void executeUpdatePassword(ChangePasswordDto dto, String email) {
 
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(newPassword));
+        PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(dto.getNewPassword()));
 
-        if (!passwordEncoder.matches(oldPassword,jpaCredential.getHashedPassword())) {
+        if (!passwordEncoder.matches(dto.getOldPassword(), jpaCredential.getHashedPassword())) {
             throw new NonMatchingPasswordException("The old password inserted does not match with the one stored in the system");
-        } else if (passwordEncoder.matches(newPassword,jpaCredential.getHashedPassword())) {
+        } else if (passwordEncoder.matches(dto.getNewPassword(), jpaCredential.getHashedPassword())) {
             throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
         }
 

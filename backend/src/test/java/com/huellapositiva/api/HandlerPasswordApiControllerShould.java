@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ChangePasswordDto;
+import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.UpdatePasswordAction;
@@ -130,12 +131,11 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ChangePasswordDto dto = new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(baseUri + "/editPassword/")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
+        mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD)))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
@@ -150,12 +150,11 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ChangePasswordDto dto = new ChangePasswordDto("NEWPASSWORD", "12345678");
 
         // WHEN + THEN
-        mvc.perform(multipart(baseUri + "/editPassword/")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
+        mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "12345678")))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
@@ -167,13 +166,11 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ChangePasswordDto dto = new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD);
-
 
         // WHEN + THEN
-        mvc.perform(multipart(baseUri + "/editPassword/")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(dto).getBytes()))
+        mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD)))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))

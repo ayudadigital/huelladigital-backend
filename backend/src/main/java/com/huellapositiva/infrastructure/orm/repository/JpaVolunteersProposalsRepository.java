@@ -1,6 +1,5 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteerProposal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolunteerProposal, Integer> {
@@ -19,6 +18,6 @@ public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolun
     Integer updateVolunteerInProposalRejected(@Param("idVolunteer") String idVolunteer, @Param("idProposal") String idProposal);
 
     //@Query("FROM JpaVolunteerProposal v LEFT JOIN FETCH v.proposalId c WHERE v.proposalId = :id")
-    //@Query("FROM JpaVolunteerProposal vp LEFT JOIN FETCH vp.volunteerId LEFT JOIN FETCH vp.proposalId p ")
-    //Optional<JpaVolunteerProposal> findByIdProposal(@Param("id") String id);
+    @Query("FROM JpaVolunteerProposal vp WHERE vp.proposal_id = :id")
+    List<JpaVolunteerProposal> findByIdProposal(@Param("id") String id);
 }

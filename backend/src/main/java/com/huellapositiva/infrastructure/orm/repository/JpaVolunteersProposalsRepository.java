@@ -20,4 +20,7 @@ public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolun
     //@Query("FROM JpaVolunteerProposal v LEFT JOIN FETCH v.proposalId c WHERE v.proposalId = :id")
     @Query("FROM JpaVolunteerProposal vp WHERE vp.proposal_id = :id")
     List<JpaVolunteerProposal> findByIdProposal(@Param("id") String id);
+
+    @Query("FROM JpaVolunteerProposal vp LEFT JOIN FETCH vp.volunteer_id v LEFT JOIN FETCH v.credential c WHERE vp.proposal_id = :id")
+    List<JpaVolunteerProposal> findConLeftJoinRecogeTodoVoluntario(@Param("id") String id);
 }

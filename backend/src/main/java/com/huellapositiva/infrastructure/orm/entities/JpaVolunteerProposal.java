@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.implementation.bind.annotation.Empty;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @IdClass(VolunteersProposals.class)
@@ -22,10 +24,14 @@ public class JpaVolunteerProposal implements Serializable {
     private String proposal_id;
 
     @Id
-    @Column(name = "volunteer_id")
-    private String volunteer_id;
+    @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    private JpaVolunteer volunteer_id;
 
     @Column(name = "rejected")
     private boolean rejected;
 
+    /*@ManyToOne
+    @JoinColumn(name = "volunteer_id", referencedColumnName="volunteer", nullable= true, insertable=false, updatable=false)
+    private JpaVolunteer volunteer;*/
 }

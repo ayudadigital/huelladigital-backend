@@ -14,15 +14,15 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 public class ChangePasswordDto {
 
-    @NotEmpty
-    @NotBlank
-    @Size(min = 6)
+    @NotEmpty(message = "You must to write something")
+    @NotBlank(message = "The password is not blank space")
+    @Size(min = 6, message = "The password is too short")
     @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The new password does not match with the regular expresion")
     private final String newPassword;
 
-    @NotEmpty
-    @NotBlank
-    @Size(min = 6)
+    @NotEmpty(message = "You must to write something")
+    @NotBlank(message = "The password is not blank space")
+    @Size(min = 6, message = "The password is too short")
     @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The old password does not match with the regular expresion")
     private final String oldPassword;
 }

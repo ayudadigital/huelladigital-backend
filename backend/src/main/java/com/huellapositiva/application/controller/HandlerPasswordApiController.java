@@ -1,6 +1,5 @@
 package com.huellapositiva.application.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.UpdatePasswordAction;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 
 
 @Controller
@@ -96,6 +96,11 @@ public class HandlerPasswordApiController {
                             description = "No content, password updated and confirmation email sent successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request, the passwords do not match the regular expression, " +
+                                    "or the length is out of 6-15 alphanumeric characters or is null."
+                    ),
+                    @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the old password does not match or the new password is invalid."
                     ),
@@ -108,7 +113,7 @@ public class HandlerPasswordApiController {
     @RolesAllowed({"VOLUNTEER", "CONTACT_PERSON"})
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void editProfilePassword(@RequestBody(required = true) ChangePasswordDto dto,
+    public void editProfilePassword(@Valid @RequestBody(required = true) ChangePasswordDto dto,
                                     @AuthenticationPrincipal String email) {
         try {
             credentialsAction.executeUpdatePassword(dto, email);

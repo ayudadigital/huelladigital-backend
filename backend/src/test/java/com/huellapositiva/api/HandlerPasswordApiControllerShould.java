@@ -135,14 +135,110 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD)))
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("N3wPassW0rd", DEFAULT_PASSWORD)))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         String newPasswordInDB = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).get().getHashedPassword();
-        assertThat(passwordEncoder.matches("NEWPASSWORD",newPasswordInDB)).isTrue();
+        assertThat(passwordEncoder.matches("N3wPassW0rd",newPasswordInDB)).isTrue();
+    }
+
+    @Test
+    void return_400_when_length_old_password_is_less_than_six_characters() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "abcd")))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_length_old_password_is_more_than_fifteen_characters() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "MoreThanfifteeen")))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_length_new_password_is_less_than_six_characters() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("abcd", DEFAULT_PASSWORD)))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_length_new_password_is_more_than_fifteen_characters() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("MoreThanFifteeen", DEFAULT_PASSWORD)))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_the_new_password_does_not_match_the_regular_expression() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("MíÑewpâssw0rd", DEFAULT_PASSWORD)))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_the_old_password_does_not_match_the_regular_expression() throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), "0lDPássw5rd", Roles.VOLUNTEER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, "0lDPássw5rd");
+
+        // WHEN + THEN
+        mvc.perform(post(baseUri + "/editPassword/")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "0lDPássw5rd")))
+                .with(csrf())
+                .param("email",DEFAULT_EMAIL)
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

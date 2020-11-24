@@ -449,11 +449,10 @@ public class ProposalApiController {
         }
     }
 
-    @PostMapping("/{idProposal}/{idVolunteer}/rejectVolunteer")
+    @PostMapping("/changeStatusVolunteerProposal")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void rejectVolunteerInProposal(@PathVariable("idProposal") String idProposal,
-                                          @PathVariable("idVolunteer") String idVolunteer) {
-        rejectVolunteerAction.execute(idVolunteer, idProposal);
+    public void rejectVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
+        rejectVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 }

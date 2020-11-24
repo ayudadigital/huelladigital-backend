@@ -1,9 +1,7 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.application.dto.ChangeStatusVolunteerDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
@@ -11,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +25,20 @@ public class RejectVolunteerAction {
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
-    public void execute(String idVolunteer, String idProposal){
+    public void execute(List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos){
+        for(ChangeStatusVolunteerDto volunteerProposal:changeStatusVolunteerDtos){
+            if(volunteerProposal.isConfirmed()) {
+                jpaVolunteersProposalsRepository.updateVolunteerInProposalConfirmed(
+                        volunteerProposal.getIdVolunteer(),
+                        volunteerProposal.getIdProposal());
+            } else {
+                jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(
+                        volunteerProposal.getIdVolunteer(),
+                        volunteerProposal.getIdProposal());
+            }
+        }
+        System.out.println("hola");
+        /*
         jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(idVolunteer, idProposal);
 
         JpaVolunteer volunteer = jpaVolunteerRepository.findById(idVolunteer).get();
@@ -38,6 +49,7 @@ public class RejectVolunteerAction {
 
         EmailAddress emailAddress = EmailAddress.from(volunteerEmail);
         communicationService.sendVolunteerRejectionEmail(emailAddress, proposalTitle);
+         */
     }
 
 }

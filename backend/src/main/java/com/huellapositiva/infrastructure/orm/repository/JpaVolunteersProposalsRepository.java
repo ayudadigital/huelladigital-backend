@@ -14,7 +14,12 @@ import java.util.List;
 public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolunteerProposal, Integer> {
     @Modifying
     @Transactional
-    @Query("UPDATE JpaVolunteerProposal v SET v.rejected = true WHERE v.volunteer_id = :idVolunteer AND v.proposal_id = :idProposal")
+    @Query("UPDATE JpaVolunteerProposal v SET v.confirmed = true WHERE v.volunteer_id = :idVolunteer AND v.proposal_id = :idProposal")
+    Integer updateVolunteerInProposalConfirmed(@Param("idVolunteer") String idVolunteer, @Param("idProposal") String idProposal);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE JpaVolunteerProposal v SET v.confirmed = false WHERE v.volunteer_id = :idVolunteer AND v.proposal_id = :idProposal")
     Integer updateVolunteerInProposalRejected(@Param("idVolunteer") String idVolunteer, @Param("idProposal") String idProposal);
 
     @Query("FROM JpaVolunteerProposal vp WHERE vp.proposal_id = :id")

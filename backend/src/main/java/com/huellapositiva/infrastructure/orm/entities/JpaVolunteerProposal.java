@@ -28,6 +28,6 @@ public class JpaVolunteerProposal implements Serializable {
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     private JpaVolunteer volunteer_id;
 
-    @Column(name = "rejected")
-    private boolean rejected;
+    @Column(name = "confirmed")
+    private boolean confirmed;
 }

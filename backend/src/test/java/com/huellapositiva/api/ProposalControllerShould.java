@@ -26,10 +26,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
@@ -756,10 +753,16 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         jpaVolunteersProposalsRepository.findAll();
+        ChangeStatusVolunteerDto changeStatusVolunteerDto = ChangeStatusVolunteerDto.builder().idVolunteer(idVolunteer)
+                .idProposal(idCredential).confirmed(false).build();
+
+        List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos = new ArrayList<>();
+        changeStatusVolunteerDtos.add(changeStatusVolunteerDto);
 
         // WHEN
-        mvc.perform(post("/api/v1/proposals/" + idCredential + "/" + idVolunteer + "/rejectVolunteer")
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusVolunteerProposal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changeStatusVolunteerDtos))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))

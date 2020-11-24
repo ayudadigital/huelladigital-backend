@@ -17,10 +17,9 @@ public interface JpaVolunteersProposalsRepository extends JpaRepository<JpaVolun
     @Query("UPDATE JpaVolunteerProposal v SET v.rejected = true WHERE v.volunteer_id = :idVolunteer AND v.proposal_id = :idProposal")
     Integer updateVolunteerInProposalRejected(@Param("idVolunteer") String idVolunteer, @Param("idProposal") String idProposal);
 
-    //@Query("FROM JpaVolunteerProposal v LEFT JOIN FETCH v.proposalId c WHERE v.proposalId = :id")
     @Query("FROM JpaVolunteerProposal vp WHERE vp.proposal_id = :id")
     List<JpaVolunteerProposal> findByIdProposal(@Param("id") String id);
 
     @Query("FROM JpaVolunteerProposal vp LEFT JOIN FETCH vp.volunteer_id v LEFT JOIN FETCH v.credential c WHERE vp.proposal_id = :id")
-    List<JpaVolunteerProposal> findConLeftJoinRecogeTodoVoluntario(@Param("id") String id);
+    List<JpaVolunteerProposal> findByIdProposalWithVolunteer(@Param("id") String id);
 }

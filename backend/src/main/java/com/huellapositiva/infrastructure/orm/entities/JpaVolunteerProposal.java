@@ -30,8 +30,4 @@ public class JpaVolunteerProposal implements Serializable {
 
     @Column(name = "rejected")
     private boolean rejected;
-
-    /*@ManyToOne
-    @JoinColumn(name = "volunteer_id", referencedColumnName="volunteer", nullable= true, insertable=false, updatable=false)
-    private JpaVolunteer volunteer;*/
 }

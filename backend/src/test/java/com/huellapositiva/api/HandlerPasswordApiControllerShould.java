@@ -13,6 +13,9 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
@@ -135,18 +139,35 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("N3wPassW0rd", DEFAULT_PASSWORD)))
+                .content(objectMapper.writeValueAsString(new ChangePasswordDto("N3€êw!|Pä$&sW0öõrd(", DEFAULT_PASSWORD)))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         String newPasswordInDB = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).get().getHashedPassword();
-        assertThat(passwordEncoder.matches("N3wPassW0rd",newPasswordInDB)).isTrue();
+        assertThat(passwordEncoder.matches("N3€êw!|Pä$&sW0öõrd(",newPasswordInDB)).isTrue();
     }
 
-    @Test
-    void return_400_when_length_old_password_is_less_than_six_characters() throws Exception {
+    private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {
+        return Stream.of(
+            Arguments.of(new ChangePasswordDto("", "")),
+            Arguments.of(new ChangePasswordDto("", "abcd")),
+            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "")),
+            Arguments.of(new ChangePasswordDto("         ", "12345678")),
+            Arguments.of(new ChangePasswordDto(null, "12345678")),
+            Arguments.of(new ChangePasswordDto("12345678", null)),
+            Arguments.of(new ChangePasswordDto(null, null)),
+            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "abcd")),
+            Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
+            Arguments.of(new ChangePasswordDto("MíÑewp?¿âssw0rd", DEFAULT_PASSWORD)),
+            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "0lDPássw5?¿rd"))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideChangePasswordDtoWithWrongData")
+    void return_400_when_ChangePasswordDto_is_wrong_data(ChangePasswordDto changePasswordDto) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -154,15 +175,23 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "abcd")))
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void return_400_when_length_old_password_is_more_than_fifteen_characters() throws Exception {
+    private static Stream<Arguments> provideChangePasswordDtoWithMismatchDataInDatabase() {
+        return Stream.of(
+                Arguments.of(new ChangePasswordDto("MYNEWPASSWORD", "12345678")),
+                Arguments.of(new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideChangePasswordDtoWithMismatchDataInDatabase")
+    void return_409_when_old_or_new_password_not_match_the_password_in_database(ChangePasswordDto changePasswordDto) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -170,103 +199,7 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "MoreThanfifteeen")))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_400_when_length_new_password_is_less_than_six_characters() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("abcd", DEFAULT_PASSWORD)))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_400_when_length_new_password_is_more_than_fifteen_characters() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("MoreThanFifteeen", DEFAULT_PASSWORD)))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_400_when_the_new_password_does_not_match_the_regular_expression() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("MíÑewpâssw0rd", DEFAULT_PASSWORD)))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_400_when_the_old_password_does_not_match_the_regular_expression() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), "0lDPássw5rd", Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, "0lDPássw5rd");
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "0lDPássw5rd")))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_409_when_old_password_not_match_the_password_in_database() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("NEWPASSWORD", "12345678")))
-                .with(csrf())
-                .param("email",DEFAULT_EMAIL)
-                .contentType(APPLICATION_JSON))
-                .andExpect(status().isConflict());
-    }
-
-    @Test
-    void return_409_when_old_password_in_db_match_the_new_password() throws Exception {
-        //GIVEN
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        // WHEN + THEN
-        mvc.perform(post(baseUri + "/editPassword/")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD)))
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))

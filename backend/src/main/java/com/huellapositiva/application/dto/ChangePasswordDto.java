@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -14,12 +15,14 @@ import javax.validation.constraints.Size;
 public class ChangePasswordDto {
 
     @NotEmpty
-    @Size(min = 6, max = 15)
-    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Nueva contrasenna falla")
+    @NotBlank
+    @Size(min = 6)
+    @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The new password does not match with the regular expresion")
     private final String newPassword;
 
     @NotEmpty
-    @Size(min = 6, max = 15)
-    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "Vieja contrasenna falla")
+    @NotBlank
+    @Size(min = 6)
+    @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The old password does not match with the regular expresion")
     private final String oldPassword;
 }

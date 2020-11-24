@@ -26,7 +26,7 @@ public class JpaVolunteerProposal implements Serializable {
     @Id
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private JpaVolunteer volunteer_id;
+    private JpaVolunteer volunteer;
 
     @Column(name = "confirmed")
     private boolean confirmed;

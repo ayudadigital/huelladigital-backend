@@ -37,7 +37,6 @@ public class RejectVolunteerAction {
                         volunteerProposal.getIdProposal());
             }
         }
-        System.out.println("hola");
         /*
         jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(idVolunteer, idProposal);
 

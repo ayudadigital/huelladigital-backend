@@ -647,7 +647,7 @@ class ProposalControllerShould {
 
 
         ArrayList<VolunteerDto> listedVolunteers = objectMapper.readValue(fetchResponse.getContentAsString(), ArrayList.class);
-        assertThat(listedVolunteers.size()).isEqualTo(1);
+        assertThat(listedVolunteers.size()).isEqualTo(2);
 
     }
 
@@ -742,23 +742,34 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_204_xxxx() throws Exception {
+    void return_204_when_change_status_rejected_or_confirmed() throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposalWithInscribedVolunteers();
+        /*
         Volunteer volunteer = jpaProposal.getInscribedVolunteers().stream()
                 .map(jpaVolunteer -> new VolunteerDto(jpaVolunteer.getId(), jpaVolunteer.getCredential().getEmail()))
                 .map(volunteerDto -> Volunteer.parseDto(volunteerDto)).findFirst().get();
         String idVolunteer = volunteer.getId().toString();
         String idCredential = jpaProposal.getId();
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        */
 
-        jpaVolunteersProposalsRepository.findAll();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos = new ArrayList<>();
+        List<JpaVolunteerProposal> jpaVolunteerProposals = jpaVolunteersProposalsRepository.findAll();
+        for(JpaVolunteerProposal volunteerProposal:jpaVolunteerProposals){
+            if(changeStatusVolunteerDtos.isEmpty()) {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal_id(), volunteerProposal.getVolunteer().getId(), false));
+            } else {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal_id(), volunteerProposal.getVolunteer().getId(), true));
+            }
+        }
+        /*
         ChangeStatusVolunteerDto changeStatusVolunteerDto = ChangeStatusVolunteerDto.builder().idVolunteer(idVolunteer)
                 .idProposal(idCredential).confirmed(false).build();
 
         List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos = new ArrayList<>();
         changeStatusVolunteerDtos.add(changeStatusVolunteerDto);
-
+*/
         // WHEN
         mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusVolunteerProposal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -768,4 +779,6 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
+
+
 }

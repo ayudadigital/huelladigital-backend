@@ -130,8 +130,24 @@ class HandlerPasswordApiControllerShould {
                 .andExpect(status().isForbidden());
     }
 
-    @Test
-    void return_204_when_changed_password_successfully() throws Exception {
+    private static Stream<Arguments> provideChangePasswordDtoWithCorrectData() {
+        return Stream.of(
+                Arguments.of(new ChangePasswordDto("newpassword", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("123456789", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("N3wPassw0rd", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("N3wPassw0rd.,:+-", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("N3wPassw0rd`%!@#", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("N3wPassw0rd$^'?()", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("N3wPassw0rd{}~_/", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("newpassword[", DEFAULT_PASSWORD)),
+                Arguments.of(new ChangePasswordDto("newpassword]", DEFAULT_PASSWORD))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideChangePasswordDtoWithCorrectData")
+    void return_204_when_changed_password_successfully(ChangePasswordDto changePasswordDto) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -139,14 +155,14 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ChangePasswordDto("N3€êw!|Pä$&sW0öõrd(", DEFAULT_PASSWORD)))
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         String newPasswordInDB = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).get().getHashedPassword();
-        assertThat(passwordEncoder.matches("N3€êw!|Pä$&sW0öõrd(",newPasswordInDB)).isTrue();
+        assertThat(passwordEncoder.matches(changePasswordDto.getNewPassword(),newPasswordInDB)).isTrue();
     }
 
     private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {
@@ -158,10 +174,12 @@ class HandlerPasswordApiControllerShould {
             Arguments.of(new ChangePasswordDto(null, "12345678")),
             Arguments.of(new ChangePasswordDto("12345678", null)),
             Arguments.of(new ChangePasswordDto(null, null)),
-            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "abcd")),
             Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
-            Arguments.of(new ChangePasswordDto("MíÑewp?¿âssw0rd", DEFAULT_PASSWORD)),
-            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "0lDPássw5?¿rd"))
+            Arguments.of(new ChangePasswordDto("MíÑèwp?âssw0rd", DEFAULT_PASSWORD)),
+            Arguments.of(new ChangePasswordDto("NEWPASSOWRD|", DEFAULT_PASSWORD)),
+            Arguments.of(new ChangePasswordDto("NEWPASSOWRD¬&*=", DEFAULT_PASSWORD)),
+            Arguments.of(new ChangePasswordDto("NEWPASSOWRD\"", DEFAULT_PASSWORD)),
+            Arguments.of(new ChangePasswordDto("NEWPASSOWRD¡¿·", DEFAULT_PASSWORD))
         );
     }
 

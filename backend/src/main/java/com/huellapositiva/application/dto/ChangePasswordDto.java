@@ -17,12 +17,10 @@ public class ChangePasswordDto {
     @NotEmpty(message = "You must to write something")
     @NotBlank(message = "The password is not blank space")
     @Size(min = 6, message = "The password is too short")
-    @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The new password does not match with the regular expresion")
+    @Pattern(regexp = "^[a-zA-Z0-9.,:+`%!@#$^'?(){}~_/\\-\\[\\]]*$", message = "The new password does not match with the regular expresion")
     private final String newPassword;
 
     @NotEmpty(message = "You must to write something")
     @NotBlank(message = "The password is not blank space")
-    @Size(min = 6, message = "The password is too short")
-    @Pattern(regexp = "^[a-zA-Z0-9àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸ.,:;+*/|%!@#$&€=<>() -]*$", message = "The old password does not match with the regular expresion")
     private final String oldPassword;
 }

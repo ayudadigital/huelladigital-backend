@@ -1,16 +1,16 @@
 package com.huellapositiva.infrastructure.orm.entities;
 
+import lombok.*;
+
 import java.io.Serializable;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class VolunteersProposals implements Serializable {
 
-    private String proposal_id;
+    private String proposal;
     private String volunteer;
 
-    public VolunteersProposals() {}
-
-    public VolunteersProposals(String proposal_id, String volunteer) {
-        this.proposal_id = proposal_id;
-        this.volunteer = volunteer;
-    }
 }

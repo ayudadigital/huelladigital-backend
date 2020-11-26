@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.implementation.bind.annotation.Empty;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Set;
 
 @Entity
 @IdClass(VolunteersProposals.class)
@@ -21,7 +19,7 @@ public class JpaVolunteerProposal implements Serializable {
 
     @Id
     @Column(name = "proposal_id")
-    private String proposal_id;
+    private String proposal;
 
     @Id
     @JoinColumn(name = "volunteer_id", referencedColumnName = "id")

@@ -64,7 +64,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/api/v1/authentication/login", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/proposals/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/contactperson", HttpMethod.POST.name()),
-            new AntPathRequestMatcher("/api/v1/restore-password/**", HttpMethod.POST.name())
+            new AntPathRequestMatcher("/api/v1/handling-password/sendRecoveryPasswordEmail", HttpMethod.POST.name()),
+            new AntPathRequestMatcher("/api/v1/handling-password/changePassword/{hash}", HttpMethod.POST.name())
     };
 
     @Override

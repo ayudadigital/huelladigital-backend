@@ -5,8 +5,8 @@ import com.huellapositiva.domain.model.entities.Reviser;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 
 @RequiredArgsConstructor
@@ -40,12 +40,8 @@ public class ProposalRevisionEmail {
         return hasFeedback;
     }
 
+    @SneakyThrows
     public String getProposalURL() {
-        try {
-            return this.proposalURI.toURL().toExternalForm();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return this.proposalURI.toURL().toExternalForm();
     }
 }

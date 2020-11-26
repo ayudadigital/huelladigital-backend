@@ -2,7 +2,6 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ChangePasswordDto;
-import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.UpdatePasswordAction;
@@ -21,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -35,7 +33,7 @@ import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -130,27 +128,12 @@ class HandlerPasswordApiControllerShould {
                 .andExpect(status().isForbidden());
     }
 
-    private static Stream<Arguments> provideChangePasswordDtoWithCorrectData() {
-        return Stream.of(
-                Arguments.of(new ChangePasswordDto("newpassword", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("NEWPASSWORD", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("123456789", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("N3wPassw0rd", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("N3wPassw0rd.,:+-", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("N3wPassw0rd`%!@#", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("N3wPassw0rd$^'?()", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("N3wPassw0rd{}~_/", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("newpassword[", DEFAULT_PASSWORD)),
-                Arguments.of(new ChangePasswordDto("newpassword]", DEFAULT_PASSWORD))
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideChangePasswordDtoWithCorrectData")
-    void return_204_when_changed_password_successfully(ChangePasswordDto changePasswordDto) throws Exception {
+    @Test
+    void return_204_when_changed_password_successfully() throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ChangePasswordDto changePasswordDto = new ChangePasswordDto("N3wPassw0rd.,:+`%!@#$^'?(){}~_/-[]]", DEFAULT_PASSWORD);
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
@@ -167,19 +150,12 @@ class HandlerPasswordApiControllerShould {
 
     private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {
         return Stream.of(
-            Arguments.of(new ChangePasswordDto("", "")),
             Arguments.of(new ChangePasswordDto("", "abcd")),
             Arguments.of(new ChangePasswordDto("NEWPASSWORD", "")),
-            Arguments.of(new ChangePasswordDto("         ", "12345678")),
             Arguments.of(new ChangePasswordDto(null, "12345678")),
             Arguments.of(new ChangePasswordDto("12345678", null)),
-            Arguments.of(new ChangePasswordDto(null, null)),
             Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
-            Arguments.of(new ChangePasswordDto("MíÑèwp?âssw0rd", DEFAULT_PASSWORD)),
-            Arguments.of(new ChangePasswordDto("NEWPASSOWRD|", DEFAULT_PASSWORD)),
-            Arguments.of(new ChangePasswordDto("NEWPASSOWRD¬&*=", DEFAULT_PASSWORD)),
-            Arguments.of(new ChangePasswordDto("NEWPASSOWRD\"", DEFAULT_PASSWORD)),
-            Arguments.of(new ChangePasswordDto("NEWPASSOWRD¡¿·", DEFAULT_PASSWORD))
+            Arguments.of(new ChangePasswordDto("MíÑèwp? âssw0rd", DEFAULT_PASSWORD))
         );
     }
 

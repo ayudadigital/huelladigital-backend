@@ -14,4 +14,6 @@ public class VolunteerDto {
 
     private final String emailAddress;
 
+    private final Boolean confirmed;
+
 }

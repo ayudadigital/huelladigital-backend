@@ -71,7 +71,7 @@ public class FetchProposalAction {
                         .map(v -> new VolunteerDto(v.getId().toString(), v.getEmailAddress().toString(),
                                 volunteersProposals.findByIdOfProposalAndVolunteer(
                                         v.getId().toString(),
-                                        proposal.getId().toString()).get(0).isConfirmed()))
+                                        proposal.getId().toString()).isConfirmed()))
                         .collect(Collectors.toList()))
                 .build();
     }

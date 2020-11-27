@@ -80,16 +80,16 @@ public class EmailCommunicationService {
 
 
     public void sendRecoveryPasswordEmail(RecoveryPasswordEmail recoveryPasswordEmail) {
-        final String RECOVERY_PASSWORD_SUBJECT = "Cambio de tu contraseña";
+        final String RECOVERY_PASS_SUBJECT = "Cambio de tu contraseña";
         EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(recoveryPasswordEmail.getHash());
-        EmailMessage emailMessage = EmailMessage.createFrom(from, recoveryPasswordEmail.getEmail(), RECOVERY_PASSWORD_SUBJECT, emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, recoveryPasswordEmail.getEmail(), RECOVERY_PASS_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 
     public void sendConfirmationPasswordChanged(EmailAddress emailAddress) {
-        final String UPDATE_PASSWORD_SUBJECT = "Confirmacion de cambio de contraseña";
+        final String UPDATE_PASS_SUBJECT = "Confirmacion de cambio de contraseña";
         EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
-        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASSWORD_SUBJECT, emailTemplate);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASS_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 

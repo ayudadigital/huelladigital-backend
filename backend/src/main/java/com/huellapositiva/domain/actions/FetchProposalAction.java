@@ -8,7 +8,10 @@ import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.Requirement;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.VolunteersProposals;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
@@ -21,6 +24,10 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLIS
 public class FetchProposalAction {
 
     private final ProposalRepository proposalRepository;
+
+    @Autowired
+    JpaVolunteersProposalsRepository volunteersProposals;
+
 
     /**
      * This method fetches a proposal based on its id
@@ -61,7 +68,10 @@ public class FetchProposalAction {
                         .collect(Collectors.toList()))
                 .inscribedVolunteers(proposal.getInscribedVolunteers()
                         .stream()
-                        .map(v -> new VolunteerDto(v.getId().toString(), v.getEmailAddress().toString()))
+                        .map(v -> new VolunteerDto(v.getId().toString(), v.getEmailAddress().toString(),
+                                volunteersProposals.findByIdOfProposalAndVolunteer(
+                                        v.getId().toString(),
+                                        proposal.getId().toString()).isConfirmed()))
                         .collect(Collectors.toList()))
                 .build();
     }

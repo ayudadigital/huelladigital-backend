@@ -452,7 +452,17 @@ public class ProposalApiController {
             summary = "Change status of the volunteer in proposal",
             description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED. " +
                     "We do not send an email in MVP version, it will be added in future versions." +
-                    "This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN.",
+                    "This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN." +
+                    "Steps to use this endpoint:" +
+                    "1º. Register a contact person." +
+                    "2º. Login with contact person." +
+                    "3º. Register ESAL." +
+                    "4º. Register a proposal." +
+                    "5º. Register a volunteer." +
+                    "6º. Login with volunteer" +
+                    "7º. Join volunteer in the proposal." +
+                    "8º. Login with contact person." +
+                    "9º. Use this method",
             tags = {"proposals, volunteers, contact person"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

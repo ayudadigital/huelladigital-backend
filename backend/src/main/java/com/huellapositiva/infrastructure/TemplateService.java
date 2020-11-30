@@ -85,12 +85,4 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
-
-    public EmailTemplate getVolunteerRejectedTemplate(String proposalTitle){
-        String relativePath = "classpath:templates/emails/volunteerRejectedEmail.txt";
-        String template = getFileContent(relativePath);
-        Map<String, String> variables = new HashMap<>();
-        variables.put("PROPOSAL_TITLE", proposalTitle);
-        return new EmailTemplate(template).parse(variables);
-    }
 }

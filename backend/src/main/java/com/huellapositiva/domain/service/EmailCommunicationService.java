@@ -92,11 +92,4 @@ public class EmailCommunicationService {
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASS_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
-
-    public void sendVolunteerRejectionEmail(EmailAddress emailAddress, String proposalTitle) {
-        final String VOLUNTEER_REJECTED_SUBJECT = "Ha sido desestimado de la convocatoria " + proposalTitle;
-        EmailTemplate emailTemplate = templateService.getVolunteerRejectedTemplate(proposalTitle);
-        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), VOLUNTEER_REJECTED_SUBJECT, emailTemplate);
-        emailService.sendEmail(emailMessage);
-    }
 }

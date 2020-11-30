@@ -450,18 +450,18 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Change status of the volunteer in proposal",
-            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED. " +
-                    "We do not send an email in MVP version, it will be added in future versions." +
-                    "This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN." +
-                    "Steps to use this endpoint:" +
-                    "1º. Register a contact person." +
-                    "2º. Login with contact person." +
-                    "3º. Register ESAL." +
-                    "4º. Register a proposal." +
-                    "5º. Register a volunteer." +
-                    "6º. Login with volunteer" +
-                    "7º. Join volunteer in the proposal." +
-                    "8º. Login with contact person." +
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED.\n" +
+                    "We do not send an email in MVP version, it will be added in future versions.\n" +
+                    "This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN.\n" +
+                    "Steps to use this endpoint:\n" +
+                    "1º. Register a contact person.\n" +
+                    "2º. Login with contact person.\n" +
+                    "3º. Register ESAL.\n" +
+                    "4º. Register a proposal.\n" +
+                    "5º. Register a volunteer.\n" +
+                    "6º. Login with volunteer.\n" +
+                    "7º. Join volunteer in the proposal.\n" +
+                    "8º. Login with contact person.\n" +
                     "9º. Use this method",
             tags = {"proposals, volunteers, contact person"},
             parameters = {

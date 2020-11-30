@@ -59,7 +59,7 @@ public class ProposalApiController {
 
     private final CancelProposalAction cancelProposalAction;
 
-    private final RejectVolunteerAction rejectVolunteerAction;
+    private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -409,7 +409,6 @@ public class ProposalApiController {
         }
     }
 
-
     @Operation(
             summary = "Cancel a proposal",
             description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it.",
@@ -449,10 +448,36 @@ public class ProposalApiController {
         }
     }
 
+    @Operation(
+            summary = "Change status of the volunteer in proposal",
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED. " +
+                    "We do not send an email in MVP version, it will be added in future versions." +
+                    "This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN.",
+            tags = {"proposals, volunteers, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to CANCELLED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping("/changeStatusVolunteerProposal")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void rejectVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
-        rejectVolunteerAction.execute(changeStatusVolunteerDtos);
+    public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
+        changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 }

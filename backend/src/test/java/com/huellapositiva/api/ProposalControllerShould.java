@@ -770,8 +770,5 @@ class ProposalControllerShould {
         List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
-
-
-
     }
 }

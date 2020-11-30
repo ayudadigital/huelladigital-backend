@@ -8,7 +8,6 @@ import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.Requirement;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.VolunteersProposals;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

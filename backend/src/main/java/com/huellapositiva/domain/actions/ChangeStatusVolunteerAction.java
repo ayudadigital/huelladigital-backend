@@ -1,9 +1,6 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ChangeStatusVolunteerDto;
-import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +10,17 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RejectVolunteerAction {
-    private final EmailCommunicationService communicationService;
+public class ChangeStatusVolunteerAction {
 
     @Autowired
     private JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
 
-    @Autowired
-    private final JpaVolunteerRepository jpaVolunteerRepository;
-
-    @Autowired
-    private final JpaProposalRepository jpaProposalRepository;
-
+    /**
+     * This method change the status of volunteers in the proposal. The statuses are rejected (false) and confirmed (true).
+     *
+     * @param changeStatusVolunteerDtos List<ChangeStatusVolunteerDto> This param has the information to change the
+     *                                  status of volunteers with the ID proposal and ID volunteer.
+     */
     public void execute(List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos){
         for(ChangeStatusVolunteerDto volunteerProposal:changeStatusVolunteerDtos){
             if(volunteerProposal.isConfirmed()) {
@@ -37,18 +33,6 @@ public class RejectVolunteerAction {
                         volunteerProposal.getIdProposal());
             }
         }
-        /*
-        jpaVolunteersProposalsRepository.updateVolunteerInProposalRejected(idVolunteer, idProposal);
-
-        JpaVolunteer volunteer = jpaVolunteerRepository.findById(idVolunteer).get();
-        String volunteerEmail = volunteer.getCredential().getEmail();
-
-        JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).get();
-        String proposalTitle = proposal.getTitle();
-
-        EmailAddress emailAddress = EmailAddress.from(volunteerEmail);
-        communicationService.sendVolunteerRejectionEmail(emailAddress, proposalTitle);
-         */
     }
 
 }

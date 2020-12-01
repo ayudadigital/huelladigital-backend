@@ -434,7 +434,7 @@ public class ProposalApiController {
             summary = "Cancel a proposal",
             description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it. This steps require the access token and the XSRF-TOKEN." +
                     "Steps to test in postman: 1ª. Register a contact person. 2ª. Login as contact person." +
-                    "3ª. Register a new ESAL. 4ª. Create a proposal. 5ª. Login as reviser. 6ª. Use this method.",
+                    "3ª. Register a new ESAL.  4ª. Create a proposal. 5ª. Login as reviser. 6ª. Use this method.",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

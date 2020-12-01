@@ -5,6 +5,7 @@ import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -51,6 +52,10 @@ public class EmailConfirmationApiController {
                     @ApiResponse(
                             responseCode = "410",
                             description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -89,6 +94,11 @@ public class EmailConfirmationApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the email you are trying to resend is already confirmed"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not register the ESAL.",
+                            content = @Content()
                     )
             }
     )

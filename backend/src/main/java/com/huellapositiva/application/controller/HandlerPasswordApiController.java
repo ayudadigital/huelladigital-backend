@@ -112,7 +112,7 @@ public class HandlerPasswordApiController {
         try {
             credentialsAction.executeUpdatePassword(newPassword, oldPassword, email);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid: " + e.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid");
         }
     }
 }

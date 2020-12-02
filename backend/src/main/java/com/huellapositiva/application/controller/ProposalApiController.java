@@ -359,7 +359,7 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/volunteers")
-    @RolesAllowed({"REVISER, CONTACT_PERSON"})
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
         try {
@@ -399,7 +399,7 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/proposal")
-    @RolesAllowed({"REVISER, CONTACT_PERSON"})
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
     public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
         try {

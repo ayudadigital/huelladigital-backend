@@ -15,7 +15,7 @@ The backend is being developed with:
 ## Setup the local development environment
 
 We are using mostly IntelliJ IDE to develop the project. Currently, using
-**IntelliJ 2019.3.**
+**IntelliJ 2019.3.** 
 
 First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version. This is not necessarily a project.
 

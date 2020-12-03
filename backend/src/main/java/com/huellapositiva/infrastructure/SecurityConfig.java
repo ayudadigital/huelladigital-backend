@@ -73,7 +73,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and()
                 .csrf()
                 .ignoringAntMatchers("/api/v1/authentication/login", "/api/v1/volunteers", "/api/v1/contactperson")
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and().authorizeRequests()
                 .requestMatchers(AUTH_ALLOWSLIST).permitAll()
                 .anyRequest().authenticated()

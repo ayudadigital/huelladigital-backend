@@ -69,6 +69,10 @@ public class JwtController {
                             responseCode = "403",
                             description = "Forbidden, you need a valid XSRF-TOKEN",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

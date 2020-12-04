@@ -105,6 +105,10 @@ public class ESALApiController {
                             responseCode = "403",
                             description = "Forbidden, the user has no permissions to delete the ESAL.",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -133,6 +137,10 @@ public class ESALApiController {
                             responseCode = "409",
                             description = "ESAL already exists.",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

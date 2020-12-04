@@ -1,16 +1,20 @@
 package com.huellapositiva.api;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,9 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
@@ -30,9 +33,9 @@ import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -44,7 +47,7 @@ class HandlerPasswordApiControllerShould {
     private MockMvc mvc;
 
     @Autowired
-    FetchCredentialsAction credentialsAction;
+    private UpdatePasswordAction credentialsAction;
 
     @Autowired
     private JpaCredentialRepository jpaCredentialRepository;
@@ -57,6 +60,8 @@ class HandlerPasswordApiControllerShould {
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void beforeEach() {
@@ -128,23 +133,35 @@ class HandlerPasswordApiControllerShould {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ChangePasswordDto changePasswordDto = new ChangePasswordDto("N3wPassw0rd.,:+`%!@#$^'?(){}~_/-[]]", DEFAULT_PASSWORD);
 
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
-                .param("newPassword", "NEWPASSWORD")
-                .param("oldPassword", DEFAULT_PASSWORD)
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         String newPasswordInDB = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).get().getHashedPassword();
-        assertThat(passwordEncoder.matches("NEWPASSWORD",newPasswordInDB)).isTrue();
+        assertThat(passwordEncoder.matches(changePasswordDto.getNewPassword(),newPasswordInDB)).isTrue();
     }
 
-    @Test
-    void return_409_when_old_password_not_match_the_password_in_database() throws Exception {
+    private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {
+        return Stream.of(
+                Arguments.of(new ChangePasswordDto("", "abcd")),
+                Arguments.of(new ChangePasswordDto("NEWPASSWORD", "")),
+                Arguments.of(new ChangePasswordDto(null, "12345678")),
+                Arguments.of(new ChangePasswordDto("12345678", null)),
+                Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
+                Arguments.of(new ChangePasswordDto("MíÑèwp? âssw0rd", DEFAULT_PASSWORD))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideChangePasswordDtoWithWrongData")
+    void return_400_when_ChangePasswordDto_is_wrong_data(ChangePasswordDto changePasswordDto) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -152,17 +169,23 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
-                .param("newPassword", "NEWPASSWORD")
-                .param("oldPassword", "12345678")
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
-                .andExpect(status().isConflict());
-
+                .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void return_409_when_old_password_in_db_match_the_new_password() throws Exception {
+    private static Stream<Arguments> provideChangePasswordDtoWithMismatchDataInDatabase() {
+        return Stream.of(
+                Arguments.of(new ChangePasswordDto("MYNEWPASSWORD", "12345678")),
+                Arguments.of(new ChangePasswordDto(DEFAULT_PASSWORD, DEFAULT_PASSWORD))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideChangePasswordDtoWithMismatchDataInDatabase")
+    void return_409_when_old_or_new_password_not_match_the_password_in_database(ChangePasswordDto changePasswordDto) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -170,12 +193,10 @@ class HandlerPasswordApiControllerShould {
         // WHEN + THEN
         mvc.perform(post(baseUri + "/editPassword/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
-                .param("newPassword", DEFAULT_PASSWORD)
-                .param("oldPassword", DEFAULT_PASSWORD)
                 .param("email",DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isConflict());
-
     }
 }

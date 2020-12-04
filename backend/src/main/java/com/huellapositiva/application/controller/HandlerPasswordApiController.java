@@ -1,7 +1,8 @@
 package com.huellapositiva.application.controller;
 
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.actions.FetchCredentialsAction;
+import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.Valid;
 
 
 @Controller
@@ -22,7 +24,7 @@ import javax.annotation.security.RolesAllowed;
 public class HandlerPasswordApiController {
 
     @Autowired
-    FetchCredentialsAction credentialsAction;
+    UpdatePasswordAction credentialsAction;
 
     @Operation(
             summary = "Send an email to recovery password",
@@ -94,6 +96,11 @@ public class HandlerPasswordApiController {
                             description = "No content, password updated and confirmation email sent successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request, the passwords do not match the regular expression, " +
+                                    "or the length is out of 6-15 alphanumeric characters or is null."
+                    ),
+                    @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the old password does not match or the new password is invalid."
                     ),
@@ -106,13 +113,12 @@ public class HandlerPasswordApiController {
     @RolesAllowed({"VOLUNTEER", "CONTACT_PERSON"})
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void editProfilePassword(@RequestParam("newPassword") String newPassword,
-                                    @RequestParam("oldPassword") String oldPassword,
-                                    @AuthenticationPrincipal String email){
+    public void editProfilePassword(@Valid @RequestBody(required = true) ChangePasswordDto dto,
+                                    @AuthenticationPrincipal String email) {
         try {
-            credentialsAction.executeUpdatePassword(newPassword, oldPassword, email);
+            credentialsAction.executeUpdatePassword(dto, email);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid: " + e.getMessage());
         }
     }
 }

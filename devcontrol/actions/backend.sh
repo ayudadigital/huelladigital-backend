@@ -77,7 +77,7 @@ EOF
             fi
             cd "${rootdir}/backend"
             backendActions=${param[1]}
-            branchName=${param[2]}
+            branchName=${param[2]:-develop}
             case ${backendActions} in
                 "build")                mvn compile ;;
                 "unit-tests")           mvn test ;;

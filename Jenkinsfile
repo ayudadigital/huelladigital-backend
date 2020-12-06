@@ -95,7 +95,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
-                    sh 'bin/devcontrol.sh backend sonar'
+                    sh 'bin/devcontrol.sh backend sonar env.BRANCH_NAME'
                 }
             }
         }

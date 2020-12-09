@@ -33,7 +33,11 @@ public class TestData {
 
     public static final String DEFAULT_FROM = "noreply@huellapositiva.com";
 
+    public static final String DEFAULT_SUBJECT = "Asunto del email";
+
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
+
+    public static final String DEFAULT_EMAIL_2 = "foo_2@huellapositiva.com";
 
     public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";
 
@@ -267,6 +271,11 @@ public class TestData {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
         JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JpaVolunteer jpaVolunteer2 = createVolunteer(DEFAULT_EMAIL_2, DEFAULT_PASSWORD, Roles.VOLUNTEER);
+
+        Set<JpaVolunteer> jpaVolunteers = new HashSet<>();
+        jpaVolunteers.add(jpaVolunteer);
+        jpaVolunteers.add(jpaVolunteer2);
 
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
@@ -289,7 +298,7 @@ public class TestData {
                 .status(getJpaStatus(proposalStatus))
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .inscribedVolunteers(Collections.singleton(jpaVolunteer))
+                .inscribedVolunteers(jpaVolunteers)
                 .category(ProposalCategory.ON_SITE.toString())
                 .imageUrl(createMockImageUrl().toString())
                 .build();

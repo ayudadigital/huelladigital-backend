@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @Tag(name = "Proposal Service", description = "The proposals API")
@@ -54,6 +56,10 @@ public class ProposalApiController {
     private final RequestProposalRevisionAction requestProposalRevisionAction;
 
     private final SubmitProposalRevisionAction submitProposalRevisionAction;
+
+    private final CancelProposalAction cancelProposalAction;
+
+    private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -223,7 +229,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a list of published proposals",
-            description = "Fetch a list of published proposals sorted by the proximity of their closing date",
+            description = "Fetch a list of published proposals sorted by the proximity of their closing date.",
             tags = "proposals"
     )
     @ApiResponses(
@@ -244,10 +250,9 @@ public class ProposalApiController {
         return fetchPaginatedProposalsAction.execute(page, size);
     }
 
-
     @Operation(
             summary = "Fetch list of proposals",
-            description = "Fetch a list of proposals based on the page requested.",
+            description = "Fetch a list of proposals based on the page requested",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -279,7 +284,6 @@ public class ProposalApiController {
     public ListedProposalsDto fetchListedProposals(@PathVariable Integer page, @PathVariable Integer size) {
         return fetchPaginatedProposalsAction.executeAsReviser(page, size);
     }
-
 
     @Operation(
             summary = "Submit proposal revision",
@@ -323,7 +327,6 @@ public class ProposalApiController {
         }
     }
 
-
     @Operation(
             summary = "Fetch list of volunteers in a proposal",
             description = "Fetch list of volunteers in a proposal by the reviser",
@@ -353,10 +356,10 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/volunteers")
-    @RolesAllowed("REVISER")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal){
-        try{
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
+        try {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
             return proposalResponseDto.getInscribedVolunteers();
         } catch (EntityNotFoundException ex) {
@@ -366,7 +369,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a proposal with the list of volunteers",
-            description = "Fetch a proposal with the list of volunteers by the reviser",
+            description = "Fetch a proposal with the list of volunteers by the reviser.",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -393,13 +396,83 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/proposal")
-    @RolesAllowed("REVISER")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal){
-        try{
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
+        try {
             return fetchProposalAction.execute(idProposal);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
+    }
+
+    @Operation(
+            summary = "Cancel a proposal",
+            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to CANCELLED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Requested proposal not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/{id}/cancel")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelProposalAsReviser(@PathVariable("id") String idProposal) {
+        try {
+            cancelProposalAction.executeByReviser(idProposal);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }
+    }
+
+    @Operation(
+            summary = "Change status of the volunteer in proposal",
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED",
+            tags = {"proposals, volunteers, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to CANCELLED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/changeStatusVolunteerProposal")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
+        changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 }

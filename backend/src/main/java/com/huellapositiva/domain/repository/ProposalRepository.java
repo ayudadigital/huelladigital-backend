@@ -53,6 +53,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
+    @Autowired
+    private final JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+
     @Value("${huellapositiva.proposal.expiration-hour}")
     private Integer expirationHour;
 
@@ -143,5 +146,9 @@ public class ProposalRepository {
                 .stream()
                 .map(Proposal::parseJpa)
                 .collect(Collectors.toList());
+    }
+
+    public Integer updateProposalStatus (String id, JpaProposalStatus status) {
+        return jpaProposalRepository.updateStatusById(id, status);
     }
 }

@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
@@ -10,6 +11,7 @@ import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,16 +25,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +66,9 @@ class ProposalControllerShould {
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @Autowired
+    private JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -648,7 +651,7 @@ class ProposalControllerShould {
 
 
         ArrayList<VolunteerDto> listedVolunteers = objectMapper.readValue(fetchResponse.getContentAsString(), ArrayList.class);
-        assertThat(listedVolunteers.size()).isEqualTo(1);
+        assertThat(listedVolunteers.size()).isEqualTo(2);
 
     }
 
@@ -703,5 +706,73 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_204_when_cancel_a_proposal_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        Optional <JpaProposal> jpaProposal = jpaProposalRepository.findByNaturalId(proposalId);
+        assertThat(jpaProposal.get().getStatus().getId()).isEqualTo(CANCELLED.getId());
+    }
+
+    @Test
+    void return_404_when_trying_to_cancel_a_non_existing_proposal() throws Exception {
+        //GIVEN
+        String proposalId = "999";
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn().getResponse();
+    }
+
+    @Test
+    void return_204_when_change_status_rejected_or_confirmed() throws Exception {
+        // GIVEN
+        testData.registerESALAndProposalWithInscribedVolunteers();
+
+        // WHEN
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos = new ArrayList<>();
+        List<JpaVolunteerProposal> jpaVolunteerProposals = jpaVolunteersProposalsRepository.findAll();
+        for(JpaVolunteerProposal volunteerProposal : jpaVolunteerProposals){
+            if(changeStatusVolunteerDtos.isEmpty()) {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal(), volunteerProposal.getVolunteer().getId(), false));
+            } else {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal(), volunteerProposal.getVolunteer().getId(), true));
+            }
+        }
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusVolunteerProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changeStatusVolunteerDtos))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
+        assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
+        assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 }

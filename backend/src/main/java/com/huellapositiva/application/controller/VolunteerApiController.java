@@ -70,6 +70,10 @@ public class VolunteerApiController {
                             responseCode = "409",
                             description = "Conflict, could not register. The user already exist on db",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -113,6 +117,10 @@ public class VolunteerApiController {
                             responseCode = "409",
                             description = "Conflict, could not register. The user already exist on db",
                             content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

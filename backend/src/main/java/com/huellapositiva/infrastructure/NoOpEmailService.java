@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure;
 
-import com.huellapositiva.domain.model.valueobjects.Email;
+import com.huellapositiva.domain.model.valueobjects.EmailMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class NoOpEmailService implements EmailService {
     }
 
     @Override
-    public void sendEmail(Email email) {
+    public void sendEmail(EmailMessage emailMessage) {
         // Do nothing because it's no operational
     }
 }

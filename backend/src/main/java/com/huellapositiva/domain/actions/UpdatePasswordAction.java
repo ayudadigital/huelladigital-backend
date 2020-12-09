@@ -1,6 +1,9 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.dto.ChangePasswordDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.exception.InvalidNewPasswordException;
+import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -11,17 +14,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
-public class FetchCredentialsAction {
+public class UpdatePasswordAction {
 
     @Autowired
-    EmailCommunicationService emailCommunicationService;
+    private final EmailCommunicationService emailCommunicationService;
 
     @Autowired
-    private JpaCredentialRepository jpaCredentialRepository;
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -35,8 +39,8 @@ public class FetchCredentialsAction {
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         String hash = Token.createToken().toString();
         jpaCredentialRepository.updateHashByEmail(email, hash);
-        EmailRecoveryPassword emailRecoveryPassword = EmailRecoveryPassword.from(jpaCredential.getEmail(), hash);
-        emailCommunicationService.sendRecoveryPasswordEmail(emailRecoveryPassword);
+        RecoveryPasswordEmail recoveryPasswordEmail = RecoveryPasswordEmail.from(jpaCredential.getEmail(), hash);
+        emailCommunicationService.sendRecoveryPasswordEmail(recoveryPasswordEmail);
     }
 
     /**
@@ -61,5 +65,28 @@ public class FetchCredentialsAction {
         } else {
             throw new TimeForRecoveringPasswordExpiredException("The time to recovery password has expired");
         }
+    }
+
+    /**
+     * This method updates the password in database from the profile and sends an email.
+     *
+     * @param dto an object with de old password and the new password
+     * @param email The emails user
+     */
+    public void executeUpdatePassword(ChangePasswordDto dto, String email) {
+
+        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(dto.getNewPassword()));
+
+        if (!passwordEncoder.matches(dto.getOldPassword(), jpaCredential.getHashedPassword())) {
+            throw new NonMatchingPasswordException("The old password inserted does not match with the one stored in the system");
+        } else if (passwordEncoder.matches(dto.getNewPassword(), jpaCredential.getHashedPassword())) {
+            throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
+        }
+
+        jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);
+
+        EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
+        emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);
     }
 }

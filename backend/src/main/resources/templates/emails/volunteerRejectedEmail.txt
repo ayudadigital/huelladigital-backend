@@ -1,0 +1,1 @@
+Le informamos de que su participación en la convocatoria ${PROPOSAL_TITLE} ha sido desestimada.

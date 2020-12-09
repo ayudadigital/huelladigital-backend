@@ -77,6 +77,7 @@ EOF
             fi
             cd "${rootdir}/backend"
             backendActions=${param[1]}
+            branchName=${param[2]:-develop}
             case ${backendActions} in
                 "build")                mvn compile ;;
                 "unit-tests")           mvn test ;;
@@ -84,7 +85,7 @@ EOF
                 "acceptance-tests")     mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false ;;
                 "sonar")
                     sonarcloud_login=${sonarcloud_login:-fake}
-                    mvn sonar:sonar -Dsonar.login=${sonarcloud_login}
+                    mvn sonar:sonar -Dsonar.login=${sonarcloud_login}  -Dsonar.branch.name=${branchName}
                     ;;
                 "package")              mvn package spring-boot:repackage -DskipTests ;;
                 "build-docker-image")

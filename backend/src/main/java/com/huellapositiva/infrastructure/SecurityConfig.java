@@ -59,12 +59,14 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/v3/api-docs/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/actuator/health", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/email-confirmation/**", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/api/v1/esal", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/volunteers", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/refresh", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/authentication/login", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/proposals/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/contactperson", HttpMethod.POST.name()),
-            new AntPathRequestMatcher("/api/v1/restore-password/**", HttpMethod.POST.name())
+            new AntPathRequestMatcher("/api/v1/handling-password/sendRecoveryPasswordEmail", HttpMethod.POST.name()),
+            new AntPathRequestMatcher("/api/v1/handling-password/changePassword/{hash}", HttpMethod.POST.name())
     };
 
     @Override
@@ -72,7 +74,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().and()
                 .csrf()
                 .ignoringAntMatchers("/api/v1/authentication/login", "/api/v1/volunteers", "/api/v1/contactperson")
-                .csrfTokenRepository(new CookieCsrfTokenRepository())
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and().authorizeRequests()
                 .requestMatchers(AUTH_ALLOWSLIST).permitAll()
                 .anyRequest().authenticated()

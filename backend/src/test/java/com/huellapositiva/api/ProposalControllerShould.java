@@ -2,13 +2,9 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
@@ -25,7 +21,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

@@ -2,8 +2,10 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
+import com.huellapositiva.domain.actions.FetchVolunteerProfileAction;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
@@ -49,6 +51,8 @@ public class VolunteerApiController {
     private final RegisterVolunteerAction registerVolunteerAction;
 
     private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
+
+    private final FetchVolunteerProfileAction fetchVolunteerProfileAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -136,5 +140,12 @@ public class VolunteerApiController {
             log.error("There is not any cv attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
+    }
+
+    @GetMapping("/fetchProfileInformation")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseStatus(HttpStatus.OK)
+    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) throws IOException {
+        return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 }

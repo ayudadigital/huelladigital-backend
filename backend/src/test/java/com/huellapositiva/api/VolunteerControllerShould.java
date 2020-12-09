@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -223,6 +224,26 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_204_xxxx_update_profile_information() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        ProfileDto profileDto = ProfileDto.builder()
+                .surname("Farruquito")
+                .zipCode(35100)
+                .twitter("myTwitter")
+                .build();
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
 

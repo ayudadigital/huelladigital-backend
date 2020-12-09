@@ -1,12 +1,16 @@
 package com.huellapositiva.application.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
+import com.huellapositiva.application.exception.SomeFieldIsNullException;
 import com.huellapositiva.domain.actions.FetchVolunteerProfileAction;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
+import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
@@ -53,6 +57,10 @@ public class VolunteerApiController {
     private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
 
     private final FetchVolunteerProfileAction fetchVolunteerProfileAction;
+
+    private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Register a new volunteer",
@@ -147,5 +155,25 @@ public class VolunteerApiController {
     @ResponseStatus(HttpStatus.OK)
     public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) throws IOException {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
+    }
+
+    @PostMapping(path = "/updateProfileInformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfileInformation(@RequestPart("dto") MultipartFile dtoProfileInformation,
+
+                                         @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+
+        /*
+        * @RequestPart("photo") MultipartFile photo,
+                                         @RequestPart("cv") MultipartFile curriculumVitae,*/
+        //ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
+        try {
+            ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
+            updateVolunteerProfileAction.execute(profileDto);
+        } catch (IOException ex){
+            throw new SomeFieldIsNullException(ex.getMessage());
+        }
     }
 }

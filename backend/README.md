@@ -15,7 +15,7 @@ The backend is being developed with:
 ## Setup the local development environment
 
 We are using mostly IntelliJ IDE to develop the project. Currently, using
-**IntelliJ 2019.3.**
+**IntelliJ 2019.3.** 
 
 First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version. This is not necessarily a project.
 
@@ -91,10 +91,138 @@ On the another hand the documentation is disable with the profile `prod`, only w
 * [How to start backend and frontend to use backend API](https://airanschez.wordpress.com/2020/06/06/cronicas-del-proyecto-huella-digital-parte-1/)
 
 
-## Information for frontend developers
+# Information for frontend developers
 The project has different roles:
 * VOLUNTEER: He can see the list of published proposals and join them.
 * VOLUNTEER_NOT_CONFIRMED: He can see the list of published proposals. (He must confirm the email in order to join a proposal)
 * CONTACT_PERSON: He can see the list of published proposals with the volunteers that have joined it. He is allowed to create proposals, modify them and request their cancellation.
 * CONTACT_PERSON_NOT_CONFIRMED: He can see the list of published proposals with the volunteers that have joined it. He is allowed to create proposals, modify them and request their cancellation. (He must confirm the email)
 * REVISER: He can see the list of published proposals with the volunteers. He is allowed to create proposals, review, modify and cancel them. 
+
+## Endpoints for frontend
+
+* Change status volunteer in proposal. Endpoint POST http://localhost:8080/api/v1/proposals/changeStatusVolunteerProposal.
+    
+    We do not send an email in MVP version, it will be added in future versions.
+    
+    This method is POST, don´t forget to use the access token as Bearer Token and use the XSRF-TOKEN, copy and paste in HEADER as X-XSRF-TOKEN.
+    
+    Steps to use this endpoint:   
+        
+        1º. Register a contact person.
+        2º. Login with contact person.
+        3º. Register ESAL.
+        4º. Register a proposal.
+        5º. Register a volunteer.
+        6º. Login with volunteer.
+        7º. Join volunteer in the proposal.
+        8º. Login with contact person.
+        9º. Use this method.
+        
+* Cancel proposal as reviser. Endpoint POST http://localhost:8080/api/v1/proposals/{id}/cancel
+    
+    Steps to test in postman: 
+    
+        1ª. Register a contact person. 
+        2ª. Login as contact person.
+        3ª. Register a new ESAL.  
+        4ª. Create a proposal. 
+        5ª. Login as reviser. 
+        6ª. Use this method.
+        
+* Fetch Proposal With Volunteers. Endpoint GET http://localhost:8080/api/v1/proposals/{idProposal}/proposal
+
+    Steps to test in postman: 
+    
+        1ª. Register a contact person. 
+        2ª. Login as contact person.
+        3ª. Register a new ESAL. 
+        4ª. Create a proposal.
+        5ª. Register a new Volunteer. 
+        6ª. Login as volunteer. 
+        7ª. Join the proposal.
+        8ª. Login as reviser or contact person. 
+        9ª. Use this method.
+        
+* Fetch listed volunteers in proposal. Endpoint GET http://localhost:8080/api/v1/proposals/{idProposal}/volunteers
+
+    This steps require the access token. Steps to test in postman: 
+    
+        1ª. Register a contact person. 
+        2ª. Login as contact person.
+        3ª. Register a new ESAL. 
+        4ª. Create a proposal.
+        5ª. Register a new Volunteer. 
+        6ª. Login as volunteer. 
+        7ª. Join the proposal.
+        8ª. Login as reviser or contact person. 
+        9ª. Use this method.
+    
+* Submit proposal revision. Endpoint POST http://localhost:8080/api/v1/proposals/revision/{id}
+
+    This steps require the access token and the XSRF-TOKEN. Steps to test in postman: 
+    
+        1ª. Register a contact person. 
+        2ª. Login as contact person.
+        3ª. Register a new ESAL. 
+        4ª. Create a proposal.
+        5ª. Login as reviser. 
+        6ª. Use this method.
+    
+* Fetch listed proposals. Endpoint GET http://localhost:8080/api/v1/proposals/{page}/{size}/reviser
+
+    This steps require the access token. Steps to test in postman: 
+    
+        1ª. Login as reviser.  
+        2ª. Register a new ESAL. 
+        3ª. Create a new Proposal.
+        4ª. Use this method.
+        
+* Fetch listed published proposals. Endpoint GET http://localhost:8080/api/v1/proposals/{page}/{size}
+
+    This steps require the access token Steps to test in postman: 
+    
+        1ª. Register a contact person.
+        2ª. Login as contact person. 
+        3ª. Register a new ESAL.
+        4ª. Create a new proposal. 
+        5ª. Use this method.
+        
+* Create proposal as reviser. Endpoint POST http://localhost:8080/api/v1/proposals/reviser
+
+    This steps require the access token. Steps to test in postman: 
+    
+        1ª. Login as reviser.
+        2ª. Register a new ESAL. 
+        3ª. Use this method.
+        
+* Join proposal. Endpoint POST http://localhost:8080/api/v1/proposals/{id}/join
+
+    This steps require the access token. Steps to test in postman:
+    
+        1ª. Register a contact person.  
+        2ª. Login as contact person. 
+        3ª. Register an Esal.
+        4ª. Register a new proposal. 
+        5ª. Register a new volunteer. 
+        6ª. Login as volunteer. 
+        7ª. Use this method.
+        
+* Get proposal. Endpoint GET http://localhost:8080/api/v1/proposals/{id}
+
+    This steps require the access token. Steps to test in postman:
+    
+        1ª. Register a contact person.
+        2ª. Login as contact person. 
+        3ª. Register an Esal.
+        4ª. Register a new proposal. 
+        5ª. Use this method.
+        
+* Create proposal. Endpoint POST http://localhost:8080/api/v1/proposals
+
+    This steps require the access token and the XSRF-TOKEN. Steps to test in postman:
+    
+        1ª. Register a contact person.
+        2ª. Login as contact person.
+        3ª. Register an Esal.
+        4ª. Use this method.

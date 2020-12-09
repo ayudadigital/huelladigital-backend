@@ -2,11 +2,13 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +22,11 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
@@ -62,6 +62,9 @@ class ProposalControllerShould {
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @Autowired
+    private JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -644,7 +647,7 @@ class ProposalControllerShould {
 
 
         ArrayList<VolunteerDto> listedVolunteers = objectMapper.readValue(fetchResponse.getContentAsString(), ArrayList.class);
-        assertThat(listedVolunteers.size()).isEqualTo(1);
+        assertThat(listedVolunteers.size()).isEqualTo(2);
 
     }
 
@@ -736,5 +739,36 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andReturn().getResponse();
+    }
+
+    @Test
+    void return_204_when_change_status_rejected_or_confirmed() throws Exception {
+        // GIVEN
+        testData.registerESALAndProposalWithInscribedVolunteers();
+
+        // WHEN
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos = new ArrayList<>();
+        List<JpaVolunteerProposal> jpaVolunteerProposals = jpaVolunteersProposalsRepository.findAll();
+        for(JpaVolunteerProposal volunteerProposal : jpaVolunteerProposals){
+            if(changeStatusVolunteerDtos.isEmpty()) {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal(), volunteerProposal.getVolunteer().getId(), false));
+            } else {
+                changeStatusVolunteerDtos.add(new ChangeStatusVolunteerDto(volunteerProposal.getProposal(), volunteerProposal.getVolunteer().getId(), true));
+            }
+        }
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusVolunteerProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(changeStatusVolunteerDtos))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
+        assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
+        assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 }

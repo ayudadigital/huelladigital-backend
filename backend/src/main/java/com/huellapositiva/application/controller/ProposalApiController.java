@@ -59,13 +59,13 @@ public class ProposalApiController {
 
     private final CancelProposalAction cancelProposalAction;
 
+    private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Register a new proposal",
-            description = "Register a new proposal and link it to the logged employee. This steps require the access token and the XSRF-TOKEN." +
-                    "Steps to test in postman: " + "1ª. Register a contact person.  2ª. Login as contact person 3ª. Register an Esal. " +
-                    "4ª. Use this method. ",
+            description = "Register a new proposal and link it to the logged employee.",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -118,9 +118,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a proposal",
-            description = "Fetch a proposal with the given ID through the path variable. This steps require the access token " +
-                    "Steps to test in postman:1ª. Register a contact person.  2ª. Login as contact person 3ª. Register an Esal." +
-                    "4ª. Register a new proposal. 5ª. Use this method",
+            description = "Fetch a proposal with the given ID through the path variable.",
             tags = "proposals"
     )
     @ApiResponses(
@@ -148,9 +146,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Join a proposal",
-            description = "Join a proposal as volunteer. This steps require the access token" +
-                    "Steps to test in postman:1ª. Register a contact person.  2ª. Login as contact person 3ª. Register an Esal." +
-                    "4ª. Register a new proposal. 5ª. Register a new volunteer. 6ª. Login as volunteer. 7ª. Use this method.",
+            description = "Join a proposal as volunteer",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -186,8 +182,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal as reviser",
-            description = "Register a new proposal by providing the ESAL name through the DTO. This steps require the access token" +
-                    "Steps to test in postman: 1ª. Login as reviser  2ª. Register a new ESAL. 3ª. Use this method.",
+            description = "Register a new proposal by providing the ESAL name through the DTO.",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -234,9 +229,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a list of published proposals",
-            description = "Fetch a list of published proposals sorted by the proximity of their closing date.  This steps require the access token" +
-                    "Steps to test in postman: 1ª. Register a contact person  2ª. Login as contact person. 3ª. Register a new ESAL." +
-                    "4ª. Create a new proposal. 5ª. Use this method.",
+            description = "Fetch a list of published proposals sorted by the proximity of their closing date.",
             tags = "proposals"
     )
     @ApiResponses(
@@ -257,12 +250,9 @@ public class ProposalApiController {
         return fetchPaginatedProposalsAction.execute(page, size);
     }
 
-
     @Operation(
             summary = "Fetch list of proposals",
-            description = "Fetch a list of proposals based on the page requested. This steps require the access token" +
-                    "Steps to test in postman: 1ª. Login as reviser.  2ª. Register a new ESAL. 3ª. Create a new Proposal." +
-                    "4ª. Use this method.",
+            description = "Fetch a list of proposals based on the page requested",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -295,13 +285,9 @@ public class ProposalApiController {
         return fetchPaginatedProposalsAction.executeAsReviser(page, size);
     }
 
-
     @Operation(
             summary = "Submit proposal revision",
-            description = "Submit a proposal for revision to the reviser. This steps require the access token and the XSRF-TOKEN." +
-                    "Steps to test in postman: 1ª. Register a contact person. 2ª. Login as contact person. " +
-                    "3ª. Register a new ESAL. 4ª. Create a proposal.(review_pending)" +
-                    "5ª. Login as reviser. 6ª. Use this method.",
+            description = "Submit a proposal for revision to the reviser",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -341,14 +327,9 @@ public class ProposalApiController {
         }
     }
 
-
     @Operation(
             summary = "Fetch list of volunteers in a proposal",
-            description = "Fetch list of volunteers in a proposal by the reviser. This steps require the access token" +
-                    "Steps to test in postman: 1ª. Register a contact person. 2ª. Login as contact person. " +
-                    "3ª. Register a new ESAL. 4ª. Create a proposal." +
-                    "5ª. Register a new Volunteer. 6ª. Login as volunteer. 7ª. Join the proposal. " +
-                    "8ª. Login as reviser or contact person. 9ª. Use this method.",
+            description = "Fetch list of volunteers in a proposal by the reviser",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -375,7 +356,7 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/volunteers")
-    @RolesAllowed("REVISER")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
         try {
@@ -388,11 +369,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a proposal with the list of volunteers",
-            description = "Fetch a proposal with the list of volunteers by the reviser. This steps require the access token." +
-                    "Steps to test in postman: 1ª. Register a contact person. 2ª. Login as contact person. " +
-                    "3ª. Register a new ESAL. 4ª. Create a proposal." +
-                    "5ª. Register a new Volunteer. 6ª. Login as volunteer. 7ª. Join the proposal." +
-                    "8ª. Login as reviser or contact person. 9ª. Use this method.",
+            description = "Fetch a proposal with the list of volunteers by the reviser.",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -419,7 +396,7 @@ public class ProposalApiController {
             }
     )
     @GetMapping("/{idProposal}/proposal")
-    @RolesAllowed("REVISER")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
     public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
         try {
@@ -429,12 +406,9 @@ public class ProposalApiController {
         }
     }
 
-
     @Operation(
             summary = "Cancel a proposal",
-            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it. This steps require the access token and the XSRF-TOKEN." +
-                    "Steps to test in postman: 1ª. Register a contact person. 2ª. Login as contact person." +
-                    "3ª. Register a new ESAL.  4ª. Create a proposal. 5ª. Login as reviser. 6ª. Use this method.",
+            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -469,5 +443,36 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
+    }
+
+    @Operation(
+            summary = "Change status of the volunteer in proposal",
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED",
+            tags = {"proposals, volunteers, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to CANCELLED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/changeStatusVolunteerProposal")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
+        changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 }

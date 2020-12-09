@@ -7,12 +7,9 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class VolunteerDto {
+public class ChangeStatusVolunteerDto {
 
-    private final String id;
-
-    private final String emailAddress;
-
-    private final Boolean confirmed;
-
+    private String idProposal;
+    private String idVolunteer;
+    private boolean confirmed;
 }

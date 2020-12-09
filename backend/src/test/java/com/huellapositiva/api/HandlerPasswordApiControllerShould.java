@@ -47,7 +47,7 @@ class HandlerPasswordApiControllerShould {
     private MockMvc mvc;
 
     @Autowired
-    UpdatePasswordAction credentialsAction;
+    private UpdatePasswordAction credentialsAction;
 
     @Autowired
     private JpaCredentialRepository jpaCredentialRepository;
@@ -150,12 +150,12 @@ class HandlerPasswordApiControllerShould {
 
     private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {
         return Stream.of(
-            Arguments.of(new ChangePasswordDto("", "abcd")),
-            Arguments.of(new ChangePasswordDto("NEWPASSWORD", "")),
-            Arguments.of(new ChangePasswordDto(null, "12345678")),
-            Arguments.of(new ChangePasswordDto("12345678", null)),
-            Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
-            Arguments.of(new ChangePasswordDto("MíÑèwp? âssw0rd", DEFAULT_PASSWORD))
+                Arguments.of(new ChangePasswordDto("", "abcd")),
+                Arguments.of(new ChangePasswordDto("NEWPASSWORD", "")),
+                Arguments.of(new ChangePasswordDto(null, "12345678")),
+                Arguments.of(new ChangePasswordDto("12345678", null)),
+                Arguments.of(new ChangePasswordDto("abcd", "NEWPASSWORD")),
+                Arguments.of(new ChangePasswordDto("MíÑèwp? âssw0rd", DEFAULT_PASSWORD))
         );
     }
 

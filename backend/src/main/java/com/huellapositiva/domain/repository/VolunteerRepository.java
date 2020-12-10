@@ -69,4 +69,8 @@ public class VolunteerRepository {
     public void updateCurriculumVitae(Volunteer volunteer) {
         jpaVolunteerRepository.updateCurriculumVitae(volunteer.getId().toString(), volunteer.getCurriculumVitae().toExternalForm());
     }
+
+    public void updatePhoto(Volunteer volunteer) {
+        jpaVolunteerRepository.updatePhoto(volunteer.getId().toString(), volunteer.getPhoto().toExternalForm());
+    }
 }

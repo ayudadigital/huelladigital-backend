@@ -6,6 +6,8 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class FetchVolunteerProfileAction {
 
@@ -20,7 +22,7 @@ public class FetchVolunteerProfileAction {
             return ProfileDto.builder()
                     .name(jpaVolunteer.getCredential().getName())
                     .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate())
+                    .birthDate(jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
                     .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
                     .email(jpaVolunteer.getCredential().getEmail())
                     .province(null)
@@ -38,7 +40,7 @@ public class FetchVolunteerProfileAction {
             return ProfileDto.builder()
                     .name(jpaVolunteer.getCredential().getName())
                     .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate())
+                    .birthDate(jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
                     .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
                     .email(jpaVolunteer.getCredential().getEmail())
                     .province(jpaVolunteer.getLocation().getProvince())

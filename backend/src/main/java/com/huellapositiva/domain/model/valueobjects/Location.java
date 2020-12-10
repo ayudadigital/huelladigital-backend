@@ -13,7 +13,10 @@ public class Location {
 
     private final String address;
 
-    public Location(String province, String town, String address) {
+    private final Integer zipCode;
+
+    public Location(String province, String town, String address, Integer zipCode) {
+        this.zipCode = zipCode;
         this.id = Id.newId();
         this.province = province;
         this.town = town;

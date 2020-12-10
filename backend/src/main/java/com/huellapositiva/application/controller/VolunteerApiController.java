@@ -8,10 +8,7 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.application.exception.SomeFieldIsNullException;
-import com.huellapositiva.domain.actions.FetchVolunteerProfileAction;
-import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
-import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
+import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
@@ -59,6 +56,8 @@ public class VolunteerApiController {
     private final FetchVolunteerProfileAction fetchVolunteerProfileAction;
 
     private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
+
+    private final UploadPhotoAction uploadPhotoAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -150,6 +149,20 @@ public class VolunteerApiController {
         }
     }
 
+    @PostMapping(path = "/photo-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
+                                      @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+        try {
+            uploadPhotoAction.execute(photo, contactPersonEmail);
+        } catch (EmptyFileException ex){
+            log.error("There is not any photo attached or is empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+    }
+
     @GetMapping("/fetchProfileInformation")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
@@ -162,16 +175,19 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@RequestPart("dto") MultipartFile dtoProfileInformation,
-
-                                         @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+                                        @AuthenticationPrincipal String contactPersonEmail
+                                         ) throws IOException {
 
         /*
-        * @RequestPart("photo") MultipartFile photo,
-                                         @RequestPart("cv") MultipartFile curriculumVitae,*/
+         @RequestPart("photo") MultipartFile photo,
+                                         @RequestPart("cv") MultipartFile curriculumVitae,
+                                            @AuthenticationPrincipal String contactPersonEmail
+
+         */
         //ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
+        ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
         try {
-            ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
-            updateVolunteerProfileAction.execute(profileDto);
+            updateVolunteerProfileAction.execute(profileDto,contactPersonEmail);
         } catch (IOException ex){
             throw new SomeFieldIsNullException(ex.getMessage());
         }

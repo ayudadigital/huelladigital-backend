@@ -65,4 +65,23 @@ public class RemoteStorageService {
         }
         return "";
     }
+
+    /**
+     * This method reads the bytes from the photo of a proposal and uploads it to the storage service
+     *
+     * @param photo
+     * @param volunteerId
+     * @return URL with the cv location in the storage
+     * @throws IOException
+     */
+    public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {
+        String extension;
+        extension = getExtension(photo.getOriginalFilename());
+        if(!(".jpg".equalsIgnoreCase(extension)) || ".jpeg".equalsIgnoreCase(extension) || ".png".equalsIgnoreCase(extension) || ".gif".equalsIgnoreCase(extension)) {
+            throw new FileTypeNotSupportedException("photo file must be .jpg,.png,.jpeg,.gif");
+        }
+        String destinationFileName = UUID.randomUUID() + extension;
+        String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';
+        return storageService.upload(volunteerPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
+    }
 }

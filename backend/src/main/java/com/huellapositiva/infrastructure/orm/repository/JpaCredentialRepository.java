@@ -1,5 +1,7 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
+import com.huellapositiva.domain.model.valueobjects.ProfileCredentials;
+import com.huellapositiva.domain.model.valueobjects.ProfileVolunteer;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Optional;
 
@@ -32,6 +35,14 @@ public interface JpaCredentialRepository extends JpaRepository<JpaCredential, In
     @Transactional
     @Query("UPDATE JpaCredential c SET c.hashedPassword = :hash WHERE c.email = :email")
     Integer updatePassword(@Param("hash") String hash, @Param("email") String email);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE JpaCredential c SET c.name = :name, c.surname = :surname, c.email = :emailChange," +
+            " c.phoneNumber = :phoneNumber, c.birthDate = :birthDate WHERE c.email = :email")
+    Integer updateProfile(@Param("email") String email, @Param("name") String name, @Param("surname") String surname,
+                          @Param("emailChange") String emailChange, @Param("phoneNumber") Integer phoneNumber,
+                           @Param("birthDate") LocalDate birthDate);
 
     @Modifying
     @Transactional

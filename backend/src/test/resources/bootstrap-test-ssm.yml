@@ -1,0 +1,10 @@
+aws:
+  paramstore:
+    enabled: true
+    failFast: true
+  ssm:
+    endpoint: http://localhost:4583
+
+cloud:
+  config:
+    uri: http://localhost:4583

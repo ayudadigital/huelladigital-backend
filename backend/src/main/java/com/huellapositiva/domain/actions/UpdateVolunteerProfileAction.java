@@ -1,15 +1,21 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.ProfileCredentials;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.model.valueobjects.ProfileLocation;
 import com.huellapositiva.domain.model.valueobjects.ProfileVolunteer;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 public class UpdateVolunteerProfileAction {
@@ -17,10 +23,17 @@ public class UpdateVolunteerProfileAction {
     @Autowired
     private JpaCredentialRepository jpaCredentialRepository;
 
+    @Autowired
+    private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @Autowired
+    private JpaLocationRepository jpaLocationRepository;
+
     public void execute(ProfileDto profileDto, String email) throws IOException {
         if (someFieldIsEmptyCredentials(profileDto)) {
             throw new IOException("Some field is null");
         }
+        //Do this code at the end
         ProfileCredentials profileCredentials =  ProfileCredentials.builder().name(profileDto.getName())
                 .surname(profileDto.getSurname())
                 .birthDate(ProfileCredentials.parseToLocalDate(profileDto.getBirthDate()))
@@ -33,19 +46,51 @@ public class UpdateVolunteerProfileAction {
         //Send email after commit profile changes
 
 /*
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
+        if(jpaVolunteer.getLocation() == null){
+            JpaLocation jpaLocation = JpaLocation.builder()
+                    .id(Id.newId().toString())
+                    .province(profileDto.getProvince())
+                    .town(profileDto.getTown())
+                    .address(profileDto.getAddress())
+                    .zipCode(profileDto.getZipCode()).build();
+
+            jpaLocationRepository.save(jpaLocation);
+            jpaVolunteerRepository.updateIdLocation(jpaVolunteer.getId(),jpaLocation);
+            //jpaVolunteer.setLocation(jpaLocation);
+            //jpaVolunteerRepository.save(jpaVolunteer);
+            System.out.println("hola que tal");
+
+        }
+*/
+
+/*
         ProfileLocation profileLocation = ProfileLocation.builder().address(profileDto.getAddress())
                 .province(profileDto.getProvince())
                 .town(profileDto.getTown())
                 .zipCode(profileDto.getZipCode()).build();
+*/
 
-/*
         ProfileVolunteer profileVolunteer = ProfileVolunteer.builder().twitter(profileDto.getTwitter())
                 .instagram(profileDto.getInstagram())
                 .linkedin(profileDto.getInstagram())
-                .photoUrl(profileDto.getPhoto())
-                .curriculumUrl(profileDto.getCurriculumVitae())
                 .additionalInformation(profileDto.getAdditionalInformation()).build();
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
+        jpaVolunteer.setTwitter(profileVolunteer.getTwitter());
+        jpaVolunteerRepository.save(jpaVolunteer);
+
+        /*
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(),profileVolunteer.getTwitter(),
+                profileVolunteer.getInstagram(),
+                profileVolunteer.getLinkedin(),
+                profileVolunteer.getAdditionalInformation());
                 */
+
+
+        System.out.println("hola");
+
 
     }
 

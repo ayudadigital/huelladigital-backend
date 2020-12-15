@@ -13,9 +13,9 @@ public class Location {
 
     private final String address;
 
-    private final Integer zipCode;
+    private final String zipCode;
 
-    public Location(String province, String town, String address, Integer zipCode) {
+    public Location(String province, String town, String address, String zipCode) {
         this.zipCode = zipCode;
         this.id = Id.newId();
         this.province = province;

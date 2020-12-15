@@ -4,7 +4,7 @@ ALTER TABLE credentials
     ADD COLUMN birth_date DATE NULL;
 
 ALTER TABLE locations
-    ADD COLUMN zip_code NUMERIC(5,0) NULL;
+    ADD COLUMN zip_code CHAR(5) NULL;
 
 ALTER TABLE volunteers
     DROP COLUMN age;

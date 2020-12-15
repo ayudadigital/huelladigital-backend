@@ -18,7 +18,7 @@ public class ProfileDto {
     private final Integer phoneNumber;
     private final String email;
     private final String province;
-    private final Integer zipCode;
+    private final String zipCode;
     private final String town;
     private final String address;
     private final String photo;

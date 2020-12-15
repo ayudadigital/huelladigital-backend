@@ -22,7 +22,8 @@ public class FetchVolunteerProfileAction {
             return ProfileDto.builder()
                     .name(jpaVolunteer.getCredential().getName())
                     .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
+                        null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
                     .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
                     .email(jpaVolunteer.getCredential().getEmail())
                     .province(null)
@@ -40,7 +41,8 @@ public class FetchVolunteerProfileAction {
             return ProfileDto.builder()
                     .name(jpaVolunteer.getCredential().getName())
                     .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
+                            null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
                     .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
                     .email(jpaVolunteer.getCredential().getEmail())
                     .province(jpaVolunteer.getLocation().getProvince())

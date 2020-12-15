@@ -215,7 +215,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void return_200_xxxx_get_profile_information() throws Exception {
+    void return_200_when_get_profile_information() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -240,7 +240,7 @@ class VolunteerControllerShould {
                 .birthDate("2000-12-10")
                 .province("hola1")
                 .address("hola2")
-                .zipCode(12345)
+                .zipCode("12345")
                 .town("hola3")
                 .twitter("twitter")
                 .instagram("instagram")
@@ -257,6 +257,33 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void return_204_xxxx_update_profile_information2() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        ProfileDto profileDto = ProfileDto.builder()
+                .name("nombre")
+                .surname("Farruquito")
+                .email(DEFAULT_EMAIL)
+                .phoneNumber(123456789)
+                .birthDate("2000-12-10")
+                .twitter("twitter")
+                .instagram("instagram")
+                .additionalInformation("add")
+                .build();
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+
+/*
     @Test
     void upload_photo_successfully_and_return_200() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -284,7 +311,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
-
+*/
 
 }
 

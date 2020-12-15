@@ -33,7 +33,7 @@ public class JpaLocation implements Serializable {
     private String address;
 
     @Column(name = "zip_code")
-    private Integer zipCode;
+    private String zipCode;
 
     @OneToMany(mappedBy = "location")
     private Set<JpaProposal> proposal;

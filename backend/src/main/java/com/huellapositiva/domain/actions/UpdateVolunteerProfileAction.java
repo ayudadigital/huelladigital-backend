@@ -40,58 +40,57 @@ public class UpdateVolunteerProfileAction {
                 .email(profileDto.getEmail())
                 .phoneNumber(profileDto.getPhoneNumber()).build();
 
-        jpaCredentialRepository.updateProfile(email, profileCredentials.getName(), profileCredentials.getSurname(), profileCredentials.getEmail(),
-                profileCredentials.getPhoneNumber(), profileCredentials.getBirthDate());
+        jpaCredentialRepository.updateProfile(email,
+                profileCredentials.getName(),
+                profileCredentials.getSurname(),
+                profileCredentials.getEmail(),
+                profileCredentials.getPhoneNumber(),
+                profileCredentials.getBirthDate());
 
         //Send email after commit profile changes
 
-/*
-
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
-        if(jpaVolunteer.getLocation() == null){
-            JpaLocation jpaLocation = JpaLocation.builder()
-                    .id(Id.newId().toString())
-                    .province(profileDto.getProvince())
-                    .town(profileDto.getTown())
-                    .address(profileDto.getAddress())
-                    .zipCode(profileDto.getZipCode()).build();
-
-            jpaLocationRepository.save(jpaLocation);
-            jpaVolunteerRepository.updateIdLocation(jpaVolunteer.getId(),jpaLocation);
-            //jpaVolunteer.setLocation(jpaLocation);
-            //jpaVolunteerRepository.save(jpaVolunteer);
-            System.out.println("hola que tal");
-
+        boolean isLocationNotEmpty = profileDto.getAddress() != null ||
+                profileDto.getTown() != null ||
+                profileDto.getProvince() != null ||
+                profileDto.getZipCode() != null;
+        if(isLocationNotEmpty) {
+            updateLocation(profileDto, email);
         }
-*/
-
-/*
-        ProfileLocation profileLocation = ProfileLocation.builder().address(profileDto.getAddress())
-                .province(profileDto.getProvince())
-                .town(profileDto.getTown())
-                .zipCode(profileDto.getZipCode()).build();
-*/
 
         ProfileVolunteer profileVolunteer = ProfileVolunteer.builder().twitter(profileDto.getTwitter())
                 .instagram(profileDto.getInstagram())
-                .linkedin(profileDto.getInstagram())
+                .linkedin(profileDto.getLinkedin())
                 .additionalInformation(profileDto.getAdditionalInformation()).build();
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
-        jpaVolunteer.setTwitter(profileVolunteer.getTwitter());
+        updateVolunteerInformation(profileVolunteer, jpaVolunteer);
         jpaVolunteerRepository.save(jpaVolunteer);
+    }
 
-        /*
-        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(),profileVolunteer.getTwitter(),
-                profileVolunteer.getInstagram(),
-                profileVolunteer.getLinkedin(),
-                profileVolunteer.getAdditionalInformation());
-                */
+    private void updateVolunteerInformation(ProfileVolunteer profileVolunteer, JpaVolunteer jpaVolunteer) {
+        jpaVolunteer.setTwitter(profileVolunteer.getTwitter());
+        jpaVolunteer.setInstagram(profileVolunteer.getInstagram());
+        jpaVolunteer.setLinkedin(profileVolunteer.getLinkedin());
+        jpaVolunteer.setAdditionalInformation(profileVolunteer.getAdditionalInformation());
+    }
 
+    private void updateLocation(ProfileDto profileDto, String email) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
+        String id;
+        if (jpaVolunteer.getLocation() == null) {
+            id = Id.newId().toString();
+        } else {
+            id = jpaVolunteer.getLocation().getId();
+        }
 
-        System.out.println("hola");
-
-
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .id(id)
+                .province(profileDto.getProvince())
+                .town(profileDto.getTown())
+                .address(profileDto.getAddress())
+                .zipCode(profileDto.getZipCode()).build();
+        jpaVolunteer.setLocation(jpaLocation);
+        jpaVolunteerRepository.save(jpaVolunteer);
     }
 
     private boolean someFieldIsEmptyCredentials(ProfileDto profile) {
@@ -104,12 +103,5 @@ public class UpdateVolunteerProfileAction {
         } else {
             return false;
         }
-
-
-        /*return profile.getName().isEmpty()
-                || profile.getSurname().isEmpty()
-                || profile.getBirthDate().isEqual(null)
-                || profile.getEmail().isEmpty()
-                || profile.getPhoneNumber().equals(null);*/
     }
 }

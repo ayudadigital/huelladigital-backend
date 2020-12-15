@@ -65,7 +65,7 @@ public class ProposalRequestDto {
     private final String instructions;
 
     @NotEmpty
-    private final Integer zipCode;
+    private final String zipCode;
 
     /** This operation will be implemented in the entity Proposal
      * @see com.huellapositiva.domain.model.entities.Proposal

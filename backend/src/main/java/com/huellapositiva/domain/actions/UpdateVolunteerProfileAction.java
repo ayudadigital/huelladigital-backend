@@ -62,7 +62,7 @@ public class UpdateVolunteerProfileAction {
                 .linkedin(profileDto.getLinkedin())
                 .additionalInformation(profileDto.getAdditionalInformation()).build();
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         updateVolunteerInformation(profileVolunteer, jpaVolunteer);
         jpaVolunteerRepository.save(jpaVolunteer);
     }
@@ -75,7 +75,7 @@ public class UpdateVolunteerProfileAction {
     }
 
     private void updateLocation(ProfileDto profileDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmail(email).get();
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         String id;
         if (jpaVolunteer.getLocation() == null) {
             id = Id.newId().toString();

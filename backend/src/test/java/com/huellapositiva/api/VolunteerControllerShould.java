@@ -227,26 +227,12 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    void return_204_xxxx_update_profile_information() throws Exception {
+
+    @ParameterizedTest
+    @MethodSource("provideProfileInformation")
+    void return_204_xxxx_update_profile_information(ProfileDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        ProfileDto profileDto = ProfileDto.builder()
-                .name("nombre")
-                .surname("Farruquito")
-                .email(DEFAULT_EMAIL)
-                .phoneNumber(123456789)
-                .birthDate("2000-12-10")
-                .province("hola1")
-                .address("hola2")
-                .zipCode("12345")
-                .town("hola3")
-                .twitter("twitter")
-                .instagram("instagram")
-                .linkedin("linkedin")
-                .additionalInformation("add")
-                .build();
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
@@ -254,33 +240,40 @@ class VolunteerControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
-    @Test
-    void return_204_xxxx_update_profile_information2() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        ProfileDto profileDto = ProfileDto.builder()
-                .name("nombre")
-                .surname("Farruquito")
-                .email(DEFAULT_EMAIL)
-                .phoneNumber(123456789)
-                .birthDate("2000-12-10")
-                .twitter("twitter")
-                .instagram("instagram")
-                .additionalInformation("add")
-                .build();
-
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
-                .with(csrf())
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+    private static Stream<ProfileDto> provideProfileInformation() {
+        return Stream.of(
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("Farruquito")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .province("hola1")
+                        .address("hola2")
+                        .zipCode("12345")
+                        .town("hola3")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("Farruquito")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build()
+        );
     }
+
 
 
 /*

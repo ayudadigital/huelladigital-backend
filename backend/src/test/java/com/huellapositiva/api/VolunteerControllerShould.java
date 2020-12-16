@@ -254,6 +254,7 @@ class VolunteerControllerShould {
                         .province("hola1")
                         .address("hola2")
                         .zipCode("12345")
+                        .island("Fuerteventura")
                         .town("hola3")
                         .twitter("twitter")
                         .instagram("instagram")

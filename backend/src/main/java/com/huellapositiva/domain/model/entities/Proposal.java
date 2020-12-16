@@ -95,7 +95,12 @@ public class Proposal {
                 .startingProposalDate(ProposalDate.createStartingProposalDate(dto.getStartingProposalDate()))
                 .closingProposalDate(ProposalDate.createClosingProposalDate(dto.getClosingProposalDate()))
                 .permittedAgeRange(AgeRange.create(dto.getMinimumAge(), dto.getMaximumAge()))
-                .location(new Location(dto.getProvince(), dto.getTown(), dto.getAddress(), dto.getZipCode()))
+                .location(new Location(
+                        dto.getProvince(),
+                        dto.getTown(),
+                        dto.getAddress(),
+                        dto.getZipCode(),
+                        dto.getIsland()))
                 .requiredDays(dto.getRequiredDays())
                 .description(dto.getDescription())
                 .durationInDays(dto.getDurationInDays())
@@ -124,7 +129,8 @@ public class Proposal {
                         jpaProposal.getLocation().getProvince(),
                         jpaProposal.getLocation().getTown(),
                         jpaProposal.getLocation().getAddress(),
-                        jpaProposal.getLocation().getZipCode()))
+                        jpaProposal.getLocation().getZipCode(),
+                        jpaProposal.getLocation().getIsland()))
                 .startingProposalDate(new ProposalDate(jpaProposal.getStartingProposalDate()))
                 .closingProposalDate(new ProposalDate(jpaProposal.getClosingProposalDate()))
                 .startingVolunteeringDate(new ProposalDate(jpaProposal.getStartingVolunteeringDate()))

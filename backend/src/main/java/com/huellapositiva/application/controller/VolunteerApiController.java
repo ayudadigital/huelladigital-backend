@@ -177,14 +177,6 @@ public class VolunteerApiController {
     public void updateProfileInformation(@RequestPart("dto") MultipartFile dtoProfileInformation,
                                         @AuthenticationPrincipal String contactPersonEmail
                                          ) throws IOException {
-
-        /*
-         @RequestPart("photo") MultipartFile photo,
-                                         @RequestPart("cv") MultipartFile curriculumVitae,
-                                            @AuthenticationPrincipal String contactPersonEmail
-
-         */
-        //ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
         ProfileDto profileDto = objectMapper.readValue(dtoProfileInformation.getBytes(), ProfileDto.class);
         try {
             updateVolunteerProfileAction.execute(profileDto,contactPersonEmail);

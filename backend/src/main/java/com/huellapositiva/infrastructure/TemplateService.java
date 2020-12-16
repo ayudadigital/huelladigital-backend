@@ -85,4 +85,9 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
+    public EmailTemplate getEmailChangedTemplate(){
+        String relativePath = "classpath:templates/emails/emailChange.txt";
+        String template = getFileContent(relativePath);
+        return new EmailTemplate(template);
+    }
 }

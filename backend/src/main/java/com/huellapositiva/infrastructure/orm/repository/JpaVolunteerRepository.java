@@ -31,20 +31,6 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
     Integer updateCurriculumVitae(@Param("id") String id, @Param("cvUrl") String cvUrl);
 
     @Modifying
-    @Transactional
-    @Query("UPDATE JpaVolunteer v SET v.twitter = :twitter, v.instagram = :instagram, v.linkedin = :linkedin, v.additionalInformation = :additionalInformation WHERE v.id = :id")
-    Integer updateProfile(@Param("id") String id,
-                          @Param("twitter") String twitter,
-                          @Param("instagram") String instagram,
-                          @Param("linkedin") String linkedin,
-                          @Param("additionalInformation") String additionalInformation);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE JpaVolunteer v SET v.location = :location WHERE v.id = :id")
-    Integer updateIdLocation(@Param("id") String id, @Param("location") JpaLocation location);
-
-    @Modifying
     @Query("UPDATE JpaVolunteer v SET v.photoUrl = :photoUrl WHERE v.id = :id")
     Integer updatePhoto(@Param("id") String id, @Param("photoUrl") String photoUrl);
 }

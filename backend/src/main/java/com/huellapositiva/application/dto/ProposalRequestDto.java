@@ -26,6 +26,12 @@ public class ProposalRequestDto {
     private final String address;
 
     @NotEmpty
+    private final String zipCode;
+
+    @NotEmpty
+    private final String island;
+
+    @NotEmpty
     private final String requiredDays;
 
     @NotEmpty
@@ -64,8 +70,7 @@ public class ProposalRequestDto {
     @NotEmpty
     private final String instructions;
 
-    @NotEmpty
-    private final String zipCode;
+
 
     /** This operation will be implemented in the entity Proposal
      * @see com.huellapositiva.domain.model.entities.Proposal

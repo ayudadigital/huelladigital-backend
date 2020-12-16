@@ -35,6 +35,9 @@ public class JpaLocation implements Serializable {
     @Column(name = "zip_code")
     private String zipCode;
 
+    @Column(name = "island")
+    private String island;
+
     @OneToMany(mappedBy = "location")
     private Set<JpaProposal> proposal;
 }

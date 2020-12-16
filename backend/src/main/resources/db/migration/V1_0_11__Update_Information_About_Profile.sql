@@ -4,7 +4,15 @@ ALTER TABLE credentials
     ADD COLUMN birth_date DATE NULL;
 
 ALTER TABLE locations
-    ADD COLUMN zip_code CHAR(5) NULL;
+    ADD COLUMN zip_code CHAR(5) NOT NULL;
+ALTER TABLE locations
+    ADD COLUMN island VARCHAR(15) NOT NULL;
+ALTER TABLE locations
+    ALTER COLUMN province DROP NOT NULL;
+ALTER TABLE locations
+    ALTER COLUMN town DROP NOT NULL;
+ALTER TABLE locations
+    ALTER COLUMN address DROP NOT NULL;
 
 ALTER TABLE volunteers
     DROP COLUMN age;

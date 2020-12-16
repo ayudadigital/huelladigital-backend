@@ -13,7 +13,6 @@ public class ProfileDto {
 
     private final String name;
     private final String surname;
-    //Object Mapper can not read LocalDate
     private final String birthDate;
     private final Integer phoneNumber;
     private final String email;
@@ -21,6 +20,7 @@ public class ProfileDto {
     private final String zipCode;
     private final String town;
     private final String address;
+    private final String island;
     private final String photo;
     private final String curriculumVitae;
     private final String twitter;

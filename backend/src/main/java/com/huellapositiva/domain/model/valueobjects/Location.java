@@ -15,11 +15,14 @@ public class Location {
 
     private final String zipCode;
 
-    public Location(String province, String town, String address, String zipCode) {
+    private final String island;
+
+    public Location(String province, String town, String address, String zipCode, String island) {
         this.zipCode = zipCode;
         this.id = Id.newId();
         this.province = province;
         this.town = town;
         this.address = address;
+        this.island = island;
     }
 }

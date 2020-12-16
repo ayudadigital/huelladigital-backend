@@ -33,38 +33,63 @@ public class UpdateVolunteerProfileAction {
         if (someFieldIsEmptyCredentials(profileDto)) {
             throw new IOException("Some field is null");
         }
-        //Do this code at the end
-        ProfileCredentials profileCredentials =  ProfileCredentials.builder().name(profileDto.getName())
-                .surname(profileDto.getSurname())
-                .birthDate(ProfileCredentials.parseToLocalDate(profileDto.getBirthDate()))
-                .email(profileDto.getEmail())
-                .phoneNumber(profileDto.getPhoneNumber()).build();
 
-        jpaCredentialRepository.updateProfile(email,
-                profileCredentials.getName(),
-                profileCredentials.getSurname(),
-                profileCredentials.getEmail(),
-                profileCredentials.getPhoneNumber(),
-                profileCredentials.getBirthDate());
-
-        //Send email after commit profile changes
-
+        JpaLocation jpaLocation = null;
         boolean isLocationNotEmpty = profileDto.getAddress() != null ||
                 profileDto.getTown() != null ||
                 profileDto.getProvince() != null ||
                 profileDto.getZipCode() != null;
         if(isLocationNotEmpty) {
-            updateLocation(profileDto, email);
+            jpaLocation = updateLocation(profileDto, email);
         }
 
-        ProfileVolunteer profileVolunteer = ProfileVolunteer.builder().twitter(profileDto.getTwitter())
+        /////////////////////////
+
+        /*ProfileVolunteer profileVolunteer = ProfileVolunteer.builder().twitter(profileDto.getTwitter())
                 .instagram(profileDto.getInstagram())
                 .linkedin(profileDto.getLinkedin())
-                .additionalInformation(profileDto.getAdditionalInformation()).build();
+                .additionalInformation(profileDto.getAdditionalInformation()).build();*/
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
-        updateVolunteerInformation(profileVolunteer, jpaVolunteer);
+        //updateVolunteerInformation(profileVolunteer, jpaVolunteer);
+        //jpaVolunteerRepository.save(jpaVolunteer);
+
+        // Esto merece ser función
+        jpaVolunteer.setTwitter(profileDto.getTwitter());
+        jpaVolunteer.setInstagram(profileDto.getInstagram());
+        jpaVolunteer.setLinkedin(profileDto.getLinkedin());
+        jpaVolunteer.setAdditionalInformation(profileDto.getAdditionalInformation());
+        // Hasta aqui la función, y que devuelva jpaVolunteer
+
+        ////////////////
+
+        //Do this code at the end
+        /*ProfileCredentials profileCredentials =  ProfileCredentials.builder().name(profileDto.getName())
+                .surname(profileDto.getSurname())
+                .birthDate(ProfileCredentials.parseToLocalDate(profileDto.getBirthDate()))
+                .email(profileDto.getEmail())
+                .phoneNumber(profileDto.getPhoneNumber()).build();*/
+
+        // Esto merece ser función
+        jpaVolunteer.getCredential().setName(profileDto.getName());
+        jpaVolunteer.getCredential().setSurname(profileDto.getSurname());
+        jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
+        jpaVolunteer.getCredential().setBirthDate(parseToLocalDate(profileDto.getBirthDate()));
+        jpaVolunteer.getCredential().setPhoneNumber(profileDto.getPhoneNumber());
+        // Hasta aqui la función, y que devuelva jpaVolunteer
+
+        /*jpaCredentialRepository.updateProfile(email,
+                profileCredentials.getName(),
+                profileCredentials.getSurname(),
+                profileCredentials.getEmail(),
+                profileCredentials.getPhoneNumber(),
+                profileCredentials.getBirthDate());*/
+
+        //Send email after commit profile changes
+
+        jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
+
     }
 
     private void updateVolunteerInformation(ProfileVolunteer profileVolunteer, JpaVolunteer jpaVolunteer) {
@@ -74,7 +99,9 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.setAdditionalInformation(profileVolunteer.getAdditionalInformation());
     }
 
-    private void updateLocation(ProfileDto profileDto, String email) {
+    // Aqui hay que poner otro IF más, por si el usuario decidiese NO actualizar la información de location cuando
+    // no hay location en base de datos todavía.
+    private JpaLocation updateLocation(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         String id;
         if (jpaVolunteer.getLocation() == null) {
@@ -89,8 +116,9 @@ public class UpdateVolunteerProfileAction {
                 .town(profileDto.getTown())
                 .address(profileDto.getAddress())
                 .zipCode(profileDto.getZipCode()).build();
-        jpaVolunteer.setLocation(jpaLocation);
-        jpaVolunteerRepository.save(jpaVolunteer);
+        //jpaVolunteer.setLocation(jpaLocation);
+        //jpaVolunteerRepository.save(jpaVolunteer);
+        return jpaLocation;
     }
 
     private boolean someFieldIsEmptyCredentials(ProfileDto profile) {
@@ -103,5 +131,10 @@ public class UpdateVolunteerProfileAction {
         } else {
             return false;
         }
+    }
+
+    public LocalDate parseToLocalDate(String date){
+        String[] parts = date.split("-");
+        return LocalDate.of(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]),Integer.parseInt(parts[2]));
     }
 }

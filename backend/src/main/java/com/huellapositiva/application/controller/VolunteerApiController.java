@@ -4,12 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
-import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
+import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.application.exception.SomeFieldIsNullException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
+import com.huellapositiva.domain.exception.MatchingEmailException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -166,7 +167,7 @@ public class VolunteerApiController {
     @GetMapping("/fetchProfileInformation")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) throws IOException {
+    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 
@@ -182,6 +183,8 @@ public class VolunteerApiController {
             updateVolunteerProfileAction.execute(profileDto,contactPersonEmail);
         } catch (IOException ex){
             throw new SomeFieldIsNullException(ex.getMessage());
+        } catch (MatchingEmailException ex){
+            throw new EmailAlreadyExistsException(ex.getMessage());
         }
     }
 }

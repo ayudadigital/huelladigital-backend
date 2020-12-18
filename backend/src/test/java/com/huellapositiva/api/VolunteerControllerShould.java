@@ -24,7 +24,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -229,8 +228,8 @@ class VolunteerControllerShould {
 
 
     @ParameterizedTest
-    @MethodSource("provideProfileInformation")
-    void return_204_xxxx_update_profile_information(ProfileDto profileDto) throws Exception {
+    @MethodSource("provideCorrectProfileInformation")
+    void return_204_when_updates_profile_information_successfully(ProfileDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -243,11 +242,11 @@ class VolunteerControllerShould {
                 .andExpect(status().isNoContent());
     }
 
-    private static Stream<ProfileDto> provideProfileInformation() {
+    private static Stream<ProfileDto> provideCorrectProfileInformation() {
         return Stream.of(
                 ProfileDto.builder()
                         .name("nombre")
-                        .surname("Farruquito")
+                        .surname("apellido")
                         .email(DEFAULT_EMAIL)
                         .phoneNumber(123456789)
                         .birthDate("2000-12-10")
@@ -263,10 +262,106 @@ class VolunteerControllerShould {
                         .build(),
                 ProfileDto.builder()
                         .name("nombre")
-                        .surname("Farruquito")
+                        .surname("apellido")
                         .email(DEFAULT_EMAIL)
                         .phoneNumber(123456789)
                         .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectProfileInformation")
+    void return_404_when_not_provided_correct_information_for_updating_profile(ProfileDto profileDto) throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    private static Stream<ProfileDto> provideIncorrectProfileInformation() {
+        return Stream.of(
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .province("hola1")
+                        .address("hola2")
+                        .island("Fuerteventura")
+                        .town("hola3")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .birthDate("2000-12-10")
+                        .province("hola1")
+                        .address("hola2")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
+                        .town("hola3")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .twitter("twitter")
+                        .instagram("instagram")
+                        .linkedin("linkedin")
+                        .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .phoneNumber(123456789)
+                        .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
                         .twitter("twitter")
                         .instagram("instagram")
                         .linkedin("linkedin")
@@ -275,7 +370,37 @@ class VolunteerControllerShould {
         );
     }
 
+    @Test
+    void return_409_when_provided_already_existing_email() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        ProfileDto profileDto = ProfileDto.builder()
+                .name("nombre")
+                .surname("Farruquito")
+                .email(DEFAULT_EMAIL_2)
+                .phoneNumber(123456789)
+                .birthDate("2000-12-10")
+                .province("hola1")
+                .address("hola2")
+                .zipCode("12345")
+                .island("Fuerteventura")
+                .town("hola3")
+                .twitter("twitter")
+                .instagram("instagram")
+                .linkedin("linkedin")
+                .additionalInformation("add")
+                .build();
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
 
 /*
     @Test

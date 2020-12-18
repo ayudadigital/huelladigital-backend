@@ -1,7 +1,5 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.domain.model.valueobjects.ProfileCredentials;
-import com.huellapositiva.domain.model.valueobjects.ProfileVolunteer;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

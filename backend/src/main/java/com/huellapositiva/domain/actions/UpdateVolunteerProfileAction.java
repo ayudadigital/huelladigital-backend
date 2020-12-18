@@ -1,11 +1,13 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.domain.exception.MatchingEmailException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,17 +21,21 @@ public class UpdateVolunteerProfileAction {
     private JpaVolunteerRepository jpaVolunteerRepository;
 
     @Autowired
+    private JpaCredentialRepository jpaCredentialRepository;
+
+    @Autowired
     private EmailCommunicationService emailCommunicationService;
 
     public void execute(ProfileDto profileDto, String email) throws IOException {
-        if (someFieldIsEmptyCredentials(profileDto)) {
+        if (someFieldIsEmptyCredentials(profileDto) || someFieldEmptyLocation(profileDto)) {
             throw new IOException("Some field is null");
         }
-        JpaLocation jpaLocation = null;
-        if(isLocationNotEmpty(profileDto)) {
-            jpaLocation = updateLocation(profileDto, email);
+
+        if (jpaCredentialRepository.findByEmail(email).isPresent() && !profileDto.getEmail().equals(email)) {
+            throw new MatchingEmailException("Email already exists in the database.");
         }
 
+        JpaLocation jpaLocation = updateLocation(profileDto, email);
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         updateProfileInformation(profileDto, jpaVolunteer);
         updateCredentials(profileDto, jpaVolunteer);
@@ -40,14 +46,6 @@ public class UpdateVolunteerProfileAction {
         if(!profileDto.getEmail().equals(email)){
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
         }
-    }
-
-    private boolean isLocationNotEmpty(ProfileDto profileDto) {
-        return profileDto.getAddress() != null ||
-                profileDto.getTown() != null ||
-                profileDto.getProvince() != null ||
-                profileDto.getZipCode() != null ||
-                profileDto.getIsland() != null;
     }
 
     private void updateProfileInformation(ProfileDto profileDto, JpaVolunteer jpaVolunteer) {
@@ -65,39 +63,33 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.getCredential().setPhoneNumber(profileDto.getPhoneNumber());
     }
 
-    private JpaLocation updateLocation(ProfileDto profileDto, String email) throws IOException {
+    private JpaLocation updateLocation(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
-        boolean isZipCodeAndIsland = profileDto.getZipCode() != null && profileDto.getIsland() != null;
-        if(isZipCodeAndIsland) {
-            String id;
-            if (jpaVolunteer.getLocation() == null) {
-                id = Id.newId().toString();
-            } else {
-                id = jpaVolunteer.getLocation().getId();
-            }
-
-            return JpaLocation.builder()
-                    .id(id)
-                    .province(profileDto.getProvince())
-                    .town(profileDto.getTown())
-                    .address(profileDto.getAddress())
-                    .island(profileDto.getIsland())
-                    .zipCode(profileDto.getZipCode()).build();
+        String id;
+        if (jpaVolunteer.getLocation() == null) {
+            id = Id.newId().toString();
         } else {
-            throw new IOException("Zip code or island missing.");
+            id = jpaVolunteer.getLocation().getId();
         }
+        return JpaLocation.builder()
+                .id(id)
+                .province(profileDto.getProvince())
+                .town(profileDto.getTown())
+                .address(profileDto.getAddress())
+                .island(profileDto.getIsland())
+                .zipCode(profileDto.getZipCode()).build();
     }
 
     private boolean someFieldIsEmptyCredentials(ProfileDto profile) {
-        if (profile.getName() == null
+        return profile.getName() == null
                 || profile.getSurname() == null
                 || profile.getBirthDate() == null
                 || profile.getEmail() == null
-                || profile.getPhoneNumber() == null) {
-            return true;
-        } else {
-            return false;
-        }
+                || profile.getPhoneNumber() == null;
+    }
+
+    private boolean someFieldEmptyLocation(ProfileDto profileDto) {
+        return profileDto.getIsland() == null || profileDto.getZipCode() == null;
     }
 
     public LocalDate parseToLocalDate(String date){

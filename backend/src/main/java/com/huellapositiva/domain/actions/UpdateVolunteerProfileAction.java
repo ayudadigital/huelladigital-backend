@@ -31,7 +31,7 @@ public class UpdateVolunteerProfileAction {
             throw new IOException("Some field is null");
         }
 
-        if (jpaCredentialRepository.findByEmail(email).isPresent() && !profileDto.getEmail().equals(email)) {
+        if (jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent() && !profileDto.getEmail().equals(email)) {
             throw new MatchingEmailException("Email already exists in the database.");
         }
 

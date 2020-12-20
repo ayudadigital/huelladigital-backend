@@ -276,7 +276,7 @@ class VolunteerControllerShould {
                 ProfileDto.builder()
                         .name("nombre")
                         .surname("apellido")
-                        .email(DEFAULT_EMAIL)
+                        .email(DEFAULT_EMAIL_2)
                         .phoneNumber(123456789)
                         .birthDate("2000-12-10")
                         .zipCode("12345")

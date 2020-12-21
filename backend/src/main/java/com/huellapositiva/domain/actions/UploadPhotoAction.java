@@ -31,8 +31,8 @@ public class UploadPhotoAction {
     public void execute(MultipartFile photo, String volunteerEmail) throws IOException {
         if (photo.getInputStream().available() != 0) {
             Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
-            URL PhotoUrl = remoteStorageService.uploadVolunteerPhoto(photo, volunteer.getId().toString());
-            volunteer.setPhoto(PhotoUrl);
+            URL photoUrl = remoteStorageService.uploadVolunteerPhoto(photo, volunteer.getId().toString());
+            volunteer.setPhoto(photoUrl);
             volunteerRepository.updatePhoto(volunteer);
         } else {
             throw new EmptyFileException("There is not any photo attached or is empty.");

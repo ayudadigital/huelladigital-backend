@@ -31,7 +31,8 @@ public class UpdateVolunteerProfileAction {
             throw new IOException("Some field is null");
         }
 
-        if (jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent() && !profileDto.getEmail().equals(email)) {
+        boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
+        if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new MatchingEmailException("Email already exists in the database.");
         }
 
@@ -43,7 +44,7 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
 
-        if(!profileDto.getEmail().equals(email)){
+        if(isNotEqualsEmail){
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
         }
     }

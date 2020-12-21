@@ -67,10 +67,14 @@ public class VolunteerRepository {
     }
 
     public void updateCurriculumVitae(Volunteer volunteer) {
-        jpaVolunteerRepository.updateCurriculumVitae(volunteer.getId().toString(), volunteer.getCurriculumVitae().toExternalForm());
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString()).get();
+        jpaVolunteer.setCurriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm());
+        jpaVolunteerRepository.save(jpaVolunteer);
     }
 
     public void updatePhoto(Volunteer volunteer) {
-        jpaVolunteerRepository.updatePhoto(volunteer.getId().toString(), volunteer.getPhoto().toExternalForm());
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString()).get();
+        jpaVolunteer.setPhotoUrl(volunteer.getPhoto().toExternalForm());
+        jpaVolunteerRepository.save(jpaVolunteer);
     }
 }

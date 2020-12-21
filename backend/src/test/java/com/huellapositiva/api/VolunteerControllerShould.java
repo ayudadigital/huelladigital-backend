@@ -63,7 +63,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void registering_volunteer_should_return_201_and_tokens() throws Exception {
+    void return_201_and_tokens_when_registering_volunteer() throws Exception {
         // GIVEN
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
@@ -94,7 +94,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void registering_volunteer_without_password_should_return_400() throws Exception {
+    void return_400_registering_volunteer_without_password() throws Exception {
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
                 .build();
@@ -108,7 +108,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void registering_volunteer_with_short_password_should_return_400() throws Exception {
+    void return_400_registering_volunteer_with_short_password() throws Exception {
         String shortPassword = "12345";
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
@@ -124,7 +124,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void registering_volunteer_without_email_should_return_400() throws Exception {
+    void return_400_registering_volunteer_without_email() throws Exception {
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .password("password")
                 .build();
@@ -138,7 +138,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void registering_volunteer_null_should_return_400() throws Exception {
+    void return_400_registering_volunteer_null() throws Exception {
         mvc.perform(post(SIGN_UP_URL)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -147,7 +147,7 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideMalformedEmails")
-    void registering_volunteer_with_malformed_email_should_return_400(String malformedEmail) throws Exception {
+    void return_400_when_registering_volunteer_with_malformed_email(String malformedEmail) throws Exception {
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(malformedEmail)
                 .password("password")
@@ -172,7 +172,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void upload_curriculum_vitae_successfully_and_return_200() throws Exception {
+    void return_200_when_upload_curriculum_vitae_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
@@ -402,9 +402,8 @@ class VolunteerControllerShould {
                 .andExpect(status().isConflict());
     }
 
-/*
     @Test
-    void upload_photo_successfully_and_return_200() throws Exception {
+    void return_200_when_upload_photo_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
@@ -430,8 +429,6 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
-*/
-
 }
 
 

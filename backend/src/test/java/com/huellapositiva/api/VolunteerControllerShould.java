@@ -403,7 +403,7 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void return_200_when_upload_photo_successfully() throws Exception {
+    void return_204_when_upload_photo_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
@@ -413,7 +413,7 @@ class VolunteerControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test

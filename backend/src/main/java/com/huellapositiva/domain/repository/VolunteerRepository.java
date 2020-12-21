@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
@@ -34,6 +35,13 @@ public class VolunteerRepository {
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
 
+    /**
+     * This class managed the volunteer register. Add a role (VOLUNTEER_NOT_CONFIRMED), add row in DB the EmailConfirmation,
+     * add the user credentials and add these points in Volunteer
+     *
+     * @param volunteer Send the CV, photo and user information
+     * @param emailConfirmation Send the information about emailConfirmation
+     */
     public Volunteer save(Volunteer volunteer, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER_NOT_CONFIRMED not found."));
@@ -57,6 +65,11 @@ public class VolunteerRepository {
         return volunteer;
     }
 
+    /**
+     * This method return the volunteer full information stored in DB.
+     *
+     * @param email Email of volunteer to log
+     */
     public Volunteer findByEmail(String email) {
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("Could not find volunteer with email " + email)
@@ -66,14 +79,26 @@ public class VolunteerRepository {
                 new Id(volunteer.getId()));
     }
 
+    /**
+     * This method store in DB the URL of Curriculum Vitae
+     *
+     * @param volunteer The volunteer information
+     */
     public void updateCurriculumVitae(Volunteer volunteer) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString()).get();
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
+                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
         jpaVolunteer.setCurriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm());
         jpaVolunteerRepository.save(jpaVolunteer);
     }
 
+    /**
+     * This method store in DB the URL of user profile photo
+     *
+     * @param volunteer The volunteer information
+     */
     public void updatePhoto(Volunteer volunteer) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString()).get();
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
+                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
         jpaVolunteer.setPhotoUrl(volunteer.getPhoto().toExternalForm());
         jpaVolunteerRepository.save(jpaVolunteer);
     }

@@ -150,20 +150,69 @@ public class VolunteerApiController {
         }
     }
 
+    @Operation(
+            summary = "Upload user Photo",
+            description = "Upload user Photo to profile",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, uploaded photo successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, could not register. The user already exist on db",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping(path = "/photo-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                                      @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+                                      @AuthenticationPrincipal String volunteerEmail) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, contactPersonEmail);
+            uploadPhotoAction.execute(photo, volunteerEmail);
         } catch (EmptyFileException ex){
             log.error("There is not any photo attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
 
+    @Operation(
+            summary = "Return user profile information",
+            description = "Return user profile information",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, return full information user profile"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @GetMapping("/fetchProfileInformation")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
@@ -171,6 +220,38 @@ public class VolunteerApiController {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 
+    @Operation(
+            summary = "Update user profile information",
+            description = "Update user profile information",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, return full information user profile"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, some field is mandatory",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the new email already match with other email in db",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping(path = "/updateProfileInformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody

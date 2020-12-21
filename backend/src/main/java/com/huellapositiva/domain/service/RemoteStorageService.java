@@ -71,7 +71,7 @@ public class RemoteStorageService {
      *
      * @param photo
      * @param volunteerId
-     * @return URL with the cv location in the storage
+     * @return URL with the photo location in the storage
      * @throws IOException
      */
     public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {

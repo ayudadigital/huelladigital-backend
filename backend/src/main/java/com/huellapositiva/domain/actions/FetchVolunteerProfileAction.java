@@ -12,10 +12,15 @@ import java.time.format.DateTimeFormatter;
 public class FetchVolunteerProfileAction {
 
     @Autowired
-    private JpaVolunteerRepository jpaVolunteerRespository;
+    private JpaVolunteerRepository jpaVolunteerRepository;
 
+    /**
+     * This method fetches a Volunteer with full information (with partially credentials and location) from the DB
+     *
+     * @param volunteerEmail Email of the logged volunteer
+     */
     public ProfileDto execute(String volunteerEmail) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRespository.findByEmailProfileInformation(volunteerEmail);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(volunteerEmail);
 
         boolean jpaLocationIsNull = jpaVolunteer.getLocation() == null;
         if (jpaLocationIsNull) {

@@ -26,6 +26,13 @@ public class UpdateVolunteerProfileAction {
     @Autowired
     private EmailCommunicationService emailCommunicationService;
 
+    /**
+     * This method update the user profile information in database
+     *
+     * @param profileDto New user profile information to update
+     * @param email Email of user logged
+     * @throws IOException
+     */
     public void execute(ProfileDto profileDto, String email) throws IOException {
         if (someFieldIsEmptyCredentials(profileDto) || someFieldEmptyLocation(profileDto)) {
             throw new IOException("Some field is null");
@@ -49,6 +56,12 @@ public class UpdateVolunteerProfileAction {
         }
     }
 
+    /**
+     * This method update information in volunteer table
+     *
+     * @param profileDto New user profile information to update
+     * @param jpaVolunteer The information in Database
+     */
     private void updateProfileInformation(ProfileDto profileDto, JpaVolunteer jpaVolunteer) {
         jpaVolunteer.setTwitter(profileDto.getTwitter());
         jpaVolunteer.setInstagram(profileDto.getInstagram());
@@ -56,6 +69,12 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.setAdditionalInformation(profileDto.getAdditionalInformation());
     }
 
+    /**
+     * This method update information in credential table
+     *
+     * @param profileDto New user credential information to update
+     * @param jpaVolunteer The information in Database
+     */
     private void updateCredentials(ProfileDto profileDto, JpaVolunteer jpaVolunteer) {
         jpaVolunteer.getCredential().setName(profileDto.getName());
         jpaVolunteer.getCredential().setSurname(profileDto.getSurname());
@@ -64,6 +83,12 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.getCredential().setPhoneNumber(profileDto.getPhoneNumber());
     }
 
+    /**
+     * This method update information in credential table
+     *
+     * @param profileDto New user credential information to update
+     * @param email Email of user logged
+     */
     private JpaLocation updateLocation(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         String id;
@@ -81,6 +106,11 @@ public class UpdateVolunteerProfileAction {
                 .zipCode(profileDto.getZipCode()).build();
     }
 
+    /**
+     * This method checks if the credential information provided is not null
+     *
+     * @param profile The information to check
+     */
     private boolean someFieldIsEmptyCredentials(ProfileDto profile) {
         return profile.getName() == null
                 || profile.getSurname() == null
@@ -89,10 +119,20 @@ public class UpdateVolunteerProfileAction {
                 || profile.getPhoneNumber() == null;
     }
 
+    /**
+     * This method checks if the island and zip code is not null
+     *
+     * @param profileDto The information to check
+     */
     private boolean someFieldEmptyLocation(ProfileDto profileDto) {
         return profileDto.getIsland() == null || profileDto.getZipCode() == null;
     }
 
+    /**
+     * This method parse the Date in String to LocalDate
+     *
+     * @param date This data comes from the profile
+     */
     public LocalDate parseToLocalDate(String date){
         String[] parts = date.split("-");
         return LocalDate.of(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]),Integer.parseInt(parts[2]));

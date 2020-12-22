@@ -233,12 +233,7 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, credentials are not valid",
-                            content = @Content()
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Not found, some field is mandatory",
+                            description = "Bad request, credentials are not valid or some field is mandatory",
                             content = @Content()
                     ),
                     @ApiResponse(

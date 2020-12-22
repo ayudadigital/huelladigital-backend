@@ -287,7 +287,7 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
-    void return_404_when_not_provided_correct_information_for_updating_profile(ProfileDto profileDto) throws Exception {
+    void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

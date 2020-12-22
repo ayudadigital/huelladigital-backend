@@ -297,7 +297,7 @@ class VolunteerControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     private static Stream<ProfileDto> provideIncorrectProfileInformation() {

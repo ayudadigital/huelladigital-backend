@@ -1,7 +1,7 @@
 package com.huellapositiva.infrastructure;
 
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class AwsSsmConfig {
     public AWSSimpleSystemsManagement localAwsSimpleSystemsManagement() {
         log.info("Setting up local parameter-store {} in {} region ...", ssmUrl, region);
         return AWSSimpleSystemsManagementClientBuilder.standard()
-                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:4583", region))
+                .withEndpointConfiguration(new EndpointConfiguration(ssmUrl, region))
                 .build();
     }
 }

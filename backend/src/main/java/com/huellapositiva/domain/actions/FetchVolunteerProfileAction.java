@@ -24,44 +24,31 @@ public class FetchVolunteerProfileAction {
 
         boolean jpaLocationIsNull = jpaVolunteer.getLocation() == null;
         if (jpaLocationIsNull) {
-            return ProfileDto.builder()
-                    .name(jpaVolunteer.getCredential().getName())
-                    .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
-                        null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
-                    .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
-                    .email(jpaVolunteer.getCredential().getEmail())
-                    .province(null)
-                    .town(null)
-                    .zipCode(null)
-                    .address(null)
-                    .photo(jpaVolunteer.getPhotoUrl())
-                    .curriculumVitae(jpaVolunteer.getCurriculumVitaeUrl())
-                    .twitter(jpaVolunteer.getTwitter())
-                    .instagram(jpaVolunteer.getInstagram())
-                    .linkedin(jpaVolunteer.getLinkedin())
-                    .additionalInformation(jpaVolunteer.getAdditionalInformation())
-                    .build();
+            return getProfileDtoBuilder(jpaVolunteer).build();
         } else {
-            return ProfileDto.builder()
-                    .name(jpaVolunteer.getCredential().getName())
-                    .surname(jpaVolunteer.getCredential().getSurname())
-                    .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
-                            null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
-                    .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
-                    .email(jpaVolunteer.getCredential().getEmail())
+            return getProfileDtoBuilder(jpaVolunteer)
                     .province(jpaVolunteer.getLocation().getProvince())
                     .town(jpaVolunteer.getLocation().getTown())
-                    .zipCode(jpaVolunteer.getLocation().getZipCode())
                     .address(jpaVolunteer.getLocation().getAddress())
-                    .photo(jpaVolunteer.getPhotoUrl())
-                    .curriculumVitae(jpaVolunteer.getCurriculumVitaeUrl())
-                    .twitter(jpaVolunteer.getTwitter())
-                    .instagram(jpaVolunteer.getInstagram())
-                    .linkedin(jpaVolunteer.getLinkedin())
-                    .additionalInformation(jpaVolunteer.getAdditionalInformation())
+                    .zipCode(jpaVolunteer.getLocation().getZipCode())
+                    .island(jpaVolunteer.getLocation().getIsland())
                     .build();
         }
+    }
 
+    private ProfileDto.ProfileDtoBuilder getProfileDtoBuilder(JpaVolunteer jpaVolunteer) {
+        return ProfileDto.builder()
+                .name(jpaVolunteer.getCredential().getName())
+                .surname(jpaVolunteer.getCredential().getSurname())
+                .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
+                        null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
+                .email(jpaVolunteer.getCredential().getEmail())
+                .photo(jpaVolunteer.getPhotoUrl())
+                .curriculumVitae(jpaVolunteer.getCurriculumVitaeUrl())
+                .twitter(jpaVolunteer.getTwitter())
+                .instagram(jpaVolunteer.getInstagram())
+                .linkedin(jpaVolunteer.getLinkedin())
+                .additionalInformation(jpaVolunteer.getAdditionalInformation());
     }
 }

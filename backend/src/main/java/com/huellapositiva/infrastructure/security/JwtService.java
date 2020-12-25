@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.security;
 
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.InvalidJwtTokenException;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.nimbusds.jose.*;
@@ -78,7 +79,7 @@ public class JwtService {
         revokeAccessTokens(username);
         String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
         String newRefreshToken = createToken(username, Collections.emptyList(), jwtProperties.getRefreshToken().getExpirationTime());
-        return new JwtResponseDto(newAccessToken, newRefreshToken);
+        return new JwtResponseDto(newAccessToken, newRefreshToken, roles.stream().map(Roles::valueOf).collect(Collectors.toSet()));
     }
 
     @SuppressWarnings("unchecked")

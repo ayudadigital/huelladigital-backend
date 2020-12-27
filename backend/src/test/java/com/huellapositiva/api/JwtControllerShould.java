@@ -91,6 +91,7 @@ class JwtControllerShould {
             //THEN
             assertThat(newAccessToken).isNotNull();
             assertThat(newRefreshToken).isNotNull();
+            assertThat(jwtResponseDto.getRoles()).containsExactly(VOLUNTEER);
             assertAll(
                     () -> assertThat(newAccessToken).isNotEqualTo(accessToken),
                     () -> assertThat(newRefreshToken).isNotEqualTo(refreshToken)
@@ -180,7 +181,9 @@ class JwtControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertThat(objectMapper.readValue(refreshResponse, JwtResponseDto.class).getAccessToken()).isNotNull();
+        JwtResponseDto jwtResponseDto = objectMapper.readValue(refreshResponse, JwtResponseDto.class);
+        assertThat(jwtResponseDto.getAccessToken()).isNotNull();
+        assertThat(jwtResponseDto.getRoles()).containsExactly(VOLUNTEER);
     }
 
     @Test

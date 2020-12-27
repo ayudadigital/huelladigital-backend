@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
@@ -40,7 +41,7 @@ class LoginControllerShould {
     }
 
     @Test
-    void validate_user_correctly_and_send_tokens() throws Exception {
+    void validate_user_and_send_tokens_and_roles() throws Exception {
         //GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -50,6 +51,7 @@ class LoginControllerShould {
         //THEN
         assertThat(jwtResponseDto.getAccessToken()).isNotNull();
         assertThat(jwtResponseDto.getRefreshToken()).isNotNull();
+        assertThat(jwtResponseDto.getRoles()).containsExactly(VOLUNTEER);
     }
 
     @Test
@@ -66,6 +68,4 @@ class LoginControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
-
-
 }

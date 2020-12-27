@@ -1,7 +1,10 @@
 package com.huellapositiva.application.dto;
 
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Value;
+
+import java.util.Set;
 
 @Value
 public class JwtResponseDto {
@@ -17,4 +20,6 @@ public class JwtResponseDto {
 
     )
     String refreshToken;
+
+    Set<Roles> roles;
 }

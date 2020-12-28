@@ -6,6 +6,7 @@ import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
+import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -43,7 +44,19 @@ public class UpdateVolunteerProfileAction {
             throw new MatchingEmailException("Email already exists in the database.");
         }
 
+        System.out.println("HOLA");
+        //// Implementación paralela ////
+        JpaProfile jpaProfile = upsertProfile(profileDto, email);
+        JpaVolunteer jpaVolunteerParalelo = jpaVolunteerRepository.findByEmailProfileInformationParalelo(email);
+
+        // Esto es el upsert verdadero
+        jpaVolunteerParalelo.setProfile(jpaProfile);
+        jpaVolunteerRepository.save(jpaVolunteerParalelo);
+        System.out.println("HOLAAAAA");
+        /////////////////////////////////
+
         //// SE RESPETA /////
+        // El location no cambia
         JpaLocation jpaLocation = updateLocation(profileDto, email);
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         updateProfileInformation(profileDto, jpaVolunteer);
@@ -52,6 +65,8 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
         /////////////////////
+
+        System.out.println("HOLAAAA");
 
         if(isNotEqualsEmail){
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
@@ -106,6 +121,27 @@ public class UpdateVolunteerProfileAction {
                 .address(profileDto.getAddress())
                 .island(profileDto.getIsland())
                 .zipCode(profileDto.getZipCode()).build();
+    }
+
+    private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(email);
+        String id;
+        if (jpaVolunteer.getProfile() == null) {
+            id = Id.newId().toString();
+        } else {
+            id = jpaVolunteer.getProfile().getId();
+        }
+        return JpaProfile.builder()
+                .id(id)
+                .name(profileDto.getName())
+                .surname(profileDto.getSurname())
+                .phoneNumber(profileDto.getPhoneNumber())
+                .birthDate(parseToLocalDate(profileDto.getBirthDate()))
+                .twitter(profileDto.getTwitter())
+                .instagram(profileDto.getInstagram())
+                .linkedin(profileDto.getLinkedin())
+                .additionalInformation(profileDto.getAdditionalInformation())
+                .build();
     }
 
     /**

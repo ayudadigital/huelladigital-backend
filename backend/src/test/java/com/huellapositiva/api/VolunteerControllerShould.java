@@ -5,6 +5,7 @@ import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -226,10 +227,9 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk());
     }
 
-
     @ParameterizedTest
-    @MethodSource("provideCorrectProfileInformation")
-    void return_204_when_updates_profile_information_successfully(ProfileDto profileDto) throws Exception {
+    @MethodSource("provideCorrectProfileInformationSameEmail")
+    void return_204_when_updates_profile_information_successfully_without_email(ProfileDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -240,9 +240,12 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
-    private static Stream<ProfileDto> provideCorrectProfileInformation() {
+    private static Stream<ProfileDto> provideCorrectProfileInformationSameEmail() {
         return Stream.of(
                 ProfileDto.builder()
                         .name("nombre")
@@ -272,7 +275,30 @@ class VolunteerControllerShould {
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
-                        .build(),
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideCorrectProfileInformationDifferentEmail")
+    void return_204_when_updates_profile_information_successfully_with_email(ProfileDto profileDto) throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(DEFAULT_EMAIL_2);
+        assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
+    }
+
+    private static Stream<ProfileDto> provideCorrectProfileInformationDifferentEmail() {
+        return Stream.of(
                 ProfileDto.builder()
                         .name("nombre")
                         .surname("apellido")

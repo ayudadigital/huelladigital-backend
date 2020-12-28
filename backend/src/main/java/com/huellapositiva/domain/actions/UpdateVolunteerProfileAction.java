@@ -44,60 +44,18 @@ public class UpdateVolunteerProfileAction {
             throw new MatchingEmailException("Email already exists in the database.");
         }
 
-        System.out.println("HOLA");
-        //// Implementación paralela ////
-        JpaProfile jpaProfile = upsertProfile(profileDto, email);
-        JpaVolunteer jpaVolunteerParalelo = jpaVolunteerRepository.findByEmailProfileInformationParalelo(email);
-
-        // Esto es el upsert verdadero
-        jpaVolunteerParalelo.setProfile(jpaProfile);
-        jpaVolunteerRepository.save(jpaVolunteerParalelo);
-        System.out.println("HOLAAAAA");
-        /////////////////////////////////
-
-        //// SE RESPETA /////
-        // El location no cambia
         JpaLocation jpaLocation = updateLocation(profileDto, email);
+        JpaProfile jpaProfile = upsertProfile(profileDto, email);
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
-        updateProfileInformation(profileDto, jpaVolunteer);
-        updateCredentials(profileDto, jpaVolunteer);
+        jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
 
+        jpaVolunteer.setProfile(jpaProfile);
         jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
-        /////////////////////
-
-        System.out.println("HOLAAAA");
 
         if(isNotEqualsEmail){
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
         }
-    }
-
-    /**
-     * This method update information in volunteer table
-     *
-     * @param profileDto New user profile information to update
-     * @param jpaVolunteer The information in Database
-     */
-    private void updateProfileInformation(ProfileDto profileDto, JpaVolunteer jpaVolunteer) {
-        jpaVolunteer.setTwitter(profileDto.getTwitter());
-        jpaVolunteer.setInstagram(profileDto.getInstagram());
-        jpaVolunteer.setLinkedin(profileDto.getLinkedin());
-        jpaVolunteer.setAdditionalInformation(profileDto.getAdditionalInformation());
-    }
-
-    /**
-     * This method update information in credential table
-     *
-     * @param profileDto New user credential information to update
-     * @param jpaVolunteer The information in Database
-     */
-    private void updateCredentials(ProfileDto profileDto, JpaVolunteer jpaVolunteer) {
-        jpaVolunteer.getCredential().setName(profileDto.getName());
-        jpaVolunteer.getCredential().setSurname(profileDto.getSurname());
-        jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
-        jpaVolunteer.getCredential().setBirthDate(parseToLocalDate(profileDto.getBirthDate()));
-        jpaVolunteer.getCredential().setPhoneNumber(profileDto.getPhoneNumber());
     }
 
     /**
@@ -124,7 +82,7 @@ public class UpdateVolunteerProfileAction {
     }
 
     private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(email);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         String id;
         if (jpaVolunteer.getProfile() == null) {
             id = Id.newId().toString();

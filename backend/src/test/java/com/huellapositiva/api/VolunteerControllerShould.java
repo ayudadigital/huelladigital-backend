@@ -241,7 +241,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(DEFAULT_EMAIL);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
@@ -293,7 +293,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformationParalelo(DEFAULT_EMAIL_2);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 

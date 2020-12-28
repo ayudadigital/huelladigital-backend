@@ -25,14 +25,12 @@ CREATE TABLE profile
     surname                 VARCHAR(255) NOT NULL,
     phone_number            VARCHAR(255) NOT NULL,
     birth_date              DATE NOT NULL,
-    location_id             VARCHAR(255),
     curriculum_vitae_url    VARCHAR(255),
     photo_url               VARCHAR(255),
     twitter                 VARCHAR(255),
     instagram               VARCHAR(255),
     linkedin                VARCHAR(255),
-    additional_information  VARCHAR(500),
-    FOREIGN KEY (location_id) REFERENCES locations(id)
+    additional_information  VARCHAR(500)
 );
 
 ALTER TABLE volunteers

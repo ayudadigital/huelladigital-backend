@@ -43,6 +43,7 @@ public class UpdateVolunteerProfileAction {
             throw new MatchingEmailException("Email already exists in the database.");
         }
 
+        //// SE RESPETA /////
         JpaLocation jpaLocation = updateLocation(profileDto, email);
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         updateProfileInformation(profileDto, jpaVolunteer);
@@ -50,6 +51,7 @@ public class UpdateVolunteerProfileAction {
 
         jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
+        /////////////////////
 
         if(isNotEqualsEmail){
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));

@@ -54,4 +54,8 @@ public class JpaVolunteer implements Serializable {
 
     @Column(name = "additional_information")
     private String additionalInformation;
+
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private JpaProfile profile;
 }

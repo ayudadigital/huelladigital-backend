@@ -21,34 +21,37 @@ public class FetchVolunteerProfileAction {
      */
     public ProfileDto execute(String volunteerEmail) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(volunteerEmail);
+        ProfileDto.ProfileDtoBuilder profileDto = ProfileDto.builder().email(jpaVolunteer.getCredential().getEmail());
+        addProfileInProfileDto(jpaVolunteer, profileDto);
+        addLocationInProfileDto(jpaVolunteer, profileDto);
+        return profileDto.build();
+    }
 
-        boolean jpaLocationIsNull = jpaVolunteer.getLocation() == null;
-        if (jpaLocationIsNull) {
-            return getProfileDtoBuilder(jpaVolunteer).build();
-        } else {
-            return getProfileDtoBuilder(jpaVolunteer)
-                    .province(jpaVolunteer.getLocation().getProvince())
+    private void addLocationInProfileDto(JpaVolunteer jpaVolunteer, ProfileDto.ProfileDtoBuilder profileDto) {
+        boolean jpaLocationIsNotNull = jpaVolunteer.getLocation() != null;
+        if (jpaLocationIsNotNull) {
+            profileDto.province(jpaVolunteer.getLocation().getProvince())
                     .town(jpaVolunteer.getLocation().getTown())
                     .address(jpaVolunteer.getLocation().getAddress())
                     .zipCode(jpaVolunteer.getLocation().getZipCode())
-                    .island(jpaVolunteer.getLocation().getIsland())
-                    .build();
+                    .island(jpaVolunteer.getLocation().getIsland());
         }
     }
 
-    private ProfileDto.ProfileDtoBuilder getProfileDtoBuilder(JpaVolunteer jpaVolunteer) {
-        return ProfileDto.builder()
-                .name(jpaVolunteer.getCredential().getName())
-                .surname(jpaVolunteer.getCredential().getSurname())
-                .birthDate(jpaVolunteer.getCredential().getBirthDate() == null ?
-                        null : jpaVolunteer.getCredential().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .phoneNumber(jpaVolunteer.getCredential().getPhoneNumber())
-                .email(jpaVolunteer.getCredential().getEmail())
-                .photo(jpaVolunteer.getPhotoUrl())
-                .curriculumVitae(jpaVolunteer.getCurriculumVitaeUrl())
-                .twitter(jpaVolunteer.getTwitter())
-                .instagram(jpaVolunteer.getInstagram())
-                .linkedin(jpaVolunteer.getLinkedin())
-                .additionalInformation(jpaVolunteer.getAdditionalInformation());
+    private void addProfileInProfileDto(JpaVolunteer jpaVolunteer, ProfileDto.ProfileDtoBuilder profileDto) {
+        boolean jpaProfileIsNotNull = jpaVolunteer.getProfile() != null;
+        if (jpaProfileIsNotNull) {
+            profileDto.name(jpaVolunteer.getProfile().getName())
+                    .surname(jpaVolunteer.getProfile().getSurname())
+                    .birthDate(jpaVolunteer.getProfile().getBirthDate() == null ?
+                            null : jpaVolunteer.getProfile().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    .phoneNumber("" + jpaVolunteer.getProfile().getPhoneNumber())
+                    .photo(jpaVolunteer.getProfile().getPhotoUrl())
+                    .curriculumVitae(jpaVolunteer.getProfile().getCurriculumVitaeUrl())
+                    .twitter(jpaVolunteer.getProfile().getTwitter())
+                    .instagram(jpaVolunteer.getProfile().getInstagram())
+                    .linkedin(jpaVolunteer.getProfile().getLinkedin())
+                    .additionalInformation(jpaVolunteer.getProfile().getAdditionalInformation());
+        }
     }
 }

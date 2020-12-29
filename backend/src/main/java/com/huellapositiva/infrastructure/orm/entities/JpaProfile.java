@@ -33,7 +33,7 @@ public class JpaProfile implements Serializable {
         private String surname;
 
         @Column(name = "phone_number")
-        private Integer phoneNumber;
+        private String phoneNumber;
 
         @Column(name = "birth_date")
         private LocalDate birthDate;

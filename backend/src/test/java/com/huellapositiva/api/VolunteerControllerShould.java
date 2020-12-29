@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
+import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -25,6 +28,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -57,6 +61,9 @@ class VolunteerControllerShould {
 
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
+
+    @Autowired
+    private JpaProfileRepository jpaProfileRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -219,6 +226,22 @@ class VolunteerControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .birthDate(LocalDate.of(1993,12,12))
+                .twitter("Aqui un enlace a twitter")
+                .instagram("Aqui un enlace a instagram")
+                .additionalInformation("Pequeña descripción")
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
         mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -251,7 +274,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .province("hola1")
                         .address("hola2")
@@ -267,7 +290,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -303,7 +326,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL_2)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -332,7 +355,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .province("hola1")
                         .address("hola2")
@@ -347,7 +370,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .twitter("twitter")
@@ -374,7 +397,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .twitter("twitter")
                         .instagram("instagram")
@@ -384,7 +407,7 @@ class VolunteerControllerShould {
                 ProfileDto.builder()
                         .name("nombre")
                         .surname("apellido")
-                        .phoneNumber(123456789)
+                        .phoneNumber("123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -406,7 +429,7 @@ class VolunteerControllerShould {
                 .name("nombre")
                 .surname("Farruquito")
                 .email(DEFAULT_EMAIL_2)
-                .phoneNumber(123456789)
+                .phoneNumber("123456789")
                 .birthDate("2000-12-10")
                 .province("hola1")
                 .address("hola2")

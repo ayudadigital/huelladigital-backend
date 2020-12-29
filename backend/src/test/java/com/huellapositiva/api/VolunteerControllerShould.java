@@ -211,7 +211,7 @@ class VolunteerControllerShould {
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
@@ -282,7 +282,7 @@ class VolunteerControllerShould {
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
 
         mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
@@ -307,7 +307,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
@@ -359,7 +359,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL_2);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
@@ -526,7 +526,7 @@ class VolunteerControllerShould {
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");

@@ -46,7 +46,7 @@ public class UpdateVolunteerProfileAction {
 
         JpaLocation jpaLocation = updateLocation(profileDto, email);
         JpaProfile jpaProfile = upsertProfile(profileDto, email);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
 
         jpaVolunteer.setProfile(jpaProfile);
@@ -65,7 +65,7 @@ public class UpdateVolunteerProfileAction {
      * @param email Email of user logged
      */
     private JpaLocation updateLocation(ProfileDto profileDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         String id;
         if (jpaVolunteer.getLocation() == null) {
             id = Id.newId().toString();
@@ -88,7 +88,7 @@ public class UpdateVolunteerProfileAction {
      * @param email Email of user logged
      */
     private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         String id;
         if (jpaVolunteer.getProfile() == null) {
             id = Id.newId().toString();

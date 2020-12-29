@@ -20,7 +20,7 @@ public class FetchVolunteerProfileAction {
      * @param volunteerEmail Email of the logged volunteer
      */
     public ProfileDto execute(String volunteerEmail) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(volunteerEmail);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(volunteerEmail);
         ProfileDto.ProfileDtoBuilder profileDto = ProfileDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {

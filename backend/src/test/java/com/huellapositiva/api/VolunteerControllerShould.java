@@ -194,6 +194,37 @@ class VolunteerControllerShould {
     }
 
     @Test
+    void return_200_when_upload_curriculum_vitae_successfully_with_profile_created() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .birthDate(LocalDate.of(1993,12,12))
+                .twitter("Aqui un enlace a twitter")
+                .instagram("Aqui un enlace a instagram")
+                .additionalInformation("Pequeña descripción")
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
+        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+                .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void return_400_when_uploaded_file_is_not_PDF() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);

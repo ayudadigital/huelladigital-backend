@@ -88,7 +88,17 @@ public class VolunteerRepository {
     public void updateCurriculumVitae(Volunteer volunteer) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
                 .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
-        jpaVolunteer.setCurriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm());
+        boolean profileIsNull = jpaVolunteer.getProfile() == null;
+        if (profileIsNull) {
+            JpaProfile jpaProfile = JpaProfile.builder()
+                    .id(Id.newId().toString())
+                    .curriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm())
+                    .build();
+            jpaProfileRepository.save(jpaProfile);
+            jpaVolunteer.setProfile(jpaProfile);
+        } else {
+            jpaVolunteer.getProfile().setCurriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm());
+        }
         jpaVolunteerRepository.save(jpaVolunteer);
     }
 

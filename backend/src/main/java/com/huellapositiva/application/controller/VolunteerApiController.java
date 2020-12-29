@@ -4,6 +4,7 @@ import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
+import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionAction;
 import com.huellapositiva.domain.actions.RegisterVolunteerAction;
 import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
@@ -49,6 +50,8 @@ public class VolunteerApiController {
     private final RegisterVolunteerAction registerVolunteerAction;
 
     private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
+
+    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -137,4 +140,15 @@ public class VolunteerApiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
+
+    @PostMapping("/changeStatusNewsletterSubscription")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
+                                                   @AuthenticationPrincipal String volunteerEmail) {
+        changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
+    }
+
+
 }

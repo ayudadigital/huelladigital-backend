@@ -466,6 +466,37 @@ class VolunteerControllerShould {
     }
 
     @Test
+    void return_204_when_upload_photo_successfully_with_profile() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .birthDate(LocalDate.of(1993,12,12))
+                .twitter("Aqui un enlace a twitter")
+                .instagram("Aqui un enlace a instagram")
+                .additionalInformation("Pequeña descripción")
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(DEFAULT_EMAIL);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+                .file(new MockMultipartFile("photo", "photo-test.JPG", "image/jpeg", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     void return_400_when_uploaded_file_is_not_JPG_JPEG_PNG_GIF() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);

@@ -59,7 +59,7 @@ public class UpdateVolunteerProfileAction {
     }
 
     /**
-     * This method update information in credential table
+     * This method update information in location table
      *
      * @param profileDto New user credential information to update
      * @param email Email of user logged
@@ -81,6 +81,12 @@ public class UpdateVolunteerProfileAction {
                 .zipCode(profileDto.getZipCode()).build();
     }
 
+    /**
+     * This method update information in profile table
+     *
+     * @param profileDto New user credential information to update
+     * @param email Email of user logged
+     */
     private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(email);
         String id;

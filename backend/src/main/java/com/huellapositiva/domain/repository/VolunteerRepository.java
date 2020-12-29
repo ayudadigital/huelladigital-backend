@@ -4,11 +4,9 @@ import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
-import com.huellapositiva.infrastructure.orm.entities.Role;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import lombok.AllArgsConstructor;
@@ -34,6 +32,9 @@ public class VolunteerRepository {
 
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
+
+    @Autowired
+    private final JpaProfileRepository jpaProfileRepository;
 
     /**
      * This class managed the volunteer register. Add a role (VOLUNTEER_NOT_CONFIRMED), add row in DB the EmailConfirmation,
@@ -99,7 +100,19 @@ public class VolunteerRepository {
     public void updatePhoto(Volunteer volunteer) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
                 .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
-        jpaVolunteer.setPhotoUrl(volunteer.getPhoto().toExternalForm());
+
+        boolean profileIsNull = jpaVolunteer.getProfile() == null;
+        if (profileIsNull) {
+            JpaProfile jpaProfile = JpaProfile.builder()
+                    .id(Id.newId().toString())
+                    .photoUrl(volunteer.getPhoto().toExternalForm())
+                    .build();
+            jpaProfileRepository.save(jpaProfile);
+            jpaVolunteer.setProfile(jpaProfile);
+        } else {
+            jpaVolunteer.getProfile().setPhotoUrl(volunteer.getPhoto().toExternalForm());
+        }
         jpaVolunteerRepository.save(jpaVolunteer);
     }
+
 }

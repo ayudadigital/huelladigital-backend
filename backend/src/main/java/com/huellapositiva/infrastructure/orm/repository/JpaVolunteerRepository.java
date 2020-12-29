@@ -1,6 +1,5 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import org.springframework.data.jpa.repository.JpaRepository;

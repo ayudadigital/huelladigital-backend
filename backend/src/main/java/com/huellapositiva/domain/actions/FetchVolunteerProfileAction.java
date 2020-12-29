@@ -22,25 +22,8 @@ public class FetchVolunteerProfileAction {
     public ProfileDto execute(String volunteerEmail) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailProfileInformation(volunteerEmail);
         ProfileDto.ProfileDtoBuilder profileDto = ProfileDto.builder().email(jpaVolunteer.getCredential().getEmail());
-        addProfileInProfileDto(jpaVolunteer, profileDto);
-        addLocationInProfileDto(jpaVolunteer, profileDto);
-        return profileDto.build();
-    }
 
-    private void addLocationInProfileDto(JpaVolunteer jpaVolunteer, ProfileDto.ProfileDtoBuilder profileDto) {
-        boolean jpaLocationIsNotNull = jpaVolunteer.getLocation() != null;
-        if (jpaLocationIsNotNull) {
-            profileDto.province(jpaVolunteer.getLocation().getProvince())
-                    .town(jpaVolunteer.getLocation().getTown())
-                    .address(jpaVolunteer.getLocation().getAddress())
-                    .zipCode(jpaVolunteer.getLocation().getZipCode())
-                    .island(jpaVolunteer.getLocation().getIsland());
-        }
-    }
-
-    private void addProfileInProfileDto(JpaVolunteer jpaVolunteer, ProfileDto.ProfileDtoBuilder profileDto) {
-        boolean jpaProfileIsNotNull = jpaVolunteer.getProfile() != null;
-        if (jpaProfileIsNotNull) {
+        if (jpaVolunteer.getProfile() != null) {
             profileDto.name(jpaVolunteer.getProfile().getName())
                     .surname(jpaVolunteer.getProfile().getSurname())
                     .birthDate(jpaVolunteer.getProfile().getBirthDate() == null ?
@@ -53,5 +36,15 @@ public class FetchVolunteerProfileAction {
                     .linkedin(jpaVolunteer.getProfile().getLinkedin())
                     .additionalInformation(jpaVolunteer.getProfile().getAdditionalInformation());
         }
+
+        if (jpaVolunteer.getLocation() != null) {
+            profileDto.province(jpaVolunteer.getLocation().getProvince())
+                    .town(jpaVolunteer.getLocation().getTown())
+                    .address(jpaVolunteer.getLocation().getAddress())
+                    .zipCode(jpaVolunteer.getLocation().getZipCode())
+                    .island(jpaVolunteer.getLocation().getIsland());
+        }
+
+        return profileDto.build();
     }
 }

@@ -253,7 +253,19 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void return_200_when_get_profile_information() throws Exception {
+    void return_200_when_get_profile_information_without_profile_information_stored() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_200_when_get_profile_information_with_profile_information_stored() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

@@ -7,7 +7,6 @@ import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
-import com.huellapositiva.application.exception.SomeFieldIsNullException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.MatchingEmailException;

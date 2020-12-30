@@ -34,15 +34,7 @@ CREATE TABLE profile
 );
 
 ALTER TABLE volunteers
-    ADD COLUMN twitter VARCHAR(255) NULL;
-ALTER TABLE volunteers
-    ADD COLUMN instagram VARCHAR(255) NULL;
-ALTER TABLE volunteers
-    ADD COLUMN linkedin VARCHAR(255) NULL;
-ALTER TABLE volunteers
-    ADD COLUMN photo VARCHAR(255);
-ALTER TABLE volunteers
-    ADD COLUMN additional_information VARCHAR(500);
+    DROP COLUMN curriculum_vitae_url;
 ALTER TABLE volunteers
     ADD COLUMN profile_id VARCHAR(255);
 ALTER TABLE volunteers

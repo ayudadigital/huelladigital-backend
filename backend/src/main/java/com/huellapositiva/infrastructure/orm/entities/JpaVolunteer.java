@@ -37,24 +37,6 @@ public class JpaVolunteer implements Serializable {
     @ManyToMany(mappedBy = "inscribedVolunteers", cascade = CascadeType.ALL)
     private Set<JpaProposal> joinedProposals;
 
-    @Column(name = "curriculum_vitae_url")
-    private String curriculumVitaeUrl;
-
-    @Column(name = "twitter")
-    private String twitter;
-
-    @Column(name = "instagram")
-    private String instagram;
-
-    @Column(name = "linkedin")
-    private String linkedin;
-
-    @Column(name = "photo")
-    private String photoUrl;
-
-    @Column(name = "additional_information")
-    private String additionalInformation;
-
     @JoinColumn(name = "profile_id", referencedColumnName = "id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JpaProfile profile;

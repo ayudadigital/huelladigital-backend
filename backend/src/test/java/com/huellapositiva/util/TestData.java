@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
@@ -73,7 +74,6 @@ public class TestData {
     @Autowired
     private final JpaLocationRepository jpaLocationRepository;
 
-
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
@@ -95,6 +95,11 @@ public class TestData {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
+    @Autowired
+    private final JpaProfileRepository jpaProfileRepository;
+
+    @Autowired
+    private final JpaVolunteerRepository jpaVolunteerRepository;
 
     public void resetData() {
         jpaProposalSkillsRepository.deleteAll();
@@ -141,6 +146,12 @@ public class TestData {
                 .build();
 
         return jpaCredentialRepository.save(jpaCredential);
+    }
+
+    public JpaVolunteer createVolunteerWithProfile(String email, String password) {
+        JpaVolunteer jpaVolunteer = createVolunteer(email, password, Roles.VOLUNTEER);
+        createVolunteerProfile(email);
+        return jpaVolunteer;
     }
 
     public JpaVolunteer createVolunteer(String email, String password) {
@@ -252,19 +263,19 @@ public class TestData {
         return proposal;
     }
 
-    public JpaProposal registerESALAndPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndPublishedProposal() {
         return registerESALAndProposal(PUBLISHED);
     }
 
-    public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndNotPublishedProposal() {
         return registerESALAndProposal(UNPUBLISHED);
     }
 
-    public JpaProposal registerESALAndFinishedProposal() throws ParseException {
+    public JpaProposal registerESALAndFinishedProposal() {
         return registerESALAndProposal(FINISHED);
     }
 
-    public JpaProposal registerESALAndProposalWithInscribedVolunteers() throws ParseException {
+    public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
 
@@ -402,5 +413,24 @@ public class TestData {
     public JpaProposalStatus getJpaStatus(ProposalStatus proposalStatus) {
         return jpaProposalStatusRepository.findById(proposalStatus.getId())
             .orElseThrow(InvalidStatusIdException::new);
+    }
+
+    /*If was necessary, you would to do the method public... or create other method*/
+    private void createVolunteerProfile(String email) {
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .birthDate(LocalDate.of(1993, 12, 12))
+                .twitter("Aqui un enlace a twitter")
+                .instagram("Aqui un enlace a instagram")
+                .additionalInformation("Pequeña descripción")
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
     }
 }

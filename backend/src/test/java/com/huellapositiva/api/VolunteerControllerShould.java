@@ -195,24 +195,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_200_when_upload_curriculum_vitae_successfully_with_profile_created() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        String id = Id.newId().toString();
-        JpaProfile jpaProfile = JpaProfile.builder()
-                .id(id)
-                .name("nombre")
-                .surname("apellidos")
-                .phoneNumber("12412412125")
-                .birthDate(LocalDate.of(1993,12,12))
-                .twitter("Aqui un enlace a twitter")
-                .instagram("Aqui un enlace a instagram")
-                .additionalInformation("Pequeña descripción")
-                .build();
-        jpaProfileRepository.save(jpaProfile);
-
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
-        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+        //testData.createVolunteerProfile();
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
@@ -266,24 +252,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_200_when_get_profile_information_with_profile_information_stored() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        String id = Id.newId().toString();
-        JpaProfile jpaProfile = JpaProfile.builder()
-                .id(id)
-                .name("nombre")
-                .surname("apellidos")
-                .phoneNumber("12412412125")
-                .birthDate(LocalDate.of(1993,12,12))
-                .twitter("Aqui un enlace a twitter")
-                .instagram("Aqui un enlace a instagram")
-                .additionalInformation("Pequeña descripción")
-                .build();
-        jpaProfileRepository.save(jpaProfile);
-
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
-        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+        //testData.createVolunteerProfile();
 
         mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -510,24 +482,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_204_when_upload_photo_successfully_with_profile() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        String id = Id.newId().toString();
-        JpaProfile jpaProfile = JpaProfile.builder()
-                .id(id)
-                .name("nombre")
-                .surname("apellidos")
-                .phoneNumber("12412412125")
-                .birthDate(LocalDate.of(1993,12,12))
-                .twitter("Aqui un enlace a twitter")
-                .instagram("Aqui un enlace a instagram")
-                .additionalInformation("Pequeña descripción")
-                .build();
-        jpaProfileRepository.save(jpaProfile);
-
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
-        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+        //testData.createVolunteerProfile();
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")

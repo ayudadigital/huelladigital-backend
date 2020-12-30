@@ -285,7 +285,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
+                        .phoneNumber("+4 123456789")
                         .birthDate("2000-12-10")
                         .province("hola1")
                         .address("hola2")
@@ -301,7 +301,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
+                        .phoneNumber("+344 123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -426,6 +426,14 @@ class VolunteerControllerShould {
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .phoneNumber("+344 123456789")
+                        .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
                         .build()
         );
     }

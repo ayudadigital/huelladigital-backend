@@ -198,8 +198,6 @@ class VolunteerControllerShould {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        //testData.createVolunteerProfile();
-
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
@@ -255,8 +253,6 @@ class VolunteerControllerShould {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        //testData.createVolunteerProfile();
-
         mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -289,7 +285,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .province("hola1")
                         .address("hola2")
@@ -305,7 +301,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -341,7 +337,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL_2)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -370,7 +366,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .province("hola1")
                         .address("hola2")
@@ -385,7 +381,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .twitter("twitter")
@@ -412,7 +408,7 @@ class VolunteerControllerShould {
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .twitter("twitter")
                         .instagram("instagram")
@@ -422,7 +418,7 @@ class VolunteerControllerShould {
                 ProfileDto.builder()
                         .name("nombre")
                         .surname("apellido")
-                        .phoneNumber("123456789")
+                        .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
@@ -444,7 +440,7 @@ class VolunteerControllerShould {
                 .name("nombre")
                 .surname("Farruquito")
                 .email(DEFAULT_EMAIL_2)
-                .phoneNumber("123456789")
+                .phoneNumber("+34 123456789")
                 .birthDate("2000-12-10")
                 .province("hola1")
                 .address("hola2")
@@ -484,8 +480,6 @@ class VolunteerControllerShould {
     void return_204_when_upload_photo_successfully_with_profile() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        //testData.createVolunteerProfile();
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")

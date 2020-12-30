@@ -251,12 +251,10 @@ public class VolunteerApiController {
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileInformation(@RequestPart("dto") ProfileDto profileDto,
+    public void updateProfileInformation(@Validated @RequestPart("dto") ProfileDto profileDto,
                                         @AuthenticationPrincipal String volunteerEmail) {
         try {
             updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
-        } catch (IOException ex){
-            throw new SomeFieldIsNullException(ex.getMessage());
         } catch (MatchingEmailException ex){
             throw new EmailAlreadyExistsException(ex.getMessage());
         }

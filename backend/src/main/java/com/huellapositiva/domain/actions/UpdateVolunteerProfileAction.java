@@ -1,9 +1,9 @@
 package com.huellapositiva.domain.actions;
 
+import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.exception.MatchingEmailException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
@@ -13,7 +13,6 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDate;
 
 @Service
@@ -32,13 +31,8 @@ public class UpdateVolunteerProfileAction {
      *
      * @param profileDto New user profile information to update
      * @param email Email of user logged
-     * @throws IOException
      */
-    public void execute(ProfileDto profileDto, String email) throws IOException {
-        if (someFieldIsEmptyCredentials(profileDto) || someFieldEmptyLocation(profileDto)) {
-            throw new IOException("Some field is null");
-        }
-
+    public void execute(ProfileDto profileDto, String email) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
         if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new MatchingEmailException("Email already exists in the database.");
@@ -106,28 +100,6 @@ public class UpdateVolunteerProfileAction {
                 .linkedin(profileDto.getLinkedin())
                 .additionalInformation(profileDto.getAdditionalInformation())
                 .build();
-    }
-
-    /**
-     * This method checks if the credential information provided is not null
-     *
-     * @param profile The information to check
-     */
-    private boolean someFieldIsEmptyCredentials(ProfileDto profile) {
-        return profile.getName() == null
-                || profile.getSurname() == null
-                || profile.getBirthDate() == null
-                || profile.getEmail() == null
-                || profile.getPhoneNumber() == null;
-    }
-
-    /**
-     * This method checks if the island and zip code is not null
-     *
-     * @param profileDto The information to check
-     */
-    private boolean someFieldEmptyLocation(ProfileDto profileDto) {
-        return profileDto.getIsland() == null || profileDto.getZipCode() == null;
     }
 
     /**

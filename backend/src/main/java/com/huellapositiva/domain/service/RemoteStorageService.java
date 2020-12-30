@@ -9,11 +9,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class RemoteStorageService {
+
+    private final Set<String> imageExtensions =
+            new HashSet<>(Arrays.asList(".jpg", ".jpeg", ".png", ".gif"));
 
     @Autowired
     private final StorageService storageService;
@@ -77,7 +83,7 @@ public class RemoteStorageService {
     public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {
         String extension;
         extension = getExtension(photo.getOriginalFilename());
-        if(!(".jpg".equalsIgnoreCase(extension)) || ".jpeg".equalsIgnoreCase(extension) || ".png".equalsIgnoreCase(extension) || ".gif".equalsIgnoreCase(extension)) {
+        if(!imageExtensions.contains(extension.toLowerCase())) {
             throw new FileTypeNotSupportedException("photo file must be .jpg,.png,.jpeg,.gif");
         }
         String destinationFileName = UUID.randomUUID() + extension;

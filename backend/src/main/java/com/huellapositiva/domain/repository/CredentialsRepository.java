@@ -4,7 +4,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.User;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaReviser;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaReviserRepository;
@@ -23,7 +22,6 @@ public class CredentialsRepository {
     private JpaReviserRepository jpaReviserRepository;
 
     public User findByEmail(String email) {
-        //JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
         JpaReviser jpaReviser = jpaReviserRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
 
         return new User(

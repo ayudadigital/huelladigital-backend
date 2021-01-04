@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;

@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
-import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -28,7 +26,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -287,12 +284,12 @@ class VolunteerControllerShould {
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+4 123456789")
                         .birthDate("2000-12-10")
-                        .province("hola1")
+                        .province("Las Palmas")
                         .address("hola2")
                         .zipCode("12345")
                         .island("Fuerteventura")
-                        .town("hola3")
-                        .twitter("twitter")
+                        .town("hola")
+                        .twitter("https://twitter.com/home")
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
@@ -305,7 +302,7 @@ class VolunteerControllerShould {
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
-                        .twitter("twitter")
+                        .twitter("https://twitter.com/home")
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
@@ -368,7 +365,7 @@ class VolunteerControllerShould {
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
-                        .province("hola1")
+                        .province("Las Palmas")
                         .address("hola2")
                         .island("Fuerteventura")
                         .town("hola3")
@@ -434,6 +431,32 @@ class VolunteerControllerShould {
                         .birthDate("2000-12-10")
                         .zipCode("12345")
                         .island("Fuerteventura")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .phoneNumber("+344 123456789")
+                        .birthDate("2000-12-10")
+                        .zipCode("12345")
+                        .island("Islandia")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL_2)
+                        .phoneNumber("+34 123456789")
+                        .birthDate("2000-12-10")
+                        .zipCode("1234555")
+                        .island("Fuerteventura")
+                        .build(),
+                ProfileDto.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL_2)
+                        .phoneNumber("+34 123456789")
+                        .birthDate("2000-12-106")
+                        .zipCode("12345")
+                        .island("Fuerteventura")
                         .build()
         );
     }
@@ -450,12 +473,12 @@ class VolunteerControllerShould {
                 .email(DEFAULT_EMAIL_2)
                 .phoneNumber("+34 123456789")
                 .birthDate("2000-12-10")
-                .province("hola1")
+                .province("Las Palmas")
                 .address("hola2")
                 .zipCode("12345")
                 .island("Fuerteventura")
-                .town("hola3")
-                .twitter("twitter")
+                .town("hola")
+                .twitter("https://twitter.com/home")
                 .instagram("instagram")
                 .linkedin("linkedin")
                 .additionalInformation("add")

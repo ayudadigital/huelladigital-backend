@@ -1,6 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 
 @AllArgsConstructor
 @TestComponent
@@ -101,7 +103,11 @@ public class TestData {
     @Autowired
     private final JpaVolunteerRepository jpaVolunteerRepository;
 
+    @Autowired
+    private final JpaReviserRepository jpaReviserRepository;
+
     public void resetData() {
+        jpaReviserRepository.deleteAll();
         jpaProposalSkillsRepository.deleteAll();
         jpaProposalRequirementsRepository.deleteAll();
         volunteerRepository.deleteAll();
@@ -144,6 +150,18 @@ public class TestData {
                 .emailConfirmation(emailConfirmation)
                 .roles(Collections.singleton(role))
                 .build();
+
+        if (REVISER.toString().equals(userRole.toString())) {
+            System.out.println("HOlaaaa");
+            JpaReviser jpaReviser = JpaReviser.builder()
+                    .id(Id.newId().toString())
+                    .credential(jpaCredential)
+                    .name("name")
+                    .surname("surname")
+                    .build();
+            jpaReviserRepository.save(jpaReviser);
+            return jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        }
 
         return jpaCredentialRepository.save(jpaCredential);
     }

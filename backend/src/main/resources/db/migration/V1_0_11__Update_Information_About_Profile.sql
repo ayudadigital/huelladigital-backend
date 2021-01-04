@@ -41,3 +41,22 @@ ALTER TABLE volunteers
     ADD CONSTRAINT volunteers_profile_id_fkey
     FOREIGN KEY (profile_id)
     REFERENCES profile(id);
+
+CREATE TABLE reviser
+(
+    id                      VARCHAR(255) UNIQUE NOT NULL,
+    surrogate_key           SERIAL PRIMARY KEY,
+    credential_id           INTEGER,
+    name                    VARCHAR(255),
+    surname                 VARCHAR(255),
+    FOREIGN KEY (credential_id) REFERENCES credentials(id)
+);
+
+ALTER TABLE credentials
+    DROP COLUMN name;
+ALTER TABLE credentials
+    DROP COLUMN surname;
+ALTER TABLE credentials
+    DROP COLUMN phone_number;
+ALTER TABLE credentials
+    DROP COLUMN birth_date;

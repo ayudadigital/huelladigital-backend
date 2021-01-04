@@ -43,21 +43,9 @@ public class JpaCredential implements Serializable {
     @JoinColumn(name = "email_confirmation_id")
     private EmailConfirmation emailConfirmation;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "surname")
-    private String surname;
-
     @Column(name = "hash_recovery_password", unique = true)
     private String hashRecoveryPassword;
 
     @Column(name = "created_recovery_hash_on")
     private LocalDateTime createdRecoveryHashOn;
-
-    @Column(name = "phone_number")
-    private Integer phoneNumber;
-
-    @Column(name = "birth_date")
-    private LocalDate birthDate;
 }

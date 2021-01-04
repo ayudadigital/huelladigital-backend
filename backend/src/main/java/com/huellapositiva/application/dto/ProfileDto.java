@@ -47,7 +47,7 @@ public class ProfileDto {
     private final String address;
 
     @NotBlank
-    @Pattern(regexp = "^El Hierro|Fuerteventura|Gran Canaria|Lanzarote|La Gomera|La Graciosa|La Palma|Tenerife$")
+    @Pattern(regexp = "^[El Hierro|Fuerteventura|Gran Canaria|Lanzarote|La Gomera|La Graciosa|La Palma|Tenerife]$")
     private final String island;
 
     //@Pattern(regexp = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")

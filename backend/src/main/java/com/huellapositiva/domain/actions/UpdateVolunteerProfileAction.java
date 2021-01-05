@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProfileDto;
-import com.huellapositiva.domain.exception.MatchingEmailException;
+import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -35,7 +35,7 @@ public class UpdateVolunteerProfileAction {
     public void execute(ProfileDto profileDto, String email) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
         if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
-            throw new MatchingEmailException("Email already exists in the database.");
+            throw new EmailAlreadyExistsException("Email already exists in the database.");
         }
 
         JpaLocation jpaLocation = updateLocation(profileDto, email);

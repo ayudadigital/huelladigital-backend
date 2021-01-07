@@ -94,7 +94,7 @@ public class UpdateVolunteerProfileAction {
                 .name(profileDto.getName())
                 .surname(profileDto.getSurname())
                 .phoneNumber(profileDto.getPhoneNumber())
-                .birthDate(parseToLocalDate(profileDto.getBirthDate()))
+                .birthDate(profileDto.getBirthDate())
                 .twitter(profileDto.getTwitter())
                 .instagram(profileDto.getInstagram())
                 .linkedin(profileDto.getLinkedin())

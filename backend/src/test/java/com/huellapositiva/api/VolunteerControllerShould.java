@@ -10,6 +10,7 @@ import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
+import com.huellapositiva.util.ProfileDtoDataEntry;
 import com.huellapositiva.util.TestData;
 import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -260,14 +262,13 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
-    void return_204_when_updates_profile_information_successfully_without_email(ProfileDto profileDto) throws Exception {
+    void return_204_when_updates_profile_information_successfully_without_email(ProfileDtoDataEntry profileDtoDataEntry) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                //.file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(profileDto))
+                .content(objectMapper.writeValueAsString(profileDtoDataEntry))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -277,9 +278,9 @@ class VolunteerControllerShould {
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
-    private static Stream<ProfileDto> provideCorrectProfileInformationSameEmail() {
+    private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationSameEmail() {
         return Stream.of(
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -294,7 +295,7 @@ class VolunteerControllerShould {
                         .linkedin("https://linkedin.com/in/home")
                         .additionalInformation("add")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -311,7 +312,7 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationDifferentEmail")
-    void return_204_when_updates_profile_information_successfully_with_email(ProfileDto profileDto) throws Exception {
+    void return_204_when_updates_profile_information_successfully_with_email(ProfileDtoDataEntry profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -327,9 +328,9 @@ class VolunteerControllerShould {
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
     }
 
-    private static Stream<ProfileDto> provideCorrectProfileInformationDifferentEmail() {
+    private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationDifferentEmail() {
         return Stream.of(
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL_2)
@@ -343,7 +344,7 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
-    void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDto profileDto) throws Exception {
+    void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDtoDataEntry profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -356,9 +357,9 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<ProfileDto> provideIncorrectProfileInformation() {
+    private static Stream<ProfileDtoDataEntry> provideIncorrectProfileInformation() {
         return Stream.of(
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -373,7 +374,7 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -385,7 +386,7 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -400,14 +401,14 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+34 123456789")
                         .birthDate("2000-12-10")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .phoneNumber("+34 123456789")
@@ -415,7 +416,7 @@ class VolunteerControllerShould {
                         .zipCode("12345")
                         .island("Fuerteventura")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -424,7 +425,7 @@ class VolunteerControllerShould {
                         .zipCode("12345")
                         .island("Islandia")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL_2)
@@ -433,16 +434,16 @@ class VolunteerControllerShould {
                         .zipCode("1234555")
                         .island("Fuerteventura")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL_2)
                         .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-106")
+                        .birthDate("2000-12-60")
                         .zipCode("12345")
                         .island("Fuerteventura")
                         .build(),
-                ProfileDto.builder()
+                ProfileDtoDataEntry.builder()
                         .name("nombre")
                         .surname("apellido")
                         .email(DEFAULT_EMAIL)
@@ -466,7 +467,7 @@ class VolunteerControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        ProfileDto profileDto = ProfileDto.builder()
+        ProfileDtoDataEntry profileDto = ProfileDtoDataEntry.builder()
                 .name("nombre")
                 .surname("Farruquito")
                 .email(DEFAULT_EMAIL_2)

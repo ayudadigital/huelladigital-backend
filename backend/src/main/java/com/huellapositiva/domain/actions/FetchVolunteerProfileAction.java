@@ -6,8 +6,6 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
-
 @Service
 public class FetchVolunteerProfileAction {
 
@@ -26,8 +24,7 @@ public class FetchVolunteerProfileAction {
         if (jpaVolunteer.getProfile() != null) {
             profileDto.name(jpaVolunteer.getProfile().getName())
                     .surname(jpaVolunteer.getProfile().getSurname())
-                    .birthDate(jpaVolunteer.getProfile().getBirthDate() == null ?
-                            null : jpaVolunteer.getProfile().getBirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+                    .birthDate(jpaVolunteer.getProfile().getBirthDate())
                     .phoneNumber("" + jpaVolunteer.getProfile().getPhoneNumber())
                     .photo(jpaVolunteer.getProfile().getPhotoUrl())
                     .curriculumVitae(jpaVolunteer.getProfile().getCurriculumVitaeUrl())

@@ -1,14 +1,18 @@
 package com.huellapositiva.application.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.huellapositiva.application.dto.jackson.DtoProfileDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.*;
+import java.time.LocalDate;
 
 @Data
 @Builder
 @AllArgsConstructor
+@JsonDeserialize(using = DtoProfileDeserializer.class)
 public class ProfileDto {
 
     @NotBlank
@@ -19,9 +23,8 @@ public class ProfileDto {
     @Pattern(regexp = "^[a-zA-Z ]+$")
     private final String surname;
 
-    @NotBlank
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}")
-    private final String birthDate;
+    @NotNull
+    private final LocalDate birthDate;
 
     @NotBlank
     @Pattern(regexp = "^\\+(?:[0-9] ?){6,14}[0-9]$")

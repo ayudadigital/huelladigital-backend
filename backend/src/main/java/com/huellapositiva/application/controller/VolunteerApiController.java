@@ -245,11 +245,11 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/updateProfileInformation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/updateProfileInformation")
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileInformation(@Validated @RequestPart("dto") ProfileDto profileDto,
+    public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
                                         @AuthenticationPrincipal String volunteerEmail) {
         try {
             updateVolunteerProfileAction.execute(profileDto,volunteerEmail);

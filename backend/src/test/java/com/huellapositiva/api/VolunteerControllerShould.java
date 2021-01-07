@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
+import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -252,7 +253,6 @@ class VolunteerControllerShould {
 
         mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -265,10 +265,11 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
+                //.file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
+                .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
+                .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -315,10 +316,10 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
+                .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
+                .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
@@ -347,10 +348,10 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
+                .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
+                .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -483,10 +484,10 @@ class VolunteerControllerShould {
                 .build();
 
         mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
-                .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(profileDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
+                .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
+                .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isConflict());
     }

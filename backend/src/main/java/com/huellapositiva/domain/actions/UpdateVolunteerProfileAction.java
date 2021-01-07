@@ -30,7 +30,7 @@ public class UpdateVolunteerProfileAction {
      * This method update the user profile information in database
      *
      * @param profileDto New user profile information to update
-     * @param email Email of user logged
+     * @param email      Email of user logged
      */
     public void execute(ProfileDto profileDto, String email) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
@@ -47,7 +47,7 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteer.setLocation(jpaLocation);
         jpaVolunteerRepository.save(jpaVolunteer);
 
-        if(isNotEqualsEmail){
+        if (isNotEqualsEmail) {
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
         }
     }
@@ -56,7 +56,7 @@ public class UpdateVolunteerProfileAction {
      * This method update information in location table
      *
      * @param profileDto New user credential information to update
-     * @param email Email of user logged
+     * @param email      Email of user logged
      */
     private JpaLocation updateLocation(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
@@ -79,7 +79,7 @@ public class UpdateVolunteerProfileAction {
      * This method update information in profile table
      *
      * @param profileDto New user credential information to update
-     * @param email Email of user logged
+     * @param email      Email of user logged
      */
     private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
@@ -100,15 +100,5 @@ public class UpdateVolunteerProfileAction {
                 .linkedin(profileDto.getLinkedin())
                 .additionalInformation(profileDto.getAdditionalInformation())
                 .build();
-    }
-
-    /**
-     * This method parse the Date in String to LocalDate
-     *
-     * @param date This data comes from the profile
-     */
-    public LocalDate parseToLocalDate(String date){
-        String[] parts = date.split("-");
-        return LocalDate.of(Integer.parseInt(parts[0]),Integer.parseInt(parts[1]),Integer.parseInt(parts[2]));
     }
 }

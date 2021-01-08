@@ -159,7 +159,7 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, credentials are not valid",
+                            description = "Bad request, photo is not valid",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -181,6 +181,9 @@ public class VolunteerApiController {
                                       @AuthenticationPrincipal String volunteerEmail) throws IOException {
         try {
             uploadPhotoAction.execute(photo, volunteerEmail);
+        } catch (InvalidFieldException ex) {
+            log.error(ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         } catch (EmptyFileException ex){
             log.error("There is not any photo attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());

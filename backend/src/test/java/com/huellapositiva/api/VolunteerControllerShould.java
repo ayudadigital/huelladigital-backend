@@ -507,9 +507,9 @@ class VolunteerControllerShould {
     void return_204_when_upload_photo_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/1mb-image.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
-                .file(new MockMultipartFile("photo", "photo-test.JPG", "image/jpeg", is))
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -522,14 +522,29 @@ class VolunteerControllerShould {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/1mb-image.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
-                .file(new MockMultipartFile("photo", "photo-test.JPG", "image/jpeg", is))
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void return_400_when_upload_photo_successfully_with_profile() throws Exception {
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

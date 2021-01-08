@@ -20,6 +20,8 @@ public class RemoteStorageService {
 
     private final Set<String> imageExtensions =
             new HashSet<>(Arrays.asList(".jpg", ".jpeg", ".png", ".gif"));
+    private final Set<String> documentExtensions =
+            new HashSet<>(Arrays.asList(".pdf", ".doc", ".docx"));
 
     @Autowired
     private final StorageService storageService;
@@ -27,10 +29,10 @@ public class RemoteStorageService {
     /**
      * This method reads the bytes from the image of a proposal and uploads it to the storage service
      *
-     * @param image
-     * @param proposalId
+     * @param image New image uploaded
+     * @param proposalId Id proposal in database
      * @return URL with the image location in the storage
-     * @throws IOException
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
         String destinationFileName = UUID.randomUUID().toString();
@@ -42,15 +44,15 @@ public class RemoteStorageService {
     /**
      * This method reads the bytes from the CV of a proposal and uploads it to the storage service
      *
-     * @param cv
-     * @param volunteerId
+     * @param cv New curriculum uploaded
+     * @param volunteerId Id volunteer stored in the database
      * @return URL with the cv location in the storage
-     * @throws IOException
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
         String extension;
         extension = getExtension(cv.getOriginalFilename());
-        if(!".pdf".equalsIgnoreCase(extension)) {
+        if(!documentExtensions.contains(extension)) {
             throw new FileTypeNotSupportedException("Curriculum vitae file must be .pdf");
         }
         String destinationFileName = UUID.randomUUID() + extension;
@@ -61,7 +63,7 @@ public class RemoteStorageService {
     /**
      * This method extracts the extension of the fileName
      *
-     * @param fileName
+     * @param fileName Name of file to upload to stract its extension
      * @return the extension or an empty string when there is no extension
      */
     private String getExtension(String fileName) {
@@ -75,10 +77,10 @@ public class RemoteStorageService {
     /**
      * This method reads the bytes from the photo of a proposal and uploads it to the storage service
      *
-     * @param photo
-     * @param volunteerId
+     * @param photo New photo uploaded to the application
+     * @param volunteerId Id volunteer stored in database
      * @return URL with the photo location in the storage
-     * @throws IOException
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {
         String extension;

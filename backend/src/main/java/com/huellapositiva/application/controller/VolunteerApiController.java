@@ -118,7 +118,7 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, credentials are not valid",
+                            description = "Bad request, curriculum is not valid",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -140,8 +140,11 @@ public class VolunteerApiController {
                                       @AuthenticationPrincipal String contactPersonEmail) throws IOException {
         try {
             uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
+        } catch (InvalidFieldException ex) {
+            log.error(ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         } catch (EmptyFileException ex){
-            log.error("There is not any cv attached or is empty.");
+            log.error("There is not any curriculum attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }

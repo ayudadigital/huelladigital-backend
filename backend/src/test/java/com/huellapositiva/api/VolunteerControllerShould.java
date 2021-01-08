@@ -223,6 +223,20 @@ class VolunteerControllerShould {
     }
 
     @Test
+    void return_400_when_uploaded_file_PDF_or_WORD_is_too_big() throws Exception {
+        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/doc-test.docx");
+        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+                .file(new MockMultipartFile("cv", "doc-test.docx", "application/msword", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void return_400_when_there_is_not_cv_uploaded() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -507,7 +521,7 @@ class VolunteerControllerShould {
     void return_204_when_upload_photo_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/1mb-image.png");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -522,7 +536,7 @@ class VolunteerControllerShould {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/1mb-image.png");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -533,13 +547,13 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void return_400_when_upload_photo_successfully_with_profile() throws Exception {
+    void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

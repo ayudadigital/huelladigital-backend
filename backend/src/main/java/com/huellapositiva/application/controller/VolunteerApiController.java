@@ -1,6 +1,5 @@
 package com.huellapositiva.application.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
@@ -9,6 +8,7 @@ import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -57,8 +57,6 @@ public class VolunteerApiController {
     private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
 
     private final UploadPhotoAction uploadPhotoAction;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
             summary = "Register a new volunteer",
@@ -253,6 +251,8 @@ public class VolunteerApiController {
                                         @AuthenticationPrincipal String volunteerEmail) {
         try {
             updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
+        } catch (InvalidFieldException ex) {
+            throw new InvalidFieldException(ex.getMessage());
         } catch (EmailAlreadyExistsException ex){
             throw new EmailAlreadyExistsException(ex.getMessage());
         }

@@ -2,8 +2,10 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
@@ -12,8 +14,6 @@ import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 
 @Service
 public class UpdateVolunteerProfileAction {
@@ -36,6 +36,12 @@ public class UpdateVolunteerProfileAction {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
         if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists in the database.");
+        }
+        if (Location.isNotIsland(profileDto.getIsland())) {
+            throw new InvalidFieldException("The island field is invalid");
+        }
+        if (Location.isNotZipCode(profileDto.getZipCode())) {
+            throw new InvalidFieldException("The zip code field is invalid");
         }
 
         JpaLocation jpaLocation = updateLocation(profileDto, email);

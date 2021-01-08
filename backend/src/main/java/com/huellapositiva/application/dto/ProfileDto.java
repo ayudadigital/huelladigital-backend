@@ -47,7 +47,7 @@ public class ProfileDto {
     private final String address;
 
     @NotBlank
-    @Pattern(regexp = "^(El Hierro|Fuerteventura|Gran Canaria|Lanzarote|La Gomera|La Graciosa|La Palma|Tenerife)$")
+    @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String island;
 
     @Null

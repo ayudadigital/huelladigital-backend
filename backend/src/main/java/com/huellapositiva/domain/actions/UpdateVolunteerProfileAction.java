@@ -3,10 +3,7 @@ package com.huellapositiva.domain.actions;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.Location;
-import com.huellapositiva.domain.model.valueobjects.PhoneNumber;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
@@ -35,18 +32,7 @@ public class UpdateVolunteerProfileAction {
      */
     public void execute(ProfileDto profileDto, String email) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
-        if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email already exists in the database.");
-        }
-        if (Location.isNotIsland(profileDto.getIsland())) {
-            throw new InvalidFieldException("The island field is invalid");
-        }
-        if (Location.isNotZipCode(profileDto.getZipCode())) {
-            throw new InvalidFieldException("The zip code field is invalid");
-        }
-        if (PhoneNumber.isNotPhoneNumber(profileDto.getPhoneNumber())) {
-            throw new InvalidFieldException("The phoneNumber field is invalid");
-        }
+        validations(profileDto, isNotEqualsEmail);
 
         JpaLocation jpaLocation = updateLocation(profileDto, email);
         JpaProfile jpaProfile = upsertProfile(profileDto, email);
@@ -59,6 +45,30 @@ public class UpdateVolunteerProfileAction {
 
         if (isNotEqualsEmail) {
             emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
+        }
+    }
+
+    /**
+     * This method valid the profileDto data
+     *
+     * @param profileDto New user profile information to update
+     * @param isNotEqualsEmail The email used to check in the database email
+     */
+    private void validations(ProfileDto profileDto, boolean isNotEqualsEmail) {
+        if (isNotEqualsEmail && jpaCredentialRepository.findByEmail(profileDto.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists in the database.");
+        }
+        if (Location.isNotIsland(profileDto.getIsland())) {
+            throw new InvalidFieldException("The island field is invalid");
+        }
+        if (Location.isNotZipCode(profileDto.getZipCode())) {
+            throw new InvalidFieldException("The zip code field is invalid");
+        }
+        if (PhoneNumber.isNotPhoneNumber(profileDto.getPhoneNumber())) {
+            throw new InvalidFieldException("The phone number field is invalid");
+        }
+        if (AdditionalInformation.lengthValidation(profileDto.getAdditionalInformation())) {
+            throw new InvalidFieldException("The additional information field is invalid");
         }
     }
 

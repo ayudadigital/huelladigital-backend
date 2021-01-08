@@ -27,7 +27,6 @@ public class ProfileDto {
     private final LocalDate birthDate;
 
     @NotBlank
-    @Pattern(regexp = "^\\+(?:[0-9] ?){6,14}[0-9]$")
     private final String phoneNumber;
 
     @NotNull

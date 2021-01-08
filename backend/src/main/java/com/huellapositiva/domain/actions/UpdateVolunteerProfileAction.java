@@ -6,6 +6,7 @@ import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
+import com.huellapositiva.domain.model.valueobjects.PhoneNumber;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
@@ -42,6 +43,9 @@ public class UpdateVolunteerProfileAction {
         }
         if (Location.isNotZipCode(profileDto.getZipCode())) {
             throw new InvalidFieldException("The zip code field is invalid");
+        }
+        if (PhoneNumber.isNotPhoneNumber(profileDto.getPhoneNumber())) {
+            throw new InvalidFieldException("The phoneNumber field is invalid");
         }
 
         JpaLocation jpaLocation = updateLocation(profileDto, email);

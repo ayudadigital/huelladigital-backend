@@ -11,6 +11,7 @@ import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +24,9 @@ public class UpdateVolunteerProfileAction {
 
     @Autowired
     private EmailCommunicationService emailCommunicationService;
+
+    @Value("${huellapositiva.api.v1.confirmation-email}")
+    private String emailConfirmationBaseUrl;
 
     /**
      * This method update the user profile information in database
@@ -44,7 +48,8 @@ public class UpdateVolunteerProfileAction {
         jpaVolunteerRepository.save(jpaVolunteer);
 
         if (isNotEqualsEmail) {
-            emailCommunicationService.sendMessageEmailChanged(EmailAddress.from(email));
+            EmailConfirmation emailConfirmation = EmailConfirmation.from(profileDto.getEmail(), emailConfirmationBaseUrl);
+            emailCommunicationService.sendMessageEmailChanged(emailConfirmation);
         }
     }
 

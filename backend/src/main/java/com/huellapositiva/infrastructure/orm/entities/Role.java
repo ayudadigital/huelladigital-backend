@@ -13,7 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-@ToString
 public class Role implements Serializable {
 
     @Id
@@ -25,4 +24,6 @@ public class Role implements Serializable {
 
     @ManyToMany(mappedBy = "roles")
     private List<JpaCredential> credentials;
+
+    public String toString(){ return this.name; }
 }

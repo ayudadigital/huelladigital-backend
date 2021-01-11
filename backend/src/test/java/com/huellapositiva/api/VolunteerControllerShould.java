@@ -2,12 +2,11 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.ProfileDtoDataEntry;
@@ -28,10 +27,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -64,6 +63,9 @@ class VolunteerControllerShould {
 
     @Autowired
     private JpaProfileRepository jpaProfileRepository;
+
+    @Autowired
+    private JpaRoleRepository jpaRoleRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -338,8 +340,10 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
+        TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
+        assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
     }
 
     private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationDifferentEmail() {

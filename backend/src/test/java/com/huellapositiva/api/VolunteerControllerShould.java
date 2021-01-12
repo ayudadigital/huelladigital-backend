@@ -278,7 +278,6 @@ class VolunteerControllerShould {
                 .andReturn().getResponse();
 
         ProfileDto profileDto = objectMapper.readValue(response.getContentAsString(), ProfileDto.class);
-        //JpaVolunteer jpaVolunteerDatabase = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
         assertThat(profileDto.getName()).isEqualTo(jpaVolunteer.getProfile().getName());
         assertThat(profileDto.getSurname()).isEqualTo(jpaVolunteer.getProfile().getSurname());
         assertThat(profileDto.getBirthDate()).isEqualTo(jpaVolunteer.getProfile().getBirthDate());

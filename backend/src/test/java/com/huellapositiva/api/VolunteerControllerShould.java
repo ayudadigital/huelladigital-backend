@@ -3,6 +3,8 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
@@ -266,14 +268,30 @@ class VolunteerControllerShould {
 
     @Test
     void return_200_when_get_profile_information_with_profile_information_stored() throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
+        MockHttpServletResponse response = mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        ProfileDto profileDto = objectMapper.readValue(response.getContentAsString(), ProfileDto.class);
+        //JpaVolunteer jpaVolunteerDatabase = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        assertThat(profileDto.getName()).isEqualTo(jpaVolunteer.getProfile().getName());
+        assertThat(profileDto.getSurname()).isEqualTo(jpaVolunteer.getProfile().getSurname());
+        assertThat(profileDto.getBirthDate()).isEqualTo(jpaVolunteer.getProfile().getBirthDate());
+        assertThat(profileDto.getPhoneNumber()).isEqualTo(jpaVolunteer.getProfile().getPhoneNumber());
+        assertThat(profileDto.getProvince()).isEqualTo(jpaVolunteer.getLocation().getProvince());
+        assertThat(profileDto.getZipCode()).isEqualTo(jpaVolunteer.getLocation().getZipCode());
+        assertThat(profileDto.getIsland()).isEqualTo(jpaVolunteer.getLocation().getIsland());
+        assertThat(profileDto.getTown()).isEqualTo(jpaVolunteer.getLocation().getTown());
+        assertThat(profileDto.getAddress()).isEqualTo(jpaVolunteer.getLocation().getAddress());
+        assertThat(profileDto.getTwitter()).isEqualTo(jpaVolunteer.getProfile().getTwitter());
+        assertThat(profileDto.getLinkedin()).isEqualTo(jpaVolunteer.getProfile().getLinkedin());
+        assertThat(profileDto.getInstagram()).isEqualTo(jpaVolunteer.getProfile().getInstagram());
+        assertThat(profileDto.getAdditionalInformation()).isEqualTo(jpaVolunteer.getProfile().getAdditionalInformation());
     }
 
     @ParameterizedTest

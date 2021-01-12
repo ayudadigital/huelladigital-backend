@@ -167,9 +167,8 @@ public class TestData {
     }
 
     public JpaVolunteer createVolunteerWithProfile(String email, String password) {
-        JpaVolunteer jpaVolunteer = createVolunteer(email, password, Roles.VOLUNTEER);
-        createVolunteerProfile(email);
-        return jpaVolunteer;
+        createVolunteer(email, password, Roles.VOLUNTEER);
+        return createVolunteerProfile(email);
     }
 
     public JpaVolunteer createVolunteer(String email, String password) {
@@ -434,7 +433,7 @@ public class TestData {
     }
 
     /*If was necessary, you would to do the method public... or create other method*/
-    private void createVolunteerProfile(String email) {
+    private JpaVolunteer createVolunteerProfile(String email) {
         String id = Id.newId().toString();
         JpaProfile jpaProfile = JpaProfile.builder()
                 .id(id)
@@ -442,13 +441,32 @@ public class TestData {
                 .surname("apellidos")
                 .phoneNumber("12412412125")
                 .birthDate(LocalDate.of(1993, 12, 12))
+                .photoUrl("Una dirección ahí")
+                .curriculumVitaeUrl("Una dirección ahí")
                 .twitter("Aqui un enlace a twitter")
+                .linkedin("Aqui un enlace a linkedin")
                 .instagram("Aqui un enlace a instagram")
-                .additionalInformation("Pequeña descripción")
+                .additionalInformation("Pequenna descripcion")
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .id(Id.newId().toString())
+                .province("Las Palmas")
+                .zipCode("35100")
+                .town("Maspalomas")
+                .address("Calle Italia N1")
+                .island("Gran Canaria")
+                .build();
+        jpaLocationRepository.save(jpaLocation);
+        jpaVolunteerRepository.updateLocation(jpaVolunteer.getId(), jpaLocation);
+
+        jpaVolunteer.setProfile(jpaProfile);
+        jpaVolunteer.setLocation(jpaLocation);
+
+        return jpaVolunteer;
     }
 }

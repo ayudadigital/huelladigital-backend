@@ -11,8 +11,10 @@ import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaLocationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class UpdateVolunteerProfileAction {
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
@@ -30,10 +33,12 @@ public class UpdateVolunteerProfileAction {
     private JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
-    private JpaRoleRepository jpaRoleRepository;
+    private JpaLocationRepository jpaLocationRepository;
 
     @Autowired
-    private EmailCommunicationService emailCommunicationService;
+    private JpaRoleRepository jpaRoleRepository;
+
+    private final EmailCommunicationService emailCommunicationService;
 
     @Value("${huellapositiva.api.v1.confirmation-email}")
     private String emailConfirmationBaseUrl;
@@ -102,12 +107,15 @@ public class UpdateVolunteerProfileAction {
     private JpaLocation updateLocation(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         String id;
+        Integer surrogateKey = null;
         if (jpaVolunteer.getLocation() == null) {
             id = Id.newId().toString();
         } else {
             id = jpaVolunteer.getLocation().getId();
+            surrogateKey = jpaVolunteer.getLocation().getSurrogateKey();
         }
         return JpaLocation.builder()
+                .surrogateKey(surrogateKey)
                 .id(id)
                 .province(profileDto.getProvince())
                 .town(profileDto.getTown())
@@ -125,12 +133,15 @@ public class UpdateVolunteerProfileAction {
     private JpaProfile upsertProfile(ProfileDto profileDto, String email) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
         String id;
+        Integer surrogateKey = null;
         if (jpaVolunteer.getProfile() == null) {
             id = Id.newId().toString();
         } else {
             id = jpaVolunteer.getProfile().getId();
+            surrogateKey = jpaVolunteer.getProfile().getSurrogateKey();
         }
         return JpaProfile.builder()
+                .surrogateKey(surrogateKey)
                 .id(id)
                 .name(profileDto.getName())
                 .surname(profileDto.getSurname())

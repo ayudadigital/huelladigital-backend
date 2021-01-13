@@ -287,6 +287,8 @@ class VolunteerControllerShould {
         assertThat(profileDto.getIsland()).isEqualTo(jpaVolunteer.getLocation().getIsland());
         assertThat(profileDto.getTown()).isEqualTo(jpaVolunteer.getLocation().getTown());
         assertThat(profileDto.getAddress()).isEqualTo(jpaVolunteer.getLocation().getAddress());
+        assertThat(profileDto.getPhoto()).isEqualTo(jpaVolunteer.getProfile().getPhotoUrl());
+        assertThat(profileDto.getCurriculumVitae()).isEqualTo(jpaVolunteer.getProfile().getCurriculumVitaeUrl());
         assertThat(profileDto.getTwitter()).isEqualTo(jpaVolunteer.getProfile().getTwitter());
         assertThat(profileDto.getLinkedin()).isEqualTo(jpaVolunteer.getProfile().getLinkedin());
         assertThat(profileDto.getInstagram()).isEqualTo(jpaVolunteer.getProfile().getInstagram());

@@ -54,6 +54,12 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         final JsonNode nodeIsland = node.get("island");
         final String island = nodeIsland.isNull() ? null : nodeIsland.asText();
 
+        final JsonNode nodePhoto = node.get("photo");
+        final String photo = nodePhoto.isNull() ? null : nodePhoto.asText();
+
+        final JsonNode nodeCurriculumVitae = node.get("curriculumVitae");
+        final String curriculum = nodeCurriculumVitae.isNull() ? null : nodeCurriculumVitae.asText();
+
         final JsonNode nodeTwitter = node.get("twitter");
         final String twitter = nodeTwitter.isNull() ? null : nodeTwitter.asText();
 
@@ -77,6 +83,8 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
                 .town(town)
                 .address(address)
                 .island(island)
+                .photo(photo)
+                .curriculumVitae(curriculum)
                 .twitter(twitter)
                 .instagram(instagram)
                 .linkedin(linkedin)

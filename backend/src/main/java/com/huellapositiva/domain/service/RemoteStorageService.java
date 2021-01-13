@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.service;
 
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -87,6 +90,12 @@ public class RemoteStorageService {
         extension = getExtension(photo.getOriginalFilename());
         if(!imageExtensions.contains(extension.toLowerCase())) {
             throw new FileTypeNotSupportedException("photo file must be .jpg,.png,.jpeg,.gif");
+        }
+        BufferedImage image = ImageIO.read(photo.getInputStream());
+        int width = image.getWidth();
+        int height = image.getHeight();
+        if (width > 400 || height > 400) {
+            throw new InvalidFieldException("The photo is too bigger");
         }
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';

@@ -30,7 +30,7 @@ public class UploadPhotoAction {
      * @throws IOException when the cv is corrupted
      */
     public void execute(MultipartFile photo, String volunteerEmail) throws IOException {
-        if (photo.getSize() > 2100000) {
+        if (photo.getSize() > 1100000) {
             throw new InvalidFieldException("The photo is too bigger");
         }
         if (photo.getInputStream().available() != 0) {

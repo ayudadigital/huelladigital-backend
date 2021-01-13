@@ -311,6 +311,21 @@ class VolunteerControllerShould {
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDtoDataEntry.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDtoDataEntry.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDtoDataEntry.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDtoDataEntry.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDtoDataEntry.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDtoDataEntry.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDtoDataEntry.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDtoDataEntry.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDtoDataEntry.getAddress());
+        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDtoDataEntry.getPhoto());
+        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDtoDataEntry.getCurriculumVitae());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDtoDataEntry.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDtoDataEntry.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDtoDataEntry.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDtoDataEntry.getAdditionalInformation());
     }
 
     private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationSameEmail() {
@@ -363,6 +378,21 @@ class VolunteerControllerShould {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
         assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDto.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDto.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDto.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDto.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDto.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
+        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDto.getPhoto());
+        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDto.getCurriculumVitae());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDto.getAdditionalInformation());
     }
 
     private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationDifferentEmail() {

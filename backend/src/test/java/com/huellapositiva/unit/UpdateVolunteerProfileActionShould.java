@@ -4,15 +4,12 @@ import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
-import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
-import com.huellapositiva.util.ProfileDtoDataEntry;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 

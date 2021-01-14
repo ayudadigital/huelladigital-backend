@@ -20,6 +20,12 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         super(vc);
     }
 
+    /**
+     * Custom deserializer done for deserialize the date
+     *
+     * @param jsonParser    The JSON that arrives from the frontend.
+     * @param deserializationContext    Context for the process of deserialization a single root-level value. Used to allow passing in configuration settings and reusable temporary objects (scrap arrays, containers).
+     */
     @Override
     public ProfileDto deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         final JsonNode node = jsonParser.getCodec().readTree(jsonParser);
@@ -96,6 +102,11 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         return node.isNull() ? null : node.asText();
     }
 
+    /**
+     * Parse a date as a string to LocalDate
+     *
+     * @param birthDate The birth date with format YYYY-mm-dd
+     */
     private LocalDate parseToLocalDate(String birthDate) {
         try {
             return LocalDate.parse(birthDate);

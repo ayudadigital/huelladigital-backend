@@ -2,8 +2,8 @@ package com.huellapositiva.domain.model.valueobjects;
 
 public class RecoveryPasswordEmail {
 
-    private EmailAddress email;
-    private String hash;
+    final private EmailAddress email;
+    final private String hash;
 
     public RecoveryPasswordEmail(EmailAddress email, String hash){
         this.email = email;

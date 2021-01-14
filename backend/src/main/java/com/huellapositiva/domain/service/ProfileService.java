@@ -28,13 +28,13 @@ import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_C
 public class ProfileService {
 
     @Autowired
-    final private JpaVolunteerRepository jpaVolunteerRepository;
+    private final JpaVolunteerRepository jpaVolunteerRepository;
 
     @Autowired
-    final private JpaCredentialRepository jpaCredentialRepository;
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     @Autowired
-    final private JpaRoleRepository jpaRoleRepository;
+    private final JpaRoleRepository jpaRoleRepository;
 
     /**
      * This method update the user profile information in database

@@ -36,8 +36,8 @@ public class RegisterProposalAction {
      * Validates the proposals data (such as its dates) and uploads its image before persisting the proposal.
      *
      * @param dto proposal info
-     * @param image
-     * @param contactPersonEmail
+     * @param image image recently upload
+     * @param contactPersonEmail contact person's email
      * @return proposal id
      * @throws ParseException when dto date format is invalid
      * @throws IOException when multipart file is corrupt
@@ -70,7 +70,7 @@ public class RegisterProposalAction {
      * @param image image for the proposal
      * @param esal esal related to the proposal
      * @param proposalStatus status of the proposal
-     * @return
+     * @return id of the proposal
      * @throws ParseException
      * @throws IOException
      */

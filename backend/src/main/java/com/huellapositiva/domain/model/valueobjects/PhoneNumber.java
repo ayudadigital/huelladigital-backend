@@ -14,8 +14,8 @@ public class PhoneNumber {
     /**
      * The phone number have the pattern '+123 123458...23235'
      *
-     * @param number
-     * @return
+     * @param number phone number
+     * @return return a boolean if the phone number is a real phone number
      */
     public static boolean isNotPhoneNumber(String number) {
         final String[] phone = number.split(" ");

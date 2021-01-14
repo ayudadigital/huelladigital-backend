@@ -18,7 +18,7 @@ public class JoinProposalAction {
      * This method fetches a Volunteer from the DB based of his email and enrolls it to the given proposal
      *
      * @param proposalId id of the proposal to be enrolled by the volunteer
-     * @param volunteerEmail
+     * @param volunteerEmail Email of volunteer
      */
     public void execute(String proposalId, String volunteerEmail){
         Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);

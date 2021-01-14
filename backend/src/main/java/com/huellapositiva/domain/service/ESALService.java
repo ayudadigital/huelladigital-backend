@@ -22,7 +22,7 @@ public class ESALService {
     /**
      * This method checks if a contactPerson is linked to an ESAL
      *
-     * @param contactPersonEmail
+     * @param contactPersonEmail Email of contact person
      * @return true if it is linked
      */
     public boolean isUserAssociatedWithAnESAL(EmailAddress contactPersonEmail) {

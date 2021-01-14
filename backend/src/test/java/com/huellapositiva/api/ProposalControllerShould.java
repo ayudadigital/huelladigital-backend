@@ -724,7 +724,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -744,7 +744,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)

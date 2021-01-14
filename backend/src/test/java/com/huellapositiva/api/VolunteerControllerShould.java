@@ -241,9 +241,8 @@ class VolunteerControllerShould {
     void return_400_when_there_is_not_cv_uploaded() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = null;
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
-                .file(new MockMultipartFile("cv", null, "application/pdf", is))
+                .file(new MockMultipartFile("cv", null, "application/pdf", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

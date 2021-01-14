@@ -25,52 +25,52 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         final JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         final JsonNode nodeName = node.get("name");
-        final String name = nodeName.isNull() ? null : nodeName.asText();
+        final String name = returnValue(nodeName);
 
         final JsonNode nodeSurname = node.get("surname");
-        final String surname = nodeSurname.isNull() ? null : nodeSurname.asText();
+        final String surname = returnValue(nodeSurname);
 
         final JsonNode nodeBirthDate = node.get("birthDate");
-        final String birthDate = nodeBirthDate.isNull() ? null : nodeBirthDate.asText();
+        final String birthDate = returnValue(nodeBirthDate);
 
         final JsonNode nodePhoneNumber = node.get("phoneNumber");
-        final String phoneNumber = nodePhoneNumber.isNull() ? null : nodePhoneNumber.asText();
+        final String phoneNumber = returnValue(nodePhoneNumber);
 
         final JsonNode nodeEmail = node.get("email");
-        final String email = nodeEmail.isNull() ? null : nodeEmail.asText();
+        final String email = returnValue(nodeEmail);
 
         final JsonNode nodeProvince = node.get("province");
-        final String province = nodeProvince.isNull() ? null : nodeProvince.asText();
+        final String province = returnValue(nodeProvince);
 
         final JsonNode nodeZipCode = node.get("zipCode");
-        final String zipCode = nodeZipCode.isNull() ? null : nodeZipCode.asText();
+        final String zipCode = returnValue(nodeZipCode);
 
         final JsonNode nodeTown = node.get("town");
-        final String town = nodeTown.isNull() ? null : nodeTown.asText();
+        final String town = returnValue(nodeTown);
 
         final JsonNode nodeAddress = node.get("address");
-        final String address = nodeAddress.isNull() ? null : nodeAddress.asText();
+        final String address = returnValue(nodeAddress);
 
         final JsonNode nodeIsland = node.get("island");
-        final String island = nodeIsland.isNull() ? null : nodeIsland.asText();
+        final String island = returnValue(nodeIsland);
 
         final JsonNode nodePhoto = node.get("photo");
-        final String photo = nodePhoto.isNull() ? null : nodePhoto.asText();
+        final String photo = returnValue(nodePhoto);
 
         final JsonNode nodeCurriculumVitae = node.get("curriculumVitae");
-        final String curriculum = nodeCurriculumVitae.isNull() ? null : nodeCurriculumVitae.asText();
+        final String curriculum = returnValue(nodeCurriculumVitae);
 
         final JsonNode nodeTwitter = node.get("twitter");
-        final String twitter = nodeTwitter.isNull() ? null : nodeTwitter.asText();
+        final String twitter = returnValue(nodeTwitter);
 
         final JsonNode nodeInstagram = node.get("instagram");
-        final String instagram = nodeInstagram.isNull() ? null : nodeInstagram.asText();
+        final String instagram = returnValue(nodeInstagram);
 
         final JsonNode nodeLinkedin = node.get("linkedin");
-        final String linkedin = nodeLinkedin.isNull() ? null : nodeLinkedin.asText();
+        final String linkedin = returnValue(nodeLinkedin);
 
         final JsonNode nodeAdditionalInformation = node.get("additionalInformation");
-        final String additionalInformation = nodeAdditionalInformation.isNull() ? null : nodeAdditionalInformation.asText();
+        final String additionalInformation = returnValue(nodeAdditionalInformation);
 
         return ProfileDto.builder()
                 .name(name)
@@ -90,6 +90,10 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
                 .linkedin(linkedin)
                 .additionalInformation(additionalInformation)
                 .build();
+    }
+
+    private String returnValue(JsonNode node) {
+        return node.isNull() ? null : node.asText();
     }
 
     private LocalDate parseToLocalDate(String birthDate) {

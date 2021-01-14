@@ -63,12 +63,6 @@ class VolunteerControllerShould {
     @Autowired
     private JpaVolunteerRepository jpaVolunteerRepository;
 
-    @Autowired
-    private JpaProfileRepository jpaProfileRepository;
-
-    @Autowired
-    private JpaRoleRepository jpaRoleRepository;
-
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -582,6 +576,9 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isNotNull();
     }
 
     @Test
@@ -597,6 +594,9 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isNotNull();
     }
 
     @Test
@@ -605,6 +605,21 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
+        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+                .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_400_when_the_photo_uploaded_is_oversized() throws Exception {
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/oversized.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
                 .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())

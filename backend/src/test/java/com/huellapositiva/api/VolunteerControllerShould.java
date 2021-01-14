@@ -189,6 +189,9 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();
     }
 
     @Test
@@ -204,6 +207,9 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();
     }
 
     @Test

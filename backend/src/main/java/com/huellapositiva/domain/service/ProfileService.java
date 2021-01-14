@@ -15,6 +15,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,6 +23,7 @@ import java.util.Set;
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
 @Service
+@Transactional
 @AllArgsConstructor
 public class ProfileService {
 

@@ -2,8 +2,9 @@ package com.huellapositiva.unit;
 
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.actions.UploadPhotoAction;
-import com.huellapositiva.domain.model.valueobjects.PhoneNumber;
+import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.util.TestData;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestData.class)
-public class UploadPhotoActionShould {
+class UploadPhotoActionShould {
 
     @Autowired
     private UploadPhotoAction uploadPhotoAction;
@@ -45,6 +46,28 @@ public class UploadPhotoActionShould {
                 "image-height-oversized.png",
                 "image-length-oversized.png",
                 "oversized.png"
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectNamePhotos")
+    void return_exception_if_do_not_contain_extension(String image) throws IOException {
+        String name = "photo.png";
+        String originalFileName = image;
+        String contentType = "image/png";
+        byte[] content = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png").readAllBytes();
+
+        MultipartFile result = new MockMultipartFile(name, originalFileName, contentType, content);
+
+        assertThrows(FileTypeNotSupportedException.class, () -> {
+            uploadPhotoAction.execute(result, DEFAULT_EMAIL);
+        });
+    }
+
+    private static Stream<String> provideIncorrectNamePhotos() {
+        return Stream.of(
+                "",
+                "huellapositiva-logo"
         );
     }
 }

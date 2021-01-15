@@ -576,8 +576,19 @@ class VolunteerControllerShould {
                                 "56789012345678901234567890123456789012345678901234567890123456789012345678901234567890" +
                                 "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456" +
                                 "7890123456789")
+                        .build(),
+                ProfileDtoDataEntry.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+344 123456789")
+                        .birthDate("2000-12-10")
+                        .zipCode("abcde")
+                        .island("Fuerteventura")
+                        .twitter("https://twitter.com/home")
+                        .instagram("https://www.instagram.com/home")
+                        .additionalInformation("0123456s")
                         .build()
-
         );
     }
 

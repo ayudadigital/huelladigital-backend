@@ -406,6 +406,53 @@ class VolunteerControllerShould {
     }
 
     @ParameterizedTest
+    @MethodSource("provideOtherCorrectProfileInformation")
+    void return_204_when_updates_profile_previously_created(ProfileDtoDataEntry profileDto) throws Exception {
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(profileDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
+        assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDto.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDto.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDto.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDto.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDto.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
+        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDto.getPhoto());
+        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDto.getCurriculumVitae());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDto.getAdditionalInformation());
+    }
+
+    private static Stream<ProfileDtoDataEntry> provideOtherCorrectProfileInformation() {
+        return Stream.of(
+                ProfileDtoDataEntry.builder()
+                        .name("Hola mundo")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+34 123456789")
+                        .birthDate("2000-12-10")
+                        .zipCode("38000")
+                        .island("Fuerteventura")
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
     void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDtoDataEntry profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -588,6 +635,15 @@ class VolunteerControllerShould {
                         .twitter("https://twitter.com/home")
                         .instagram("https://www.instagram.com/home")
                         .additionalInformation("0123456s")
+                        .build(),
+                ProfileDtoDataEntry.builder()
+                        .name("nombre")
+                        .surname("apellido")
+                        .email(DEFAULT_EMAIL_2)
+                        .phoneNumber("+34 123456e789")
+                        .birthDate("2000-12-10")
+                        .zipCode("35000")
+                        .island("Fuerteventura")
                         .build()
         );
     }

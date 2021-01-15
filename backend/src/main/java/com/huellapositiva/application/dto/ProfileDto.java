@@ -30,7 +30,7 @@ public class ProfileDto {
     private final String phoneNumber;
 
     @NotNull
-    @Email(regexp = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")
+    @Email
     private final String email;
 
     @Pattern(regexp = "^[Las Palmas|Santa Cruz]*$")

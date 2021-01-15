@@ -46,20 +46,22 @@ public class UploadPhotoAction {
         if(!imageExtensions.contains(extension.toLowerCase())) {
             throw new FileTypeNotSupportedException("photo file must be .jpg,.png,.jpeg,.gif");
         }
+        if(photo.getInputStream().available() == 0){
+            throw new EmptyFileException("There is not any photo attached or is empty.");
+        }
+
         BufferedImage image = ImageIO.read(photo.getInputStream());
         int width = image.getWidth();
         int height = image.getHeight();
         if (width > 400 || height > 400) {
             throw new InvalidFieldException("The photo is too bigger");
         }
-        if (photo.getInputStream().available() != 0) {
-            Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
-            URL photoUrl = remoteStorageService.uploadVolunteerPhoto(photo, volunteer.getId().toString());
-            volunteer.setPhoto(photoUrl);
-            volunteerRepository.updatePhoto(volunteer);
-        } else {
-            throw new EmptyFileException("There is not any photo attached or is empty.");
-        }
+
+        Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
+        URL photoUrl = remoteStorageService.uploadVolunteerPhoto(photo, volunteer.getId().toString());
+        volunteer.setPhoto(photoUrl);
+        volunteerRepository.updatePhoto(volunteer);
+
     }
 
     /**

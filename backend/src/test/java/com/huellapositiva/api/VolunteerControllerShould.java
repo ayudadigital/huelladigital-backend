@@ -707,8 +707,9 @@ class VolunteerControllerShould {
     void return_400_when_there_is_not_photo_uploaded() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/photo-upload")
-                .file(new MockMultipartFile("photo", null, "image/png", InputStream.nullInputStream()))
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

@@ -227,7 +227,7 @@ class VolunteerControllerShould {
     void return_400_when_uploaded_file_PDF_or_WORD_is_too_big() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/doc-test.docx");
+        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/doc-test.docx");
         mvc.perform(multipart("/api/v1/volunteers/cv-upload")
                 .file(new MockMultipartFile("cv", "doc-test.docx", "application/msword", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())

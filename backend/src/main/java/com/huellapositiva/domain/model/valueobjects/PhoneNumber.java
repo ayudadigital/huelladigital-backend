@@ -36,6 +36,6 @@ public class PhoneNumber {
     }
 
     private static boolean isNumeric(String s) {
-        return s != null && s.matches("[-+]?\\d*\\.?\\d+");
+        return s != null && s.matches("\\d*");
     }
 }

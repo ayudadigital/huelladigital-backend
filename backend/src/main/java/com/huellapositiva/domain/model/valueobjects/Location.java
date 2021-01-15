@@ -54,7 +54,6 @@ public class Location {
         return !(isNumeric(zipCode) && isZipCode);
     }
 
-    private static boolean isNumeric(String s) {
-        return s != null && s.matches("\\d*");
+    private static boolean isNumeric(String s) { return s.matches("\\d*");
     }
 }

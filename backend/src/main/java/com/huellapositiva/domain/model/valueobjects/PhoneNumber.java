@@ -19,14 +19,18 @@ public class PhoneNumber {
      */
     public static boolean isNotPhoneNumber(String number) {
         final String[] phone = number.split(" ");
+        if (phone.length != 2) {
+            return true;
+        }
         final String phonePreffix = phone[0];
         final String numberPhone = phone[1];
-        final int phoneLength = phonePreffix.length();
+        final int preffixLength = phonePreffix.length();
         final boolean validationPreffix = phonePreffix.contains("+")
-                && phoneLength >= 2
-                && phoneLength <= 4
+                && preffixLength >= 2
+                && preffixLength <= 4
                 && isNumeric(phonePreffix.substring(1));
-        final boolean validationNumberPhone = numberPhone.length() <= 14
+        final boolean validationNumberPhone = numberPhone.length() >= 6
+                && numberPhone.length() <= 14
                 && isNumeric(numberPhone);
         return !(validationPreffix && validationNumberPhone);
     }

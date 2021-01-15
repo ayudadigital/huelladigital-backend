@@ -33,7 +33,7 @@ public class ProfileDto {
     @Email
     private final String email;
 
-    @Pattern(regexp = "^[Las Palmas|Santa Cruz]*$")
+    @Pattern(regexp = "^(Las Palmas|Santa Cruz)$")
     private final String province;
 
     @NotBlank

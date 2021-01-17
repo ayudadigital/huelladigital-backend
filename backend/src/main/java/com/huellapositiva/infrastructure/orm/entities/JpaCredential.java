@@ -12,7 +12,6 @@ import java.util.Set;
 @Table(name = "credentials")
 @Getter
 @Setter
-@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

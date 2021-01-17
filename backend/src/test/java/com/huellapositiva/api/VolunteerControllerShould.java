@@ -252,9 +252,9 @@ class VolunteerControllerShould {
 
     @Test
     void return_200_when_get_profile_information_without_profile_information_stored() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
+        mvc.perform(get("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -266,7 +266,7 @@ class VolunteerControllerShould {
     void return_200_when_get_profile_information_with_profile_information_stored() throws Exception {
         JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        MockHttpServletResponse response = mvc.perform(get("/api/v1/volunteers/fetchProfileInformation")
+        MockHttpServletResponse response = mvc.perform(get("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .accept(APPLICATION_JSON))

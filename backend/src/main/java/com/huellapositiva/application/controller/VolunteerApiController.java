@@ -215,11 +215,11 @@ public class VolunteerApiController {
                     )
             }
     )
-    @GetMapping("/fetchProfileInformation")
+    @GetMapping("/{volunteerId}/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) {
-        return fetchVolunteerProfileAction.execute(volunteerEmail);
+    public ProfileDto fetchProfileInformation(@PathVariable String volunteerId) {
+        return fetchVolunteerProfileAction.execute(volunteerId);
     }
 
     @Operation(

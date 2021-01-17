@@ -36,7 +36,7 @@ class UploadPhotoActionShould {
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
         assertThrows(InvalidFieldException.class, () -> {
-            uploadPhotoAction.execute(result, DEFAULT_EMAIL);
+            uploadPhotoAction.execute(result, DEFAULT_EMAIL, "123456789");
         });
     }
 
@@ -58,7 +58,7 @@ class UploadPhotoActionShould {
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
         assertThrows(FileTypeNotSupportedException.class, () -> {
-            uploadPhotoAction.execute(result, DEFAULT_EMAIL);
+            uploadPhotoAction.execute(result, DEFAULT_EMAIL, "123456789");
         });
     }
 }

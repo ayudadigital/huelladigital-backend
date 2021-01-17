@@ -176,14 +176,15 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/photo-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/{volunteerId}/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                                      @AuthenticationPrincipal String volunteerEmail) throws IOException {
+                            @AuthenticationPrincipal String volunteerEmail,
+                            @PathVariable String volunteerId) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, volunteerEmail);
+            uploadPhotoAction.execute(photo, volunteerEmail, volunteerId);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());

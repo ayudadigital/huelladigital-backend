@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import static com.huellapositiva.domain.util.FileUtils.getExtension;
 
 @Service
 @RequiredArgsConstructor
@@ -48,28 +49,10 @@ public class RemoteStorageService {
      * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
-        String extension;
-        extension = getExtension(cv.getOriginalFilename());
-        if(!documentExtensions.contains(extension)) {
-            throw new FileTypeNotSupportedException("Curriculum vitae file must be .pdf");
-        }
+        String extension = getExtension(cv.getOriginalFilename());
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerCVRootKey + destinationFileName, cv.getInputStream(), cv.getContentType());
-    }
-
-    /**
-     * This method extracts the extension of the fileName
-     *
-     * @param fileName Name of file to upload to stract its extension
-     * @return the extension or an empty string when there is no extension
-     */
-    private String getExtension(String fileName) {
-        if (fileName != null) {
-            int index = fileName.lastIndexOf('.');
-            return index != -1 ? fileName.substring(index) : "";
-        }
-        return "";
     }
 
     /**

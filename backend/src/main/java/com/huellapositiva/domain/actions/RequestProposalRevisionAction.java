@@ -22,7 +22,7 @@ public class RequestProposalRevisionAction {
     /**
      * This method asks for a reviser to revise a proposal from the given URI. It sends him a notification through email.
      *
-     * @param proposalUri
+     * @param proposalUri URI of proposal
      */
     public void execute(URI proposalUri) {
         ProposalRevisionRequestEmail email = ProposalRevisionRequestEmail.from(reviserEmail, proposalUri.toString());

@@ -179,7 +179,7 @@ class VolunteerControllerShould {
         JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -197,7 +197,7 @@ class VolunteerControllerShould {
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -211,10 +211,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_uploaded_file_is_not_PDF() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "huellapositiva-logo.png", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -225,10 +225,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_uploaded_file_PDF_or_WORD_is_too_big() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/doc-test.docx");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "doc-test.docx", "application/msword", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -239,9 +239,9 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_there_is_not_cv_uploaded() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", null, "application/pdf", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)

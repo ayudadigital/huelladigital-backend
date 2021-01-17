@@ -84,6 +84,7 @@ public class VolunteerRepository {
      * This method return the volunteer full information stored in DB.
      *
      * @param email Email of volunteer to log
+     * @param volunteerId Id of volunteer
      */
     public Volunteer findByEmailAndId(String email, String volunteerId) {
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email, volunteerId);

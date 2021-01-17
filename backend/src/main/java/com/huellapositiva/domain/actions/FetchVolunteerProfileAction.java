@@ -6,6 +6,8 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class FetchVolunteerProfileAction {
 
@@ -15,10 +17,11 @@ public class FetchVolunteerProfileAction {
     /**
      * This method fetches a Volunteer with full information (with partially credentials and location) from the DB
      *
-     * @param volunteerEmail Email of the logged volunteer
+     * @param volunteerId Id of volunteer to find
      */
-    public ProfileDto execute(String volunteerEmail) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(volunteerEmail);
+    public ProfileDto execute(String volunteerId) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteerId)
+                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteerId));
         ProfileDto.ProfileDtoBuilder profileDto = ProfileDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {

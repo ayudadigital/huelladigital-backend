@@ -218,8 +218,9 @@ public class VolunteerApiController {
     @GetMapping("/{volunteerId}/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@PathVariable String volunteerId) {
-        return fetchVolunteerProfileAction.execute(volunteerId);
+    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail,
+                                              @PathVariable String volunteerId) {
+        return fetchVolunteerProfileAction.execute(volunteerEmail, volunteerId);
     }
 
     @Operation(
@@ -249,14 +250,15 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/updateProfileInformation")
+    @PostMapping("/{volunteerId}/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
-                                        @AuthenticationPrincipal String volunteerEmail) {
+                                         @AuthenticationPrincipal String volunteerEmail,
+                                         @PathVariable String volunteerId) {
         try {
-            updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
+            updateVolunteerProfileAction.execute(profileDto,volunteerEmail, volunteerId);
         } catch (InvalidFieldException ex) {
             throw new InvalidFieldException(ex.getMessage());
         } catch (EmailAlreadyExistsException ex){

@@ -24,8 +24,8 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
     @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH v.location d WHERE v.credential.email = :email")
     JpaVolunteer findByEmailWithCredentialAndLocation(@Param("email") String email);
 
-    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH v.location l LEFT JOIN FETCH v.profile p WHERE v.credential.email = :email")
-    JpaVolunteer findByEmailWithCredentialLocationAndProfile(@Param("email") String email);
+    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH v.location l LEFT JOIN FETCH v.profile p WHERE v.credential.email = :email AND v.id = :volunteerId")
+    JpaVolunteer findByEmailWithCredentialLocationAndProfile(@Param("email") String email, @Param("volunteerId") String volunteerId);
 
     @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.id = :id")
     Optional<JpaVolunteer> findById(@Param("id") String id);

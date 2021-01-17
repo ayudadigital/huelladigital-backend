@@ -25,10 +25,11 @@ public class UpdateVolunteerProfileAction {
      *
      * @param profileDto New user profile information to update
      * @param email      Email of user logged
+     * @param volunteerId Id of the volunteer to update de profile information
      */
-    public void execute(ProfileDto profileDto, String email) {
+    public void execute(ProfileDto profileDto, String email, String volunteerId) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
-        profileService.updateProfile(profileDto, email, isNotEqualsEmail);
+        profileService.updateProfile(profileDto, email, isNotEqualsEmail, volunteerId);
         if (isNotEqualsEmail) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(profileDto.getEmail(), emailConfirmationBaseUrl);
             emailCommunicationService.sendMessageEmailChanged(emailConfirmation);

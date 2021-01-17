@@ -48,7 +48,7 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
-        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL);
+        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL, "12334567");
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }
 }

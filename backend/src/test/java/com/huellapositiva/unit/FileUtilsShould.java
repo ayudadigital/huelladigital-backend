@@ -22,7 +22,8 @@ class FileUtilsShould {
                 Arguments.of(".", ""),
                 Arguments.of(".jpeg", ".jpeg"),
                 Arguments.of("png", ""),
-                Arguments.of("file.png", ".png")
+                Arguments.of("file.png", ".png"),
+                Arguments.of(null, "")
         );
     }
 }

@@ -2,45 +2,75 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.exception.EmptyFileException;
+import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.repository.VolunteerRepository;
 import com.huellapositiva.domain.service.RemoteStorageService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import static com.huellapositiva.domain.util.FileUtils.getExtension;
 
-@Slf4j
 @Service
-@AllArgsConstructor
 public class UploadCurriculumVitaeAction {
+
+    private final Set<String> imageExtensions = new HashSet<>(Arrays.asList(".pdf", ".docx", ".odt"));
 
     private final RemoteStorageService remoteStorageService;
 
     private final VolunteerRepository volunteerRepository;
 
+    private final int cvMaxBytes;
+
+    public UploadCurriculumVitaeAction(RemoteStorageService remoteStorageService, VolunteerRepository volunteerRepository,
+                             @Value("${huellapositiva.profile.cv.max-bytes}") int cvMaxBytes) {
+        this.remoteStorageService = remoteStorageService;
+        this.volunteerRepository = volunteerRepository;
+        this.cvMaxBytes = cvMaxBytes;
+    }
+
     /**
-     * This method uploads a file which contains the volunteer resumé (CV) and links its URL to the volunteer
+     * Upload a file which contains the volunteer resumé (CV) and links its URL to the volunteer
      *
      * @param cv New curriculum uploaded to the application
      * @param volunteerEmail Email volunteer logged
      * @throws IOException when the cv is corrupted
      */
     public void execute(MultipartFile cv, String volunteerEmail) throws IOException {
-        if (cv.getSize() > 5200000) {
-            throw new InvalidFieldException("The curriculum is too bigger");
+        validateCvFile(cv);
+
+        Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
+        URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
+        volunteer.setCurriculumVitae(cvUrl);
+        volunteerRepository.updateCurriculumVitae(volunteer);
+    }
+
+    /**
+     * Validate CV file.
+     *
+     * @param cv CV file
+     */
+    private void validateCvFile(MultipartFile cv) throws IOException {
+        if (cv.getSize() > cvMaxBytes) {
+            throw new InvalidFieldException("The CV file size is too big. Max size: " + cvMaxBytes);
         }
-        if (cv.getInputStream().available() != 0) {
-            Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
-            URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
-            volunteer.setCurriculumVitae(cvUrl);
-            volunteerRepository.updateCurriculumVitae(volunteer);
-        } else {
-            throw new EmptyFileException("There is not any cv attached or is empty.");
+
+        String extension = getExtension(cv.getOriginalFilename());
+        if(!imageExtensions.contains(extension.toLowerCase())) {
+            throw new FileTypeNotSupportedException("CV file must have one of the following extensions: " + imageExtensions);
+        }
+
+        InputStream is = cv.getInputStream();
+        if(is.available() == 0){
+            throw new EmptyFileException("The CV must not be empty.");
         }
     }
 }

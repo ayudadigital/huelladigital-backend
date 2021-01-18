@@ -33,5 +33,8 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
     @Query("UPDATE JpaVolunteer v LEFT JOIN FETCH v.credential c SET v.subscribed = false WHERE c.email = :email")
     Integer updateToNotSubscribed(@Param("email") String email);
 
+    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.subscribed = true")
+    List<JpaVolunteer> findSubscribedVolunteers();
+
  */
 }

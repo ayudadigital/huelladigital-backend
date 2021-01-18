@@ -175,6 +175,26 @@ class VolunteerControllerShould {
     }
 
     @Test
+    void return_409_when_there_is_a_user_with_the_same_email_address() throws Exception {
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
+                .email(DEFAULT_EMAIL)
+                .password("password")
+                .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+        mvc.perform(post(SIGN_UP_URL)
+                .content(body)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON));
+
+        mvc.perform(post(SIGN_UP_URL)
+                .content(body)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void return_200_when_upload_curriculum_vitae_successfully() throws Exception {
         JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);

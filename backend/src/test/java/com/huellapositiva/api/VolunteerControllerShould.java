@@ -262,7 +262,7 @@ class VolunteerControllerShould {
         JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
-                .file(new MockMultipartFile("cv", null, "application/pdf", InputStream.nullInputStream()))
+                .file(new MockMultipartFile("cv", "doc-test.pdf", "application/pdf", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -783,9 +783,8 @@ class VolunteerControllerShould {
     void return_400_when_there_is_not_photo_uploaded() throws Exception {
         JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

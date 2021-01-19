@@ -54,7 +54,7 @@ public class RegisterProposalAction {
      * Validates the proposals data (such as its dates) and uploads its image before persisting the proposal.
      *
      * @param dto proposal info (contains the ESAL name)
-     * @param image
+     * @param image The image of esal
      * @return proposal id
      * @throws ParseException when dto date format is invalid
      * @throws IOException when multipart file is corrupt

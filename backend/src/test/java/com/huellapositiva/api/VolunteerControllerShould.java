@@ -175,11 +175,31 @@ class VolunteerControllerShould {
     }
 
     @Test
+    void return_409_when_there_is_a_user_with_the_same_email_address() throws Exception {
+        AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
+                .email(DEFAULT_EMAIL)
+                .password("password")
+                .build();
+
+        String body = objectMapper.writeValueAsString(dto);
+        mvc.perform(post(SIGN_UP_URL)
+                .content(body)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON));
+
+        mvc.perform(post(SIGN_UP_URL)
+                .content(body)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void return_200_when_upload_curriculum_vitae_successfully() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -187,17 +207,17 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL, jpaVolunteer.getId());
         assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();
     }
 
     @Test
     void return_200_when_upload_curriculum_vitae_successfully_with_profile_created() throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -205,16 +225,16 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL, jpaVolunteer.getId());
         assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();
     }
 
     @Test
     void return_400_when_uploaded_file_is_not_PDF() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "huellapositiva-logo.png", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -225,10 +245,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_uploaded_file_PDF_or_WORD_is_too_big() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/doc-test.docx");
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
                 .file(new MockMultipartFile("cv", "doc-test.docx", "application/msword", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -239,10 +259,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_there_is_not_cv_uploaded() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        mvc.perform(multipart("/api/v1/volunteers/cv-upload")
-                .file(new MockMultipartFile("cv", null, "application/pdf", InputStream.nullInputStream()))
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/cv")
+                .file(new MockMultipartFile("cv", "doc-test.pdf", "application/pdf", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -294,10 +314,10 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
     void return_204_when_updates_profile_information_successfully_without_email(ProfileDtoDataEntry profileDtoDataEntry) throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDtoDataEntry))
                 .with(csrf())
@@ -305,7 +325,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
         assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDtoDataEntry.getName());
         assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDtoDataEntry.getSurname());
@@ -359,10 +379,10 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationDifferentEmail")
     void return_204_when_updates_profile_information_successfully_with_email(ProfileDtoDataEntry profileDto) throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -371,7 +391,7 @@ class VolunteerControllerShould {
                 .andExpect(status().isNoContent());
 
         TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
         assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
         assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
@@ -408,10 +428,10 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideOtherCorrectProfileInformation")
     void return_204_when_updates_profile_previously_created(ProfileDtoDataEntry profileDto) throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -419,7 +439,7 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
         assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
         assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDto.getSurname());
@@ -455,10 +475,10 @@ class VolunteerControllerShould {
     @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
     void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDtoDataEntry profileDto) throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -650,7 +670,7 @@ class VolunteerControllerShould {
 
     @Test
     void return_409_when_provided_already_existing_email() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -671,7 +691,7 @@ class VolunteerControllerShould {
                 .additionalInformation("add")
                 .build();
 
-        mvc.perform(multipart("/api/v1/volunteers/updateProfileInformation")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -682,10 +702,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_204_when_upload_photo_successfully() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -693,17 +713,17 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL, jpaVolunteer.getId());
         assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isNotNull();
     }
 
     @Test
     void return_204_when_upload_photo_successfully_with_profile() throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -711,17 +731,17 @@ class VolunteerControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
+        jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL, jpaVolunteer.getId());
         assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isNotNull();
     }
 
     @Test
     void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
                 .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -732,11 +752,11 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_the_photo_uploaded_is_oversized() throws Exception {
-        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/oversized.png");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
                 .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -747,10 +767,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_uploaded_file_is_not_JPG_JPEG_PNG_GIF() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
                 .file(new MockMultipartFile("photo", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -761,11 +781,10 @@ class VolunteerControllerShould {
 
     @Test
     void return_400_when_there_is_not_photo_uploaded() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaVolunteer jpaVolunteer = testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/huellapositiva-logo.png");
-        mvc.perform(multipart("/api/v1/volunteers/photo-upload")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+        mvc.perform(multipart("/api/v1/volunteers/" + jpaVolunteer.getId() + "/profile/photo")
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

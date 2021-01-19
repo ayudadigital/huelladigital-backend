@@ -43,12 +43,12 @@ public class ProfileService {
      * @param email      Email of user logged
      * @param isNotEqualsEmail If the new email it is not the same what the old
      */
-    public void updateProfile(ProfileDto profileDto, String email, boolean isNotEqualsEmail) {
+    public void updateProfile(ProfileDto profileDto, String email, boolean isNotEqualsEmail, String volunteerId) {
         validations(profileDto, isNotEqualsEmail);
 
         JpaLocation jpaLocation = upsertLocation(profileDto, email);
         JpaProfile jpaProfile = upsertProfile(profileDto, email);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email, volunteerId);
         jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
 
         jpaVolunteer.setProfile(jpaProfile);

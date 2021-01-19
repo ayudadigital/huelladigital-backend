@@ -8,9 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.huellapositiva.domain.util.FileUtils.getExtension;
@@ -18,9 +15,6 @@ import static com.huellapositiva.domain.util.FileUtils.getExtension;
 @Service
 @RequiredArgsConstructor
 public class RemoteStorageService {
-
-    private final Set<String> documentExtensions =
-            new HashSet<>(Arrays.asList(".pdf", ".doc", ".docx"));
 
     @Autowired
     private final StorageService storageService;

@@ -22,7 +22,7 @@ import static com.huellapositiva.domain.util.FileUtils.getExtension;
 @Service
 public class UploadCurriculumVitaeAction {
 
-    private final Set<String> imageExtensions = new HashSet<>(Arrays.asList(".pdf", ".docx", ".odt"));
+    private final Set<String> imageExtensions = new HashSet<>(Arrays.asList(".pdf", ".doc", ".docx", ".odt"));
 
     private final RemoteStorageService remoteStorageService;
 

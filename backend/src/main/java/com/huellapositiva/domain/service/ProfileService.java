@@ -4,7 +4,10 @@ import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.AdditionalInformation;
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Location;
+import com.huellapositiva.domain.model.valueobjects.PhoneNumber;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
@@ -43,12 +46,12 @@ public class ProfileService {
      * @param email      Email of user logged
      * @param isNotEqualsEmail If the new email it is not the same what the old
      */
-    public void updateProfile(ProfileDto profileDto, String email, boolean isNotEqualsEmail, String volunteerId) {
+    public void updateProfile(ProfileDto profileDto, String email, boolean isNotEqualsEmail) {
         validations(profileDto, isNotEqualsEmail);
 
         JpaLocation jpaLocation = upsertLocation(profileDto, email);
         JpaProfile jpaProfile = upsertProfile(profileDto, email);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email, volunteerId);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email);
         jpaVolunteer.getCredential().setEmail(profileDto.getEmail());
 
         jpaVolunteer.setProfile(jpaProfile);

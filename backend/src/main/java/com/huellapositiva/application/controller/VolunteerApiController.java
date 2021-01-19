@@ -5,10 +5,10 @@ import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
-import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -132,19 +132,18 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/{volunteerId}/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
-                                      @AuthenticationPrincipal String contactPersonEmail,
-                                      @PathVariable String volunteerId) throws IOException {
+                                      @AuthenticationPrincipal String contactPersonEmail) throws IOException {
         try {
-            uploadCurriculumVitaeAction.execute(cv, contactPersonEmail, volunteerId);
+            uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
-        } catch (EmptyFileException ex){
+        } catch (EmptyFileException ex) {
             log.error("There is not any curriculum attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
@@ -177,19 +176,18 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/{volunteerId}/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                            @AuthenticationPrincipal String volunteerEmail,
-                            @PathVariable String volunteerId) throws IOException {
+                            @AuthenticationPrincipal String volunteerEmail) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, volunteerEmail, volunteerId);
+            uploadPhotoAction.execute(photo, volunteerEmail);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
-        } catch (EmptyFileException ex){
+        } catch (EmptyFileException ex) {
             log.error("There is not any photo attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
@@ -217,12 +215,11 @@ public class VolunteerApiController {
                     )
             }
     )
-    @GetMapping("/{volunteerId}/profile")
+    @GetMapping("/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail,
-                                              @PathVariable String volunteerId) {
-        return fetchVolunteerProfileAction.execute(volunteerEmail, volunteerId);
+    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) {
+        return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 
     @Operation(
@@ -252,18 +249,17 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping("/{volunteerId}/profile")
+    @PostMapping("/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
-                                         @AuthenticationPrincipal String volunteerEmail,
-                                         @PathVariable String volunteerId) {
+                                         @AuthenticationPrincipal String volunteerEmail) {
         try {
-            updateVolunteerProfileAction.execute(profileDto,volunteerEmail, volunteerId);
+            updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
         } catch (InvalidFieldException ex) {
             throw new InvalidFieldException(ex.getMessage());
-        } catch (EmailAlreadyExistsException ex){
+        } catch (EmailAlreadyExistsException ex) {
             throw new EmailAlreadyExistsException(ex.getMessage());
         }
     }

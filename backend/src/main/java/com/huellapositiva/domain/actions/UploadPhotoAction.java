@@ -55,10 +55,10 @@ public class UploadPhotoAction {
      * @param volunteerEmail email of user
      * @throws IOException when the cv is corrupted
      */
-    public void execute(MultipartFile photo, String volunteerEmail, String volunteerId) throws IOException {
+    public void execute(MultipartFile photo, String volunteerEmail) throws IOException {
         validateProfileImage(photo);
 
-        Volunteer volunteer = volunteerRepository.findByEmailAndId(volunteerEmail, volunteerId);
+        Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
         URL photoUrl = remoteStorageService.uploadVolunteerPhoto(photo, volunteer.getId().toString());
         volunteer.setPhoto(photoUrl);
         volunteerRepository.updatePhoto(volunteer);

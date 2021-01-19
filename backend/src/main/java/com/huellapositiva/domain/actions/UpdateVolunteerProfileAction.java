@@ -1,10 +1,9 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProfileDto;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,11 +24,10 @@ public class UpdateVolunteerProfileAction {
      *
      * @param profileDto New user profile information to update
      * @param email      Email of user logged
-     * @param volunteerId Id of the volunteer to update de profile information
      */
-    public void execute(ProfileDto profileDto, String email, String volunteerId) {
+    public void execute(ProfileDto profileDto, String email) {
         boolean isNotEqualsEmail = !email.equals(profileDto.getEmail());
-        profileService.updateProfile(profileDto, email, isNotEqualsEmail, volunteerId);
+        profileService.updateProfile(profileDto, email, isNotEqualsEmail);
         if (isNotEqualsEmail) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(profileDto.getEmail(), emailConfirmationBaseUrl);
             emailCommunicationService.sendMessageEmailChanged(emailConfirmation);

@@ -15,7 +15,8 @@ import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 
-import static com.huellapositiva.util.TestData.*;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_EMAIL_2;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -48,7 +49,7 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
-        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL, "12334567");
+        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL);
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }
 }

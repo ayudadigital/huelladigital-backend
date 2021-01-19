@@ -81,19 +81,6 @@ public class VolunteerRepository {
     }
 
     /**
-     * This method return the volunteer full information stored in DB.
-     *
-     * @param email Email of volunteer to log
-     * @param volunteerId Id of volunteer
-     */
-    public Volunteer findByEmailAndId(String email, String volunteerId) {
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email, volunteerId);
-        return new Volunteer(
-                EmailAddress.from(volunteer.getCredential().getEmail()),
-                new Id(volunteer.getId()));
-    }
-
-    /**
      * This method store in DB the URL of Curriculum Vitae
      *
      * @param volunteer The volunteer information

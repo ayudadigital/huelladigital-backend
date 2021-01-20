@@ -55,7 +55,7 @@ public class NewsletterController {
     )
     @GetMapping("/download")
     @RolesAllowed("REVISER")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void downloadExcel() throws IOException {
         manageNewsletterExcelAction.execute();
     }

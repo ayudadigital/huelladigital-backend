@@ -1,6 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
@@ -22,9 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 
 @AllArgsConstructor
 @TestComponent
@@ -73,7 +76,6 @@ public class TestData {
     @Autowired
     private final JpaLocationRepository jpaLocationRepository;
 
-
     @Autowired
     private final JpaProposalRepository jpaProposalRepository;
 
@@ -95,8 +97,17 @@ public class TestData {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
+    @Autowired
+    private final JpaProfileRepository jpaProfileRepository;
+
+    @Autowired
+    private final JpaVolunteerRepository jpaVolunteerRepository;
+
+    @Autowired
+    private final JpaReviserRepository jpaReviserRepository;
 
     public void resetData() {
+        jpaReviserRepository.deleteAll();
         jpaProposalSkillsRepository.deleteAll();
         jpaProposalRequirementsRepository.deleteAll();
         volunteerRepository.deleteAll();
@@ -140,7 +151,24 @@ public class TestData {
                 .roles(Collections.singleton(role))
                 .build();
 
+        if (REVISER.toString().equals(userRole.toString())) {
+            System.out.println("HOlaaaa");
+            JpaReviser jpaReviser = JpaReviser.builder()
+                    .id(Id.newId().toString())
+                    .credential(jpaCredential)
+                    .name("name")
+                    .surname("surname")
+                    .build();
+            jpaReviserRepository.save(jpaReviser);
+            return jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        }
+
         return jpaCredentialRepository.save(jpaCredential);
+    }
+
+    public JpaVolunteer createVolunteerWithProfile(String email, String password) {
+        createVolunteer(email, password, Roles.VOLUNTEER);
+        return createVolunteerProfile(email);
     }
 
     public JpaVolunteer createVolunteer(String email, String password) {
@@ -197,14 +225,16 @@ public class TestData {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
-                .startingProposalDate("15-01-2021")
-                .closingProposalDate("24-01-2021")
+                .zipCode("12345")
+                .island("Tenerife")
+                .startingProposalDate("15-06-2021")
+                .closingProposalDate("24-06-2021")
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate("30-01-2021")
+                .startingVolunteeringDate("30-06-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -227,7 +257,7 @@ public class TestData {
                 .id(Id.newId())
                 .title("Recogida de ropita")
                 .esal(esal)
-                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
                 .startingProposalDate(ProposalDate.createStartingProposalDate("20-01-2021"))
                 .closingProposalDate(ProposalDate.createClosingProposalDate("24-01-2021"))
                 .startingVolunteeringDate(ProposalDate.createClosingProposalDate("25-01-2021"))
@@ -250,19 +280,19 @@ public class TestData {
         return proposal;
     }
 
-    public JpaProposal registerESALAndPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndPublishedProposal() {
         return registerESALAndProposal(PUBLISHED);
     }
 
-    public JpaProposal registerESALAndNotPublishedProposal() throws ParseException {
+    public JpaProposal registerESALAndNotPublishedProposal() {
         return registerESALAndProposal(UNPUBLISHED);
     }
 
-    public JpaProposal registerESALAndFinishedProposal() throws ParseException {
+    public JpaProposal registerESALAndFinishedProposal() {
         return registerESALAndProposal(FINISHED);
     }
 
-    public JpaProposal registerESALAndProposalWithInscribedVolunteers() throws ParseException {
+    public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
 
@@ -287,7 +317,9 @@ public class TestData {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .island("Tenerife")
+                        .zipCode("12345").build())
                 .esal(esal)
                 .startingProposalDate(simpleDateFormat.parse("20-08-2020"))
                 .closingProposalDate( simpleDateFormat.parse("24-08-2020"))
@@ -327,7 +359,9 @@ public class TestData {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .zipCode("12345")
+                        .island("Tenerife").build())
                 .esal(esal)
                 .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-08-2020"))
                 .closingProposalDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
@@ -362,7 +396,7 @@ public class TestData {
         Proposal proposal = Proposal.builder().id(Id.newId())
                 .title("Recogida de ropita")
                 .esal(new ESAL(esal.getName(), new Id(esal.getId())))
-                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad"))
+                .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
                 .startingProposalDate(ProposalDate.createStartingProposalDate("20-01-2021"))
                 .closingProposalDate(ProposalDate.createClosingProposalDate("24-01-2021"))
                 .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate("25-01-2021"))
@@ -396,5 +430,43 @@ public class TestData {
     public JpaProposalStatus getJpaStatus(ProposalStatus proposalStatus) {
         return jpaProposalStatusRepository.findById(proposalStatus.getId())
             .orElseThrow(InvalidStatusIdException::new);
+    }
+
+    /*If was necessary, you would to do the method public... or create other method*/
+    private JpaVolunteer createVolunteerProfile(String email) {
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .birthDate(LocalDate.of(1993, 12, 12))
+                .photoUrl("Una direccion ahi")
+                .curriculumVitaeUrl("Una direccion ahi")
+                .twitter("Aqui un enlace a twitter")
+                .linkedin("Aqui un enlace a linkedin")
+                .instagram("Aqui un enlace a instagram")
+                .additionalInformation("Pequenna descripcion")
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .id(Id.newId().toString())
+                .province("Las Palmas")
+                .zipCode("35100")
+                .town("Maspalomas")
+                .address("Calle Italia N1")
+                .island("Gran Canaria")
+                .build();
+        jpaLocationRepository.save(jpaLocation);
+        jpaVolunteerRepository.updateLocation(jpaVolunteer.getId(), jpaLocation);
+
+        jpaVolunteer.setProfile(jpaProfile);
+        jpaVolunteer.setLocation(jpaLocation);
+
+        return jpaVolunteer;
     }
 }

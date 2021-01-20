@@ -27,8 +27,8 @@ public class ESALContactPersonService {
     /**
      * This method registers a contactPerson in the DB
      *
-     * @param plainPassword
-     * @param emailConfirmation
+     * @param plainPassword The contact person password
+     * @param emailConfirmation Data on email confirmation
      * @return id of the contactPerson
      * @throws ConflictPersistingUserException when there's a problem with the data to be inserted in the DB
      */

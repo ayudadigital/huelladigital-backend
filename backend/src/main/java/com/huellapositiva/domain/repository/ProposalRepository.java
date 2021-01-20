@@ -68,6 +68,8 @@ public class ProposalRepository {
                 .province(proposal.getLocation().getProvince())
                 .town(proposal.getLocation().getTown())
                 .address(proposal.getLocation().getAddress())
+                .zipCode(proposal.getLocation().getZipCode())
+                .island(proposal.getLocation().getIsland())
                 .build());
         JpaESAL esal = jpaESALRepository.findByName(proposal.getEsal().getName())
                 .orElseThrow(ESALNotFoundException::new);
@@ -100,7 +102,7 @@ public class ProposalRepository {
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
         }
-        jpaProposalRepository.save(jpaProposal);
+        save(jpaProposal);
         proposal.getSkills()
                 .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
         proposal.getRequirements()

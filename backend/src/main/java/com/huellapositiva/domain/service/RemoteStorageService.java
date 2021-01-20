@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
+
+import static com.huellapositiva.domain.util.FileUtils.getExtension;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +22,10 @@ public class RemoteStorageService {
     /**
      * This method reads the bytes from the image of a proposal and uploads it to the storage service
      *
-     * @param image
-     * @param proposalId
+     * @param image New image uploaded
+     * @param proposalId Id proposal in database
      * @return URL with the image location in the storage
-     * @throws IOException
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
         String destinationFileName = UUID.randomUUID().toString();
@@ -36,33 +37,31 @@ public class RemoteStorageService {
     /**
      * This method reads the bytes from the CV of a proposal and uploads it to the storage service
      *
-     * @param cv
-     * @param volunteerId
+     * @param cv New curriculum uploaded
+     * @param volunteerId Id volunteer stored in the database
      * @return URL with the cv location in the storage
-     * @throws IOException
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
-        String extension;
-        extension = getExtension(cv.getOriginalFilename());
-        if(!".pdf".equalsIgnoreCase(extension)) {
-            throw new FileTypeNotSupportedException("Curriculum vitae file must be .pdf");
-        }
+        String extension = getExtension(cv.getOriginalFilename());
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerCVRootKey + destinationFileName, cv.getInputStream(), cv.getContentType());
     }
 
     /**
-     * This method extracts the extension of the fileName
+     * This method reads the bytes from the photo of a proposal and uploads it to the storage service
      *
-     * @param fileName
-     * @return the extension or an empty string when there is no extension
+     * @param photo New photo uploaded to the application
+     * @param volunteerId Id volunteer stored in database
+     * @return URL with the photo location in the storage
+     * @throws IOException Exception occurred while uploading the image to the cloud
      */
-    private String getExtension(String fileName) {
-        if (fileName != null) {
-            int index = fileName.lastIndexOf('.');
-            return index != -1 ? fileName.substring(index) : "";
-        }
-        return "";
+    public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {
+        String extension;
+        extension = getExtension(photo.getOriginalFilename());
+        String destinationFileName = UUID.randomUUID() + extension;
+        String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';
+        return storageService.upload(volunteerPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
     }
 }

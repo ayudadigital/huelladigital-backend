@@ -14,6 +14,8 @@ public class Volunteer extends User {
 
     private URL curriculumVitae;
 
+    private URL photo;
+
     public Volunteer(EmailAddress emailAddress, Id id) {
         super(emailAddress, id);
     }

@@ -1,11 +1,14 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
+import com.huellapositiva.infrastructure.orm.entities.JpaProfile;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,12 +21,25 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
     @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.credential.email = :email")
     Optional<JpaVolunteer> findByEmail(@Param("email") String email);
 
+    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH v.location d WHERE v.credential.email = :email")
+    JpaVolunteer findByEmailWithCredentialAndLocation(@Param("email") String email);
+
+    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c LEFT JOIN FETCH v.location l LEFT JOIN FETCH v.profile p WHERE v.credential.email = :email")
+    JpaVolunteer findByEmailWithCredentialLocationAndProfile(@Param("email") String email);
+
     @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.id = :id")
     Optional<JpaVolunteer> findById(@Param("id") String id);
 
     @Modifying
-    @Query("UPDATE JpaVolunteer v SET v.curriculumVitaeUrl = :cvUrl WHERE v.id = :id")
-    Integer updateCurriculumVitae(@Param("id") String id, @Param("cvUrl") String cvUrl);
+    @Transactional
+    @Query("UPDATE JpaVolunteer p SET p.profile = :profile WHERE p.id = :id")
+    Integer updateProfile(@Param("id") String id, @Param("profile") JpaProfile profile);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE JpaVolunteer p SET p.location = :location WHERE p.id = :id")
+    Integer updateLocation(@Param("id") String id, @Param("location") JpaLocation location);
+
 /*
     @Modifying
     @Query("UPDATE JpaVolunteer v LEFT JOIN FETCH v.credential c SET v.subscribed = true WHERE c.email = :email")

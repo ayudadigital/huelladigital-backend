@@ -18,6 +18,7 @@ import static io.restassured.RestAssured.get;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @ExtendWith(AwsEnvVariablesExtension.class)
@@ -39,5 +40,17 @@ class AwsRemoteStorageServiceShould {
                 .statusCode(HttpStatus.OK.value())
                 .header(CONTENT_LENGTH, "9883")
                 .header(CONTENT_TYPE, IMAGE_PNG_VALUE);
+    }
+
+    @Test
+    void return_a_working_url_after_uploading_a_pdf() {
+        String key = "cv/volunteers/" + UUID.randomUUID() + ".pdf";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
+        URL documentUrl = awsStorageService.upload(key, is, APPLICATION_PDF_VALUE);
+
+        get(documentUrl).then().assertThat()
+                .statusCode(HttpStatus.OK.value())
+                .header(CONTENT_LENGTH, "12696")
+                .header(CONTENT_TYPE, APPLICATION_PDF_VALUE);
     }
 }

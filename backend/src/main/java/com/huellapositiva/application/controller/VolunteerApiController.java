@@ -2,10 +2,12 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.ProfileDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
+import com.huellapositiva.application.exception.EmailAlreadyExistsException;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
-import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
+import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
@@ -49,6 +51,12 @@ public class VolunteerApiController {
     private final RegisterVolunteerAction registerVolunteerAction;
 
     private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
+
+    private final FetchVolunteerProfileAction fetchVolunteerProfileAction;
+
+    private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
+
+    private final UploadPhotoAction uploadPhotoAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -110,7 +118,7 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, credentials are not valid",
+                            description = "Bad request, curriculum is not valid",
                             content = @Content()
                     ),
                     @ApiResponse(
@@ -124,7 +132,7 @@ public class VolunteerApiController {
                     )
             }
     )
-    @PostMapping(path = "/cv-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
@@ -132,9 +140,127 @@ public class VolunteerApiController {
                                       @AuthenticationPrincipal String contactPersonEmail) throws IOException {
         try {
             uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
-        } catch (EmptyFileException ex){
-            log.error("There is not any cv attached or is empty.");
+        } catch (InvalidFieldException ex) {
+            log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        } catch (EmptyFileException ex) {
+            log.error("There is not any curriculum attached or is empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Upload user Photo",
+            description = "Upload user Photo to profile",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, uploaded photo successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, photo is not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, could not register. The user already exist on db",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
+                            @AuthenticationPrincipal String volunteerEmail) throws IOException {
+        try {
+            uploadPhotoAction.execute(photo, volunteerEmail);
+        } catch (InvalidFieldException ex) {
+            log.error(ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        } catch (EmptyFileException ex) {
+            log.error("There is not any photo attached or is empty.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Return user profile information",
+            description = "Return user profile information",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, return full information user profile"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @GetMapping("/profile")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseStatus(HttpStatus.OK)
+    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) {
+        return fetchVolunteerProfileAction.execute(volunteerEmail);
+    }
+
+    @Operation(
+            summary = "Update user profile information",
+            description = "Update user profile information",
+            tags = "user"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, return full information user profile"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid or some field is mandatory",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the new email already match with other email in db",
+                            content = @Content()
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/profile")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
+                                         @AuthenticationPrincipal String volunteerEmail) {
+        try {
+            updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
+        } catch (InvalidFieldException ex) {
+            throw new InvalidFieldException(ex.getMessage());
+        } catch (EmailAlreadyExistsException ex) {
+            throw new EmailAlreadyExistsException(ex.getMessage());
         }
     }
 }

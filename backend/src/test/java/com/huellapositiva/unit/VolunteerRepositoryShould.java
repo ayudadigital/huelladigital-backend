@@ -24,6 +24,8 @@ class VolunteerRepositoryShould {
     private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
     @Mock
     private JpaRoleRepository jpaRoleRepository;
+    @Mock
+    private JpaProfileRepository jpaProfileRepository;
 
     @Test
     void saving_volunteer_should_throw_role_not_found_if_role_doesnt_exist() {
@@ -34,7 +36,7 @@ class VolunteerRepositoryShould {
         when(jpaRoleRepository.findByName(Roles.VOLUNTEER_NOT_CONFIRMED.toString())).thenReturn(Optional.empty());
 
         // WHEN + THEN
-        VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository);
+        VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository, jpaProfileRepository);
         assertThrows(RoleNotFoundException.class, () -> volunteerRepository.save(volunteer, emailConfirmation));
     }
 

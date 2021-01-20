@@ -85,4 +85,11 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
+    public EmailTemplate getEmailChangedTemplate(EmailConfirmation emailConfirmation){
+        String relativePath = "classpath:templates/emails/emailChange.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = emailConfirmation.getUrl();
+        variables.put("CONFIRMATION_URL", url );
+        return new EmailTemplate(template).parse(variables);    }
 }

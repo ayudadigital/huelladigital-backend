@@ -1,0 +1,4 @@
+Se ha realizado una modificación de su dirección de email.
+En caso de que no haya sido usted, póngase en contacto con soporte.
+Para confirmar tu correo electrónico, haz clic en el enlace
+<a href="${CONFIRMATION_URL}">Clic aquí</a>

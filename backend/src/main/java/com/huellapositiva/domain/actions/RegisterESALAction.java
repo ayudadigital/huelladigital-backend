@@ -27,7 +27,7 @@ public class RegisterESALAction {
      * This method creates an ESAL and links it to the logged user.
      *
      * @param dto contains the info to create a new ESAL
-     * @param loggedContactPersonEmail
+     * @param loggedContactPersonEmail contact person's email for logged
      * @throws UserAlreadyHasESALException in case that loggedContactPersonEmail is associated already with an ESAL
      */
     public void execute(ESALRequestDto dto, EmailAddress loggedContactPersonEmail) {

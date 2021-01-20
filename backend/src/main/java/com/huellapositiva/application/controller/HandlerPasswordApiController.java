@@ -113,7 +113,7 @@ public class HandlerPasswordApiController {
     @RolesAllowed({"VOLUNTEER", "CONTACT_PERSON"})
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void editProfilePassword(@Valid @RequestBody(required = true) ChangePasswordDto dto,
+    public void editProfilePassword(@Valid @RequestBody ChangePasswordDto dto,
                                     @AuthenticationPrincipal String email) {
         try {
             credentialsAction.executeUpdatePassword(dto, email);

@@ -1,12 +1,15 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.domain.exception.RoleNotFoundException;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaReviser;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaReviserRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -35,6 +39,9 @@ public class ReviserService {
     private JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
 
     @Autowired
+    private JpaReviserRepository jpaReviserRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Value("${huellapositiva.web-admin.password}")
@@ -43,9 +50,16 @@ public class ReviserService {
     @Value("${huellapositiva.web-admin.email}")
     private String reviserEmail;
 
+    @Value("admin")
+    private String reviserName;
+
+    @Value("admin")
+    private String reviserSurname;
+
     /**
      * This methods creates a default reviser based on the credentials taken from the application.properties
      */
+    @Transactional
     public void createDefaultReviser() {
         if (jpaCredentialRepository.findByEmail(reviserEmail).isEmpty()) {
             Role role = jpaRoleRepository.findByName(REVISER.toString())
@@ -62,7 +76,13 @@ public class ReviserService {
                     .emailConfirmed(true)
                     .emailConfirmation(emailConfirmation)
                     .build();
-            jpaCredentialRepository.save(jpaCredential);
+            JpaReviser jpaReviser = JpaReviser.builder()
+                    .id(Id.newId().toString())
+                    .credential(jpaCredential)
+                    .name(reviserName)
+                    .surname(reviserSurname)
+                    .build();
+            jpaReviserRepository.save(jpaReviser);
         }
     }
 }

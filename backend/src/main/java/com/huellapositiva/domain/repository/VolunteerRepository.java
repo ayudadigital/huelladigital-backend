@@ -4,11 +4,9 @@ import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
-import com.huellapositiva.infrastructure.orm.entities.Role;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import lombok.AllArgsConstructor;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.NoSuchElementException;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
@@ -34,6 +33,16 @@ public class VolunteerRepository {
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
 
+    @Autowired
+    private final JpaProfileRepository jpaProfileRepository;
+
+    /**
+     * This class managed the volunteer register. Add a role (VOLUNTEER_NOT_CONFIRMED), add row in DB the EmailConfirmation,
+     * add the user credentials and add these points in Volunteer
+     *
+     * @param volunteer Send the CV, photo and user information
+     * @param emailConfirmation Send the information about emailConfirmation
+     */
     public Volunteer save(Volunteer volunteer, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER_NOT_CONFIRMED not found."));
@@ -57,6 +66,11 @@ public class VolunteerRepository {
         return volunteer;
     }
 
+    /**
+     * This method return the volunteer full information stored in DB.
+     *
+     * @param email Email of volunteer to log
+     */
     public Volunteer findByEmail(String email) {
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("Could not find volunteer with email " + email)
@@ -66,7 +80,49 @@ public class VolunteerRepository {
                 new Id(volunteer.getId()));
     }
 
+    /**
+     * This method store in DB the URL of Curriculum Vitae
+     *
+     * @param volunteer The volunteer information
+     */
     public void updateCurriculumVitae(Volunteer volunteer) {
-        jpaVolunteerRepository.updateCurriculumVitae(volunteer.getId().toString(), volunteer.getCurriculumVitae().toExternalForm());
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
+                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
+        boolean profileIsNull = jpaVolunteer.getProfile() == null;
+        if (profileIsNull) {
+            JpaProfile jpaProfile = JpaProfile.builder()
+                    .id(Id.newId().toString())
+                    .curriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm())
+                    .build();
+            jpaProfileRepository.save(jpaProfile);
+            jpaVolunteer.setProfile(jpaProfile);
+        } else {
+            jpaVolunteer.getProfile().setCurriculumVitaeUrl(volunteer.getCurriculumVitae().toExternalForm());
+        }
+        jpaVolunteerRepository.save(jpaVolunteer);
     }
+
+    /**
+     * This method store in DB the URL of user profile photo
+     *
+     * @param volunteer The volunteer information
+     */
+    public void updatePhoto(Volunteer volunteer) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
+                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
+
+        boolean profileIsNull = jpaVolunteer.getProfile() == null;
+        if (profileIsNull) {
+            JpaProfile jpaProfile = JpaProfile.builder()
+                    .id(Id.newId().toString())
+                    .photoUrl(volunteer.getPhoto().toExternalForm())
+                    .build();
+            jpaProfileRepository.save(jpaProfile);
+            jpaVolunteer.setProfile(jpaProfile);
+        } else {
+            jpaVolunteer.getProfile().setPhotoUrl(volunteer.getPhoto().toExternalForm());
+        }
+        jpaVolunteerRepository.save(jpaVolunteer);
+    }
+
 }

@@ -226,3 +226,27 @@ The project has different roles:
         2ª. Login as contact person.
         3ª. Register an Esal.
         4ª. Use this method.
+        
+* Update photo. Endpoint POST http://localhost:8080/api/v1/volunteers/photo-upload
+
+    This steps require the access token and the XSRF-TOKEN. Steps to test in postman:
+    
+        1ª. Register a Volunteer.
+        2ª. Login as Volunteer.
+        3ª. Use this method.
+        
+* Fetch profile information volunteer. Endpoint GET http://localhost:8080/api/v1/volunteers/fetchProfileInformation
+
+    This steps require the access token. Steps to test in postman:
+    
+        1ª. Register a Volunteer.
+        2ª. Login as Volunteer.
+        3ª. Use this method.
+        
+* Update profile information volunteer. Endpoint POST http://localhost:8080/api/v1/volunteers/updateProfileInformation
+
+    This steps require the access token and the XSRF-TOKEN. Steps to test in postman:
+        
+        1ª. Register a Volunteer.
+        2ª. Login as Volunteer.
+        3ª. Use this method.

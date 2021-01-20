@@ -2,7 +2,6 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
@@ -22,7 +21,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -108,6 +106,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("21-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -146,6 +146,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("20-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -184,6 +186,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("20-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -410,6 +414,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .zipCode("12345")
+                .island("Tenerife")
                 .startingProposalDate("21-08-2030")
                 .closingProposalDate("24-08-2030")
                 .requiredDays("Weekends")
@@ -449,7 +455,9 @@ class ProposalControllerShould {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .zipCode("12345")
+                        .island("Tenerife").build())
                 .esal(different_esal)
                 .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
                 .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
@@ -601,7 +609,9 @@ class ProposalControllerShould {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .zipCode("12345")
+                        .island("Tenerife").build())
                 .esal(different_esal)
                 .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
                 .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
@@ -712,7 +722,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -732,7 +742,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)

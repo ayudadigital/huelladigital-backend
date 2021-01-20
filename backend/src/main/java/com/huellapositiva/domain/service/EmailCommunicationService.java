@@ -92,4 +92,12 @@ public class EmailCommunicationService {
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASS_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
+
+    public void sendMessageEmailChanged(EmailConfirmation emailConfirmation) {
+        final String UPDATE_EMAIL_SUBJECT = "Información sobre cambio de email";
+        EmailTemplate emailTemplate = templateService.getEmailChangedTemplate(emailConfirmation);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(),
+                UPDATE_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
 }

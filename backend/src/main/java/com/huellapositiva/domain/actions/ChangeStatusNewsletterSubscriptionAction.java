@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 
+import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,8 @@ public class ChangeStatusNewsletterSubscriptionAction {
     private final JpaVolunteerRepository jpaVolunteerRepository;
 
     public void execute(Boolean subscribed, String email){
-        if(subscribed){
-            //jpaVolunteerRepository.updateToSubscribed(email);
-        }else if(subscribed == false){
-            //jpaVolunteerRepository.updateToNotSubscribed(email);
-        }
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email);
+        volunteer.getProfile().setSubscribed(subscribed);
+        jpaVolunteerRepository.save(volunteer);
     }
 }

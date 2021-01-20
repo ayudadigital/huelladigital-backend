@@ -447,6 +447,7 @@ public class TestData {
                 .linkedin("Aqui un enlace a linkedin")
                 .instagram("Aqui un enlace a instagram")
                 .additionalInformation("Pequenna descripcion")
+                .subscribed(false)
                 .build();
         jpaProfileRepository.save(jpaProfile);
 

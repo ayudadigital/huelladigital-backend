@@ -8,9 +8,6 @@ import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
-import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionAction;
-import com.huellapositiva.domain.actions.RegisterVolunteerAction;
-import com.huellapositiva.domain.actions.UploadCurriculumVitaeAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.infrastructure.orm.entities.Role;
@@ -60,8 +57,6 @@ public class VolunteerApiController {
     private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
 
     private final UploadPhotoAction uploadPhotoAction;
-
-    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -268,15 +263,4 @@ public class VolunteerApiController {
             throw new EmailAlreadyExistsException(ex.getMessage());
         }
     }
-
-    @PostMapping("/changeStatusNewsletterSubscription")
-    @RolesAllowed("VOLUNTEER")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
-                                                   @AuthenticationPrincipal String volunteerEmail) {
-        changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
-    }
-
-
 }

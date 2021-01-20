@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -40,17 +41,6 @@ public interface JpaVolunteerRepository extends JpaRepository<JpaVolunteer, Inte
     @Query("UPDATE JpaVolunteer p SET p.location = :location WHERE p.id = :id")
     Integer updateLocation(@Param("id") String id, @Param("location") JpaLocation location);
 
-/*
-    @Modifying
-    @Query("UPDATE JpaVolunteer v LEFT JOIN FETCH v.credential c SET v.subscribed = true WHERE c.email = :email")
-    Integer updateToSubscribed(@Param("email") String email);
-
-    @Modifying
-    @Query("UPDATE JpaVolunteer v LEFT JOIN FETCH v.credential c SET v.subscribed = false WHERE c.email = :email")
-    Integer updateToNotSubscribed(@Param("email") String email);
-
-    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.subscribed = true")
+    @Query("FROM JpaVolunteer v LEFT JOIN FETCH v.credential c WHERE v.profile.subscribed = true")
     List<JpaVolunteer> findSubscribedVolunteers();
-
- */
 }

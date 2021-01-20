@@ -1,16 +1,16 @@
 package com.huellapositiva.application.controller;
 
+import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionAction;
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
@@ -23,6 +23,18 @@ public class NewsletterController {
 
     @Autowired
     private final ManageNewsletterExcelAction manageNewsletterExcelAction;
+
+    @Autowired
+    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
+
+    @PostMapping("/changeStatusNewsletterSubscription")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.OK)
+    public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
+                                                   @AuthenticationPrincipal String volunteerEmail) {
+        changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
+    }
 
     @Operation(
             summary = "Download newsletter excel",

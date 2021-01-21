@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +17,14 @@ public class FetchVolunteerProfileAction {
      *
      * @param volunteerEmail Email of the logged volunteer
      */
-    public ProfileDto execute(String volunteerEmail) {
+    public GetProfileResponseDto execute(String volunteerEmail) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(volunteerEmail);
-        ProfileDto.ProfileDtoBuilder profileDto = ProfileDto.builder().email(jpaVolunteer.getCredential().getEmail());
+        GetProfileResponseDto.GetProfileResponseDtoBuilder profileDto = GetProfileResponseDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {
             profileDto.name(jpaVolunteer.getProfile().getName())
                     .surname(jpaVolunteer.getProfile().getSurname())
-                    .birthDate(jpaVolunteer.getProfile().getBirthDate())
+                    .birthDate(jpaVolunteer.getProfile().getBirthDate().toString())
                     .phoneNumber("" + jpaVolunteer.getProfile().getPhoneNumber())
                     .photo(jpaVolunteer.getProfile().getPhotoUrl())
                     .curriculumVitae(jpaVolunteer.getProfile().getCurriculumVitaeUrl())

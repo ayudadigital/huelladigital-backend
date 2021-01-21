@@ -2,7 +2,8 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.GetProfileResponseDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
@@ -228,7 +229,7 @@ public class VolunteerApiController {
                             content = {
                                     @Content(
                                             mediaType = "application/json",
-                                            schema = @Schema(implementation = ProfileDto.class)
+                                            schema = @Schema(implementation = GetProfileResponseDto.class)
                                     )
                             }
                     ),
@@ -247,7 +248,7 @@ public class VolunteerApiController {
     @GetMapping("/profile")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
+    public GetProfileResponseDto fetchProfileInformation(@Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 
@@ -287,10 +288,10 @@ public class VolunteerApiController {
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
+    public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         try {
-            updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
+            updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
         } catch (InvalidFieldException ex) {
             throw new InvalidFieldException(ex.getMessage());
         } catch (EmailAlreadyExistsException ex) {

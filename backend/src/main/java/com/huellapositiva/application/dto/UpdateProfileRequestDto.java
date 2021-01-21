@@ -14,8 +14,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @JsonDeserialize(using = DtoProfileDeserializer.class)
-public class ProfileDto {
-
+public class UpdateProfileRequestDto {
     @Schema(
             description = "Name of volunteer",
             example = "Fernando Arnaldo"
@@ -89,20 +88,6 @@ public class ProfileDto {
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String island;
-
-    @Schema(
-            description = "User's photo",
-            example = "/storage/volunteers/89sfa98asfas687as6f8as6f8a7s6f8as.png"
-    )
-    @Null
-    private final String photo;
-
-    @Schema(
-            description = "User's Curriculum Vitae",
-            example = "/storage/volunteers/sdfyuhdhg8df58weiou3.pdf"
-    )
-    @Null
-    private final String curriculumVitae;
 
     @Schema(
             description = "User's URL twitter",

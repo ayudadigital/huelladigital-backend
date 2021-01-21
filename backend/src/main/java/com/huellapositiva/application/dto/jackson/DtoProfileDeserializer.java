@@ -4,13 +4,13 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 
 import java.io.IOException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 
-public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
+public class DtoProfileDeserializer extends StdDeserializer<UpdateProfileRequestDto> {
 
     public DtoProfileDeserializer() {
         this(null);
@@ -27,7 +27,7 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
      * @param deserializationContext    Context for the process of deserialization a single root-level value. Used to allow passing in configuration settings and reusable temporary objects (scrap arrays, containers).
      */
     @Override
-    public ProfileDto deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public UpdateProfileRequestDto deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         final JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
         final JsonNode nodeName = node.get("name");
@@ -60,12 +60,6 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         final JsonNode nodeIsland = node.get("island");
         final String island = returnValue(nodeIsland);
 
-        final JsonNode nodePhoto = node.get("photo");
-        final String photo = returnValue(nodePhoto);
-
-        final JsonNode nodeCurriculumVitae = node.get("curriculumVitae");
-        final String curriculum = returnValue(nodeCurriculumVitae);
-
         final JsonNode nodeTwitter = node.get("twitter");
         final String twitter = returnValue(nodeTwitter);
 
@@ -78,7 +72,7 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
         final JsonNode nodeAdditionalInformation = node.get("additionalInformation");
         final String additionalInformation = returnValue(nodeAdditionalInformation);
 
-        return ProfileDto.builder()
+        return UpdateProfileRequestDto.builder()
                 .name(name)
                 .surname(surname)
                 .birthDate(parseToLocalDate(birthDate))
@@ -89,8 +83,6 @@ public class DtoProfileDeserializer extends StdDeserializer<ProfileDto> {
                 .town(town)
                 .address(address)
                 .island(island)
-                .photo(photo)
-                .curriculumVitae(curriculum)
                 .twitter(twitter)
                 .instagram(instagram)
                 .linkedin(linkedin)

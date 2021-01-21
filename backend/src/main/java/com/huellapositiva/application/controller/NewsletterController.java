@@ -27,6 +27,23 @@ public class NewsletterController {
     @Autowired
     private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
 
+    @Operation(
+            summary = "Change status of subscription to newsletter",
+            description = "Changes the status of the subscribed parameter on the specified volunteer",
+            tags = "newsletter"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, status of subscribed field changed successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping("/changeStatusNewsletterSubscription")
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
@@ -38,14 +55,14 @@ public class NewsletterController {
 
     @Operation(
             summary = "Download newsletter excel",
-            description = "Prepare an excel with the volunteers subscribed and return it",
+            description = "Prepare an excel with the volunteers subscribed and send it to reviser",
             tags = "newsletter"
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "Ok, email has been verified"
+                            description = "No content, email has been verified"
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -56,7 +73,7 @@ public class NewsletterController {
     @GetMapping("/download")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downloadExcel() throws IOException {
-        manageNewsletterExcelAction.execute();
+    public void downloadExcel(@AuthenticationPrincipal String reviserEmail) throws IOException {
+        manageNewsletterExcelAction.execute(reviserEmail);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,11 +86,22 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
+
     public EmailTemplate getEmailChangedTemplate(EmailConfirmation emailConfirmation){
         String relativePath = "classpath:templates/emails/emailChange.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = emailConfirmation.getUrl();
         variables.put("CONFIRMATION_URL", url );
-        return new EmailTemplate(template).parse(variables);    }
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getNewsletterEmailTemplate(URL url){
+        String relativePath = "classpath:templates/emails/newsletterEmail.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String stringUrl = url.toString();
+        variables.put("NEWSLETTER_URL", stringUrl);
+        return new EmailTemplate(template).parse(variables);
+    }
 }

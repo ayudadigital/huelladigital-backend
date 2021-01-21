@@ -1,0 +1,3 @@
+Haga click en el enlace que encontrará a continuación para obtener la lista de usuarios suscritos a la newsletter de
+Huella Positiva
+<a href="${NEWSLETTER_URL}">Clic aquí</a>

@@ -59,49 +59,27 @@ public class OpenAPIConfig {
                                 .post(new Operation().addTagsItem("Login")
                                         .requestBody(
                                             new RequestBody()
-                                                    .description("Mi variable")
                                                     .required(true)
                                                     .content(new Content()
                                                             .addMediaType("application/json", new MediaType()
-                                                                    .example(new Example().value(createJSONAuthRequestDto()).externalValue(createJSONAuthRequestDto()))
-                                                                    .examples(Map.of("Mierda", new Example().value(createJSONAuthRequestDto())))
-                                                                    .schema(
-
-                                                                            new ComposedSchema()
+                                                                    .schema(new ComposedSchema()
                                                                                     .addAllOfItem(new Schema()
-                                                                                                    .addProperties("email", new Schema<AuthenticationRequestDto>().type("string").description("Email of user").example(new Example().externalValue("john.doe@huellapositiva.com")))
-                                                                                                    .addProperties("password", new Schema<AuthenticationRequestDto>().type("string").description("Password of user").example(new Example().externalValue("myPassword")))
+                                                                                                    .addProperties("email", new Schema<AuthenticationRequestDto>()
+                                                                                                            .type("string").description("Email of user")
+                                                                                                            .example(new Example().externalValue("john.doe@huellapositiva.com")))
+                                                                                                    .addProperties("password", new Schema<AuthenticationRequestDto>()
+                                                                                                            .type("string").description("Password of user")
+                                                                                                            .example(new Example().externalValue("myPassword")))
                                                                                             .addRequiredItem("email")
                                                                                             .addRequiredItem("password")
                                                                                             .name("AuthenticationRequestDto")
                                                                                             .title("AuthenticationRequestDto")
-
-                                                                                            /*.name("miSchema")
-                                                                                            .type("AuthenticationRequestDto")
-                                                                                            .description("culo")*/
                                                                                     )
-
-
-                                                                                    /*.name("miSchema")
-                                                                                    .type("AuthenticationRequestDto")
-                                                                                    .description("blablabuee")*/
-
-
-                                                                            /*new Schema()
-                                                                            .name("TuPutaMadre")
-                                                                            .type("AuthenticationRequestDto")
-                                                                            .description("blablabla")
-                                                                            .addProperties("Autentication", new Schema<AuthenticationRequestDto>())*/
                                                                     )
                                                             )
                                                     ).extensions(Map.of("Hola", new Object()))
                                         )
-                                        .addParametersItem(new Parameter()
-                                                .name("Messirve")
-                                                .schema(new Schema().type("Integer"))
-                                        )
-                                ).addParametersItem(new Parameter().name("MiVariableBonita").schema(new Schema().type("Integer")))
-                                .summary("Mi propio método")
+                                )
                         )
                 )
                 .servers(servers);

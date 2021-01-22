@@ -144,7 +144,7 @@ public class VolunteerApiController {
             }
     )
     @PostMapping(path = "/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
@@ -193,7 +193,7 @@ public class VolunteerApiController {
             }
     )
     @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
@@ -246,7 +246,7 @@ public class VolunteerApiController {
             }
     )
     @GetMapping("/profile")
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.OK)
     public GetProfileResponseDto fetchProfileInformation(@Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
@@ -285,7 +285,7 @@ public class VolunteerApiController {
             }
     )
     @PostMapping("/profile")
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,

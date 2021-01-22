@@ -9,6 +9,8 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
 import net.minidev.json.JSONObject;
@@ -57,28 +59,28 @@ public class OpenAPIConfig {
                 .paths(new Paths()
                         .addPathItem("/api/v1/authentication/login", new PathItem()
                                 .post(new Operation().addTagsItem("Login")
-                                        .requestBody(
-                                            new RequestBody()
-                                                    .required(true)
-                                                    .content(new Content()
-                                                            .addMediaType("application/json", new MediaType()
-                                                                    .schema(new ComposedSchema()
-                                                                                    .addAllOfItem(new Schema()
-                                                                                                    .addProperties("email", new Schema<AuthenticationRequestDto>()
-                                                                                                            .type("string").description("Email of user")
-                                                                                                            .example(new Example().externalValue("john.doe@huellapositiva.com")))
-                                                                                                    .addProperties("password", new Schema<AuthenticationRequestDto>()
-                                                                                                            .type("string").description("Password of user")
-                                                                                                            .example(new Example().externalValue("myPassword")))
-                                                                                            .addRequiredItem("email")
-                                                                                            .addRequiredItem("password")
-                                                                                            .name("AuthenticationRequestDto")
-                                                                                            .title("AuthenticationRequestDto")
-                                                                                    )
-                                                                    )
-                                                            )
-                                                    ).extensions(Map.of("Hola", new Object()))
+                                        .requestBody(new RequestBody()
+                                                .required(true)
+                                                .content(new Content()
+                                                        .addMediaType("application/json", new MediaType()
+                                                                .schema(new ComposedSchema()
+                                                                        .addAllOfItem(new Schema()
+                                                                                        .addProperties("email", new Schema<AuthenticationRequestDto>()
+                                                                                                .type("string").description("Email of user")
+                                                                                                .example(new Example().value("john.doe@huellapositiva.com").getValue()))
+                                                                                        .addProperties("password", new Schema<AuthenticationRequestDto>()
+                                                                                                .type("string").description("Password of user")
+                                                                                                .example(new Example().value("myPassword").getValue()))
+                                                                                        .addRequiredItem("email")
+                                                                                        .addRequiredItem("password")
+                                                                                        .name("AuthenticationRequestDto")
+                                                                                        .title("AuthenticationRequestDto")
+                                                                        )
+                                                                )
+                                                        )
+                                                ).extensions(Map.of("Hola", new Object()))
                                         )
+                                        .responses(new ApiResponses().addApiResponse("200", new ApiResponse().description("Has iniciado sesión correctamente")))
                                 )
                         )
                 )

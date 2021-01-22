@@ -7,21 +7,16 @@ import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.examples.Example;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.*;
-import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @SecurityScheme(
@@ -56,57 +51,46 @@ public class OpenAPIConfig {
                         .version(buildVersion))
                 .addTagsItem(new Tag().name("Login")
                         .description("Login hide by Spring Security"))
-                .paths(new Paths()
-                        .addPathItem("/api/v1/authentication/login", new PathItem()
-                                .post(new Operation().addTagsItem("Login")
-                                        .requestBody(new RequestBody()
-                                                .required(true)
-                                                .content(new Content()
-                                                        .addMediaType("application/json", new MediaType()
-                                                                .schema(new ComposedSchema()
-                                                                        .addAllOfItem(new Schema()
-                                                                                        .addProperties("email", new Schema<AuthenticationRequestDto>()
-                                                                                                .type("string").description("Email of user")
-                                                                                                .example(new Example().value("john.doe@huellapositiva.com").getValue()))
-                                                                                        .addProperties("password", new Schema<AuthenticationRequestDto>()
-                                                                                                .type("string").description("Password of user")
-                                                                                                .example(new Example().value("myPassword").getValue()))
-                                                                                        .addRequiredItem("email")
-                                                                                        .addRequiredItem("password")
-                                                                                        .name("AuthenticationRequestDto")
-                                                                                        .title("AuthenticationRequestDto")
-                                                                        )
-                                                                )
-                                                        )
-                                                ).extensions(Map.of("Hola", new Object()))
-                                        )
-                                        .responses(new ApiResponses().addApiResponse("200", new ApiResponse().description("Has iniciado sesión correctamente")))
-                                )
-                        )
+                .paths(addLoginPath()
                 )
                 .servers(servers);
-
     }
 
-    public String createJSONAuthRequestDto() {
-        /*Map authRequestDto = new HashMap();
-        authRequestDto.put("email", "john.doe@huellapositiva.com");
-        authRequestDto.put("password", "mypassword");
-        String jsonText = JSONValue.toJSONString(authRequestDto);*/
-        ////////////////////////////////
-        JSONObject authRequestDto = new JSONObject();
-        authRequestDto.put("email", "john.doe@huellapositiva.com");
-        authRequestDto.put("password", "mypassword");
-        return authRequestDto.toJSONString();
+    private Paths addLoginPath() {
+        return new Paths()
+                .addPathItem("/api/v1/authentication/login", new PathItem()
+                        .post(new Operation().addTagsItem("Login")
+                                .requestBody(new RequestBody()
+                                        .required(true)
+                                        .content(new Content()
+                                                .addMediaType("application/json", new MediaType()
+                                                        .schema(new ComposedSchema()
+                                                                .addProperties("email", new Schema<AuthenticationRequestDto>()
+                                                                        .type("string").description("Email of user")
+                                                                        .example(new Example().value("john.doe@huellapositiva.com").getValue()))
+                                                                .addProperties("password", new Schema<AuthenticationRequestDto>()
+                                                                        .type("string").description("Password of user")
+                                                                        .example(new Example().value("myPassword").getValue()))
+                                                                .addRequiredItem("email")
+                                                                .addRequiredItem("password")
+                                                                .name("AuthenticationRequestDto")
+                                                                .title("AuthenticationRequestDto")
+
+                                                        )
+                                                )
+                                        )
+                                ).responses(new ApiResponses()
+                                        .addApiResponse("200", new ApiResponse()
+                                                .description("You have successfully logged in."))
+                                        .addApiResponse("400", new ApiResponse()
+                                                .description("The email or password field is incorrect or does not match."))
+                                        .addApiResponse("401", new ApiResponse()
+                                                .description("The login has failed."))
+                                        .addApiResponse("403", new ApiResponse()
+                                                .description("The email or password field is incorrect or does not match."))
+                                        .addApiResponse("500", new ApiResponse()
+                                                .description("Internal server error, could not fetch the user data due to a connectivity issue.")))
+                        )
+                );
     }
-
-    /*@Bean
-    public OpenAPI customConfiguration2() {
-        return new OpenAPI()
-                .components(new Components())
-                .paths(new Paths()
-                        .addPathItem("Mi path", new PathItem().$ref("/sadgsdg"))
-                ).servers(servers);
-
-    }*/
 }

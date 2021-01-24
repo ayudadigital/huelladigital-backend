@@ -1,8 +1,8 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.GetProfileResponseDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
@@ -77,17 +77,17 @@ public class VolunteerApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, could not register. The user already exist on db",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -236,12 +236,12 @@ public class VolunteerApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

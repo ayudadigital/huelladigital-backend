@@ -54,17 +54,17 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the provided name is already taken.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "412",
                             description = "Precondition failed, the user attempting to create the ESAL has another one linked.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -104,7 +104,7 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "403",
                             description = "Forbidden, the user has no permissions to delete the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -136,7 +136,7 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "ESAL already exists.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",

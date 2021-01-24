@@ -130,7 +130,7 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, the given ID was not found or is not published.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -165,7 +165,7 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, the given ID was not found or is not published.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

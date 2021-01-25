@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -65,7 +67,8 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal",
-            description = "Register a new proposal and link it to the logged employee.",
+            description = "Register a new proposal and link it to the logged employee. " +
+                    "Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -146,7 +149,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Join a proposal",
-            description = "Join a proposal as volunteer",
+            description = "Join a proposal as volunteer. Roles allowed VOLUNTEER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -164,15 +167,16 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found or is not published.",
-                            content = @Content()
+                            description = "Not found, the given ID was not found or is not published."
                     )
             }
     )
     @PostMapping("/{id}/join")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
+    public void joinProposal(@Schema(description = "Id of Volunteer", example = "9873r5f897fs")
+                                 @PathVariable String id,
+                             @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
         } catch (EntityNotFoundException | ProposalNotPublishedException e) {
@@ -182,7 +186,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal as reviser",
-            description = "Register a new proposal by providing the ESAL name through the DTO.",
+            description = "Register a new proposal by providing the ESAL name through the DTO. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -252,7 +256,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch list of proposals",
-            description = "Fetch a list of proposals based on the page requested",
+            description = "Fetch a list of proposals based on the page requested. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -270,11 +274,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposals."
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposals.",
+                            content = @Content()
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content()
                     )
             }
     )

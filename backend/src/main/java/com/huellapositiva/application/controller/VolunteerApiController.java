@@ -113,7 +113,7 @@ public class VolunteerApiController {
 
     @Operation(
             summary = "Upload Curriculum Vitae",
-            description = "Upload Curriculum Vitae as a volunteer",
+            description = "Upload Curriculum Vitae as a volunteer for the VOLUNTEER and VOLUNTEER_NOT_CONFIRMED",
             tags = "user",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -162,7 +162,7 @@ public class VolunteerApiController {
 
     @Operation(
             summary = "Upload user Photo",
-            description = "Upload user Photo to profile",
+            description = "Upload user Photo to profile for the VOLUNTEER and VOLUNTEER_NOT_CONFIRMED",
             tags = "user",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -211,7 +211,7 @@ public class VolunteerApiController {
 
     @Operation(
             summary = "Return user profile information",
-            description = "Return user profile information",
+            description = "Return user profile information for the VOLUNTEER and VOLUNTEER_NOT_CONFIRMED",
             tags = "user",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -254,7 +254,7 @@ public class VolunteerApiController {
 
     @Operation(
             summary = "Update user profile information",
-            description = "Update user profile information",
+            description = "Update user profile information for the VOLUNTEER and VOLUNTEER_NOT_CONFIRMED",
             tags = "user",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

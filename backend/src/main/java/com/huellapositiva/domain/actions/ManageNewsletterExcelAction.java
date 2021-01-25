@@ -10,7 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.net.URL;
@@ -29,37 +28,40 @@ public class ManageNewsletterExcelAction {
 
     private final EmailCommunicationService communicationService;
 
-    private List<JpaVolunteer> subscribedVolunteers;
-    private final String root = "./newsletterEmails.xlsx";
+    private static final String ROOT = "./newsletterEmails.xlsx";
 
     public void execute(String email) throws IOException {
-        subscribedVolunteers = jpaVolunteerRepository.findSubscribedVolunteers();
-        buildExcel();
-        URL url = UploadExcelAndGetUrl();
-        communicationService.sendNewsletter(EmailAddress.from(email), url);
-        Files.deleteIfExists(Paths.get(root));
+        List<JpaVolunteer> subscribedVolunteers = jpaVolunteerRepository.findSubscribedVolunteers();
+        if (subscribedVolunteers.isEmpty()){
+            communicationService.sendEmptyNewsletter(EmailAddress.from(email));
+        } else {
+            buildExcel(subscribedVolunteers);
+            URL url = uploadExcelAndGetUrl();
+            communicationService.sendNewsletter(EmailAddress.from(email), url);
+            Files.deleteIfExists(Paths.get(ROOT));
+        }
     }
 
-    private void buildExcel() throws IOException {
+    private void buildExcel(List<JpaVolunteer> subscribedVolunteers) throws IOException {
         XSSFWorkbook wb = new XSSFWorkbook();
         XSSFSheet sh = wb.createSheet("Emails");
 
         sh.createRow(0).createCell(0).setCellValue("Email");
-        for (JpaVolunteer v:subscribedVolunteers){
+        for (JpaVolunteer v: subscribedVolunteers){
             sh.createRow(sh.getLastRowNum()+1).createCell(0).setCellValue(v.getCredential().getEmail());
         }
         performChangesInExcel(wb);
     }
 
     private void performChangesInExcel(XSSFWorkbook wb) throws IOException {
-        File excel = new File(root);
+        File excel = new File(ROOT);
         FileOutputStream fos = new FileOutputStream(excel);
         wb.write(fos);
         fos.close();
     }
 
-    private URL UploadExcelAndGetUrl() throws IOException {
-        InputStream excel = new FileInputStream(new File(root));
+    private URL uploadExcelAndGetUrl() throws IOException {
+        InputStream excel = new FileInputStream(new File(ROOT));
         URL url = remoteStorageService.uploadNewsletterExcel(excel);
         excel.close();
         return url;

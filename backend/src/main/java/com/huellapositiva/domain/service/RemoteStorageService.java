@@ -63,11 +63,10 @@ public class RemoteStorageService {
         extension = getExtension(photo.getOriginalFilename());
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';
-        String content = photo.getContentType();
         return storageService.upload(volunteerPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
     }
 
-    public URL uploadNewsletterExcel(InputStream excel) throws IOException {
+    public URL uploadNewsletterExcel(InputStream excel) {
         String extension = ".xlsx";
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerExcelRootKey = "newsletter/";

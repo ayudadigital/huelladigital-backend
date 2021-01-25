@@ -1,7 +1,5 @@
 package com.huellapositiva.application.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.huellapositiva.application.dto.jackson.DtoProfileDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +14,6 @@ import java.time.LocalDate;
 @Data
 @Builder
 @AllArgsConstructor
-@JsonDeserialize(using = DtoProfileDeserializer.class)
 public class UpdateProfileRequestDto {
     @Schema(
             description = "Name of volunteer",

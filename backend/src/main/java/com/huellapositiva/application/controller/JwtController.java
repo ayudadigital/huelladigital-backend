@@ -76,7 +76,7 @@ public class JwtController {
                     )
             }
     )
-    @PostMapping("/refresh")
+    @PostMapping("/authentication/refresh")
     public JwtResponseDto refreshJwtToken(@Parameter(description = "refresh token value")
                                           @RequestBody String refreshToken, HttpServletResponse res) {
         try {

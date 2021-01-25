@@ -34,7 +34,7 @@ class UpdateVolunteerProfileActionShould {
     }
 
     @Test
-    void send_change_email(){
+    void send_change_email() {
         UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
                 .name("nombre")
                 .surname("apellido")
@@ -44,7 +44,9 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
+
         updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
+
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }
 }

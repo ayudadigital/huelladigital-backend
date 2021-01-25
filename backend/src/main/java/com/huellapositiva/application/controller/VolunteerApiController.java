@@ -5,7 +5,6 @@ import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
-import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
@@ -290,12 +289,6 @@ public class VolunteerApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
-        try {
-            updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
-        } catch (InvalidFieldException ex) {
-            throw new InvalidFieldException(ex.getMessage());
-        } catch (EmailAlreadyExistsException ex) {
-            throw new EmailAlreadyExistsException(ex.getMessage());
-        }
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
     }
 }

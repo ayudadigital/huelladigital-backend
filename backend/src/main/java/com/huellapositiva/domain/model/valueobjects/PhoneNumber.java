@@ -22,17 +22,17 @@ public class PhoneNumber {
         if (phone.length != 2) {
             return true;
         }
-        final String phonePreffix = phone[0];
+        final String phonePrefix = phone[0];
         final String numberPhone = phone[1];
-        final int preffixLength = phonePreffix.length();
-        final boolean validationPreffix = phonePreffix.contains("+")
-                && preffixLength >= 2
-                && preffixLength <= 4
-                && isNumeric(phonePreffix.substring(1));
+        final int prefixLength = phonePrefix.length();
+        final boolean validationPrefix = phonePrefix.contains("+")
+                && prefixLength >= 2
+                && prefixLength <= 4
+                && isNumeric(phonePrefix.substring(1));
         final boolean validationNumberPhone = numberPhone.length() >= 6
                 && numberPhone.length() <= 14
                 && isNumeric(numberPhone);
-        return !(validationPreffix && validationNumberPhone);
+        return !(validationPrefix && validationNumberPhone);
     }
 
     private static boolean isNumeric(String s) {

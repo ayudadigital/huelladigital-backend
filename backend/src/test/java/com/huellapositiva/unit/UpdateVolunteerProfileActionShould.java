@@ -1,6 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
@@ -40,7 +40,7 @@ class UpdateVolunteerProfileActionShould {
 
     @Test
     void send_change_email(){
-        ProfileDto profileDto = ProfileDto.builder()
+        UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
                 .name("nombre")
                 .surname("apellido")
                 .email(DEFAULT_EMAIL_2)
@@ -49,7 +49,7 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
-        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL);
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }
 }

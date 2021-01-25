@@ -18,8 +18,6 @@ public class ProfileDtoDataEntry {
     private final String town;
     private final String address;
     private final String island;
-    private final String photo;
-    private final String curriculumVitae;
     private final String twitter;
     private final String instagram;
     private final String linkedin;

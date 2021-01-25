@@ -3,7 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -293,22 +293,22 @@ class VolunteerControllerShould {
                 .andExpect(status().isOk())
                 .andReturn().getResponse();
 
-        ProfileDto profileDto = objectMapper.readValue(response.getContentAsString(), ProfileDto.class);
-        assertThat(profileDto.getName()).isEqualTo(jpaVolunteer.getProfile().getName());
-        assertThat(profileDto.getSurname()).isEqualTo(jpaVolunteer.getProfile().getSurname());
-        assertThat(profileDto.getBirthDate()).isEqualTo(jpaVolunteer.getProfile().getBirthDate());
-        assertThat(profileDto.getPhoneNumber()).isEqualTo(jpaVolunteer.getProfile().getPhoneNumber());
-        assertThat(profileDto.getProvince()).isEqualTo(jpaVolunteer.getLocation().getProvince());
-        assertThat(profileDto.getZipCode()).isEqualTo(jpaVolunteer.getLocation().getZipCode());
-        assertThat(profileDto.getIsland()).isEqualTo(jpaVolunteer.getLocation().getIsland());
-        assertThat(profileDto.getTown()).isEqualTo(jpaVolunteer.getLocation().getTown());
-        assertThat(profileDto.getAddress()).isEqualTo(jpaVolunteer.getLocation().getAddress());
-        assertThat(profileDto.getPhoto()).isEqualTo(jpaVolunteer.getProfile().getPhotoUrl());
-        assertThat(profileDto.getCurriculumVitae()).isEqualTo(jpaVolunteer.getProfile().getCurriculumVitaeUrl());
-        assertThat(profileDto.getTwitter()).isEqualTo(jpaVolunteer.getProfile().getTwitter());
-        assertThat(profileDto.getLinkedin()).isEqualTo(jpaVolunteer.getProfile().getLinkedin());
-        assertThat(profileDto.getInstagram()).isEqualTo(jpaVolunteer.getProfile().getInstagram());
-        assertThat(profileDto.getAdditionalInformation()).isEqualTo(jpaVolunteer.getProfile().getAdditionalInformation());
+        GetProfileResponseDto getProfileResponseDto = objectMapper.readValue(response.getContentAsString(), GetProfileResponseDto.class);
+        assertThat(getProfileResponseDto.getName()).isEqualTo(jpaVolunteer.getProfile().getName());
+        assertThat(getProfileResponseDto.getSurname()).isEqualTo(jpaVolunteer.getProfile().getSurname());
+        assertThat(getProfileResponseDto.getBirthDate()).isEqualTo(jpaVolunteer.getProfile().getBirthDate().toString());
+        assertThat(getProfileResponseDto.getPhoneNumber()).isEqualTo(jpaVolunteer.getProfile().getPhoneNumber());
+        assertThat(getProfileResponseDto.getProvince()).isEqualTo(jpaVolunteer.getLocation().getProvince());
+        assertThat(getProfileResponseDto.getZipCode()).isEqualTo(jpaVolunteer.getLocation().getZipCode());
+        assertThat(getProfileResponseDto.getIsland()).isEqualTo(jpaVolunteer.getLocation().getIsland());
+        assertThat(getProfileResponseDto.getTown()).isEqualTo(jpaVolunteer.getLocation().getTown());
+        assertThat(getProfileResponseDto.getAddress()).isEqualTo(jpaVolunteer.getLocation().getAddress());
+        assertThat(getProfileResponseDto.getPhoto()).isEqualTo(jpaVolunteer.getProfile().getPhotoUrl());
+        assertThat(getProfileResponseDto.getCurriculumVitae()).isEqualTo(jpaVolunteer.getProfile().getCurriculumVitaeUrl());
+        assertThat(getProfileResponseDto.getTwitter()).isEqualTo(jpaVolunteer.getProfile().getTwitter());
+        assertThat(getProfileResponseDto.getLinkedin()).isEqualTo(jpaVolunteer.getProfile().getLinkedin());
+        assertThat(getProfileResponseDto.getInstagram()).isEqualTo(jpaVolunteer.getProfile().getInstagram());
+        assertThat(getProfileResponseDto.getAdditionalInformation()).isEqualTo(jpaVolunteer.getProfile().getAdditionalInformation());
     }
 
     @ParameterizedTest
@@ -317,7 +317,7 @@ class VolunteerControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/profile")
+        mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDtoDataEntry))
                 .with(csrf())
@@ -336,8 +336,6 @@ class VolunteerControllerShould {
         assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDtoDataEntry.getIsland());
         assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDtoDataEntry.getTown());
         assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDtoDataEntry.getAddress());
-        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDtoDataEntry.getPhoto());
-        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDtoDataEntry.getCurriculumVitae());
         assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDtoDataEntry.getTwitter());
         assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDtoDataEntry.getLinkedin());
         assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDtoDataEntry.getInstagram());
@@ -382,7 +380,7 @@ class VolunteerControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/profile")
+        mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -403,8 +401,6 @@ class VolunteerControllerShould {
         assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
         assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
         assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
-        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDto.getPhoto());
-        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDto.getCurriculumVitae());
         assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
         assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
         assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
@@ -431,7 +427,7 @@ class VolunteerControllerShould {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/profile")
+        mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -450,8 +446,6 @@ class VolunteerControllerShould {
         assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
         assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
         assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
-        assertThat(jpaVolunteer.getProfile().getPhotoUrl()).isEqualTo(profileDto.getPhoto());
-        assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isEqualTo(profileDto.getCurriculumVitae());
         assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
         assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
         assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
@@ -478,7 +472,7 @@ class VolunteerControllerShould {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart("/api/v1/volunteers/profile")
+        mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())
@@ -691,7 +685,7 @@ class VolunteerControllerShould {
                 .additionalInformation("add")
                 .build();
 
-        mvc.perform(multipart("/api/v1/volunteers/profile")
+        mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())

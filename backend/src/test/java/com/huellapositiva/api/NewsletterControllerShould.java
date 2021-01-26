@@ -85,11 +85,24 @@ class NewsletterControllerShould {
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
-        MockHttpServletResponse fetchResponse = mvc.perform(get(NEWSLETTER_URL + "/download")
+        MockHttpServletResponse fetchResponse = mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+    }
+
+    @Test
+    void return_404_when_not_found_any_volunteers_subscribed_to_newsletter() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        MockHttpServletResponse fetchResponse = mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andReturn().getResponse();
     }
 }

@@ -33,7 +33,7 @@ public class ManageNewsletterExcelAction {
     public void execute(String email) throws IOException {
         List<JpaVolunteer> subscribedVolunteers = jpaVolunteerRepository.findSubscribedVolunteers();
         if (subscribedVolunteers.isEmpty()){
-            communicationService.sendEmptyNewsletter(EmailAddress.from(email));
+            throw new IOException("Can not find any volunteers subscribed to newsletter");
         } else {
             buildExcel(subscribedVolunteers);
             URL url = uploadExcelAndGetUrl();

@@ -44,19 +44,6 @@ class ManageNewsletterExcelActionShould {
     }
 
     @Test
-    void send_an_empty_newsletter_email_when_there_are_no_subscribed_volunteers() throws IOException {
-        // GIVEN
-        ManageNewsletterExcelAction manageNewsletterExcelAction = new ManageNewsletterExcelAction(
-                jpaVolunteerRepository, remoteStorageService, emailCommunicationService);
-
-        // WHEN
-        manageNewsletterExcelAction.execute(DEFAULT_EMAIL);
-
-        // THEN
-        verify(emailCommunicationService).sendEmptyNewsletter(EmailAddress.from(DEFAULT_EMAIL));
-    }
-
-    @Test
     void send_a_newsletter_email_when_there_are_subscribed_volunteers() throws IOException {
         testData.createSubscribedVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         // GIVEN

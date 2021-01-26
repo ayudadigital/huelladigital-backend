@@ -104,10 +104,4 @@ public class TemplateService {
         variables.put("NEWSLETTER_URL", stringUrl);
         return new EmailTemplate(template).parse(variables);
     }
-
-    public EmailTemplate getEmptyNewsletterTemplate() {
-        String relativePath = "classpath:templates/emails/emptyNewsletter.txt";
-        String template = getFileContent(relativePath);
-        return new EmailTemplate(template);
-    }
 }

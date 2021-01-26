@@ -1,4 +1,4 @@
-package com.huellapositiva.integration;
+package com.huellapositiva.unit;
 
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;

@@ -22,7 +22,6 @@ import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith(MockitoExtension.class)
 @Import(TestData.class)
 class ManageNewsletterExcelActionShould {
 

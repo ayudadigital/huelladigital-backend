@@ -50,7 +50,7 @@ class NewsletterControllerShould {
     }
 
     @Test
-    void return_200_when_status_changed_successfully() throws Exception {
+    void return_200_when_state_of_subscribed_field_changed_successfully() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -77,7 +77,7 @@ class NewsletterControllerShould {
     }
 
     @Test
-    void return_204_when_excel_downloaded_successfully() throws Exception {
+    void return_204_when_excel_sent_successfully() throws Exception {
         JpaVolunteer volunteer = testData.createSubscribedVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createVolunteer(DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
         JpaVolunteer volunteer3 = testData.createSubscribedVolunteer("foo_3@huellapositiva.com", DEFAULT_PASSWORD);

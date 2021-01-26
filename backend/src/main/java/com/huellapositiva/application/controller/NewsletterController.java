@@ -74,7 +74,7 @@ public class NewsletterController {
     @GetMapping("/download")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downloadExcel(@Parameter(hidden = true)@AuthenticationPrincipal String reviserEmail) throws IOException {
+    public void sendExcelLinkEmail(@Parameter(hidden = true)@AuthenticationPrincipal String reviserEmail) throws IOException {
         manageNewsletterExcelAction.execute(reviserEmail);
     }
 }

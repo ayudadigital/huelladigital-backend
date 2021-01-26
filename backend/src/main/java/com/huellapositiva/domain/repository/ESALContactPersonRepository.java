@@ -6,8 +6,8 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.*;
-import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +41,13 @@ public class ESALContactPersonRepository {
     public Id save(ContactPerson contactPerson, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(CONTACT_PERSON_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RuntimeException("Role CONTACT_PERSON_NOT_CONFIRMED not found."));
-        EmailConfirmation jpaEmailConfirmation = EmailConfirmation.builder()
+        JpaEmailConfirmation jpaEmailConfirmation = JpaEmailConfirmation.builder()
                 .email(contactPerson.getEmailAddress().toString())
                 .hash(emailConfirmation.getToken())
                 .build();
         jpaEmailConfirmation = jpaEmailConfirmationRepository.save(jpaEmailConfirmation);
         JpaCredential jpaCredential = JpaCredential.builder()
+                .id(contactPerson.getAccountId().getValue())
                 .email(contactPerson.getEmailAddress().toString())
                 .hashedPassword(contactPerson.getPasswordHash().toString())
                 .roles(Collections.singleton(role))

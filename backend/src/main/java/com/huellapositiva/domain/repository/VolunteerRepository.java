@@ -46,12 +46,13 @@ public class VolunteerRepository {
     public Volunteer save(Volunteer volunteer, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER_NOT_CONFIRMED not found."));
-        EmailConfirmation jpaEmailConfirmation = EmailConfirmation.builder()
+        JpaEmailConfirmation jpaEmailConfirmation = JpaEmailConfirmation.builder()
                 .email(volunteer.getEmailAddress().toString())
                 .hash(emailConfirmation.getToken())
                 .build();
         jpaEmailConfirmation = jpaEmailConfirmationRepository.save(jpaEmailConfirmation);
         JpaCredential jpaCredential = JpaCredential.builder()
+                .id(volunteer.getAccountId().getValue())
                 .email(volunteer.getEmailAddress().toString())
                 .hashedPassword(volunteer.getPasswordHash().toString())
                 .roles(Collections.singleton(role))
@@ -72,10 +73,11 @@ public class VolunteerRepository {
      * @param email Email of volunteer to log
      */
     public Volunteer findByEmail(String email) {
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(email).orElseThrow(
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentials(email).orElseThrow(
                 () -> new RuntimeException("Could not find volunteer with email " + email)
         );
         return new Volunteer(
+                new Id(volunteer.getCredential().getId()),
                 EmailAddress.from(volunteer.getCredential().getEmail()),
                 new Id(volunteer.getId()));
     }
@@ -124,5 +126,4 @@ public class VolunteerRepository {
         }
         jpaVolunteerRepository.save(jpaVolunteer);
     }
-
 }

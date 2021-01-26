@@ -12,15 +12,15 @@ public class ContactPerson extends User {
 
     private ESAL joinedEsal;
 
-    public ContactPerson(EmailAddress emailAddress, Id id) {
-        super(emailAddress, id);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, Id id) {
+        super(accountId, emailAddress, id);
     }
 
-    public ContactPerson(EmailAddress emailAddress, Id id, String name, String surname) {
-        super(emailAddress, id, name, surname);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, Id id, String name, String surname) {
+        super(accountId, emailAddress, id, name, surname);
     }
 
-    public ContactPerson(EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
-        super(emailAddress, passwordHash,id);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
+        super(accountId, emailAddress, passwordHash,id);
     }
 }

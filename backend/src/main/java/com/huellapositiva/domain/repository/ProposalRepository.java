@@ -121,7 +121,7 @@ public class ProposalRepository {
         Proposal proposal = Proposal.parseJpa(jpaProposal);
         jpaProposal.getInscribedVolunteers()
                 .stream()
-                .map(v -> new Volunteer(EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
+                .map(v -> new Volunteer(new Id(v.getCredential().getId()), EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
                 .forEach(proposal::inscribeVolunteer);
         jpaProposal.getSkills()
                 .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));

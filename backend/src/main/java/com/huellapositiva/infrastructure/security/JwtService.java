@@ -71,25 +71,29 @@ public class JwtService {
     }
 
     public JwtResponseDto refresh(String refreshToken) throws InvalidJwtTokenException {
-        String username = getUserDetails(refreshToken).getFirst();
-        List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
-        return create(username, roles);
+        String accountId = getUserDetails(refreshToken).getFirst();
+        List<String> roles = roleRepository.findAllByEmailAddress(accountId).stream().map(Role::getName).collect(Collectors.toList());
+        return create(accountId, roles);
     }
 
-    // TODO Use credentialId instead of username/emailAddress which is subject to change.
-    public JwtResponseDto create(String username, List<String> roles) {
-        revokeAccessTokens(username);
-        String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
-        String newRefreshToken = createToken(username, Collections.emptyList(), jwtProperties.getRefreshToken().getExpirationTime());
+    public JwtResponseDto create(String accountId) {
+        List<String> roles = roleRepository.findAllByEmailAddress(accountId).stream().map(Role::getName).collect(Collectors.toList());
+        return create(accountId, roles);
+    }
+
+    public JwtResponseDto create(String accountId, List<String> roles) {
+        revokeAccessTokens(accountId);
+        String newAccessToken = createToken(accountId, roles, jwtProperties.getAccessToken().getExpirationTime());
+        String newRefreshToken = createToken(accountId, Collections.emptyList(), jwtProperties.getRefreshToken().getExpirationTime());
         return new JwtResponseDto(newAccessToken, newRefreshToken, roles.stream().map(Roles::valueOf).collect(Collectors.toSet()));
     }
 
     @SuppressWarnings("unchecked")
     public Pair<String, List<String>> getUserDetails(String token) throws InvalidJwtTokenException {
         JWTClaimsSet claims = decodeToken(token);
-        String username = claims.getSubject();
+        String accountId = claims.getSubject();
         List<String> roles = (List<String>) claims.getClaim(ROLE_CLAIM);
-        return Pair.of(username, roles);
+        return Pair.of(accountId, roles);
     }
 
     @SuppressWarnings("unchecked")
@@ -130,10 +134,10 @@ public class JwtService {
         return claims;
     }
 
-    private String createToken(String username, List<String> roles, long duration) {
+    private String createToken(String accountId, List<String> roles, long duration) {
         Instant issuedAt = Instant.now();
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(accountId)
                 .issueTime(Date.from(issuedAt))
                 .expirationTime(Date.from(issuedAt.plusMillis(duration)))
                 .claim(ROLE_CLAIM, roles)
@@ -156,19 +160,19 @@ public class JwtService {
         return jweObject.serialize();
     }
 
-    public void revokeAccessTokens(String username) {
+    public void revokeAccessTokens(String accountId) {
         Date issuedBefore = Date.from(Instant.now().truncatedTo(ChronoUnit.SECONDS));
-        Date revokedBeforeDate = revokedAccessTokens.get(username);
+        Date revokedBeforeDate = revokedAccessTokens.get(accountId);
         if (revokedBeforeDate == null || revokedBeforeDate.before(issuedBefore)) {
-            revokedAccessTokens.put(username, issuedBefore);
-            log.debug("Revoking access tokens for user {} at {}", maskEmailAddress(username), issuedBefore);
+            revokedAccessTokens.put(accountId, issuedBefore);
+            log.debug("Revoking access tokens for user {} at {}", maskEmailAddress(accountId), issuedBefore);
         }
     }
 
     private boolean isRevoked(JWTClaimsSet claims) {
-        String username = claims.getSubject();
+        String accountId = claims.getSubject();
         Date issuedAt = claims.getIssueTime();
-        Date revokedIssuedBefore = revokedAccessTokens.get(username);
+        Date revokedIssuedBefore = revokedAccessTokens.get(accountId);
         return revokedIssuedBefore != null && issuedAt.before(revokedIssuedBefore);
     }
 }

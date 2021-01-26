@@ -21,12 +21,13 @@ public class CredentialsRepository {
     @Autowired
     private JpaReviserRepository jpaReviserRepository;
 
-    public User findByEmail(String email) {
-        JpaReviser jpaReviser = jpaReviserRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+    public User findReviserByEmail(String email) {
+        JpaReviser jpaReviser = jpaReviserRepository.findByEmailWithCredentials(email).orElseThrow(UserNotFoundException::new);
 
         return new User(
-                EmailAddress.from(jpaReviser.getCredential().getEmail()),
                 new Id(jpaReviser.getCredential().getId()),
+                EmailAddress.from(jpaReviser.getCredential().getEmail()),
+                new Id(jpaReviser.getId()),
                 jpaReviser.getName(),
                 jpaReviser.getSurname()
         );

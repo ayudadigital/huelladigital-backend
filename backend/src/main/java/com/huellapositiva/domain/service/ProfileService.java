@@ -70,7 +70,7 @@ public class ProfileService {
             newUserRoles.add(newJpaRole);
             jpaVolunteer.getCredential().setRoles(newUserRoles);
             jpaVolunteerRepository.save(jpaVolunteer);
-            jwtService.revokeAccessTokens(email);
+            jwtService.revokeAccessTokens(jpaVolunteer.getCredential().getId());
         }
     }
 

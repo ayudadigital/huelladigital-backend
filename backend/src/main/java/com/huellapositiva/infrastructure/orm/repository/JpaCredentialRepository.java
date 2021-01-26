@@ -14,6 +14,9 @@ import java.util.Optional;
 @Repository
 public interface JpaCredentialRepository extends JpaRepository<JpaCredential, Integer> {
 
+    @Query("FROM JpaCredential c WHERE c.id = :id")
+    Optional<JpaCredential> findByNaturalId(@Param("id") String id);
+
     @Query("FROM JpaCredential c WHERE c.email = :email")
     Optional<JpaCredential> findByEmail(@Param("email") String email);
 

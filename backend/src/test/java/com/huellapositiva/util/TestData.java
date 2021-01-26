@@ -8,7 +8,6 @@ import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
@@ -136,8 +135,8 @@ public class TestData {
         failEmailConfirmationRepository.deleteAll();
     }
 
-    private EmailConfirmation createEmailConfirmation(UUID token) {
-        EmailConfirmation emailConfirmation = EmailConfirmation.builder()
+    private JpaEmailConfirmation createEmailConfirmation(UUID token) {
+        JpaEmailConfirmation emailConfirmation = JpaEmailConfirmation.builder()
                 .email(DEFAULT_EMAIL)
                 .hash(token.toString())
                 .build();
@@ -157,9 +156,10 @@ public class TestData {
     }
 
     public JpaCredential createCredential(String email, UUID token, String plainPassword, Roles userRole){
-        EmailConfirmation emailConfirmation = createEmailConfirmation(token);
+        JpaEmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(userRole.toString()).orElse(null);
         JpaCredential jpaCredential = JpaCredential.builder()
+                .id(UUID.randomUUID().toString())
                 .email(email)
                 .hashedPassword(passwordEncoder.encode(plainPassword))
                 .emailConfirmed(false)

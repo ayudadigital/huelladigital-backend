@@ -4,8 +4,8 @@ import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class ESALContactPersonService {
     public Id registerContactPerson(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
-            ContactPerson contactPerson = new ContactPerson(EmailAddress.from(emailConfirmation.getEmailAddress()), hash, Id.newId());
+            ContactPerson contactPerson = new ContactPerson(Id.newId(), EmailAddress.from(emailConfirmation.getEmailAddress()), hash, Id.newId());
             return esalContactPersonRepository.save(contactPerson, emailConfirmation);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist organization due to a conflict.", ex);

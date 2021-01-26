@@ -5,7 +5,7 @@ import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ class ResendEmailConfirmationActionShould {
         resendEmailConfirmationAction.execute();
 
         // THEN
-        EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
+        JpaEmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         String newHash = newEmailConfirmation.getHash();
         Instant lastUpdateTimestamp = newEmailConfirmation.getUpdatedOn().toInstant();

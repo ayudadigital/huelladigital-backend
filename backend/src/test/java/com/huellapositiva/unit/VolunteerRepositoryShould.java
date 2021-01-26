@@ -36,7 +36,7 @@ class VolunteerRepositoryShould {
         // GIVEN
         EmailConfirmation emailConfirmation = EmailConfirmation.from(DEFAULT_EMAIL, "");
         PasswordHash passwordHash = new PasswordHash("123456");
-        Volunteer volunteer = new Volunteer(EmailAddress.from(emailConfirmation.getEmailAddress()), passwordHash, Id.newId());
+        Volunteer volunteer = new Volunteer(Id.newId(), EmailAddress.from(emailConfirmation.getEmailAddress()), passwordHash, Id.newId());
         when(jpaRoleRepository.findByName(Roles.VOLUNTEER_NOT_CONFIRMED.toString())).thenReturn(Optional.empty());
 
         // WHEN + THEN

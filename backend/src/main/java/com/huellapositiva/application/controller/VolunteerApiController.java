@@ -10,7 +10,6 @@ import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,8 +37,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -96,13 +93,12 @@ public class VolunteerApiController {
     public JwtResponseDto registerVolunteer(@Validated @RequestBody AuthenticationRequestDto dto, HttpServletResponse res) {
         try {
             Volunteer volunteer = registerVolunteerAction.execute(dto);
-            String username = volunteer.getEmailAddress().toString();
-            List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+            String accountId = volunteer.getEmailAddress().toString();
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(volunteer.getId().toString())
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
-            return jwtService.create(username, roles);
+            return jwtService.create(accountId);
         } catch (PasswordNotAllowedException pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
         } catch (ConflictPersistingUserException ex) {

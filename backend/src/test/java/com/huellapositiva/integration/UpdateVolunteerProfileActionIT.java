@@ -49,7 +49,7 @@ class UpdateVolunteerProfileActionIT {
 
         updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
 
-        assertThat(jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL)).isEmpty();
+        assertThat(jpaVolunteerRepository.findByEmailWithCredentials(DEFAULT_EMAIL)).isEmpty();
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
     }

@@ -10,8 +10,9 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor
-
 public class User {
+
+    private final Id accountId;
 
     private final EmailAddress emailAddress;
 
@@ -23,19 +24,22 @@ public class User {
 
     private String surname;
 
-    public User(EmailAddress emailAddress, Id id) {
+    public User(Id accountId, EmailAddress emailAddress, Id id) {
+        this.accountId = accountId;
         this.emailAddress = emailAddress;
         this.id = id;
     }
 
-    public User(EmailAddress emailAddress, Id id, String name, String surname) {
+    public User(Id accountId, EmailAddress emailAddress, Id id, String name, String surname) {
+        this.accountId = accountId;
         this.emailAddress = emailAddress;
         this.id = id;
         this.name = name;
         this.surname = surname;
     }
 
-    public User(EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
+    public User(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
+        this.accountId = accountId;
         this.emailAddress = emailAddress;
         this.passwordHash = passwordHash;
         this.id = id;

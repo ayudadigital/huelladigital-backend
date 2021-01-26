@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface JpaReviserRepository extends JpaRepository<JpaReviser, Integer> {
+
     @Query("FROM JpaReviser r LEFT JOIN FETCH r.credential cr WHERE cr.email = :email")
-    Optional<JpaReviser> findByEmail(@Param("email") String email);
+    Optional<JpaReviser> findByEmailWithCredentials(@Param("email") String email);
 }

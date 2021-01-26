@@ -1,11 +1,10 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.GetProfileResponseDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
-import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
@@ -77,17 +76,17 @@ public class VolunteerApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, could not register. The user already exist on db",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -236,12 +235,12 @@ public class VolunteerApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -290,12 +289,6 @@ public class VolunteerApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
-        try {
-            updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
-        } catch (InvalidFieldException ex) {
-            throw new InvalidFieldException(ex.getMessage());
-        } catch (EmailAlreadyExistsException ex) {
-            throw new EmailAlreadyExistsException(ex.getMessage());
-        }
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
     }
 }

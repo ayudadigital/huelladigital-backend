@@ -98,7 +98,7 @@ public class EmailConfirmationApiController {
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

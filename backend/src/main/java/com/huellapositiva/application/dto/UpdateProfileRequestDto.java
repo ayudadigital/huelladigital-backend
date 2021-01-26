@@ -1,19 +1,19 @@
 package com.huellapositiva.application.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.huellapositiva.application.dto.jackson.DtoProfileDeserializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Data
 @Builder
 @AllArgsConstructor
-@JsonDeserialize(using = DtoProfileDeserializer.class)
 public class UpdateProfileRequestDto {
     @Schema(
             description = "Name of volunteer",
@@ -91,21 +91,21 @@ public class UpdateProfileRequestDto {
 
     @Schema(
             description = "User's URL twitter",
-            example = "https://twitter.com/policia"
+            example = "https://twitter.com/foo-bar"
     )
     @Pattern(regexp = "^https?://(www.)?twitter.com/[-a-zA-Z0-9+&@#%=~_|]+")
     private final String twitter;
 
     @Schema(
             description = "User's URL instagram",
-            example = "https://instagram.com/policia"
+            example = "https://instagram.com/foo-bar"
     )
     @Pattern(regexp = "^https?://(www.)?instagram.com/[-a-zA-Z0-9+&@#%=~_|]*")
     private final String instagram;
 
     @Schema(
             description = "User's URL linkedin",
-            example = "https://linkedin.com/in/policia"
+            example = "https://linkedin.com/in/foo-bar"
     )
     @Pattern(regexp = "^https?://(www.)?linkedin.com/in/[-a-zA-Z0-9+&@#%=~_|]*")
     private final String linkedin;

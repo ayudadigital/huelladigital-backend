@@ -2,15 +2,14 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.GetProfileResponseDto;
+import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
-import com.huellapositiva.util.ProfileDtoDataEntry;
 import com.huellapositiva.util.TestData;
-import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,8 +28,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.util.TestData.*;
+import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -46,7 +45,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class VolunteerControllerShould {
 
     private static final String SIGN_UP_URL = "/api/v1/volunteers";
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private TestData testData;
@@ -197,7 +198,7 @@ class VolunteerControllerShould {
     @Test
     void return_200_when_upload_curriculum_vitae_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/profile/cv")
                 .file(new MockMultipartFile("cv", "pdf-test.pdf", "application/pdf", is))
@@ -214,7 +215,7 @@ class VolunteerControllerShould {
     @Test
     void return_200_when_upload_curriculum_vitae_successfully_with_profile_created() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/profile/cv")
@@ -232,7 +233,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_uploaded_file_is_not_PDF() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/profile/cv")
                 .file(new MockMultipartFile("cv", "huellapositiva-logo.png", "application/pdf", is))
@@ -246,7 +247,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_uploaded_file_PDF_or_WORD_is_too_big() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/doc-test.docx");
         mvc.perform(multipart("/api/v1/volunteers/profile/cv")
                 .file(new MockMultipartFile("cv", "doc-test.docx", "application/msword", is))
@@ -260,7 +261,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_there_is_not_cv_uploaded() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         mvc.perform(multipart("/api/v1/volunteers/profile/cv")
                 .file(new MockMultipartFile("cv", "doc-test.pdf", "application/pdf", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -273,7 +274,7 @@ class VolunteerControllerShould {
     @Test
     void return_200_when_get_profile_information_without_profile_information_stored() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         mvc.perform(get("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
@@ -285,7 +286,7 @@ class VolunteerControllerShould {
     @Test
     void return_200_when_get_profile_information_with_profile_information_stored() throws Exception {
         JpaVolunteer jpaVolunteer = testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse response = mvc.perform(get("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
@@ -313,13 +314,13 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
-    void return_204_when_updates_profile_information_successfully_without_email(ProfileDtoDataEntry profileDtoDataEntry) throws Exception {
+    void return_204_when_updates_profile_information_successfully_without_email(UpdateProfileRequestDto UpdateProfileRequestDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(profileDtoDataEntry))
+                .content(objectMapper.writeValueAsString(UpdateProfileRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -327,109 +328,70 @@ class VolunteerControllerShould {
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
-        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDtoDataEntry.getName());
-        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDtoDataEntry.getSurname());
-        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDtoDataEntry.getBirthDate());
-        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDtoDataEntry.getPhoneNumber());
-        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDtoDataEntry.getProvince());
-        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDtoDataEntry.getZipCode());
-        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDtoDataEntry.getIsland());
-        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDtoDataEntry.getTown());
-        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDtoDataEntry.getAddress());
-        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDtoDataEntry.getTwitter());
-        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDtoDataEntry.getLinkedin());
-        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDtoDataEntry.getInstagram());
-        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDtoDataEntry.getAdditionalInformation());
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(UpdateProfileRequestDto.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(UpdateProfileRequestDto.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(UpdateProfileRequestDto.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(UpdateProfileRequestDto.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(UpdateProfileRequestDto.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(UpdateProfileRequestDto.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(UpdateProfileRequestDto.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(UpdateProfileRequestDto.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(UpdateProfileRequestDto.getAddress());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(UpdateProfileRequestDto.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(UpdateProfileRequestDto.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(UpdateProfileRequestDto.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(UpdateProfileRequestDto.getAdditionalInformation());
     }
 
-    private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationSameEmail() {
+    private static Stream<UpdateProfileRequestDto> provideCorrectProfileInformationSameEmail() {
         return Stream.of(
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+4 123456789")
-                        .birthDate("2000-12-10")
+                        .birthDate(VALID_BIRTHDAY)
                         .province("Las Palmas")
                         .address("hola2")
                         .zipCode("35100")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .town("hola")
-                        .twitter("https://www.twitter.com/home")
-                        .linkedin("https://linkedin.com/in/home")
-                        .additionalInformation("add")
+                        .twitter(VALID_TWITTER)
+                        .linkedin(VALID_LINKEDIN)
+                        .additionalInformation(VALID_ADDITIONAL_INFO)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+344 123456789")
-                        .birthDate("2000-12-10")
-                        .zipCode("38000")
-                        .island("Fuerteventura")
-                        .twitter("https://twitter.com/home")
-                        .instagram("https://www.instagram.com/home")
-                        .additionalInformation("add")
+                        .birthDate(VALID_BIRTHDAY)
+                        .zipCode(VALID_ZIPCODE)
+                        .island(VALID_ISLAND)
+                        .twitter(VALID_TWITTER)
+                        .instagram(VALID_INSTAGRAM)
+                        .additionalInformation(VALID_ADDITIONAL_INFO)
                         .build()
         );
     }
 
-    @ParameterizedTest
-    @MethodSource("provideCorrectProfileInformationDifferentEmail")
-    void return_204_when_updates_profile_information_successfully_with_email(ProfileDtoDataEntry profileDto) throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        mvc.perform(post("/api/v1/volunteers/profile")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(profileDto))
-                .with(csrf())
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isNoContent());
-
-        TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
-        assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
-        assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
-        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
-        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDto.getSurname());
-        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDto.getBirthDate());
-        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDto.getPhoneNumber());
-        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDto.getProvince());
-        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDto.getZipCode());
-        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
-        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
-        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
-        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
-        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
-        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
-        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDto.getAdditionalInformation());
-    }
-
-    private static Stream<ProfileDtoDataEntry> provideCorrectProfileInformationDifferentEmail() {
-        return Stream.of(
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
-                        .email(DEFAULT_EMAIL_2)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
-                        .zipCode("35000")
-                        .island("Fuerteventura")
-                        .build()
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideOtherCorrectProfileInformation")
-    void return_204_when_updates_profile_previously_created(ProfileDtoDataEntry profileDto) throws Exception {
+    @Test
+    void return_204_when_updates_profile_previously_created() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        UpdateProfileRequestDto updateProfileDto = UpdateProfileRequestDto.builder()
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
+                .email(DEFAULT_EMAIL)
+                .phoneNumber(VALID_PHONE)
+                .birthDate(VALID_BIRTHDAY)
+                .zipCode(VALID_ZIPCODE)
+                .island(VALID_ISLAND)
+                .build();
 
         mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(profileDto))
+                .content(objectMapper.writeValueAsString(updateProfileDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -437,40 +399,26 @@ class VolunteerControllerShould {
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
-        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(profileDto.getName());
-        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(profileDto.getSurname());
-        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(profileDto.getBirthDate());
-        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(profileDto.getPhoneNumber());
-        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(profileDto.getProvince());
-        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(profileDto.getZipCode());
-        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(profileDto.getIsland());
-        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(profileDto.getTown());
-        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(profileDto.getAddress());
-        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(profileDto.getTwitter());
-        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(profileDto.getLinkedin());
-        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(profileDto.getInstagram());
-        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(profileDto.getAdditionalInformation());
-    }
-
-    private static Stream<ProfileDtoDataEntry> provideOtherCorrectProfileInformation() {
-        return Stream.of(
-                ProfileDtoDataEntry.builder()
-                        .name("Hola mundo")
-                        .surname("apellido")
-                        .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
-                        .zipCode("38000")
-                        .island("Fuerteventura")
-                        .build()
-        );
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(updateProfileDto.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(updateProfileDto.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(updateProfileDto.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(updateProfileDto.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(updateProfileDto.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(updateProfileDto.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(updateProfileDto.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(updateProfileDto.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(updateProfileDto.getAddress());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(updateProfileDto.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(updateProfileDto.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(updateProfileDto.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(updateProfileDto.getAdditionalInformation());
     }
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
-    void return_400_when_not_provided_correct_information_for_updating_profile(ProfileDtoDataEntry profileDto) throws Exception {
+    void return_400_when_not_provided_correct_information_for_updating_profile(UpdateProfileRequestDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -481,101 +429,101 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<ProfileDtoDataEntry> provideIncorrectProfileInformation() {
+    private static Stream<UpdateProfileRequestDto> provideIncorrectProfileInformation() {
         return Stream.of(
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .province("Las Palmas")
                         .address("hola2")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .town("hola3")
                         .twitter("twitter")
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("35100")
                         .twitter("twitter")
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .birthDate("2000-12-10")
+                        .birthDate(VALID_BIRTHDAY)
                         .province("hola1")
                         .address("hola2")
                         .zipCode("35100")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .town("hola3")
                         .twitter("twitter")
                         .instagram("instagram")
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("35100")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("35100")
                         .island("Islandia")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("3510055")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
-                        .email(DEFAULT_EMAIL_2)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-60")
-                        .zipCode("35100")
-                        .island("Fuerteventura")
-                        .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+//                UpdateProfileRequestDto.builder()
+//                        .name(VALID_NAME)
+//                        .name(VALID_SURNAME)
+//                        .email(DEFAULT_EMAIL_2)
+//                        .phoneNumber(VALID_PHONE)
+//                        .birthDate(LocalDate.parse("2000-12-60"))
+//                        .zipCode("35100")
+//                        .island(VALID_ISLAND)
+//                        .build(),
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
                         .province("Las Palmas")
                         .address("hola2")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .zipCode("38000")
                         .town("hola")
                         .twitter("https://instagram.com/joselito")
@@ -583,50 +531,50 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
-                        .phoneNumber("+34 123456789")
-                        .birthDate("2000-12-10")
-                        .zipCode("36100")
-                        .island("Fuerteventura")
+                        .phoneNumber(VALID_PHONE)
+                        .birthDate(VALID_BIRTHDAY)
+                        .zipCode(VALID_ZIPCODE)
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
                         .phoneNumber("+34 12345d789")
-                        .birthDate("2000-12-10")
-                        .zipCode("36100")
-                        .island("Fuerteventura")
+                        .birthDate(VALID_BIRTHDAY)
+                        .zipCode(VALID_ZIPCODE)
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
                         .phoneNumber("34 123456789")
-                        .birthDate("2000-12-10")
-                        .zipCode("36100")
-                        .island("Fuerteventura")
+                        .birthDate(VALID_BIRTHDAY)
+                        .zipCode(VALID_ZIPCODE)
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
                         .phoneNumber("34 12345789101112")
-                        .birthDate("2000-12-10")
-                        .zipCode("36100")
-                        .island("Fuerteventura")
+                        .birthDate(VALID_BIRTHDAY)
+                        .zipCode(VALID_ZIPCODE)
+                        .island(VALID_ISLAND)
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+344 123456789")
-                        .birthDate("2000-12-10")
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("38000")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .twitter("https://twitter.com/home")
                         .instagram("https://www.instagram.com/home")
                         .additionalInformation("01234567890123456789012345678901234567890123456789012345678901234567890" +
@@ -638,51 +586,51 @@ class VolunteerControllerShould {
                                 "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456" +
                                 "7890123456789")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+344 123456789")
-                        .birthDate("2000-12-10")
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("abcde")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .twitter("https://twitter.com/home")
                         .instagram("https://www.instagram.com/home")
                         .additionalInformation("0123456s")
                         .build(),
-                ProfileDtoDataEntry.builder()
-                        .name("nombre")
-                        .surname("apellido")
+                UpdateProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
                         .phoneNumber("+34 123456e789")
-                        .birthDate("2000-12-10")
+                        .birthDate(VALID_BIRTHDAY)
                         .zipCode("35000")
-                        .island("Fuerteventura")
+                        .island(VALID_ISLAND)
                         .build()
         );
     }
 
     @Test
-    void return_409_when_provided_already_existing_email() throws Exception {
+    void return_409_when_provided_new_email_already_bound_to_a_different_account() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        ProfileDtoDataEntry profileDto = ProfileDtoDataEntry.builder()
-                .name("nombre")
-                .surname("Farruquito")
+        UpdateProfileRequestDto profileDto = UpdateProfileRequestDto.builder()
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
                 .email(DEFAULT_EMAIL_2)
-                .phoneNumber("+34 123456789")
-                .birthDate("2000-12-10")
-                .province("Las Palmas")
-                .address("hola2")
-                .zipCode("12345")
-                .island("Fuerteventura")
-                .town("hola")
-                .twitter("https://twitter.com/home")
-                .instagram("https://instagram.com/home")
-                .linkedin("https://linkedin.com/in/home")
-                .additionalInformation("add")
+                .phoneNumber(VALID_PHONE)
+                .birthDate(VALID_BIRTHDAY)
+                .province(VALID_PROVINCE)
+                .address(VALID_ADDRESS)
+                .zipCode(VALID_ZIPCODE)
+                .island(VALID_ISLAND)
+                .town(VALID_TOWN)
+                .twitter(VALID_TWITTER)
+                .instagram(VALID_INSTAGRAM)
+                .linkedin(VALID_LINKEDIN)
+                .additionalInformation(VALID_ADDITIONAL_INFO)
                 .build();
 
         mvc.perform(post("/api/v1/volunteers/profile")
@@ -697,7 +645,7 @@ class VolunteerControllerShould {
     @Test
     void return_204_when_upload_photo_successfully() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
@@ -714,7 +662,7 @@ class VolunteerControllerShould {
     @Test
     void return_204_when_upload_photo_successfully_with_profile() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
@@ -732,7 +680,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
@@ -747,7 +695,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_the_photo_uploaded_is_oversized() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/oversized.png");
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
@@ -762,7 +710,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_uploaded_file_is_not_JPG_JPEG_PNG_GIF() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
                 .file(new MockMultipartFile("photo", "pdf-test.pdf", "application/pdf", is))
@@ -776,7 +724,7 @@ class VolunteerControllerShould {
     @Test
     void return_400_when_there_is_not_photo_uploaded() throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = TestUtils.loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         mvc.perform(multipart("/api/v1/volunteers/profile/photo")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())

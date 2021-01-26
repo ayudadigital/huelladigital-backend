@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class SecurityConfigShould {
 
-    private static final String REFRESH_URL = "/api/v1/refresh";
+    private static final String REFRESH_URL = "/api/v1/authentication/refresh";
     private static final String HEALTH_URL = "/actuator/health";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

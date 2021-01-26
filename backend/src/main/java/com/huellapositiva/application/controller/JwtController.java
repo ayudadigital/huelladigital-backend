@@ -58,17 +58,17 @@ public class JwtController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request, required request body is missing",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "401",
                             description = "Unauthorized, you need a valid refresh token or XSRF-TOKEN",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "403",
                             description = "Forbidden, you need a valid XSRF-TOKEN",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -76,7 +76,7 @@ public class JwtController {
                     )
             }
     )
-    @PostMapping("/refresh")
+    @PostMapping("/authentication/refresh")
     public JwtResponseDto refreshJwtToken(@Parameter(description = "refresh token value")
                                           @RequestBody String refreshToken, HttpServletResponse res) {
         try {

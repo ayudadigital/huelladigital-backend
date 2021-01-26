@@ -61,7 +61,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/api/v1/email-confirmation/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/esal", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/volunteers", HttpMethod.POST.name()),
-            new AntPathRequestMatcher("/api/v1/refresh", HttpMethod.POST.name()),
+            new AntPathRequestMatcher("/api/v1/authentication/refresh", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/authentication/login", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/proposals/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/contactperson", HttpMethod.POST.name()),
@@ -80,7 +80,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), userDetailsService, jwtService))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService, AUTH_ALLOWSLIST ))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtService, AUTH_ALLOWSLIST))
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
     }
 

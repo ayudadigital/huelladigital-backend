@@ -1,10 +1,13 @@
 package com.huellapositiva.unit;
 
+import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
-import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.repository.VolunteerRepository;
-import com.huellapositiva.infrastructure.orm.repository.*;
+import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaProfileRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -18,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VolunteerRepositoryShould {
+
     @Mock
     private JpaVolunteerRepository jpaVolunteerRepository;
     @Mock
@@ -39,5 +43,4 @@ class VolunteerRepositoryShould {
         VolunteerRepository volunteerRepository = new VolunteerRepository(jpaVolunteerRepository, jpaEmailConfirmationRepository, jpaRoleRepository, jpaProfileRepository);
         assertThrows(RoleNotFoundException.class, () -> volunteerRepository.save(volunteer, emailConfirmation));
     }
-
 }

@@ -77,7 +77,7 @@ class JwtControllerShould {
 
         //WHEN
         await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() -> {
-            String jsonResponse = mvc.perform(post("/api/v1/refresh")
+            String jsonResponse = mvc.perform(post("/api/v1/authentication/refresh")
                     .with(csrf())
                     .contentType(APPLICATION_JSON)
                     .content(refreshToken)
@@ -102,7 +102,7 @@ class JwtControllerShould {
     @Test
     void fail_to_generate_new_access_token_if_refresh_token_is_malformed() throws Exception {
         //WHEN + THEN
-        mvc.perform(post("/api/v1/refresh")
+        mvc.perform(post("/api/v1/authentication/refresh")
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .content("malformed JWT string")
@@ -174,7 +174,7 @@ class JwtControllerShould {
                 assertThrows(InvalidJwtTokenException.class, () -> jwtService.getUserDetails(sessionOneJwtDto.getAccessToken()))
         );
         // Refresh token from first login can still get access tokens issued
-        String refreshResponse = mvc.perform(post("/api/v1/refresh")
+        String refreshResponse = mvc.perform(post("/api/v1/authentication/refresh")
                 .with(csrf())
                 .content(sessionOneJwtDto.getRefreshToken())
                 .contentType(APPLICATION_JSON)
@@ -189,7 +189,7 @@ class JwtControllerShould {
     @Test
     void return_400_when_body_is_empty_in_refresh_request() throws Exception {
         //WHEN + THEN
-        mvc.perform(post("/api/v1/refresh")
+        mvc.perform(post("/api/v1/authentication/refresh")
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))

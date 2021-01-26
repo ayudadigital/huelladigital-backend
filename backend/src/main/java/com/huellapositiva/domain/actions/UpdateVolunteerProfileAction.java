@@ -26,9 +26,9 @@ public class UpdateVolunteerProfileAction {
      * @param email      Email of user logged
      */
     public void execute(UpdateProfileRequestDto updateProfileRequestDto, String email) {
-        boolean isNotEqualsEmail = !email.equals(updateProfileRequestDto.getEmail());
-        profileService.updateProfile(updateProfileRequestDto, email, isNotEqualsEmail);
-        if (isNotEqualsEmail) {
+        boolean isNewEmail = !email.equalsIgnoreCase(updateProfileRequestDto.getEmail());
+        profileService.updateProfile(updateProfileRequestDto, email);
+        if (isNewEmail) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(updateProfileRequestDto.getEmail(), emailConfirmationBaseUrl);
             emailCommunicationService.sendMessageEmailChanged(emailConfirmation);
         }

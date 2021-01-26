@@ -3,6 +3,7 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionAction;
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,7 +50,7 @@ public class NewsletterController {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
-                                                   @AuthenticationPrincipal String volunteerEmail) {
+                                                   @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
         changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
     }
 
@@ -73,7 +74,7 @@ public class NewsletterController {
     @GetMapping("/download")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void downloadExcel(@AuthenticationPrincipal String reviserEmail) throws IOException {
+    public void downloadExcel(@Parameter(hidden = true)@AuthenticationPrincipal String reviserEmail) throws IOException {
         manageNewsletterExcelAction.execute(reviserEmail);
     }
 }

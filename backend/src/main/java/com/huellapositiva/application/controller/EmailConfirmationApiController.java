@@ -43,19 +43,23 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the hash does not exist"
+                            description = "Not found, the hash does not exist",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the email you are trying to confirm is already confirmed"
+                            description = "Conflict, the email you are trying to confirm is already confirmed",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "410",
-                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint"
+                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -67,7 +71,7 @@ public class EmailConfirmationApiController {
 
     @Operation(
             summary = "Resend another has to confirmation email",
-            description = "If the user without confirm the email need resend a new hash to confirm email",
+            description = "If the user without confirm the email need resend a new hash to confirm email. Roles allowed VOLUNTEER_NOT_CONFIRMED.",
             tags = "email",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -85,20 +89,23 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized, you need a valid access token"
+                            description = "Unauthorized, you need a valid access token",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, you need a valid XSRF-TOKEN"
+                            description = "Forbidden, you need a valid XSRF-TOKEN",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the email you are trying to resend is already confirmed"
+                            description = "Conflict, the email you are trying to resend is already confirmed",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

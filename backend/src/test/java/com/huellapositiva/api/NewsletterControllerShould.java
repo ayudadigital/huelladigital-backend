@@ -6,7 +6,6 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
-import com.huellapositiva.util.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -78,14 +76,14 @@ class NewsletterControllerShould {
 
     @Test
     void return_204_when_excel_sent_successfully() throws Exception {
-        JpaVolunteer volunteer = testData.createSubscribedVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createSubscribedVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createVolunteer(DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
-        JpaVolunteer volunteer3 = testData.createSubscribedVolunteer("foo_3@huellapositiva.com", DEFAULT_PASSWORD);
+        testData.createSubscribedVolunteer("foo_3@huellapositiva.com", DEFAULT_PASSWORD);
 
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
-        MockHttpServletResponse fetchResponse = mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
+        mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -98,7 +96,7 @@ class NewsletterControllerShould {
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
-        MockHttpServletResponse fetchResponse = mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
+        mvc.perform(get(NEWSLETTER_URL + "/getNewsletterExcel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))

@@ -64,7 +64,11 @@ public class NewsletterController {
             value = {
                     @ApiResponse(
                             responseCode = "204",
-                            description = "No content, email has been verified"
+                            description = "No content, email has been verified."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, not any volunteers subscribed to newsletter."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -78,8 +82,8 @@ public class NewsletterController {
     public void sendExcelLinkEmail(@Parameter(hidden = true)@AuthenticationPrincipal String reviserEmail) throws IOException {
         try {
             manageNewsletterExcelAction.execute(reviserEmail);
-        }catch(IOException e){
-            throw new VolunteersSubscribedNotFoundException();
+        }catch(IllegalStateException e){
+            throw new VolunteersSubscribedNotFoundException(e.getMessage());
         }
     }
 }

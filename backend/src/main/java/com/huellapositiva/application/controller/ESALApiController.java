@@ -35,7 +35,7 @@ public class ESALApiController {
 
     @Operation(
             summary = "Register a new ESAL",
-            description = "Register a new ESAL and link it to the logged employee",
+            description = "Register a new ESAL and link it to the logged employee. Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -54,24 +54,25 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the provided name is already taken.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "412",
                             description = "Precondition failed, the user attempting to create the ESAL has another one linked.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
     @PostMapping
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
+    public void registerESAL(@RequestBody ESALRequestDto dto,
+                             @Parameter(hidden = true) @AuthenticationPrincipal String loggedContactPersonEmail) {
         try {
             registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
         } catch (ESALAlreadyExistsException ex) {
@@ -85,7 +86,7 @@ public class ESALApiController {
 
     @Operation(
             summary = "Delete an ESAL",
-            description = "Delete an ESAL and unlink their members, including their contact person.",
+            description = "Delete an ESAL and unlink their members, including their contact person. Roles allowed CONTACT_PERSON.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -104,24 +105,26 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "403",
                             description = "Forbidden, the user has no permissions to delete the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
     @DeleteMapping("/{id}")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
-    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
+    public void deleteESAL(@PathVariable String id,
+                           @Parameter(hidden = true) @AuthenticationPrincipal String memberEmail) {
         deleteESALAction.execute(memberEmail, id);
     }
 
     @Operation(
             summary = "Register a new ESAL as reviser",
-            description = "Register an ESAL as reviser with no linked member.",
+            description = "Register an ESAL as reviser with no linked member. Roles allowed REVISER.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -136,11 +139,12 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "ESAL already exists.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

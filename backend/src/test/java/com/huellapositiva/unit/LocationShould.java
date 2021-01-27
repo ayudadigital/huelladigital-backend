@@ -1,18 +1,13 @@
 package com.huellapositiva.unit;
 
 import com.huellapositiva.domain.model.valueobjects.Location;
-import com.huellapositiva.util.TestData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestData.class)
 class LocationShould {
 
     @ParameterizedTest

@@ -1,17 +1,14 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
-import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 
@@ -20,9 +17,7 @@ import static com.huellapositiva.util.TestData.DEFAULT_EMAIL_2;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
-@Import(TestData.class)
 class UpdateVolunteerProfileActionShould {
 
     private UpdateVolunteerProfileAction updateVolunteerProfileAction;
@@ -39,8 +34,8 @@ class UpdateVolunteerProfileActionShould {
     }
 
     @Test
-    void send_change_email(){
-        ProfileDto profileDto = ProfileDto.builder()
+    void send_change_email() {
+        UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
                 .name("nombre")
                 .surname("apellido")
                 .email(DEFAULT_EMAIL_2)
@@ -49,7 +44,9 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
-        updateVolunteerProfileAction.execute(profileDto, DEFAULT_EMAIL);
+
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
+
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }
 }

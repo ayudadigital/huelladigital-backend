@@ -5,12 +5,14 @@ import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalRequestDto;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public final class TestUtils {
@@ -24,6 +26,7 @@ public final class TestUtils {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE))
                 .andReturn().getResponse();
     }
 

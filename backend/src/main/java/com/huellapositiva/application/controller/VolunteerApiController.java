@@ -1,10 +1,10 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
+import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.ProfileDto;
+import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
-import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
@@ -14,9 +14,13 @@ import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,16 +76,17 @@ public class VolunteerApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, could not register. The user already exist on db",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -108,7 +113,14 @@ public class VolunteerApiController {
     @Operation(
             summary = "Upload Curriculum Vitae",
             description = "Upload Curriculum Vitae as a volunteer",
-            tags = "user"
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -118,13 +130,11 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, curriculum is not valid",
-                            content = @Content()
+                            description = "Bad request, curriculum is not valid"
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, could not register. The user already exist on db",
-                            content = @Content()
+                            description = "Conflict, could not register. The user already exist on db"
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -133,11 +143,11 @@ public class VolunteerApiController {
             }
     )
     @PostMapping(path = "/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
-                                      @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+                                      @Parameter(hidden = true) @AuthenticationPrincipal String contactPersonEmail) throws IOException {
         try {
             uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
         } catch (InvalidFieldException ex) {
@@ -152,7 +162,14 @@ public class VolunteerApiController {
     @Operation(
             summary = "Upload user Photo",
             description = "Upload user Photo to profile",
-            tags = "user"
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -162,13 +179,11 @@ public class VolunteerApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, photo is not valid",
-                            content = @Content()
+                            description = "Bad request, photo is not valid"
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, could not register. The user already exist on db",
-                            content = @Content()
+                            description = "Conflict, could not register. The user already exist on db"
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -177,11 +192,11 @@ public class VolunteerApiController {
             }
     )
     @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                            @AuthenticationPrincipal String volunteerEmail) throws IOException {
+                            @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) throws IOException {
         try {
             uploadPhotoAction.execute(photo, volunteerEmail);
         } catch (InvalidFieldException ex) {
@@ -196,52 +211,71 @@ public class VolunteerApiController {
     @Operation(
             summary = "Return user profile information",
             description = "Return user profile information",
-            tags = "user"
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Ok, return full information user profile"
+                            description = "Ok, return full information user profile",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetProfileResponseDto.class)
+                                    )
+                            }
                     ),
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, credentials are not valid",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
     @GetMapping("/profile")
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.OK)
-    public ProfileDto fetchProfileInformation(@AuthenticationPrincipal String volunteerEmail) {
+    public GetProfileResponseDto fetchProfileInformation(@Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         return fetchVolunteerProfileAction.execute(volunteerEmail);
     }
 
     @Operation(
             summary = "Update user profile information",
             description = "Update user profile information",
-            tags = "user"
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Ok, return full information user profile"
+                            description = "Ok, update information user profile"
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, credentials are not valid or some field is mandatory",
-                            content = @Content()
+                            description = "Bad request, credentials are not valid or some field is mandatory"
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the new email already match with other email in db",
-                            content = @Content()
+                            description = "Conflict, the new email already match with other email in db"
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -250,17 +284,11 @@ public class VolunteerApiController {
             }
     )
     @PostMapping("/profile")
-    @RolesAllowed("VOLUNTEER")
+    @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileInformation(@Validated @RequestBody ProfileDto profileDto,
-                                         @AuthenticationPrincipal String volunteerEmail) {
-        try {
-            updateVolunteerProfileAction.execute(profileDto,volunteerEmail);
-        } catch (InvalidFieldException ex) {
-            throw new InvalidFieldException(ex.getMessage());
-        } catch (EmailAlreadyExistsException ex) {
-            throw new EmailAlreadyExistsException(ex.getMessage());
-        }
+    public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
+                                         @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
     }
 }

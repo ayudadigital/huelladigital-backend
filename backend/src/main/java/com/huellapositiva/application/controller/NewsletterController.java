@@ -5,8 +5,10 @@ import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionActio
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +34,14 @@ public class NewsletterController {
     @Operation(
             summary = "Change status of subscription to newsletter",
             description = "Changes the status of the subscribed parameter on the specified volunteer",
-            tags = "newsletter"
+            tags = "newsletter",
+            parameters = {
+            @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+            @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+    },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -58,7 +67,14 @@ public class NewsletterController {
     @Operation(
             summary = "Download newsletter excel",
             description = "Prepare an excel with the volunteers subscribed and send it to reviser",
-            tags = "newsletter"
+            tags = "newsletter",
+            parameters = {
+            @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+            @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+    },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {

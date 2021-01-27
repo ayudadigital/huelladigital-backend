@@ -1,10 +1,11 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.domain.model.valueobjects.Roles;
-import com.huellapositiva.domain.service.VolunteerService;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
+import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.service.VolunteerService;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -15,7 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import java.util.Optional;
+
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,7 +54,7 @@ class VolunteerServiceShould {
                 .password(DEFAULT_PASSWORD)
                 .build();
 
-        com.huellapositiva.domain.model.entities.Volunteer volunteerEntity = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Volunteer volunteerEntity = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         Optional<JpaVolunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerEntity.getId().toString());
         assertTrue(volunteerOptional.isPresent());

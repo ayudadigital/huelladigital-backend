@@ -50,12 +50,12 @@ public class ESALContactPersonApiController {
                     @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, could not register the user due to a constraint violation.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not register the ESAL.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

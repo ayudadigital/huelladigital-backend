@@ -86,11 +86,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -100,7 +102,7 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestPart("dto") MultipartFile dtoMultipart,
                                @RequestPart("file") MultipartFile file,
-                               @AuthenticationPrincipal String contactPersonEmail,
+                               @Parameter(hidden = true) @AuthenticationPrincipal String contactPersonEmail,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
@@ -133,7 +135,7 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, the given ID was not found or is not published.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -167,7 +169,8 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found or is not published."
+                            description = "Not found, the given ID was not found or is not published.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -176,7 +179,7 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public void joinProposal(@Schema(description = "Id of Volunteer", example = "9873r5f897fs")
                                  @PathVariable String id,
-                             @AuthenticationPrincipal String memberEmail) {
+                             @Parameter(hidden = true) @AuthenticationPrincipal String memberEmail) {
         try {
             joinProposalAction.execute(id, memberEmail);
         } catch (EntityNotFoundException | ProposalNotPublishedException e) {
@@ -204,11 +207,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the ESAL data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the ESAL data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -275,12 +280,12 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad request, a conflict was encountered while attempting to persist the proposals.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content()
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -293,7 +298,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Submit proposal revision",
-            description = "Submit a proposal for revision to the reviser",
+            description = "Submit a proposal for revision to the reviser. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -311,7 +316,8 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, requested proposal not found or not published."
+                            description = "Not found, requested proposal not found or not published.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -321,7 +327,7 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public void submitProposalRevision(@PathVariable String id,
                                        @RequestBody ProposalRevisionDto dto,
-                                       @AuthenticationPrincipal String reviserEmail) {
+                                       @Parameter(hidden = true) @AuthenticationPrincipal String reviserEmail) {
         try {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
@@ -335,7 +341,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch list of volunteers in a proposal",
-            description = "Fetch list of volunteers in a proposal by the reviser",
+            description = "Fetch list of volunteers in a proposal by the reviser. Roles allowed REVISER and CONTACT_PERSON",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -353,11 +359,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found."
+                            description = "Requested proposal not found.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -375,7 +383,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a proposal with the list of volunteers",
-            description = "Fetch a proposal with the list of volunteers by the reviser.",
+            description = "Fetch a proposal with the list of volunteers by the reviser. Roles allowed REVISER, CONTACT_PERSON",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -393,11 +401,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found."
+                            description = "Requested proposal not found.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -414,7 +424,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Cancel a proposal",
-            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it",
+            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it. Roles allowed REVISER.",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -432,11 +442,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found."
+                            description = "Requested proposal not found.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -453,7 +465,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Change status of the volunteer in proposal",
-            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED",
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED. Roles allowed CONTACT_PERSON.",
             tags = {"proposals, volunteers, contact person"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -471,7 +483,8 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

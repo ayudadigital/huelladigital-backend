@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
 public class ProposalLiteDto {
 
     @Schema(
-            example = "76sd87sdg877ryugf"
+            example = "ff79038b-3fec-41f0-bab8-6e0d11db986e"
     )
     private final String id;
 
@@ -83,7 +83,7 @@ public class ProposalLiteDto {
     private final String duration;
 
     @Schema(
-            example = "asfuhsa3jkf8973ujf.png"
+            example = "https://s3.console.aws.amazon.com/s3/object/huellapositiva-dev/profile/photo?region=eu-west-1&prefix=00000000-0000-0000-0000-000000000000.png"
     )
     private final String imageURL;
 

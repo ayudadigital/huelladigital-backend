@@ -11,7 +11,7 @@ import lombok.Data;
 public class VolunteerDto {
 
     @Schema(
-            example = "sdg87s6723kjb23487sdf"
+            example = "ff79038b-3fec-41f0-bab8-6e0d11db986e"
     )
     private final String id;
 

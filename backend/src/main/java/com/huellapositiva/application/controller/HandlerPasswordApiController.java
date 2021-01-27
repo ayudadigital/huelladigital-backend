@@ -6,8 +6,12 @@ import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,11 +43,13 @@ public class HandlerPasswordApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, email not found in database."
+                            description = "Not found, email not found in database.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -70,11 +76,13 @@ public class HandlerPasswordApiController {
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, can not access to the resource because the time has expired."
+                            description = "Forbidden, can not access to the resource because the time has expired.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -86,8 +94,15 @@ public class HandlerPasswordApiController {
 
     @Operation(
             summary = "Update the password from profile",
-            description = "The user access his profile to update his password.",
-            tags = {"contactPerson, volunteers, profile"}
+            description = "The user access his profile to update his password. Roles allowed VOLUNTEER and CONTACT_PERSON.",
+            tags = {"contactPerson, volunteers, profile"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -98,15 +113,18 @@ public class HandlerPasswordApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request, the passwords do not match the regular expression, " +
-                                    "or the length is out of 6-15 alphanumeric characters or is null."
+                                    "or the length is out of 6-15 alphanumeric characters or is null.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the old password does not match or the new password is invalid."
+                            description = "Conflict, the old password does not match or the new password is invalid.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -114,7 +132,7 @@ public class HandlerPasswordApiController {
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editProfilePassword(@Valid @RequestBody ChangePasswordDto dto,
-                                    @AuthenticationPrincipal String email) {
+                                    @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         try {
             credentialsAction.executeUpdatePassword(dto, email);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {

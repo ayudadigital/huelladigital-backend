@@ -85,13 +85,11 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -168,8 +166,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found or is not published.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Not found, the given ID was not found or is not published."
                     )
             }
     )
@@ -206,13 +203,11 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposal.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposal."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the ESAL data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the ESAL data due to a connectivity issue."
                     )
             }
     )
@@ -315,8 +310,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, requested proposal not found or not published.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Not found, requested proposal not found or not published."
                     )
             }
     )
@@ -441,13 +435,11 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Requested proposal not found."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -482,8 +474,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

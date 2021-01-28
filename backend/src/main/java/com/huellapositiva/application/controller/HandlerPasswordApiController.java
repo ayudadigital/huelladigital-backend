@@ -43,13 +43,11 @@ public class HandlerPasswordApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, email not found in database.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Not found, email not found in database."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -76,13 +74,11 @@ public class HandlerPasswordApiController {
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, can not access to the resource because the time has expired.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Forbidden, can not access to the resource because the time has expired."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -113,18 +109,15 @@ public class HandlerPasswordApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request, the passwords do not match the regular expression, " +
-                                    "or the length is out of 6-15 alphanumeric characters or is null.",
-                            content = @Content(mediaType = "application/json")
+                                    "or the length is out of 6-15 alphanumeric characters or is null."
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the old password does not match or the new password is invalid.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Conflict, the old password does not match or the new password is invalid."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

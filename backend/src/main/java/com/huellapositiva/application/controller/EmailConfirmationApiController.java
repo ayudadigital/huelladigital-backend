@@ -43,23 +43,19 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the hash does not exist",
-                            content = @Content(mediaType = "application/json")
+                            description = "Not found, the hash does not exist"
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the email you are trying to confirm is already confirmed",
-                            content = @Content(mediaType = "application/json")
+                            description = "Conflict, the email you are trying to confirm is already confirmed"
                     ),
                     @ApiResponse(
                             responseCode = "410",
-                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint",
-                            content = @Content(mediaType = "application/json")
+                            description = "Gone, the email has already expired, you need to generate a new email confirmation using */resend-email-confirmation* endpoint"
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -94,18 +90,15 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, you need a valid XSRF-TOKEN",
-                            content = @Content(mediaType = "application/json")
+                            description = "Forbidden, you need a valid XSRF-TOKEN"
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the email you are trying to resend is already confirmed",
-                            content = @Content(mediaType = "application/json")
+                            description = "Conflict, the email you are trying to resend is already confirmed"
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not register the ESAL.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not register the ESAL."
                     )
             }
     )

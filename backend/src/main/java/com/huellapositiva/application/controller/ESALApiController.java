@@ -53,18 +53,15 @@ public class ESALApiController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the provided name is already taken.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Conflict, the provided name is already taken."
                     ),
                     @ApiResponse(
                             responseCode = "412",
-                            description = "Precondition failed, the user attempting to create the ESAL has another one linked.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Precondition failed, the user attempting to create the ESAL has another one linked."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not register the ESAL.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not register the ESAL."
                     )
             }
     )
@@ -104,13 +101,11 @@ public class ESALApiController {
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, the user has no permissions to delete the ESAL.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Forbidden, the user has no permissions to delete the ESAL."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -138,13 +133,11 @@ public class ESALApiController {
             value = {
                     @ApiResponse(
                             responseCode = "409",
-                            description = "ESAL already exists.",
-                            content = @Content(mediaType = "application/json")
+                            description = "ESAL already exists."
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )

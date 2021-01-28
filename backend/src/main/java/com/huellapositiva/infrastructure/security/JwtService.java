@@ -72,12 +72,11 @@ public class JwtService {
 
     public JwtResponseDto refresh(String refreshToken) throws InvalidJwtTokenException {
         String accountId = getUserDetails(refreshToken).getFirst();
-        List<String> roles = roleRepository.findAllByEmailAddress(accountId).stream().map(Role::getName).collect(Collectors.toList());
-        return create(accountId, roles);
+        return create(accountId);
     }
 
     public JwtResponseDto create(String accountId) {
-        List<String> roles = roleRepository.findAllByEmailAddress(accountId).stream().map(Role::getName).collect(Collectors.toList());
+        List<String> roles = roleRepository.findAllByAccountId(accountId).stream().map(Role::getName).collect(Collectors.toList());
         return create(accountId, roles);
     }
 

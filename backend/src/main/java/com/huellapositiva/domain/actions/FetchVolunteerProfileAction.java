@@ -15,10 +15,10 @@ public class FetchVolunteerProfileAction {
     /**
      * This method fetches a Volunteer with full information (with partially credentials and location) from the DB
      *
-     * @param volunteerEmail Email of the logged volunteer
+     * @param accountId Account ID of the logged volunteer
      */
-    public GetProfileResponseDto execute(String volunteerEmail) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(volunteerEmail);
+    public GetProfileResponseDto execute(String accountId) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId);
         GetProfileResponseDto.GetProfileResponseDtoBuilder profileDto = GetProfileResponseDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {

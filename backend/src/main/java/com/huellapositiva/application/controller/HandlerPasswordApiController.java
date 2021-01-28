@@ -114,9 +114,9 @@ public class HandlerPasswordApiController {
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editProfilePassword(@Valid @RequestBody ChangePasswordDto dto,
-                                    @AuthenticationPrincipal String email) {
+                                    @AuthenticationPrincipal String accountId) {
         try {
-            credentialsAction.executeUpdatePassword(dto, email);
+            credentialsAction.executeUpdatePassword(dto, accountId);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Password not valid: " + e.getMessage());
         }

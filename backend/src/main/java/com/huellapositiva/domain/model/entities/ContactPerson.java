@@ -16,11 +16,11 @@ public class ContactPerson extends User {
         super(accountId, emailAddress, id);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, Id id, String name, String surname) {
-        super(accountId, emailAddress, id, name, surname);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
+        super(accountId, emailAddress, passwordHash, id);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
-        super(accountId, emailAddress, passwordHash,id);
+    public boolean hasESAL() {
+        return joinedEsal != null;
     }
 }

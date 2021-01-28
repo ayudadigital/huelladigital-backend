@@ -56,7 +56,7 @@ class EmailAddressConfirmationActionShould {
         action.execute(hash);
 
         // THEN
-        Optional<JpaCredential> credentialOptional = credentialRepository.findByNaturalId(jpaCredential.getId());
+        Optional<JpaCredential> credentialOptional = credentialRepository.findByAccountId(jpaCredential.getId());
         assertTrue(credentialOptional.isPresent());
         jpaCredential = credentialOptional.get();
         assertThat(jpaCredential.getEmailConfirmed()).isTrue();
@@ -78,7 +78,7 @@ class EmailAddressConfirmationActionShould {
         action.execute(hash);
 
         // THEN
-        Optional<JpaCredential> credentialOptional = credentialRepository.findByNaturalId(jpaCredential.getId());
+        Optional<JpaCredential> credentialOptional = credentialRepository.findByAccountId(jpaCredential.getId());
         assertTrue(credentialOptional.isPresent());
         jpaCredential = credentialOptional.get();
         assertThat(jpaCredential.getEmailConfirmed()).isTrue();

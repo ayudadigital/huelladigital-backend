@@ -53,5 +53,4 @@ public class ESALContactPersonService {
     public Integer updateJoinedESAL(JpaContactPerson jpaContactPerson, JpaESAL jpaESAL) {
         return esalContactPersonRepository.updateESAL(jpaContactPerson.getId(), jpaESAL);
     }
-
 }

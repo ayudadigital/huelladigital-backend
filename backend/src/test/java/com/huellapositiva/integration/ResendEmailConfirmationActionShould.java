@@ -15,12 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -68,9 +65,7 @@ class ResendEmailConfirmationActionShould {
         Instant updateTimestamp = jpaCredential.getEmailConfirmation().getUpdatedOn().toInstant();
 
         // WHEN
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(authReq);
-        resendEmailConfirmationAction.execute();
+        resendEmailConfirmationAction.execute(jpaCredential.getId());
 
         // THEN
         JpaEmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
@@ -88,12 +83,10 @@ class ResendEmailConfirmationActionShould {
     void verify_email_is_not_confirmed_yet() {
         // GIVEN
         UUID hash = UUID.randomUUID();
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, hash);
+        JpaCredential jpaCredential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, hash);
         emailConfirmationAction.execute(hash);
 
         // WHEN + THEN
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(authReq);
-        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute());
+        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute(jpaCredential.getId()));
     }
 }

@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface JpaReviserRepository extends JpaRepository<JpaReviser, Integer> {
 
-    @Query("FROM JpaReviser r LEFT JOIN FETCH r.credential cr WHERE cr.email = :email")
-    Optional<JpaReviser> findByEmailWithCredentials(@Param("email") String email);
+    @Query("FROM JpaReviser r LEFT JOIN FETCH r.credential cr WHERE cr.id = :accountId")
+    Optional<JpaReviser> findByAccountIdWithCredentials(@Param("accountId") String accountId);
 }

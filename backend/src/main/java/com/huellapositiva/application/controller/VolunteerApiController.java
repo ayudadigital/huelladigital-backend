@@ -10,7 +10,6 @@ import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -46,8 +45,6 @@ import java.net.URI;
 public class VolunteerApiController {
 
     private final JwtService jwtService;
-
-    private final JpaRoleRepository roleRepository;
 
     private final RegisterVolunteerAction registerVolunteerAction;
 
@@ -93,7 +90,7 @@ public class VolunteerApiController {
     public JwtResponseDto registerVolunteer(@Validated @RequestBody AuthenticationRequestDto dto, HttpServletResponse res) {
         try {
             Volunteer volunteer = registerVolunteerAction.execute(dto);
-            String accountId = volunteer.getEmailAddress().toString();
+            String accountId = volunteer.getAccountId().toString();
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(volunteer.getId().toString())
                     .toUri();
@@ -143,14 +140,11 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
-                                      @Parameter(hidden = true) @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+                                      @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
-            uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
-        } catch (InvalidFieldException ex) {
-            log.error(ex.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+            uploadCurriculumVitaeAction.execute(cv, accountId);
         } catch (EmptyFileException ex) {
-            log.error("There is not any curriculum attached or is empty.");
+            log.error("There is no curriculum attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
@@ -192,9 +186,9 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                            @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) throws IOException {
+                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, volunteerEmail);
+            uploadPhotoAction.execute(photo, accountId);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());

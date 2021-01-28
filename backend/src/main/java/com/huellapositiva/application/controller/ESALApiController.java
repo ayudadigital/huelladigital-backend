@@ -6,7 +6,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.DeleteESALAction;
 import com.huellapositiva.domain.actions.RegisterESALAction;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -71,9 +70,9 @@ public class ESALApiController {
     @PostMapping
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
+    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String accountId) {
         try {
-            registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
+            registerESALAction.execute(dto, accountId);
         } catch (ESALAlreadyExistsException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
@@ -115,8 +114,8 @@ public class ESALApiController {
     @DeleteMapping("/{id}")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
-    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
-        deleteESALAction.execute(memberEmail, id);
+    public void deleteESAL(@AuthenticationPrincipal String accountId, @PathVariable String id) {
+        deleteESALAction.execute(accountId, id);
     }
 
     @Operation(

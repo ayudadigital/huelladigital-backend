@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import lombok.AllArgsConstructor;
@@ -22,13 +21,13 @@ public class ESALService {
     /**
      * This method checks if a contactPerson is linked to an ESAL
      *
-     * @param contactPersonEmail Email of contact person
+     * @param accountId Account ID of contact person
      * @return true if it is linked
      */
-    public boolean isUserAssociatedWithAnESAL(EmailAddress contactPersonEmail) {
-        return jpaContactPersonRepository.findByEmail(contactPersonEmail.toString())
+    public boolean isUserAssociatedWithAnESAL(String accountId) {
+        return jpaContactPersonRepository.findByAccountId(accountId)
                 .stream()
-                .anyMatch(n -> n.getJoinedEsal() != null);
+                .anyMatch(cp -> cp.getJoinedEsal() != null);
     }
 
 }

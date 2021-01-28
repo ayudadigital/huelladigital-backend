@@ -5,9 +5,11 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import com.huellapositiva.domain.exception.TimeForRecoveringPasswordExpiredException;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.PasswordHash;
+import com.huellapositiva.domain.model.valueobjects.RecoveryPasswordEmail;
+import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import lombok.AllArgsConstructor;
@@ -71,11 +73,11 @@ public class UpdatePasswordAction {
      * This method updates the password in database from the profile and sends an email.
      *
      * @param dto an object with de old password and the new password
-     * @param email The emails user
+     * @param accountId The account ID of the user
      */
-    public void executeUpdatePassword(ChangePasswordDto dto, String email) {
+    public void executeUpdatePassword(ChangePasswordDto dto, String accountId) {
 
-        JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId).orElseThrow(UserNotFoundException::new);
         PasswordHash newPasswordHash = new PasswordHash(passwordEncoder.encode(dto.getNewPassword()));
 
         if (!passwordEncoder.matches(dto.getOldPassword(), jpaCredential.getHashedPassword())) {
@@ -84,7 +86,7 @@ public class UpdatePasswordAction {
             throw new InvalidNewPasswordException("The new password it exactly the same as the old password");
         }
 
-        jpaCredentialRepository.updatePassword(newPasswordHash.toString(), email);
+        jpaCredentialRepository.updatePassword(newPasswordHash.toString(), accountId);
 
         EmailAddress emailAddress = EmailAddress.from(jpaCredential.getEmail());
         emailCommunicationService.sendConfirmationPasswordChanged(emailAddress);

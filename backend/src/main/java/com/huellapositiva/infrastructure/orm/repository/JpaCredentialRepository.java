@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface JpaCredentialRepository extends JpaRepository<JpaCredential, Integer> {
 
     @Query("FROM JpaCredential c WHERE c.id = :id")
-    Optional<JpaCredential> findByNaturalId(@Param("id") String id);
+    Optional<JpaCredential> findByAccountId(@Param("id") String id);
 
     @Query("FROM JpaCredential c WHERE c.email = :email")
     Optional<JpaCredential> findByEmail(@Param("email") String email);
@@ -33,8 +33,8 @@ public interface JpaCredentialRepository extends JpaRepository<JpaCredential, In
 
     @Modifying
     @Transactional
-    @Query("UPDATE JpaCredential c SET c.hashedPassword = :hash WHERE c.email = :email")
-    Integer updatePassword(@Param("hash") String hash, @Param("email") String email);
+    @Query("UPDATE JpaCredential c SET c.hashedPassword = :hash WHERE c.id = :accountId")
+    Integer updatePassword(@Param("hash") String hash, @Param("accountId") String accountId);
 
     @Modifying
     @Transactional

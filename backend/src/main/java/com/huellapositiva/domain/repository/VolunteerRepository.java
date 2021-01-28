@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -70,12 +71,12 @@ public class VolunteerRepository {
     /**
      * This method return the volunteer full information stored in DB.
      *
-     * @param email Email of volunteer to log
+     * @param accountId Account ID of the volunteer
      */
-    public Volunteer findByEmail(String email) {
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentials(email).orElseThrow(
-                () -> new RuntimeException("Could not find volunteer with email " + email)
-        );
+    public Volunteer findByAccountId(String accountId) {
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByAccountIdWithCredentials(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Could not find volunteer with account ID: " + accountId));
+
         return new Volunteer(
                 new Id(volunteer.getCredential().getId()),
                 EmailAddress.from(volunteer.getCredential().getEmail()),

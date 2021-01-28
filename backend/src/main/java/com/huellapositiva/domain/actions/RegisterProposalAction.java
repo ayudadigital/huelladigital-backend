@@ -37,15 +37,15 @@ public class RegisterProposalAction {
      *
      * @param dto proposal info
      * @param image image recently upload
-     * @param contactPersonEmail contact person's email
+     * @param accountId contact person's account ID
      * @return proposal id
      * @throws ParseException when dto date format is invalid
      * @throws IOException when multipart file is corrupt
      */
     public String executeByContactPerson(ProposalRequestDto dto,
                                          MultipartFile image,
-                                         String contactPersonEmail) throws ParseException, IOException {
-        ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
+                                         String accountId) throws ParseException, IOException {
+        ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(accountId);
         return saveProposal(dto, image, joinedESAL, REVIEW_PENDING);
     }
 

@@ -33,6 +33,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.huellapositiva.domain.util.StringUtils.maskEmailAddress;
 
 @Slf4j
 @RestController
@@ -97,11 +100,11 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestPart("dto") MultipartFile dtoMultipart,
                                @RequestPart("file") MultipartFile file,
-                               @AuthenticationPrincipal String contactPersonEmail,
+                               @AuthenticationPrincipal String accountId,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.executeByContactPerson(dto, file, contactPersonEmail);
+            String id = registerProposalAction.executeByContactPerson(dto, file, accountId);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
@@ -172,9 +175,9 @@ public class ProposalApiController {
     @PostMapping("/{id}/join")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
+    public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String accountId) {
         try {
-            joinProposalAction.execute(id, memberEmail);
+            joinProposalAction.execute(id, accountId);
         } catch (EntityNotFoundException | ProposalNotPublishedException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
@@ -315,13 +318,12 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public void submitProposalRevision(@PathVariable String id,
                                        @RequestBody ProposalRevisionDto dto,
-                                       @AuthenticationPrincipal String reviserEmail) {
+                                       @AuthenticationPrincipal String accountId) {
         try {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
-            dto.setReviserEmail(reviserEmail);
-            submitProposalRevisionAction.execute(id, dto, uri);
+            submitProposalRevisionAction.execute(id, dto, uri, accountId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
@@ -361,7 +363,10 @@ public class ProposalApiController {
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
         try {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
-            return proposalResponseDto.getInscribedVolunteers();
+            return proposalResponseDto.getInscribedVolunteers()
+                    .stream()
+                    .map(v -> new VolunteerDto(v.getId(), maskEmailAddress(v.getEmailAddress()), v.getConfirmed()))
+                    .collect(Collectors.toList());
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }

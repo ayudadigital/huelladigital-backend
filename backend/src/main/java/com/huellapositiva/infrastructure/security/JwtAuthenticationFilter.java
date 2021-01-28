@@ -3,6 +3,8 @@ package com.huellapositiva.infrastructure.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -60,6 +62,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         JwtResponseDto jwtResponseDto = jwtService.create(username, roles);
         String responseBody = objectMapper.writeValueAsString(jwtResponseDto);
         res.setStatus(HttpServletResponse.SC_OK);
+        res.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         res.getWriter().write(responseBody);
         res.getWriter().flush();
         res.getWriter().close();

@@ -3,13 +3,15 @@ package com.huellapositiva.unit;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.actions.UploadPhotoAction;
 import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
-import com.huellapositiva.util.TestData;
+import com.huellapositiva.domain.repository.VolunteerRepository;
+import com.huellapositiva.domain.service.RemoteStorageService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,12 +21,21 @@ import java.util.stream.Stream;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Import(TestData.class)
+@ExtendWith(MockitoExtension.class)
 class UploadPhotoActionShould {
 
-    @Autowired
+    @Mock
+    private RemoteStorageService remoteStorageService;
+
+    @Mock
+    private VolunteerRepository volunteerRepository;
+
     private UploadPhotoAction uploadPhotoAction;
+
+    @BeforeEach
+    void beforeEach() {
+        uploadPhotoAction = new UploadPhotoAction(remoteStorageService, volunteerRepository, 1024000, 400, 400);
+    }
 
     @ParameterizedTest
     @MethodSource("provideIncorrectPhotos")
@@ -35,9 +46,7 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(InvalidFieldException.class, () -> {
-            uploadPhotoAction.execute(result, DEFAULT_EMAIL);
-        });
+        assertThrows(InvalidFieldException.class, () -> uploadPhotoAction.execute(result, DEFAULT_EMAIL));
     }
 
     private static Stream<String> provideIncorrectPhotos() {
@@ -57,8 +66,6 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(FileTypeNotSupportedException.class, () -> {
-            uploadPhotoAction.execute(result, DEFAULT_EMAIL);
-        });
+        assertThrows(FileTypeNotSupportedException.class, () -> uploadPhotoAction.execute(result, DEFAULT_EMAIL));
     }
 }

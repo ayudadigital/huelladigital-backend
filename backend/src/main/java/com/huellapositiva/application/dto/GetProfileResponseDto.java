@@ -74,31 +74,31 @@ public class GetProfileResponseDto {
 
     @Schema(
             description = "User's photo",
-            example = "/storage/volunteers/89sfa98asfas687as6f8as6f8a7s6f8as.png"
+            example = "https://s3.console.aws.amazon.com/s3/object/huellapositiva-dev/profile/photo?region=eu-west-1&prefix=00000000-0000-0000-0000-000000000000.png"
     )
     private final String photo;
 
     @Schema(
             description = "User's Curriculum Vitae",
-            example = "/storage/volunteers/sdfyuhdhg8df58weiou3.pdf"
+            example = "https://s3.console.aws.amazon.com/s3/object/huellapositiva-dev/profile/cv?region=eu-west-1&prefix=00000000-0000-0000-0000-000000000000.pdf"
     )
     private final String curriculumVitae;
 
     @Schema(
             description = "User's URL twitter",
-            example = "https://twitter.com/policia"
+            example = "https://twitter.com/foo-bar"
     )
     private final String twitter;
 
     @Schema(
             description = "User's URL instagram",
-            example = "https://instagram.com/policia"
+            example = "https://instagram.com/foo-bar"
     )
     private final String instagram;
 
     @Schema(
             description = "User's URL linkedin",
-            example = "https://linkedin.com/in/policia"
+            example = "https://linkedin.com/in/foo-bar"
     )
     private final String linkedin;
 

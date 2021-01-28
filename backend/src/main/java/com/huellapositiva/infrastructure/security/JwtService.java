@@ -25,6 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.util.StringUtils.maskEmailAddress;
 import static com.nimbusds.jose.JOSEObjectType.JWT;
 import static com.nimbusds.jose.JWSAlgorithm.HS512;
 
@@ -75,6 +76,7 @@ public class JwtService {
         return create(username, roles);
     }
 
+    // TODO Use credentialId instead of username/emailAddress which is subject to change.
     public JwtResponseDto create(String username, List<String> roles) {
         revokeAccessTokens(username);
         String newAccessToken = createToken(username, roles, jwtProperties.getAccessToken().getExpirationTime());
@@ -159,6 +161,7 @@ public class JwtService {
         Date revokedBeforeDate = revokedAccessTokens.get(username);
         if (revokedBeforeDate == null || revokedBeforeDate.before(issuedBefore)) {
             revokedAccessTokens.put(username, issuedBefore);
+            log.debug("Revoking access tokens for user {} at {}", maskEmailAddress(username), issuedBefore);
         }
     }
 

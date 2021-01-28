@@ -28,6 +28,8 @@ import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @AllArgsConstructor
 @TestComponent
@@ -51,6 +53,20 @@ public class TestData {
     public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
 
     public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
+
+    public static final String VALID_NAME = "Jose Ramon";
+    public static final String VALID_SURNAME = "Apellido";
+    public static final String VALID_PHONE = "+34 123456789";
+    public static final LocalDate VALID_BIRTHDAY = LocalDate.of(2000, 1, 1);
+    public static final String VALID_PROVINCE = "Las Palmas";
+    public static final String VALID_TOWN = "Agaete";
+    public static final String VALID_ADDRESS = "Calle Guacimeta N2";
+    public static final String VALID_ZIPCODE = "35000";
+    public static final String VALID_ISLAND = "Fuerteventura";
+    public static final String VALID_TWITTER = "https://twitter.com/foo-bar";
+    public static final String VALID_INSTAGRAM = "https://instagram.com/foo-bar";
+    public static final String VALID_LINKEDIN = "https://linkedin.com/in/home";
+    public static final String VALID_ADDITIONAL_INFO = "Additional information";
 
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
@@ -397,9 +413,9 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(new ESAL(esal.getName(), new Id(esal.getId())))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
-                .startingProposalDate(ProposalDate.createStartingProposalDate("20-11-2021"))
-                .closingProposalDate(ProposalDate.createClosingProposalDate("24-11-2021"))
-                .startingVolunteeringDate(ProposalDate.createStartingVolunteeringDate("25-11-2021"))
+                .startingProposalDate(new ProposalDate(Date.from(now().minus(1, DAYS))))
+                .closingProposalDate(new ProposalDate(Date.from(now().plus(1, DAYS))))
+                .startingVolunteeringDate(new ProposalDate(Date.from(now().plus(2, DAYS))))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
                 .status(PUBLISHED)

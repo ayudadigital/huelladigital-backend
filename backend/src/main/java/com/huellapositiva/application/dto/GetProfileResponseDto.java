@@ -31,7 +31,7 @@ public class GetProfileResponseDto {
     private final String birthDate;
 
     @Schema(
-            description = "User's telephone. TIP: The international preffix can be +X, +XX, +XXX",
+            description = "User's telephone. TIP: The international prefix can be +X, +XX, +XXX",
             example = "+850 12419287524"
     )
     private final String phoneNumber;

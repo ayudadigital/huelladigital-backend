@@ -5,7 +5,6 @@ import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;

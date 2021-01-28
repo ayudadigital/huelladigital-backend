@@ -48,7 +48,7 @@ public class ESALRepository {
                 .name(model.getName())
                 .build();
         try {
-            jpaESALRepository.save(esal).getId();
+            jpaESALRepository.save(esal);
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
         } catch (DataIntegrityViolationException ex) {
             throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
@@ -61,7 +61,7 @@ public class ESALRepository {
                 .name(model.getName())
                 .build();
         try {
-            jpaESALRepository.save(esal).getId();
+            jpaESALRepository.save(esal);
         } catch (DataIntegrityViolationException ex) {
             throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
         }

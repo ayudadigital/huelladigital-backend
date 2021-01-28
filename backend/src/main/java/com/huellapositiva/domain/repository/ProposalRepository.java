@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.repository;
 
 import com.huellapositiva.application.exception.ESALNotFoundException;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
@@ -75,7 +76,8 @@ public class ProposalRepository {
                 .orElseThrow(ESALNotFoundException::new);
         Set<JpaVolunteer> volunteers = proposal.getInscribedVolunteers()
                 .stream()
-                .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().toString()).get())
+                .map(v -> jpaVolunteerRepository.findByIdWithCredentialsAndRoles(v.getId().getValue())
+                        .orElseThrow(() -> new UserNotFoundException("Volunteer " + v.getId() + " not found")))
                 .collect(Collectors.toSet());
         JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findById(proposal.getStatus().getId())
                 .orElseThrow(InvalidStatusIdException::new);

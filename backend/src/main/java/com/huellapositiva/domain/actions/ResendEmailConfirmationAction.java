@@ -32,14 +32,13 @@ public class ResendEmailConfirmationAction {
      *
      * @throws UsernameNotFoundException
      * @throws EmailConfirmationAlreadyConfirmedException
-     * @param accountId
+     * @param accountId Account ID of the logged user
      */
     public void execute(String accountId) {
         JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new UsernameNotFoundException("User with account ID: " + accountId + " was not found."));
 
-        boolean isEmailConfirmed = jpaCredential.getEmailConfirmed();
-        if (isEmailConfirmed) {
+        if (jpaCredential.getEmailConfirmed()) {
             throw new EmailConfirmationAlreadyConfirmedException("Email is already confirmed");
         }
 

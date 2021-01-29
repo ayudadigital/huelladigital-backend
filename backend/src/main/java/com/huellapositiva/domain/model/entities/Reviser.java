@@ -5,10 +5,6 @@ import com.huellapositiva.domain.model.valueobjects.Id;
 
 public class Reviser extends User {
 
-    public Reviser(Id accountId, EmailAddress emailAddress, Id id) {
-        super(accountId, emailAddress, id);
-    }
-
     public Reviser(Id accountId, EmailAddress emailAddress, Id id, String name, String surname) {
         super(accountId, emailAddress, id, name, surname);
     }

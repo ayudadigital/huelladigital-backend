@@ -7,8 +7,6 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
 import com.huellapositiva.domain.repository.ESALRepository;
-import com.huellapositiva.domain.service.ESALContactPersonService;
-import com.huellapositiva.domain.service.ESALService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,10 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 public class RegisterESALAction {
-
-    private final ESALService esalService;
-
-    private final ESALContactPersonService esalContactPersonService;
 
     private final ESALContactPersonRepository esalContactPersonRepository;
 

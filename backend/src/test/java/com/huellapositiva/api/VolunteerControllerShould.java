@@ -169,9 +169,7 @@ class VolunteerControllerShould {
         return Stream.of(
                 ".username@yahoo.com",
                 "username@yahoo.com.",
-                "username@yahoo..com",
-                "username@yahoo.c",
-                "username@yahoo.corporate"
+                "username@yahoo..com"
         );
     }
 

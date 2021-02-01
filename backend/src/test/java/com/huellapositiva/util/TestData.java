@@ -196,6 +196,11 @@ public class TestData {
         return createVolunteerProfile(email);
     }
 
+    public JpaVolunteer createSubscribedVolunteer(String email, String password){
+        createVolunteer(email, password, Roles.VOLUNTEER);
+        return createSubscribedVolunteerProfile(email);
+    }
+
     public JpaVolunteer createVolunteer(String email, String password) {
         return createVolunteer(DEFAULT_ACCOUNT_ID, email, password, Roles.VOLUNTEER);
     }
@@ -476,6 +481,7 @@ public class TestData {
                 .linkedin("Aqui un enlace a linkedin")
                 .instagram("Aqui un enlace a instagram")
                 .additionalInformation("Pequenna descripcion")
+                .newsletter(false)
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
@@ -496,6 +502,21 @@ public class TestData {
         jpaVolunteer.setProfile(jpaProfile);
         jpaVolunteer.setLocation(jpaLocation);
 
+        return jpaVolunteer;
+    }
+
+    private JpaVolunteer createSubscribedVolunteerProfile(String email) {
+        String id = Id.newId().toString();
+        JpaProfile jpaProfile = JpaProfile.builder()
+                .id(id)
+                .newsletter(true)
+                .build();
+        jpaProfileRepository.save(jpaProfile);
+
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+        jpaVolunteerRepository.updateProfile(jpaVolunteer.getId(), jpaProfile);
+
+        jpaVolunteer.setProfile(jpaProfile);
         return jpaVolunteer;
     }
 }

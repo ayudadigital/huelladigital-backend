@@ -1,5 +1,6 @@
 package com.huellapositiva.integration;
 
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -7,8 +8,6 @@ import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
 import com.huellapositiva.infrastructure.TemplateService;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -16,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith(MockitoExtension.class)
 @Import(TestData.class)
 class TemplateServiceShould {
 
@@ -38,7 +36,7 @@ class TemplateServiceShould {
 
 
         // WHEN + THEN
-        assertThatExceptionOfType(NullPointerException.class)
+        assertThatExceptionOfType(UserNotFoundException.class)
                 .isThrownBy(() -> templateService.getProposalRevisionWithFeedbackTemplate(proposalRevisionEmail));
     }
 }

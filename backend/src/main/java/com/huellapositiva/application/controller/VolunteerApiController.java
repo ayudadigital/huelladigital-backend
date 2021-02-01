@@ -1,9 +1,6 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
@@ -55,6 +52,8 @@ public class VolunteerApiController {
     private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
 
     private final UploadPhotoAction uploadPhotoAction;
+
+    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -280,5 +279,38 @@ public class VolunteerApiController {
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
+    }
+
+    @Operation(
+            summary = "Change status of subscription to newsletter",
+            description = "Changes the status of the subscribed parameter on the specified volunteer",
+            tags = "newsletter",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, status of subscribed field changed successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/profile/newsletter")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletterSubscriptionDto,
+                                                   @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
+        changeStatusNewsletterSubscriptionAction.execute(newsletterSubscriptionDto, volunteerEmail);
     }
 }

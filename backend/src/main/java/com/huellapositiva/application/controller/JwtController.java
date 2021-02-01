@@ -72,7 +72,8 @@ public class JwtController {
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )

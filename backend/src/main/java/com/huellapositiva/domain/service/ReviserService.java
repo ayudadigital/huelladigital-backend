@@ -4,7 +4,7 @@ import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.JpaReviser;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
@@ -64,12 +64,13 @@ public class ReviserService {
         if (jpaCredentialRepository.findByEmail(reviserEmail).isEmpty()) {
             Role role = jpaRoleRepository.findByName(REVISER.toString())
                     .orElseThrow(() -> new RoleNotFoundException("Role REVISER not found."));
-            EmailConfirmation emailConfirmation = EmailConfirmation.builder()
+            JpaEmailConfirmation emailConfirmation = JpaEmailConfirmation.builder()
                     .email(reviserEmail)
                     .hash(UUID.randomUUID().toString())
                     .build();
             emailConfirmation = jpaEmailConfirmationRepository.save(emailConfirmation);
             JpaCredential jpaCredential = JpaCredential.builder()
+                    .id(Id.newId().getValue())
                     .email(reviserEmail)
                     .hashedPassword(new PasswordHash(passwordEncoder.encode(reviserPassword)).toString())
                     .roles(Collections.singleton(role))
@@ -77,7 +78,7 @@ public class ReviserService {
                     .emailConfirmation(emailConfirmation)
                     .build();
             JpaReviser jpaReviser = JpaReviser.builder()
-                    .id(Id.newId().toString())
+                    .id(Id.newId().getValue())
                     .credential(jpaCredential)
                     .name(reviserName)
                     .surname(reviserSurname)

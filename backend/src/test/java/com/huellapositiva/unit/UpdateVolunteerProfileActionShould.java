@@ -2,6 +2,7 @@ package com.huellapositiva.unit;
 
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
+import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_ACCOUNT_ID;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL_2;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateVolunteerProfileActionShould {
@@ -44,8 +46,9 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
+        when(profileService.updateProfile(updateProfileRequestDto,DEFAULT_ACCOUNT_ID)).thenReturn(new UpdateProfileResult(true));
 
-        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_ACCOUNT_ID);
 
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }

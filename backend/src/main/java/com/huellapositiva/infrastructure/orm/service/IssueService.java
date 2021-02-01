@@ -1,12 +1,10 @@
 package com.huellapositiva.infrastructure.orm.service;
 
-import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaFailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
-
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import lombok.AllArgsConstructor;
 
 import java.util.Arrays;
 
@@ -18,7 +16,7 @@ public class IssueService {
     private final JpaFailEmailConfirmationRepository jpaFailEmailConfirmationRepository;
 
     public void registerEmailConfirmationIssue(String email, Exception ex) {
-        FailEmailConfirmation failEmailConfirmation = FailEmailConfirmation.builder()
+        JpaFailEmailConfirmation failEmailConfirmation = JpaFailEmailConfirmation.builder()
                 .emailAddress(email)
                 .exceptionTrace(Arrays.toString(ex.getStackTrace()))
                 .build();

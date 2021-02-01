@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -69,7 +68,7 @@ class VolunteerControllerShould {
         // GIVEN
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
-                .password("password")
+                .password(DEFAULT_PASSWORD)
                 .build();
 
         // THEN
@@ -86,10 +85,8 @@ class VolunteerControllerShould {
         // WHEN
         String jsonResponse = response.getContentAsString();
         JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
-        Pair<String, List<String>> userDetails = jwtService.getUserDetails(responseDto.getAccessToken());
-        assertThat(userDetails.getFirst()).isEqualTo(dto.getEmail());
-        assertThat(userDetails.getSecond()).hasSize(1);
-        assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
+        List<String> roles = jwtService.getUserDetails(responseDto.getAccessToken()).getSecond();
+        assertThat(roles).containsExactly(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
         String id = location.substring(location.lastIndexOf('/') + 1);
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
@@ -608,8 +605,8 @@ class VolunteerControllerShould {
 
     @Test
     void return_409_when_provided_new_email_already_bound_to_a_different_account() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         UpdateProfileRequestDto profileDto = UpdateProfileRequestDto.builder()
@@ -744,7 +741,7 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isTrue();
 
         mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
@@ -754,7 +751,7 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }
 }

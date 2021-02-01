@@ -36,7 +36,7 @@ class UpdateVolunteerProfileActionIT {
 
     @Test
     void should_change_role_when_updating_email_address() {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, VOLUNTEER);
+        testData.createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD, VOLUNTEER);
         UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
@@ -47,9 +47,9 @@ class UpdateVolunteerProfileActionIT {
                 .island(VALID_ISLAND)
                 .build();
 
-        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_EMAIL);
+        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_ACCOUNT_ID);
 
-        assertThat(jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL)).isEmpty();
+        assertThat(jpaVolunteerRepository.findByAccountIdWithCredentials(DEFAULT_EMAIL)).isEmpty();
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);
         assertThat(jpaVolunteer.getCredential().getRoles()).hasToString("[" + VOLUNTEER_NOT_CONFIRMED + "]");
     }

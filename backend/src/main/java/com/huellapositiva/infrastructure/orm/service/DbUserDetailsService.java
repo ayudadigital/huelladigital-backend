@@ -27,7 +27,7 @@ public class DbUserDetailsService implements UserDetailsService {
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
-        return new User(jpaCredential.getEmail(), jpaCredential.getHashedPassword(), getAuthority(jpaCredential));
+        return new User(jpaCredential.getId(), jpaCredential.getHashedPassword(), getAuthority(jpaCredential));
     }
 
     private List<GrantedAuthority> getAuthority(JpaCredential jpaCredential) {

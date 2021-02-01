@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -105,7 +106,7 @@ public class EmailConfirmationApiController {
     @RolesAllowed({"VOLUNTEER_NOT_CONFIRMED"})
     @PostMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resendConfirmEmail() {
-        resendEmailConfirmationAction.execute();
+    public void resendConfirmEmail(@Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        resendEmailConfirmationAction.execute(accountId);
     }
 }

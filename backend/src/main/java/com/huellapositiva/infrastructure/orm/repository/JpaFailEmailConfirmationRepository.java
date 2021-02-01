@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaFailEmailConfirmation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface JpaFailEmailConfirmationRepository extends JpaRepository<FailEmailConfirmation, Integer> {
+public interface JpaFailEmailConfirmationRepository extends JpaRepository<JpaFailEmailConfirmation, Integer> {
 
-    @Query("FROM FailEmailConfirmation fec WHERE fec.emailAddress = :emailAddress")
-    Optional<FailEmailConfirmation> findByEmail(@Param("emailAddress") String emailAddress);
+    @Query("FROM JpaFailEmailConfirmation fec WHERE fec.emailAddress = :emailAddress")
+    Optional<JpaFailEmailConfirmation> findByEmail(@Param("emailAddress") String emailAddress);
 }

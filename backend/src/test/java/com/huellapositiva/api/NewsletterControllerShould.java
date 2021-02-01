@@ -40,8 +40,8 @@ class NewsletterControllerShould {
     @Test
     void return_204_when_excel_sent_successfully() throws Exception {
         testData.createSubscribedVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createVolunteer(DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
-        testData.createSubscribedVolunteer("foo_3@huellapositiva.com", DEFAULT_PASSWORD);
+        testData.createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
+        testData.createSubscribedVolunteer("33333333-3333-3333-3333-333333333333", "foo_3@huellapositiva.com", DEFAULT_PASSWORD);
 
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);

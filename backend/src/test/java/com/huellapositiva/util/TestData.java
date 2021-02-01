@@ -8,7 +8,6 @@ import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.AllArgsConstructor;
@@ -40,6 +39,8 @@ public class TestData {
 
     public static final String DEFAULT_SUBJECT = "Asunto del email";
 
+    public static final String DEFAULT_ACCOUNT_ID = "11111111-1111-1111-1111-111111111111";
+
     public static final String DEFAULT_EMAIL = "foo@huellapositiva.com";
 
     public static final String DEFAULT_EMAIL_2 = "foo_2@huellapositiva.com";
@@ -49,8 +50,6 @@ public class TestData {
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
     public static final String DEFAULT_ESAL = "Huella Digital";
-
-    public static final String DEFAULT_PROPOSAL_EXPIRATION_HOUR = "23:55:00";
 
     public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
@@ -136,8 +135,8 @@ public class TestData {
         failEmailConfirmationRepository.deleteAll();
     }
 
-    private EmailConfirmation createEmailConfirmation(UUID token) {
-        EmailConfirmation emailConfirmation = EmailConfirmation.builder()
+    private JpaEmailConfirmation createEmailConfirmation(UUID token) {
+        JpaEmailConfirmation emailConfirmation = JpaEmailConfirmation.builder()
                 .email(DEFAULT_EMAIL)
                 .hash(token.toString())
                 .build();
@@ -157,9 +156,14 @@ public class TestData {
     }
 
     public JpaCredential createCredential(String email, UUID token, String plainPassword, Roles userRole){
-        EmailConfirmation emailConfirmation = createEmailConfirmation(token);
+        return  createCredential(UUID.randomUUID().toString(), email, token, plainPassword, userRole);
+    }
+
+    public JpaCredential createCredential(String accountId, String email, UUID token, String plainPassword, Roles userRole){
+        JpaEmailConfirmation emailConfirmation = createEmailConfirmation(token);
         Role role = roleRepository.findByName(userRole.toString()).orElse(null);
         JpaCredential jpaCredential = JpaCredential.builder()
+                .id(accountId)
                 .email(email)
                 .hashedPassword(passwordEncoder.encode(plainPassword))
                 .emailConfirmed(false)
@@ -183,21 +187,35 @@ public class TestData {
     }
 
     public JpaVolunteer createVolunteerWithProfile(String email, String password) {
-        createVolunteer(email, password, Roles.VOLUNTEER);
+        createVolunteer(DEFAULT_ACCOUNT_ID, email, password, Roles.VOLUNTEER);
         return createVolunteerProfile(email);
     }
 
-    public JpaVolunteer createSubscribedVolunteer(String email, String password){
-        createVolunteer(email, password, Roles.VOLUNTEER);
+    public JpaVolunteer createVolunteerWithProfile(String accountId, String email, String password) {
+        createVolunteer(accountId, email, password, Roles.VOLUNTEER);
+        return createVolunteerProfile(email);
+    }
+
+    public JpaVolunteer createSubscribedVolunteer(String email, String password) {
+        createVolunteer(email, password);
+        return createSubscribedVolunteerProfile(email);
+    }
+
+    public JpaVolunteer createSubscribedVolunteer(String accountId, String email, String password) {
+        createVolunteer(accountId, email, password);
         return createSubscribedVolunteerProfile(email);
     }
 
     public JpaVolunteer createVolunteer(String email, String password) {
-        return createVolunteer(email, password, Roles.VOLUNTEER);
+        return createVolunteer(DEFAULT_ACCOUNT_ID, email, password, Roles.VOLUNTEER);
     }
 
-    public JpaVolunteer createVolunteer(String email, String password, Roles role) {
-        JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
+    public JpaVolunteer createVolunteer(String accountId, String email, String password) {
+        return createVolunteer(accountId, email, password, Roles.VOLUNTEER);
+    }
+
+    public JpaVolunteer createVolunteer(String accountId, String email, String password, Roles role) {
+        JpaCredential jpaCredential = createCredential(accountId, email, UUID.randomUUID(), password, role);
 
         JpaVolunteer volunteer = JpaVolunteer.builder()
                 .credential(jpaCredential)
@@ -321,8 +339,8 @@ public class TestData {
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
 
-        JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
-        JpaVolunteer jpaVolunteer2 = createVolunteer(DEFAULT_EMAIL_2, DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
+        JpaVolunteer jpaVolunteer2 = createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD, Roles.VOLUNTEER);
 
         Set<JpaVolunteer> jpaVolunteers = new HashSet<>();
         jpaVolunteers.add(jpaVolunteer);

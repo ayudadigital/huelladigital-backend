@@ -24,7 +24,7 @@ public class JpaReviser {
     @Column(name = "id")
     private String id;
 
-    @JoinColumn(name = "credential_id")
+    @JoinColumn(name = "credential_id", referencedColumnName = "id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JpaCredential credential;
 

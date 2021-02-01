@@ -1,12 +1,12 @@
-package com.huellapositiva.application.exception;
+package com.huellapositiva.domain.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class ProposalNotPublishedException extends RuntimeException {
+public class ProfileNotFoundException extends RuntimeException {
 
-    public ProposalNotPublishedException(String message) {
+    public ProfileNotFoundException(String message) {
         super(message);
     }
 }

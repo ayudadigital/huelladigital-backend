@@ -5,7 +5,7 @@ import com.huellapositiva.application.exception.EmailConfirmationExpiredExceptio
 import com.huellapositiva.application.exception.EmailConfirmationHashNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
@@ -50,7 +50,7 @@ public class EmailConfirmationAction {
      * @throws EmailConfirmationExpiredException hash has expired
      */
     public void execute(UUID hash) {
-        EmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
+        JpaEmailConfirmation emailConfirmation = jpaEmailConfirmationRepository.findByHash(hash.toString())
                 .orElseThrow(() -> new EmailConfirmationHashNotFoundException("Hash " + hash + " not found."));
 
         boolean isEmailConfirmed = emailConfirmation.getCredential().getEmailConfirmed();
@@ -75,6 +75,6 @@ public class EmailConfirmationAction {
         newUserRoles.add(newJpaRole);
         jpaCredential.setRoles(newUserRoles);
         credentialRepository.save(jpaCredential);
-        jwtService.revokeAccessTokens(jpaCredential.getEmail());
+        jwtService.revokeAccessTokens(jpaCredential.getId());
     }
 }

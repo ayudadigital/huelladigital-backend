@@ -6,10 +6,10 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.DeleteESALAction;
 import com.huellapositiva.domain.actions.RegisterESALAction;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -52,15 +52,18 @@ public class ESALApiController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Conflict, the provided name is already taken."
+                            description = "Conflict, the provided name is already taken.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "412",
-                            description = "Precondition failed, the user attempting to create the ESAL has another one linked."
+                            description = "Precondition failed, the user attempting to create the ESAL has another one linked.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not register the ESAL."
+                            description = "Internal server error, could not register the ESAL.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -68,9 +71,9 @@ public class ESALApiController {
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
     public void registerESAL(@RequestBody ESALRequestDto dto,
-                             @Parameter(hidden = true) @AuthenticationPrincipal String loggedContactPersonEmail) {
+                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
-            registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
+            registerESALAction.execute(dto, accountId);
         } catch (ESALAlreadyExistsException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
@@ -100,7 +103,8 @@ public class ESALApiController {
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden, the user has no permissions to delete the ESAL."
+                            description = "Forbidden, the user has no permissions to delete the ESAL.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -112,8 +116,8 @@ public class ESALApiController {
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
     public void deleteESAL(@PathVariable String id,
-                           @Parameter(hidden = true) @AuthenticationPrincipal String memberEmail) {
-        deleteESALAction.execute(memberEmail, id);
+                           @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        deleteESALAction.execute(accountId, id);
     }
 
     @Operation(
@@ -132,7 +136,8 @@ public class ESALApiController {
             value = {
                     @ApiResponse(
                             responseCode = "409",
-                            description = "ESAL already exists."
+                            description = "ESAL already exists.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",

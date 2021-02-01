@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
+import static com.huellapositiva.util.TestData.DEFAULT_ACCOUNT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +46,7 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(InvalidFieldException.class, () -> uploadPhotoAction.execute(result, DEFAULT_EMAIL));
+        assertThrows(InvalidFieldException.class, () -> uploadPhotoAction.execute(result, DEFAULT_ACCOUNT_ID));
     }
 
     private static Stream<String> provideIncorrectPhotos() {
@@ -66,6 +66,6 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(FileTypeNotSupportedException.class, () -> uploadPhotoAction.execute(result, DEFAULT_EMAIL));
+        assertThrows(FileTypeNotSupportedException.class, () -> uploadPhotoAction.execute(result, DEFAULT_ACCOUNT_ID));
     }
 }

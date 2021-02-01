@@ -29,7 +29,7 @@ class TemplateServiceShould {
         // GIVEN
         ProposalRevisionEmail proposalRevisionEmail = ProposalRevisionEmail.builder()
                 .hasFeedback(true)
-                .esalContactPerson(new ContactPerson(EmailAddress.from(TestData.DEFAULT_EMAIL), Id.newId()))
+                .esalContactPerson(new ContactPerson(Id.newId(), EmailAddress.from(TestData.DEFAULT_EMAIL), Id.newId()))
                 .proposalId(Id.newId())
                 .proposalURI(testData.createMockImageUrl().toURI())
                 .build();

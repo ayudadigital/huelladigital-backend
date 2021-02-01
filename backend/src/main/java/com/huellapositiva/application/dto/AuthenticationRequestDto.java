@@ -20,7 +20,7 @@ public class AuthenticationRequestDto {
             example = "jhon.doe@huellapositiva.com"
     )
     @NotNull
-    @Email(regexp = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")
+    @Email
     private final String email;
 
     @Schema(

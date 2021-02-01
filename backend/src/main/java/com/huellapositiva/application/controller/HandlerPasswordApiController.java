@@ -6,8 +6,11 @@ import com.huellapositiva.domain.actions.UpdatePasswordAction;
 import com.huellapositiva.domain.exception.InvalidNewPasswordException;
 import com.huellapositiva.domain.exception.NonMatchingPasswordException;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -86,8 +89,15 @@ public class HandlerPasswordApiController {
 
     @Operation(
             summary = "Update the password from profile",
-            description = "The user access his profile to update his password.",
-            tags = {"contactPerson, volunteers, profile"}
+            description = "The user access his profile to update his password. Roles allowed VOLUNTEER and CONTACT_PERSON.",
+            tags = {"contactPerson, volunteers, profile"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
     )
     @ApiResponses(
             value = {
@@ -114,7 +124,7 @@ public class HandlerPasswordApiController {
     @PostMapping("/editPassword")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editProfilePassword(@Valid @RequestBody ChangePasswordDto dto,
-                                    @AuthenticationPrincipal String email) {
+                                    @Parameter(hidden = true) @AuthenticationPrincipal String email) {
         try {
             credentialsAction.executeUpdatePassword(dto, email);
         } catch (NonMatchingPasswordException | InvalidNewPasswordException e) {

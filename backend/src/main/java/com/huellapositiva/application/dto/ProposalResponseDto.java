@@ -14,101 +14,101 @@ import java.util.List;
 public class ProposalResponseDto {
 
     @Schema(
-            example = "ff79038b-3fec-41f0-bab8-6e0d11db986e"
+            example = "ff73034b-s78d-2331-asf8-afwe9fasf86e"
     )
     private final String id;
 
     @Schema(
-            example = "Reforestando nuestra tierra"
+            example = "Limpiando las plazas"
     )
     @NotEmpty
     private final String title;
 
     @Schema(
-            example = "Amigos de la naturaleza"
+            example = "Colegas de la playa"
     )
     @NotEmpty
     private String esalName;
 
     @Schema(
-            example = "Gran Canaria"
+            example = "Tenerife"
     )
     @NotEmpty
     private final String province;
 
     @Schema(
-            example = "Arucas"
+            example = "Orotava"
     )
     @NotEmpty
     private final String town;
 
     @Schema(
-            example = "Calle Cerrillo, 47"
+            example = "Calle Arriba, 23"
     )
     @NotEmpty
     private final String address;
 
     @Schema(
-            example = "12"
+            example = "6"
     )
     @NotEmpty
     private final String requiredDays;
 
     @Schema(
-            example = "16"
+            example = "26"
     )
     @NotEmpty
     private final int minimumAge;
 
     @Schema(
-            example = "65"
+            example = "64"
     )
     @NotEmpty
     private final int maximumAge;
 
     @Schema(
-            example = "2021-02-16"
+            example = "2021-01-10"
     )
     @NotEmpty
     private final String startingProposalDate;
 
     @Schema(
-            example = "2021-02-20"
+            example = "2021-01-13"
     )
     @NotEmpty
     private final String closingProposalDate;
 
     @Schema(
-            example = "2021-02-24"
+            example = "2021-01-16"
     )
     @NotEmpty
     private final String startingVolunteeringDate;
 
     @Schema(
-            example = "PUBLISHED"
+            example = "CLOSED"
     )
     private final int status;
 
     @Schema(
-            example = "Un voluntariado muy bueno para reforestar Arucas"
+            example = "Unos compañeros para limpiar la playa"
     )
     @NotEmpty
     private final String description;
 
     @Schema(
-            example = "Lleva ropa cómoda y botas de montaña"
+            example = "Ropa comoda"
     )
     @NotEmpty
     private final String instructions;
 
     @Schema(
-            example = "No es recomendado para alérgicos"
+            example = "Hay salitre"
     )
     @NotEmpty
     private final String extraInfo;
 
     @Schema(
-            example = "30"
+            example = "10"
     )
     @NotEmpty
     private final Integer durationInDays;
@@ -127,14 +127,14 @@ public class ProposalResponseDto {
     private final List<VolunteerDto> inscribedVolunteers;
 
     @Schema(
-            example = "25"
+            example = "20"
     )
     private final Integer inscribedVolunteersCount;
 
     private final List<SkillDto> skills;
 
     @Schema(
-            example = "Lleva tu DNI"
+            example = "Lleva tu tarjeta sanitaria"
     )
     private final List<String> requirements;
 }

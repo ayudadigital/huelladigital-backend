@@ -45,6 +45,6 @@ public class BadRequestExceptionHandler extends ResponseEntityExceptionHandler {
             }
         }
         ErrorResponseDto error = new ErrorResponseDto("Validation Failed", details);
-        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

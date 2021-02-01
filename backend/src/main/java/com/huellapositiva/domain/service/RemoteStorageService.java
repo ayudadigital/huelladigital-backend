@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.UUID;
 
@@ -63,5 +64,12 @@ public class RemoteStorageService {
         String destinationFileName = UUID.randomUUID() + extension;
         String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
+    }
+
+    public URL uploadNewsletterExcel(InputStream excel) {
+        String extension = ".xlsx";
+        String destinationFileName = UUID.randomUUID() + extension;
+        String volunteerExcelRootKey = "newsletter/";
+        return storageService.upload(volunteerExcelRootKey + destinationFileName, excel, "application/vnd.ms-excel");
     }
 }

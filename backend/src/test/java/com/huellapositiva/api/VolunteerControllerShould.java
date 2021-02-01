@@ -749,7 +749,7 @@ class VolunteerControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
-        assertThat(volunteer.getProfile().isSubscribed()).isTrue();
+        assertThat(volunteer.getProfile().isNewsletter()).isTrue();
 
         mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -759,7 +759,7 @@ class VolunteerControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
-        assertThat(volunteer.getProfile().isSubscribed()).isFalse();
+        assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }
 }
 

@@ -14,9 +14,9 @@ public class ChangeStatusNewsletterSubscriptionAction {
     @Autowired
     private final JpaVolunteerRepository jpaVolunteerRepository;
 
-    public void execute(Boolean subscribed, String email){
+    public void execute(Boolean newsletter, String email){
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email);
-        volunteer.getProfile().setSubscribed(subscribed);
+        volunteer.getProfile().setNewsletter(newsletter);
         jpaVolunteerRepository.save(volunteer);
     }
 }

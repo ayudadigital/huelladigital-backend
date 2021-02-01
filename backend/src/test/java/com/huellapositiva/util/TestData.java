@@ -468,7 +468,7 @@ public class TestData {
                 .linkedin("Aqui un enlace a linkedin")
                 .instagram("Aqui un enlace a instagram")
                 .additionalInformation("Pequenna descripcion")
-                .subscribed(false)
+                .newsletter(false)
                 .build();
         jpaProfileRepository.save(jpaProfile);
 
@@ -496,7 +496,7 @@ public class TestData {
         String id = Id.newId().toString();
         JpaProfile jpaProfile = JpaProfile.builder()
                 .id(id)
-                .subscribed(true)
+                .newsletter(true)
                 .build();
         jpaProfileRepository.save(jpaProfile);
 

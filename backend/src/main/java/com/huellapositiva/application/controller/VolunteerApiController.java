@@ -322,8 +322,8 @@ public class VolunteerApiController {
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
+    public void changeStatusNewsletterSubscription(@RequestBody Boolean newsletter,
                                                    @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
-        changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
+        changeStatusNewsletterSubscriptionAction.execute(newsletter, volunteerEmail);
     }
 }

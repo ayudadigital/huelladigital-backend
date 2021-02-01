@@ -56,6 +56,6 @@ public class JpaProfile implements Serializable {
         @Column(name = "additional_information")
         private String additionalInformation;
 
-        @Column(name = "subscribed")
-        private boolean subscribed;
+        @Column(name = "newsletter")
+        private boolean newsletter;
 }

@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.GetProfileResponseDto;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,8 @@ public class FetchVolunteerProfileAction {
      * @param accountId Account ID of the logged volunteer
      */
     public GetProfileResponseDto execute(String accountId) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));;
         GetProfileResponseDto.GetProfileResponseDtoBuilder profileDto = GetProfileResponseDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {

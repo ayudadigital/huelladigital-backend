@@ -90,7 +90,7 @@ public class VolunteerRepository {
      */
     public void updateCurriculumVitae(Volunteer volunteer) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
-                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Volunteer ID: " + volunteer.getId()));
         boolean profileIsNull = jpaVolunteer.getProfile() == null;
         if (profileIsNull) {
             JpaProfile jpaProfile = JpaProfile.builder()

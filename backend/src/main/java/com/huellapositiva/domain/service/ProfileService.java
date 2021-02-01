@@ -3,6 +3,7 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -52,8 +53,8 @@ public class ProfileService {
      * @param accountId Account ID of user logged
      */
     public UpdateProfileResult updateProfile(UpdateProfileRequestDto updateProfileRequestDto, String accountId) {
-        JpaVolunteer jpaVolunteer1 = jpaVolunteerRepository.findByAccountIdWithCredentials(accountId).orElse(null);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId);
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));;
         boolean isNewEmail = !jpaVolunteer.getCredential().getEmail().equalsIgnoreCase(updateProfileRequestDto.getEmail());
         validations(updateProfileRequestDto, isNewEmail);
 

@@ -6,10 +6,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class ProposalNotPublishedException extends RuntimeException {
 
-    public ProposalNotPublishedException(){
-        super();
-    }
-
     public ProposalNotPublishedException(String message) {
         super(message);
     }

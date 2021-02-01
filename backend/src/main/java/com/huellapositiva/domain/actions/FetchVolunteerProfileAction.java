@@ -20,7 +20,7 @@ public class FetchVolunteerProfileAction {
      */
     public GetProfileResponseDto execute(String accountId) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
-                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));;
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
         GetProfileResponseDto.GetProfileResponseDtoBuilder profileDto = GetProfileResponseDto.builder().email(jpaVolunteer.getCredential().getEmail());
 
         if (jpaVolunteer.getProfile() != null) {

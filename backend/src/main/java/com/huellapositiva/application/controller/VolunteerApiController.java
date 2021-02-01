@@ -310,7 +310,7 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletterSubscriptionDto,
-                                                   @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
-        changeStatusNewsletterSubscriptionAction.execute(newsletterSubscriptionDto, volunteerEmail);
+                                                   @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        changeStatusNewsletterSubscriptionAction.execute(newsletterSubscriptionDto, accountId);
     }
 }

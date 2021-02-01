@@ -741,7 +741,7 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isTrue();
 
         mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
@@ -751,7 +751,7 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }
 }

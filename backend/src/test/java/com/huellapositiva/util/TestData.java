@@ -196,8 +196,13 @@ public class TestData {
         return createVolunteerProfile(email);
     }
 
-    public JpaVolunteer createSubscribedVolunteer(String email, String password){
-        createVolunteer(email, password, Roles.VOLUNTEER);
+    public JpaVolunteer createSubscribedVolunteer(String email, String password) {
+        createVolunteer(email, password);
+        return createSubscribedVolunteerProfile(email);
+    }
+
+    public JpaVolunteer createSubscribedVolunteer(String accountId, String email, String password) {
+        createVolunteer(accountId, email, password);
         return createSubscribedVolunteerProfile(email);
     }
 

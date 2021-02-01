@@ -110,4 +110,12 @@ public class EmailCommunicationService {
                 NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
+
+    public void sendEmptyNewsletter(EmailAddress emailAddress) {
+        final String EMPTY_NEWSLETTER_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
+        EmailTemplate emailTemplate = templateService.getEmptyNewsletterEmailTemplate();
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(),
+                EMPTY_NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
 }

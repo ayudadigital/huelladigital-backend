@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -732,6 +733,33 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_200_when_state_of_subscribed_field_changed_successfully() throws Exception {
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(Boolean.TRUE))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        assertThat(volunteer.getProfile().isSubscribed()).isTrue();
+
+        mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(Boolean.FALSE))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
+        assertThat(volunteer.getProfile().isSubscribed()).isFalse();
     }
 }
 

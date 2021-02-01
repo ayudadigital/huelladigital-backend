@@ -1,7 +1,6 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.exception.VolunteersSubscribedNotFoundException;
-import com.huellapositiva.domain.actions.ChangeStatusNewsletterSubscriptionAction;
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +13,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import java.io.IOException;
@@ -27,42 +29,6 @@ public class NewsletterController {
 
     @Autowired
     private final ManageNewsletterExcelAction manageNewsletterExcelAction;
-
-    @Autowired
-    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
-
-    @Operation(
-            summary = "Change status of subscription to newsletter",
-            description = "Changes the status of the subscribed parameter on the specified volunteer",
-            tags = "newsletter",
-            parameters = {
-            @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
-            @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
-    },
-            security = {
-                    @SecurityRequirement(name = "accessToken")
-            }
-    )
-    @ApiResponses(
-            value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Ok, status of subscribed field changed successfully"
-                    ),
-                    @ApiResponse(
-                            responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
-                    )
-            }
-    )
-    @PostMapping("/changeStatusNewsletterSubscription")
-    @RolesAllowed("VOLUNTEER")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public void changeStatusNewsletterSubscription(@RequestBody Boolean subscribed,
-                                                   @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
-        changeStatusNewsletterSubscriptionAction.execute(subscribed, volunteerEmail);
-    }
 
     @Operation(
             summary = "Download newsletter excel",

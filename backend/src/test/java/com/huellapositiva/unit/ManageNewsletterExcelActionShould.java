@@ -8,8 +8,6 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,6 +38,19 @@ class ManageNewsletterExcelActionShould {
     @BeforeEach
     void beforeEach() {
         testData.resetData();
+    }
+
+    @Test
+    void send_an_empty_newsletter_email_when_there_are_no_subscribed_volunteers() throws IOException {
+        // GIVEN
+        ManageNewsletterExcelAction manageNewsletterExcelAction = new ManageNewsletterExcelAction(
+                jpaVolunteerRepository, remoteStorageService, emailCommunicationService);
+
+        // WHEN
+        manageNewsletterExcelAction.execute(DEFAULT_EMAIL);
+
+        // THEN
+        verify(emailCommunicationService).sendEmptyNewsletter(EmailAddress.from(DEFAULT_EMAIL));
     }
 
     @Test

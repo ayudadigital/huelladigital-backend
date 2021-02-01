@@ -4,6 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class VolunteersSubscribedNotFoundException extends RuntimeException{
-    public VolunteersSubscribedNotFoundException(String message){super(message);}
+public class NoVolunteerSubscribedException extends RuntimeException {
+
+    public NoVolunteerSubscribedException(String message) {
+        super(message);
+    }
 }

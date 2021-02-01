@@ -103,19 +103,11 @@ public class EmailCommunicationService {
         emailService.sendEmail(emailMessage);
     }
 
-    public void sendNewsletter(EmailAddress emailAddress, URL url) {
+    public void sendNewsletterSubscriptorsEmail(EmailAddress emailAddress, URL url) {
         final String NEWSLETTER_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
         EmailTemplate emailTemplate = templateService.getNewsletterEmailTemplate(url);
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(),
                 NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
-        emailService.sendEmail(emailMessage);
-    }
-
-    public void sendEmptyNewsletter(EmailAddress emailAddress) {
-        final String EMPTY_NEWSLETTER_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
-        EmailTemplate emailTemplate = templateService.getEmptyNewsletterEmailTemplate();
-        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(),
-                EMPTY_NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 }

@@ -1,7 +1,11 @@
 package com.huellapositiva.infrastructure;
 
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -48,6 +52,10 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalRevisionWithFeedbackTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
+        if (proposalRevisionRequestEmail.getReviser() == null) {
+            throw new UserNotFoundException("Reviser was not found.");
+        }
+
         String relativePath = "classpath:templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
@@ -103,11 +111,5 @@ public class TemplateService {
         String stringUrl = url.toString();
         variables.put("NEWSLETTER_URL", stringUrl);
         return new EmailTemplate(template).parse(variables);
-    }
-
-    public EmailTemplate getEmptyNewsletterEmailTemplate() {
-        String relativePath = "classpath:templates/emails/emptyNewsletter.txt";
-        String template = getFileContent(relativePath);
-        return new EmailTemplate(template);
     }
 }

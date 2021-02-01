@@ -1,6 +1,6 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.exception.VolunteersSubscribedNotFoundException;
+import com.huellapositiva.application.exception.NoVolunteerSubscribedException;
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -61,11 +61,11 @@ public class NewsletterController {
     @GetMapping("/getNewsletterExcel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void sendExcelLinkEmail(@Parameter(hidden = true)@AuthenticationPrincipal String reviserEmail) throws IOException {
+    public void sendExcelLinkEmail(@Parameter(hidden = true) @AuthenticationPrincipal String reviserEmail) throws IOException {
         try {
             manageNewsletterExcelAction.execute(reviserEmail);
-        }catch(IllegalStateException e){
-            throw new VolunteersSubscribedNotFoundException(e.getMessage());
+        } catch (IllegalStateException e) {
+            throw new NoVolunteerSubscribedException(e.getMessage());
         }
     }
 }

@@ -42,12 +42,12 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.site.version>3.8.2</maven.site.version>
         <maven.surfire.version>2.22.2</maven.surfire.version>
+        <poi.version>4.1.2</poi.version>
         <rest.assured.version>4.2.0</rest.assured.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/merged.exec</sonar.jacoco.reportPath>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-merged/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
         <sonar.version>3.7.0.1746</sonar.version>
         <sonar.projectKey>ayudadigital_huelladigital</sonar.projectKey>
@@ -162,12 +162,12 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>4.1.2</version>
+            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>4.1.2</version>
+            <version>${poi.version}</version>
         </dependency>
 
         <!--    Documentation-->

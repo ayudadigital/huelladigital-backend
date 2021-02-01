@@ -319,8 +319,8 @@ public class VolunteerApiController {
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletter,
+    public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletterSubscriptionDto,
                                                    @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
-        changeStatusNewsletterSubscriptionAction.execute(newsletter, volunteerEmail);
+        changeStatusNewsletterSubscriptionAction.execute(newsletterSubscriptionDto, volunteerEmail);
     }
 }

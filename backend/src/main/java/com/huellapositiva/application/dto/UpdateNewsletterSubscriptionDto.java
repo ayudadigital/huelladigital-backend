@@ -1,12 +1,8 @@
 package com.huellapositiva.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Value;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Value
 public class UpdateNewsletterSubscriptionDto {
     boolean subscribed;
 }

@@ -1,5 +1,6 @@
 package com.huellapositiva.unit;
 
+import com.huellapositiva.application.exception.NoVolunteerSubscribedException;
 import com.huellapositiva.domain.actions.ManageNewsletterExcelAction;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -17,6 +18,7 @@ import java.io.IOException;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,11 +48,8 @@ class ManageNewsletterExcelActionShould {
         ManageNewsletterExcelAction manageNewsletterExcelAction = new ManageNewsletterExcelAction(
                 jpaVolunteerRepository, remoteStorageService, emailCommunicationService);
 
-        // WHEN
-        manageNewsletterExcelAction.execute(DEFAULT_EMAIL);
-
-        // THEN
-        verify(emailCommunicationService).sendEmptyNewsletter(EmailAddress.from(DEFAULT_EMAIL));
+        // WHEN + THEN
+        assertThrows(NoVolunteerSubscribedException.class, () -> manageNewsletterExcelAction.execute(DEFAULT_EMAIL));
     }
 
     @Test
@@ -64,6 +63,6 @@ class ManageNewsletterExcelActionShould {
         manageNewsletterExcelAction.execute(DEFAULT_EMAIL);
 
         // THEN
-        verify(emailCommunicationService).sendNewsletter(EmailAddress.from(DEFAULT_EMAIL),null);
+        verify(emailCommunicationService).sendNewsletterSubscriptorsEmail(EmailAddress.from(DEFAULT_EMAIL),null);
     }
 }

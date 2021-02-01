@@ -1,10 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -736,28 +733,29 @@ class VolunteerControllerShould {
     }
 
     @Test
-    void return_200_when_state_of_subscribed_field_changed_successfully() throws Exception {
+    void return_204_when_state_of_subscribed_field_changed_successfully() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+
         mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(Boolean.TRUE))
+                .content(objectMapper.writeValueAsString(new UpdateNewsletterSubscriptionDto(Boolean.TRUE)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isTrue();
 
         mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(Boolean.FALSE))
+                .content(objectMapper.writeValueAsString(new UpdateNewsletterSubscriptionDto(Boolean.FALSE)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
         volunteer = jpaVolunteerRepository.findByEmail(DEFAULT_EMAIL).orElseThrow();
         assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }

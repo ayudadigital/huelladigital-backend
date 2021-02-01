@@ -1,9 +1,6 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
@@ -309,8 +306,8 @@ public class VolunteerApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
-                            description = "Ok, status of subscribed field changed successfully"
+                            responseCode = "204",
+                            description = "No content, status of subscribed field changed successfully"
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -321,8 +318,8 @@ public class VolunteerApiController {
     @PostMapping("/profile/newsletter")
     @RolesAllowed("VOLUNTEER")
     @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public void changeStatusNewsletterSubscription(@RequestBody Boolean newsletter,
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletter,
                                                    @Parameter(hidden = true)@AuthenticationPrincipal String volunteerEmail) {
         changeStatusNewsletterSubscriptionAction.execute(newsletter, volunteerEmail);
     }

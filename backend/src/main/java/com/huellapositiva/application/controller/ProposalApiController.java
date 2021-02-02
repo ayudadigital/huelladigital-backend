@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,6 +34,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.huellapositiva.domain.util.StringUtils.maskEmailAddress;
 
 @Slf4j
 @RestController
@@ -65,7 +69,8 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal",
-            description = "Register a new proposal and link it to the logged employee.",
+            description = "Register a new proposal and link it to the logged employee. " +
+                    "Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -97,11 +102,11 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public void createProposal(@RequestPart("dto") MultipartFile dtoMultipart,
                                @RequestPart("file") MultipartFile file,
-                               @AuthenticationPrincipal String contactPersonEmail,
+                               @AuthenticationPrincipal String accountId,
                                HttpServletResponse res) throws IOException {
         ProposalRequestDto dto = objectMapper.readValue(dtoMultipart.getBytes(), ProposalRequestDto.class);
         try {
-            String id = registerProposalAction.executeByContactPerson(dto, file, contactPersonEmail);
+            String id = registerProposalAction.executeByContactPerson(dto, file, accountId);
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
@@ -146,7 +151,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Join a proposal",
-            description = "Join a proposal as volunteer",
+            description = "Join a proposal as volunteer. Roles allowed VOLUNTEER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -164,17 +169,17 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not found, the given ID was not found or is not published.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Not found, the given ID was not found or is not published."
                     )
             }
     )
     @PostMapping("/{id}/join")
     @RolesAllowed("VOLUNTEER")
     @ResponseStatus(HttpStatus.OK)
-    public void joinProposal(@PathVariable String id, @AuthenticationPrincipal String memberEmail) {
+    public void joinProposal(@Schema(description = "Id of the proposal", example = "00000000-0000-0000-0000-000000000000") @PathVariable String id,
+                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
-            joinProposalAction.execute(id, memberEmail);
+            joinProposalAction.execute(id, accountId);
         } catch (EntityNotFoundException | ProposalNotPublishedException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Proposal with ID " + id + " does not exist or is not published.");
         }
@@ -182,7 +187,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Register a new proposal as reviser",
-            description = "Register a new proposal by providing the ESAL name through the DTO.",
+            description = "Register a new proposal by providing the ESAL name through the DTO. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -252,7 +257,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch list of proposals",
-            description = "Fetch a list of proposals based on the page requested",
+            description = "Fetch a list of proposals based on the page requested. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "3bd06099-6598-4b22-b012-5bfe0701edbe", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -270,11 +275,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "400",
-                            description = "Bad request, a conflict was encountered while attempting to persist the proposals."
+                            description = "Bad request, a conflict was encountered while attempting to persist the proposals.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -287,7 +294,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Submit proposal revision",
-            description = "Submit a proposal for revision to the reviser",
+            description = "Submit a proposal for revision to the reviser. Roles allowed REVISER",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -315,13 +322,12 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.OK)
     public void submitProposalRevision(@PathVariable String id,
                                        @RequestBody ProposalRevisionDto dto,
-                                       @AuthenticationPrincipal String reviserEmail) {
+                                       @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
-            dto.setReviserEmail(reviserEmail);
-            submitProposalRevisionAction.execute(id, dto, uri);
+            submitProposalRevisionAction.execute(id, dto, uri, accountId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
@@ -329,7 +335,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch list of volunteers in a proposal",
-            description = "Fetch list of volunteers in a proposal by the reviser",
+            description = "Fetch list of volunteers in a proposal by the reviser. Roles allowed REVISER and CONTACT_PERSON",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -347,11 +353,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found."
+                            description = "Requested proposal not found.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -361,7 +369,10 @@ public class ProposalApiController {
     public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
         try {
             ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
-            return proposalResponseDto.getInscribedVolunteers();
+            return proposalResponseDto.getInscribedVolunteers()
+                    .stream()
+                    .map(v -> new VolunteerDto(v.getId(), maskEmailAddress(v.getEmailAddress()), v.getConfirmed()))
+                    .collect(Collectors.toList());
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
@@ -369,7 +380,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Fetch a proposal with the list of volunteers",
-            description = "Fetch a proposal with the list of volunteers by the reviser.",
+            description = "Fetch a proposal with the list of volunteers by the reviser. Roles allowed REVISER, CONTACT_PERSON",
             tags = {"proposals, volunteers"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -387,11 +398,13 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Requested proposal not found."
+                            description = "Requested proposal not found.",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
                     )
             }
     )
@@ -408,7 +421,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Cancel a proposal",
-            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it",
+            description = "Changes ProposalStatus to CANCELLED. Only Reviser is allowed to do it. Roles allowed REVISER.",
             tags = "proposals",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -447,7 +460,7 @@ public class ProposalApiController {
 
     @Operation(
             summary = "Change status of the volunteer in proposal",
-            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED",
+            description = "The contact person can to change the status of volunteer in a proposal to CONFIRMED/REJECTED. Roles allowed CONTACT_PERSON.",
             tags = {"proposals, volunteers, contact person"},
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

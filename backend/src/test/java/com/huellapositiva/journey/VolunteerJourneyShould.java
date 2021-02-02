@@ -7,6 +7,7 @@ import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.util.TestData;
 import io.restassured.http.ContentType;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +34,11 @@ class VolunteerJourneyShould {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void beforeEach() {
+        testData.resetData();
+    }
 
     @Test
     void should_login_after_registering_volunteer() {

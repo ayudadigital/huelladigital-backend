@@ -3,6 +3,8 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
+import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
@@ -48,20 +50,17 @@ public class ProfileService {
      * This method update the user profile information in database
      *
      * @param updateProfileRequestDto New user profile information to update
-     * @param email Email of user logged
+     * @param accountId Account ID of user logged
      */
-    public void updateProfile(UpdateProfileRequestDto updateProfileRequestDto, String email) {
-        boolean isNewEmail = !email.equalsIgnoreCase(updateProfileRequestDto.getEmail());
+    public UpdateProfileResult updateProfile(UpdateProfileRequestDto updateProfileRequestDto, String accountId) {
+        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));;
+        boolean isNewEmail = !jpaVolunteer.getCredential().getEmail().equalsIgnoreCase(updateProfileRequestDto.getEmail());
         validations(updateProfileRequestDto, isNewEmail);
 
-        JpaLocation jpaLocation = upsertLocation(updateProfileRequestDto, email);
-        JpaProfile jpaProfile = upsertProfile(updateProfileRequestDto, email);
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(email);
+        upsertLocation(updateProfileRequestDto, jpaVolunteer);
+        upsertProfile(updateProfileRequestDto, jpaVolunteer);
         jpaVolunteer.getCredential().setEmail(updateProfileRequestDto.getEmail());
-
-        jpaVolunteer.setProfile(jpaProfile);
-        jpaVolunteer.setLocation(jpaLocation);
-        jpaVolunteer = jpaVolunteerRepository.save(jpaVolunteer);
 
         if (isNewEmail) {
             Role newJpaRole = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
@@ -69,16 +68,19 @@ public class ProfileService {
             Set<Role> newUserRoles = new HashSet<>();
             newUserRoles.add(newJpaRole);
             jpaVolunteer.getCredential().setRoles(newUserRoles);
-            jpaVolunteerRepository.save(jpaVolunteer);
-            jwtService.revokeAccessTokens(email);
+            jwtService.revokeAccessTokens(jpaVolunteer.getCredential().getId());
         }
+
+        jpaVolunteerRepository.save(jpaVolunteer);
+
+        return new UpdateProfileResult(isNewEmail);
     }
 
     /**
      * Validate profile data.
      *
      * @param updateProfileRequestDto New user profile information to update
-     * @param newEmail True if the user is updating the email
+     * @param   newEmail True if the user is updating the email
      */
     private void validations(UpdateProfileRequestDto updateProfileRequestDto, boolean newEmail) {
         if (newEmail && jpaCredentialRepository.findByEmail(updateProfileRequestDto.getEmail()).isPresent()) {
@@ -100,12 +102,10 @@ public class ProfileService {
 
     /**
      * This method update information in location table
-     *
-     * @param updateProfileRequestDto New user credential information to update
-     * @param email      Email of user logged
+     *  @param updateProfileRequestDto New user credential information to update
+     * @param jpaVolunteer JPA representation of the volunteer
      */
-    private JpaLocation upsertLocation(UpdateProfileRequestDto updateProfileRequestDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+    private void upsertLocation(UpdateProfileRequestDto updateProfileRequestDto, JpaVolunteer jpaVolunteer) {
         String id;
         Integer surrogateKey = null;
         if (jpaVolunteer.getLocation() == null) {
@@ -114,7 +114,7 @@ public class ProfileService {
             id = jpaVolunteer.getLocation().getId();
             surrogateKey = jpaVolunteer.getLocation().getSurrogateKey();
         }
-        return JpaLocation.builder()
+        JpaLocation jpaLocation = JpaLocation.builder()
                 .surrogateKey(surrogateKey)
                 .id(id)
                 .province(updateProfileRequestDto.getProvince())
@@ -122,16 +122,15 @@ public class ProfileService {
                 .address(updateProfileRequestDto.getAddress())
                 .island(updateProfileRequestDto.getIsland())
                 .zipCode(updateProfileRequestDto.getZipCode()).build();
+        jpaVolunteer.setLocation(jpaLocation);
     }
 
     /**
      * This method update information in profile table
-     *
-     * @param updateProfileRequestDto New user credential information to update
-     * @param email      Email of user logged
+     *  @param updateProfileRequestDto New user credential information to update
+     * @param jpaVolunteer      Email of user logged
      */
-    private JpaProfile upsertProfile(UpdateProfileRequestDto updateProfileRequestDto, String email) {
-        JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(email);
+    private void upsertProfile(UpdateProfileRequestDto updateProfileRequestDto, JpaVolunteer jpaVolunteer) {
         String id;
         Integer surrogateKey = null;
         if (jpaVolunteer.getProfile() == null) {
@@ -140,7 +139,7 @@ public class ProfileService {
             id = jpaVolunteer.getProfile().getId();
             surrogateKey = jpaVolunteer.getProfile().getSurrogateKey();
         }
-        return JpaProfile.builder()
+        JpaProfile jpaProfile = JpaProfile.builder()
                 .surrogateKey(surrogateKey)
                 .id(id)
                 .name(updateProfileRequestDto.getName())
@@ -152,5 +151,6 @@ public class ProfileService {
                 .linkedin(updateProfileRequestDto.getLinkedin())
                 .additionalInformation(updateProfileRequestDto.getAdditionalInformation())
                 .build();
+        jpaVolunteer.setProfile(jpaProfile);
     }
 }

@@ -38,7 +38,7 @@ public class FetchProposalAction {
     public ProposalResponseDto execute(String proposalId) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED && proposal.getStatus() != FINISHED) {
-            throw new ProposalNotPublicException();
+            throw new ProposalNotPublicException("Proposal not public. Proposal ID: " + proposalId);
         }
         return ProposalResponseDto.builder()
                 .id(proposal.getId().getValue())

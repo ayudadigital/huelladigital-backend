@@ -6,7 +6,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.DeleteESALAction;
 import com.huellapositiva.domain.actions.RegisterESALAction;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -35,7 +34,7 @@ public class ESALApiController {
 
     @Operation(
             summary = "Register a new ESAL",
-            description = "Register a new ESAL and link it to the logged employee",
+            description = "Register a new ESAL and link it to the logged employee. Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -71,9 +70,10 @@ public class ESALApiController {
     @PostMapping
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto, @AuthenticationPrincipal String loggedContactPersonEmail) {
+    public void registerESAL(@RequestBody ESALRequestDto dto,
+                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
-            registerESALAction.execute(dto, EmailAddress.from(loggedContactPersonEmail));
+            registerESALAction.execute(dto, accountId);
         } catch (ESALAlreadyExistsException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserAlreadyHasESALException ex) {
@@ -85,7 +85,7 @@ public class ESALApiController {
 
     @Operation(
             summary = "Delete an ESAL",
-            description = "Delete an ESAL and unlink their members, including their contact person.",
+            description = "Delete an ESAL and unlink their members, including their contact person. Roles allowed CONTACT_PERSON.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -115,13 +115,14 @@ public class ESALApiController {
     @DeleteMapping("/{id}")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseBody
-    public void deleteESAL(@AuthenticationPrincipal String memberEmail, @PathVariable String id) {
-        deleteESALAction.execute(memberEmail, id);
+    public void deleteESAL(@PathVariable String id,
+                           @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        deleteESALAction.execute(accountId, id);
     }
 
     @Operation(
             summary = "Register a new ESAL as reviser",
-            description = "Register an ESAL as reviser with no linked member.",
+            description = "Register an ESAL as reviser with no linked member. Roles allowed REVISER.",
             tags = "ESAL",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),

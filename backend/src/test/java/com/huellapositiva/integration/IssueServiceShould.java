@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.infrastructure.orm.entities.FailEmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaFailEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaFailEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import com.huellapositiva.util.TestData;
@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+
 import java.util.Optional;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,7 +45,7 @@ class IssueServiceShould {
         issueService.registerEmailConfirmationIssue(dto.getEmail(), new RuntimeException());
 
         //THEN
-        Optional<FailEmailConfirmation> email = failEmailConfirmationRepository.findByEmail(dto.getEmail());
+        Optional<JpaFailEmailConfirmation> email = failEmailConfirmationRepository.findByEmail(dto.getEmail());
         assertTrue(email.isPresent());
         assertThat(email.get().getEmailAddress(), is(dto.getEmail()));
     }

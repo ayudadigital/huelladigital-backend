@@ -6,7 +6,6 @@ import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,7 @@ import java.util.UUID;
 import static com.huellapositiva.domain.model.valueobjects.Roles.*;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -58,15 +56,15 @@ class EmailAddressConfirmationActionShould {
         action.execute(hash);
 
         // THEN
-        Optional<JpaCredential> credentialOptional = credentialRepository.findById(jpaCredential.getId());
+        Optional<JpaCredential> credentialOptional = credentialRepository.findByAccountId(jpaCredential.getId());
         assertTrue(credentialOptional.isPresent());
         jpaCredential = credentialOptional.get();
-        assertThat(jpaCredential.getEmailConfirmed(), is(true));
-        String username = jpaCredential.getEmail();
-        verify(jwtService, times(1)).revokeAccessTokens(username);
+        assertThat(jpaCredential.getEmailConfirmed()).isTrue();
+        String accountId = jpaCredential.getId();
+        verify(jwtService, times(1)).revokeAccessTokens(accountId);
         Set<Role> roles = jpaCredential.getRoles();
-        Assertions.assertThat(roles).hasSize(1);
-        Assertions.assertThat(roles.iterator().next().getName()).isEqualTo(VOLUNTEER.toString());
+        assertThat(roles).hasSize(1);
+        assertThat(roles.iterator().next().getName()).isEqualTo(VOLUNTEER.toString());
     }
 
 
@@ -80,14 +78,14 @@ class EmailAddressConfirmationActionShould {
         action.execute(hash);
 
         // THEN
-        Optional<JpaCredential> credentialOptional = credentialRepository.findById(jpaCredential.getId());
+        Optional<JpaCredential> credentialOptional = credentialRepository.findByAccountId(jpaCredential.getId());
         assertTrue(credentialOptional.isPresent());
         jpaCredential = credentialOptional.get();
-        assertThat(jpaCredential.getEmailConfirmed(), is(true));
-        String username = jpaCredential.getEmail();
-        verify(jwtService, times(1)).revokeAccessTokens(username);
+        assertThat(jpaCredential.getEmailConfirmed()).isTrue();
+        String accountId = jpaCredential.getId();
+        verify(jwtService, times(1)).revokeAccessTokens(accountId);
         Set<Role> jpaRoles = jpaCredential.getRoles();
-        Assertions.assertThat(jpaRoles).hasSize(1);
-        Assertions.assertThat(jpaRoles.iterator().next().getName()).isEqualTo(CONTACT_PERSON.toString());
+        assertThat(jpaRoles).hasSize(1);
+        assertThat(jpaRoles.iterator().next().getName()).isEqualTo(CONTACT_PERSON.toString());
     }
 }

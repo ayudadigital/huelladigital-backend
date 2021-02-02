@@ -41,13 +41,13 @@ public class UploadCurriculumVitaeAction {
      * Upload a file which contains the volunteer resumé (CV) and links its URL to the volunteer
      *
      * @param cv New curriculum uploaded to the application
-     * @param volunteerEmail Email volunteer logged
+     * @param accountId Account ID of the volunteer
      * @throws IOException when the cv is corrupted
      */
-    public void execute(MultipartFile cv, String volunteerEmail) throws IOException {
+    public void execute(MultipartFile cv, String accountId) throws IOException {
         validateCvFile(cv);
 
-        Volunteer volunteer = volunteerRepository.findByEmail(volunteerEmail);
+        Volunteer volunteer = volunteerRepository.findByAccountId(accountId);
         URL cvUrl = remoteStorageService.uploadVolunteerCV(cv, volunteer.getId().toString());
         volunteer.setCurriculumVitae(cvUrl);
         volunteerRepository.updateCurriculumVitae(volunteer);

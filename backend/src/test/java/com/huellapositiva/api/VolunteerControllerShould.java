@@ -1,10 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -18,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.util.Pair;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,7 +68,7 @@ class VolunteerControllerShould {
         // GIVEN
         AuthenticationRequestDto dto = AuthenticationRequestDto.builder()
                 .email(DEFAULT_EMAIL)
-                .password("password")
+                .password(DEFAULT_PASSWORD)
                 .build();
 
         // THEN
@@ -88,10 +85,8 @@ class VolunteerControllerShould {
         // WHEN
         String jsonResponse = response.getContentAsString();
         JwtResponseDto responseDto = objectMapper.readValue(jsonResponse, JwtResponseDto.class);
-        Pair<String, List<String>> userDetails = jwtService.getUserDetails(responseDto.getAccessToken());
-        assertThat(userDetails.getFirst()).isEqualTo(dto.getEmail());
-        assertThat(userDetails.getSecond()).hasSize(1);
-        assertThat(userDetails.getSecond().get(0)).isEqualTo(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
+        List<String> roles = jwtService.getUserDetails(responseDto.getAccessToken()).getSecond();
+        assertThat(roles).containsExactly(Roles.VOLUNTEER_NOT_CONFIRMED.toString());
         String location = response.getHeader(HttpHeaders.LOCATION);
         String id = location.substring(location.lastIndexOf('/') + 1);
         assertThat(jpaVolunteerRepository.findByIdWithCredentialsAndRoles(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
@@ -169,9 +164,7 @@ class VolunteerControllerShould {
         return Stream.of(
                 ".username@yahoo.com",
                 "username@yahoo.com.",
-                "username@yahoo..com",
-                "username@yahoo.c",
-                "username@yahoo.corporate"
+                "username@yahoo..com"
         );
     }
 
@@ -612,8 +605,8 @@ class VolunteerControllerShould {
 
     @Test
     void return_409_when_provided_new_email_already_bound_to_a_different_account() throws Exception {
-        testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createVolunteer(DEFAULT_EMAIL_2,DEFAULT_PASSWORD);
+        testData.createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         UpdateProfileRequestDto profileDto = UpdateProfileRequestDto.builder()
@@ -732,6 +725,34 @@ class VolunteerControllerShould {
                 .with(csrf())
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_204_when_state_of_subscribed_field_changed_successfully() throws Exception {
+        testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+
+        mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new UpdateNewsletterSubscriptionDto(Boolean.TRUE)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
+        assertThat(volunteer.getProfile().isNewsletter()).isTrue();
+
+        mvc.perform(post(SIGN_UP_URL + "/profile/newsletter")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new UpdateNewsletterSubscriptionDto(Boolean.FALSE)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+        volunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(DEFAULT_ACCOUNT_ID).orElseThrow();
+        assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }
 }
 

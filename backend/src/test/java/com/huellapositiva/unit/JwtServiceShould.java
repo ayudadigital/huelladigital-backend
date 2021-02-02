@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
@@ -68,11 +69,11 @@ class JwtServiceShould {
 
     @Test
     void refreshing_a_token_should_reload_roles_from_database() throws InvalidJwtTokenException {
-        String username = "user";
+        String accountId = UUID.randomUUID().toString();
         String staleRole = VOLUNTEER_NOT_CONFIRMED.toString();
-        String refreshToken = jwtService.create(username, List.of(staleRole)).getRefreshToken();
+        String refreshToken = jwtService.create(accountId, List.of(staleRole)).getRefreshToken();
         String latestRole = VOLUNTEER.toString();
-        when(roleRepository.findAllByEmailAddress(username)).thenReturn(List.of(Role.builder().name(latestRole).build()));
+        when(roleRepository.findAllByAccountId(accountId)).thenReturn(List.of(Role.builder().name(latestRole).build()));
 
         String refreshedAccessToken = jwtService.refresh(refreshToken).getAccessToken();
 

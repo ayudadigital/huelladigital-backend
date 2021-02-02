@@ -5,7 +5,7 @@ import com.huellapositiva.domain.actions.EmailConfirmationAction;
 import com.huellapositiva.domain.actions.ResendEmailConfirmationAction;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
-import com.huellapositiva.infrastructure.orm.entities.EmailConfirmation;
+import com.huellapositiva.infrastructure.orm.entities.JpaEmailConfirmation;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,12 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -68,12 +65,10 @@ class ResendEmailConfirmationActionShould {
         Instant updateTimestamp = jpaCredential.getEmailConfirmation().getUpdatedOn().toInstant();
 
         // WHEN
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(authReq);
-        resendEmailConfirmationAction.execute();
+        resendEmailConfirmationAction.execute(jpaCredential.getId());
 
         // THEN
-        EmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
+        JpaEmailConfirmation newEmailConfirmation = jpaEmailConfirmationRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UsernameNotFoundException("User with username: " + DEFAULT_EMAIL + " was not found."));
         String newHash = newEmailConfirmation.getHash();
         Instant lastUpdateTimestamp = newEmailConfirmation.getUpdatedOn().toInstant();
@@ -88,12 +83,10 @@ class ResendEmailConfirmationActionShould {
     void verify_email_is_not_confirmed_yet() {
         // GIVEN
         UUID hash = UUID.randomUUID();
-        testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, hash);
+        JpaCredential jpaCredential = testData.createCredential(DEFAULT_EMAIL, DEFAULT_PASSWORD, hash);
         emailConfirmationAction.execute(hash);
 
         // WHEN + THEN
-        UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(DEFAULT_EMAIL, DEFAULT_PASSWORD, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(authReq);
-        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute());
+        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute(jpaCredential.getId()));
     }
 }

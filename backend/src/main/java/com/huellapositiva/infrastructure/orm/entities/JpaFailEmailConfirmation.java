@@ -15,7 +15,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FailEmailConfirmation {
+public class JpaFailEmailConfirmation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

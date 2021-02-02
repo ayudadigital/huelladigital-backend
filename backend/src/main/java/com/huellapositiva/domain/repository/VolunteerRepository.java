@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.repository;
 
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.RoleNotFoundException;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
@@ -46,12 +47,13 @@ public class VolunteerRepository {
     public Volunteer save(Volunteer volunteer, com.huellapositiva.domain.model.valueobjects.EmailConfirmation emailConfirmation) {
         Role role = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
                 .orElseThrow(() -> new RoleNotFoundException("Role VOLUNTEER_NOT_CONFIRMED not found."));
-        EmailConfirmation jpaEmailConfirmation = EmailConfirmation.builder()
+        JpaEmailConfirmation jpaEmailConfirmation = JpaEmailConfirmation.builder()
                 .email(volunteer.getEmailAddress().toString())
                 .hash(emailConfirmation.getToken())
                 .build();
         jpaEmailConfirmation = jpaEmailConfirmationRepository.save(jpaEmailConfirmation);
         JpaCredential jpaCredential = JpaCredential.builder()
+                .id(volunteer.getAccountId().getValue())
                 .email(volunteer.getEmailAddress().toString())
                 .hashedPassword(volunteer.getPasswordHash().toString())
                 .roles(Collections.singleton(role))
@@ -69,13 +71,14 @@ public class VolunteerRepository {
     /**
      * This method return the volunteer full information stored in DB.
      *
-     * @param email Email of volunteer to log
+     * @param accountId Account ID of the volunteer
      */
-    public Volunteer findByEmail(String email) {
-        JpaVolunteer volunteer = jpaVolunteerRepository.findByEmail(email).orElseThrow(
-                () -> new RuntimeException("Could not find volunteer with email " + email)
-        );
+    public Volunteer findByAccountId(String accountId) {
+        JpaVolunteer volunteer = jpaVolunteerRepository.findByAccountIdWithCredentials(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Could not find volunteer with account ID: " + accountId));
+
         return new Volunteer(
+                new Id(volunteer.getCredential().getId()),
                 EmailAddress.from(volunteer.getCredential().getEmail()),
                 new Id(volunteer.getId()));
     }
@@ -87,7 +90,7 @@ public class VolunteerRepository {
      */
     public void updateCurriculumVitae(Volunteer volunteer) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
-                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Volunteer ID: " + volunteer.getId()));
         boolean profileIsNull = jpaVolunteer.getProfile() == null;
         if (profileIsNull) {
             JpaProfile jpaProfile = JpaProfile.builder()
@@ -124,5 +127,4 @@ public class VolunteerRepository {
         }
         jpaVolunteerRepository.save(jpaVolunteer);
     }
-
 }

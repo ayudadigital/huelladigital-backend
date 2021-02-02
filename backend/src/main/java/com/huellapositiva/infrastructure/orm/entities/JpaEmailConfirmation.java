@@ -16,7 +16,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmailConfirmation implements Serializable {
+public class JpaEmailConfirmation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

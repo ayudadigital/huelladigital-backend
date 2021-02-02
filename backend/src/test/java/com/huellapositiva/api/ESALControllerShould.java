@@ -128,12 +128,14 @@ class ESALControllerShould {
     @Test
     void return_409_when_ESAL_is_already_taken() throws Exception {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String esalName = "Huella Positiva";
+        testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name(esalName).build());
+        ESALRequestDto esalRequestDto = new ESALRequestDto(esalName);
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella Positiva")))
+                .content(objectMapper.writeValueAsString(esalRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))

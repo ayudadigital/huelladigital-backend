@@ -1,17 +1,12 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
-import com.huellapositiva.application.dto.GetProfileResponseDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.PasswordNotAllowedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.infrastructure.orm.entities.Role;
-import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,8 +33,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -50,8 +43,6 @@ public class VolunteerApiController {
 
     private final JwtService jwtService;
 
-    private final JpaRoleRepository roleRepository;
-
     private final RegisterVolunteerAction registerVolunteerAction;
 
     private final UploadCurriculumVitaeAction uploadCurriculumVitaeAction;
@@ -61,6 +52,8 @@ public class VolunteerApiController {
     private final UpdateVolunteerProfileAction updateVolunteerProfileAction;
 
     private final UploadPhotoAction uploadPhotoAction;
+
+    private final ChangeStatusNewsletterSubscriptionAction changeStatusNewsletterSubscriptionAction;
 
     @Operation(
             summary = "Register a new volunteer",
@@ -96,13 +89,12 @@ public class VolunteerApiController {
     public JwtResponseDto registerVolunteer(@Validated @RequestBody AuthenticationRequestDto dto, HttpServletResponse res) {
         try {
             Volunteer volunteer = registerVolunteerAction.execute(dto);
-            String username = volunteer.getEmailAddress().toString();
-            List<String> roles = roleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
+            String accountId = volunteer.getAccountId().toString();
             URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                     .path("/{id}").buildAndExpand(volunteer.getId().toString())
                     .toUri();
             res.addHeader(HttpHeaders.LOCATION, uri.toString());
-            return jwtService.create(username, roles);
+            return jwtService.create(accountId);
         } catch (PasswordNotAllowedException pna) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password doesn't meet minimum length");
         } catch (ConflictPersistingUserException ex) {
@@ -147,14 +139,11 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
-                                      @Parameter(hidden = true) @AuthenticationPrincipal String contactPersonEmail) throws IOException {
+                                      @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
-            uploadCurriculumVitaeAction.execute(cv, contactPersonEmail);
-        } catch (InvalidFieldException ex) {
-            log.error(ex.getMessage());
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+            uploadCurriculumVitaeAction.execute(cv, accountId);
         } catch (EmptyFileException ex) {
-            log.error("There is not any curriculum attached or is empty.");
+            log.error("There is no curriculum attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
     }
@@ -196,9 +185,9 @@ public class VolunteerApiController {
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
-                            @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) throws IOException {
+                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, volunteerEmail);
+            uploadPhotoAction.execute(photo, accountId);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
@@ -290,5 +279,38 @@ public class VolunteerApiController {
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
         updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
+    }
+
+    @Operation(
+            summary = "Change status of subscription to newsletter",
+            description = "Changes the status of the subscribed parameter on the specified volunteer",
+            tags = "newsletter",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, status of subscribed field changed successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/profile/newsletter")
+    @RolesAllowed("VOLUNTEER")
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletterSubscriptionDto,
+                                                   @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        changeStatusNewsletterSubscriptionAction.execute(newsletterSubscriptionDto, accountId);
     }
 }

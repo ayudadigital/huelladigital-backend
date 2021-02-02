@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProfileService;
@@ -23,12 +24,11 @@ public class UpdateVolunteerProfileAction {
      * This method update the user profile information in database
      *
      * @param updateProfileRequestDto New user profile information to update
-     * @param email      Email of user logged
+     * @param accountId Account ID of logged user
      */
-    public void execute(UpdateProfileRequestDto updateProfileRequestDto, String email) {
-        boolean isNewEmail = !email.equalsIgnoreCase(updateProfileRequestDto.getEmail());
-        profileService.updateProfile(updateProfileRequestDto, email);
-        if (isNewEmail) {
+    public void execute(UpdateProfileRequestDto updateProfileRequestDto, String accountId) {
+        UpdateProfileResult result = profileService.updateProfile(updateProfileRequestDto, accountId);
+        if (result.isNewEmail()) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(updateProfileRequestDto.getEmail(), emailConfirmationBaseUrl);
             emailCommunicationService.sendMessageEmailChanged(emailConfirmation);
         }

@@ -30,7 +30,7 @@ public class BadRequestExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> details = new ArrayList<>();
         details.add(ex.getLocalizedMessage());
         ErrorResponseDto error = new ErrorResponseDto("Validation Failed", details);
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -45,6 +45,6 @@ public class BadRequestExceptionHandler extends ResponseEntityExceptionHandler {
             }
         }
         ErrorResponseDto error = new ErrorResponseDto("Validation Failed", details);
-        return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

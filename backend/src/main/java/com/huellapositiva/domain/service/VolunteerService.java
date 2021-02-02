@@ -25,7 +25,7 @@ public class VolunteerService {
     public Volunteer registerVolunteer(PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash passwordHash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
-            Volunteer volunteer = new Volunteer(EmailAddress.from(emailConfirmation.getEmailAddress()), passwordHash, Id.newId());
+            Volunteer volunteer = new Volunteer(Id.newId(), EmailAddress.from(emailConfirmation.getEmailAddress()), passwordHash, Id.newId());
             return volunteerRepository.save(volunteer, emailConfirmation);
         } catch (DataIntegrityViolationException ex) {
             log.error("Unable to persist volunteer due to a conflict.", ex);

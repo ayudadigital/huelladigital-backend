@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.security.RolesAllowed;
@@ -67,7 +68,7 @@ public class EmailConfirmationApiController {
 
     @Operation(
             summary = "Resend another has to confirmation email",
-            description = "If the user without confirm the email need resend a new hash to confirm email",
+            description = "If the user without confirm the email need resend a new hash to confirm email. Roles allowed VOLUNTEER_NOT_CONFIRMED.",
             tags = "email",
             parameters = {
                     @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
@@ -85,7 +86,8 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized, you need a valid access token"
+                            description = "Unauthorized, you need a valid access token",
+                            content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
                             responseCode = "403",
@@ -97,15 +99,14 @@ public class EmailConfirmationApiController {
                     ),
                     @ApiResponse(
                             responseCode = "500",
-                            description = "Internal server error, could not register the ESAL.",
-                            content = @Content(mediaType = "application/json")
+                            description = "Internal server error, could not register the ESAL."
                     )
             }
     )
     @RolesAllowed({"VOLUNTEER_NOT_CONFIRMED"})
     @PostMapping("/resend-email-confirmation")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void resendConfirmEmail() {
-        resendEmailConfirmationAction.execute();
+    public void resendConfirmEmail(@Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        resendEmailConfirmationAction.execute(accountId);
     }
 }

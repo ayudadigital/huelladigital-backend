@@ -1,6 +1,7 @@
 ALTER TABLE reviser DROP CONSTRAINT reviser_credential_id_fkey;
 ALTER TABLE volunteers DROP CONSTRAINT volunteers_credential_id_fkey;
 ALTER TABLE contact_persons DROP CONSTRAINT contact_persons_credential_id_fkey;
+DROP TABLE credential_roles;
 ALTER TABLE credentials DROP CONSTRAINT credentials_pkey;
 
 ALTER TABLE reviser DROP COLUMN credential_id;
@@ -9,7 +10,6 @@ ALTER TABLE volunteers DROP COLUMN credential_id;
 ALTER TABLE volunteers ADD COLUMN credential_id VARCHAR(255) NOT NULL;
 ALTER TABLE contact_persons DROP COLUMN credential_id;
 ALTER TABLE contact_persons ADD COLUMN credential_id VARCHAR(255) NOT NULL;
-DROP TABLE credential_roles;
 
 ALTER TABLE credentials DROP COLUMN id;
 ALTER TABLE credentials ADD COLUMN id VARCHAR(255) UNIQUE NOT NULL;

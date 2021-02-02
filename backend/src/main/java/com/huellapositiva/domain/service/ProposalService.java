@@ -23,13 +23,13 @@ public class ProposalService {
     /**
      * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
      *
-     * @param proposalId
-     * @param volunteer
+     * @param proposalId proposal's id
+     * @param volunteer volunteer information
      */
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
         if (proposal.getStatus() != PUBLISHED) {
-            throw new ProposalNotPublishedException();
+            throw new ProposalNotPublishedException("Proposal not found. Proposal ID: " + proposalId);
         }
         boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
         if (isEnrollmentClosed) {

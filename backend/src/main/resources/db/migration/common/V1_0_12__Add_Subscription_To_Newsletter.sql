@@ -1,0 +1,2 @@
+ALTER TABLE profile
+ADD COLUMN newsletter BOOLEAN DEFAULT false;

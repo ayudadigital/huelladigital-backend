@@ -56,8 +56,8 @@ class EmailTemplateShould {
     void parse_with_generic_values_when_a_provided_name_is_null() throws URISyntaxException {
         TemplateService templateService = new TemplateService();
         ProposalRevisionEmail proposalRevisionEmail = ProposalRevisionEmail.builder()
-                .reviser(Reviser.from(new User(EmailAddress.from(DEFAULT_EMAIL), Id.newId())))
-                .esalContactPerson(new ContactPerson(EmailAddress.from(DEFAULT_ESAL_CONTACT_PERSON_EMAIL), Id.newId()))
+                .reviser(Reviser.from(new User(Id.newId(), EmailAddress.from(DEFAULT_EMAIL), Id.newId())))
+                .esalContactPerson(new ContactPerson(Id.newId(), EmailAddress.from(DEFAULT_ESAL_CONTACT_PERSON_EMAIL), Id.newId()))
                 .proposalURI(new URI("https://www.dummyURL.org/"))
                 .feedback("This is an example of a revision overview")
                 .proposalId(Id.newId())

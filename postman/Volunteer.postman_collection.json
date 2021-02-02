@@ -1,0 +1,224 @@
+{
+	"info": {
+		"_postman_id": "ad0b12f0-2e33-4c8e-92dc-9b5e1fbaea7a",
+		"name": "Volunteer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"csrfToken\", pm.cookies.get('XSRF-TOKEN'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{backend_url}}/actuator/health",
+					"host": [
+						"{{backend_url}}"
+					],
+					"path": [
+						"actuator",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Volunteer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = JSON.parse(responseBody)",
+							"pm.globals.set(\"volunteerAuthHeader\", \"Bearer \" + data[\"accessToken\"])",
+							"pm.globals.set(\"volunteerRefreshToken\", data[\"refreshToken\"])",
+							"pm.globals.set(\"csrfToken\", pm.cookies.get('XSRF-TOKEN'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{volunteerEmail}}\",\n    \"password\": \"{{volunteerPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/volunteers",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"volunteers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Volunteer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = JSON.parse(responseBody)",
+							"pm.globals.set(\"volunteerAuthHeader\", \"Bearer \" + data[\"accessToken\"])",
+							"pm.globals.set(\"volunteerRefreshToken\", data[\"refreshToken\"])",
+							"pm.globals.set(\"csrfToken\", pm.cookies.get('XSRF-TOKEN'))",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"{{volunteerEmail}}\",\n    \"password\": \"{{volunteerPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/authentication/login",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"authentication",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login Refresh",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var data = JSON.parse(responseBody)",
+							"pm.globals.set(\"volunteerAuthHeader\", \"Bearer \" + data[\"accessToken\"])",
+							"pm.globals.set(\"volunteerRefreshToken\", data[\"refreshToken\"])",
+							"pm.globals.set(\"csrfToken\", pm.cookies.get('XSRF-TOKEN'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "XSRF-TOKEN",
+						"value": "{{csrfToken}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{volunteerRefreshToken}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/authentication/refresh?_csrf={{csrfToken}}",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"authentication",
+						"refresh"
+					],
+					"query": [
+						{
+							"key": "_csrf",
+							"value": "{{csrfToken}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"csrfToken\", pm.cookies.get('XSRF-TOKEN'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{volunteerAuthHeader}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Foo Jr\",\n    \"surname\": \"Bar\",\n    \"birthDate\": \"2000-01-01\",\n    \"phoneNumber\": \"+850 12419287524\",\n    \"email\": \"{{volunteerEmail}}\",\n    \"province\": \"Las Palmas\",\n    \"zipCode\": \"35241\",\n    \"town\": \"Agaete\",\n    \"address\": \"Calle Guacimeta N2\",\n    \"island\": \"Gran Canaria\",\n    \"twitter\": \"https://twitter.com/foo-bar\",\n    \"instagram\": \"https://instagram.com/foo-bar\",\n    \"linkedin\": \"https://linkedin.com/in/foo-bar\",\n    \"additionalInformation\": \"I'm a happy volunteer!!\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/volunteers/profile?_csrf={{csrfToken}}",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"volunteers",
+						"profile"
+					],
+					"query": [
+						{
+							"key": "_csrf",
+							"value": "{{csrfToken}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

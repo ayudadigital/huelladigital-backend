@@ -1,6 +1,7 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.AuthenticationRequestDto;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -53,7 +54,7 @@ class VolunteerServiceShould {
                 .password(DEFAULT_PASSWORD)
                 .build();
 
-        com.huellapositiva.domain.model.entities.Volunteer volunteerEntity = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Volunteer volunteerEntity = volunteerService.registerVolunteer(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         Optional<JpaVolunteer> volunteerOptional = volunteerRepository.findByIdWithCredentialsAndRoles(volunteerEntity.getId().toString());
         assertTrue(volunteerOptional.isPresent());

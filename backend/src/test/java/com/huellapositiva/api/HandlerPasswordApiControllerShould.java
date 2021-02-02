@@ -140,12 +140,12 @@ class HandlerPasswordApiControllerShould {
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(changePasswordDto))
                 .with(csrf())
-                .param("email",DEFAULT_EMAIL)
+                .param("email", DEFAULT_EMAIL)
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         String newPasswordInDB = jpaCredentialRepository.findByEmail(DEFAULT_EMAIL).get().getHashedPassword();
-        assertThat(passwordEncoder.matches(changePasswordDto.getNewPassword(),newPasswordInDB)).isTrue();
+        assertThat(passwordEncoder.matches(changePasswordDto.getNewPassword(), newPasswordInDB)).isTrue();
     }
 
     private static Stream<Arguments> provideChangePasswordDtoWithWrongData() {

@@ -19,6 +19,6 @@ public class ContactPersonRepository {
 
     public ContactPerson findByJoinedEsalId(String esalId) {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(UserNotFoundException::new);
-        return new ContactPerson(EmailAddress.from(jpaContactPerson.getCredential().getEmail()),new Id(jpaContactPerson.getId()));
+        return new ContactPerson(new Id(jpaContactPerson.getCredential().getId()), EmailAddress.from(jpaContactPerson.getCredential().getEmail()), new Id(jpaContactPerson.getId()));
     }
 }

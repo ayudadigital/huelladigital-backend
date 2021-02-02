@@ -107,6 +107,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("21-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -145,6 +147,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("20-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -183,6 +187,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .island("Tenerife")
+                .zipCode("12345")
                 .startingProposalDate("20-01-2021")
                 .closingProposalDate("24-01-2021")
                 .requiredDays("Weekends")
@@ -409,6 +415,8 @@ class ProposalControllerShould {
                 .province("Santa Cruz de Tenerife")
                 .town("Santa Cruz de Tenerife")
                 .address("Avenida Weyler 4")
+                .zipCode("12345")
+                .island("Tenerife")
                 .startingProposalDate("21-08-2030")
                 .closingProposalDate("24-08-2030")
                 .requiredDays("Weekends")
@@ -448,7 +456,9 @@ class ProposalControllerShould {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .zipCode("12345")
+                        .island("Tenerife").build())
                 .esal(different_esal)
                 .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
                 .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
@@ -511,10 +521,7 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
-                .hasFeedback(true)
-                .feedback("Deberías profundizar más en la descripción")
-                .build();
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto("Deberías profundizar más en la descripción", true);
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
@@ -533,9 +540,7 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
-                .hasFeedback(true)
-                .build();
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, true);
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
@@ -554,9 +559,7 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder()
-                .hasFeedback(false)
-                .build();
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, false);
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
@@ -573,7 +576,7 @@ class ProposalControllerShould {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = ProposalRevisionDto.builder().feedback("Deberías profundizar más en la descripción").build();
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto("Deberías profundizar más en la descripción", false);
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN
@@ -600,7 +603,9 @@ class ProposalControllerShould {
                         .id(UUID.randomUUID().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
-                        .address("Avenida Weyler 4").build())
+                        .address("Avenida Weyler 4")
+                        .zipCode("12345")
+                        .island("Tenerife").build())
                 .esal(different_esal)
                 .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
                 .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
@@ -711,7 +716,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -731,7 +736,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        MockHttpServletResponse fetchResponse = mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)

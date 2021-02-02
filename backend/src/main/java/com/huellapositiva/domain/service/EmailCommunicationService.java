@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -90,6 +92,22 @@ public class EmailCommunicationService {
         final String UPDATE_PASS_SUBJECT = "Confirmacion de cambio de contraseña";
         EmailTemplate emailTemplate = templateService.getConfirmationPasswordChangedTemplate();
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PASS_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
+
+    public void sendMessageEmailChanged(EmailConfirmation emailConfirmation) {
+        final String UPDATE_EMAIL_SUBJECT = "Información sobre cambio de email";
+        EmailTemplate emailTemplate = templateService.getEmailChangedTemplate(emailConfirmation);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(),
+                UPDATE_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
+
+    public void sendNewsletterSubscriptorsEmail(EmailAddress emailAddress, URL url) {
+        final String NEWSLETTER_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
+        EmailTemplate emailTemplate = templateService.getNewsletterEmailTemplate(url);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(),
+                NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
 }

@@ -14,11 +14,13 @@ public class Volunteer extends User {
 
     private URL curriculumVitae;
 
-    public Volunteer(EmailAddress emailAddress, Id id) {
-        super(emailAddress, id);
+    private URL photo;
+
+    public Volunteer(Id accountId, EmailAddress emailAddress, Id id) {
+        super(accountId, emailAddress, id);
     }
 
-    public Volunteer(EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
-        super(emailAddress, passwordHash,id);
+    public Volunteer(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
+        super(accountId, emailAddress, passwordHash,id);
     }
 }

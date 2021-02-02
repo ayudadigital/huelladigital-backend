@@ -17,7 +17,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER;
+import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 import static com.huellapositiva.infrastructure.security.JwtProperties.AccessToken;
 import static com.huellapositiva.infrastructure.security.JwtProperties.RefreshToken;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
@@ -54,11 +57,11 @@ class JwtServiceShould {
     @Test
     void revoked_token_should_throw_exception_when_decoded() {
         String username = "user";
-        String revokedAccessToken = jwtService.create(username, List.of("ROLE1")).getAccessToken();
+        String revokedAccessToken = jwtService.create(username, List.of(VOLUNTEER_NOT_CONFIRMED.toString())).getAccessToken();
 
         await().atMost(2, SECONDS).pollDelay(100, MILLISECONDS).untilAsserted(() ->
                 assertThrows(InvalidJwtTokenException.class, () -> {
-                    jwtService.create(username, List.of("ROLE2"));
+                    jwtService.create(username, List.of(VOLUNTEER.toString()));
                     jwtService.getUserDetails(revokedAccessToken);
                 })
         );
@@ -66,11 +69,11 @@ class JwtServiceShould {
 
     @Test
     void refreshing_a_token_should_reload_roles_from_database() throws InvalidJwtTokenException {
-        String username = "user";
-        String staleRole = "ROLE1";
-        String refreshToken = jwtService.create(username, List.of(staleRole)).getRefreshToken();
-        String latestRole = "ROLE2";
-        when(roleRepository.findAllByEmailAddress(username)).thenReturn(List.of(Role.builder().name(latestRole).build()));
+        String accountId = UUID.randomUUID().toString();
+        String staleRole = VOLUNTEER_NOT_CONFIRMED.toString();
+        String refreshToken = jwtService.create(accountId, List.of(staleRole)).getRefreshToken();
+        String latestRole = VOLUNTEER.toString();
+        when(roleRepository.findAllByAccountId(accountId)).thenReturn(List.of(Role.builder().name(latestRole).build()));
 
         String refreshedAccessToken = jwtService.refresh(refreshToken).getAccessToken();
 
@@ -80,7 +83,7 @@ class JwtServiceShould {
 
     @Test
     void creating_tokens_should_return_roles_in_access_token_and_no_roles_in_refresh_tokens() throws InvalidJwtTokenException {
-        JwtResponseDto jwtResponseDto = jwtService.create(DEFAULT_EMAIL, List.of("ROLE1"));
+        JwtResponseDto jwtResponseDto = jwtService.create(DEFAULT_EMAIL, List.of(VOLUNTEER_NOT_CONFIRMED.toString()));
 
         String accessToken = jwtResponseDto.getAccessToken();
         List<String> accessTokenRoles = jwtService.getUserDetails(accessToken).getSecond();

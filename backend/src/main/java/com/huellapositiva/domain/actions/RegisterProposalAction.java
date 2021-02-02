@@ -36,16 +36,16 @@ public class RegisterProposalAction {
      * Validates the proposals data (such as its dates) and uploads its image before persisting the proposal.
      *
      * @param dto proposal info
-     * @param image
-     * @param contactPersonEmail
+     * @param image image recently upload
+     * @param accountId contact person's account ID
      * @return proposal id
      * @throws ParseException when dto date format is invalid
      * @throws IOException when multipart file is corrupt
      */
     public String executeByContactPerson(ProposalRequestDto dto,
                                          MultipartFile image,
-                                         String contactPersonEmail) throws ParseException, IOException {
-        ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(contactPersonEmail);
+                                         String accountId) throws ParseException, IOException {
+        ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(accountId);
         return saveProposal(dto, image, joinedESAL, REVIEW_PENDING);
     }
 
@@ -54,7 +54,7 @@ public class RegisterProposalAction {
      * Validates the proposals data (such as its dates) and uploads its image before persisting the proposal.
      *
      * @param dto proposal info (contains the ESAL name)
-     * @param image
+     * @param image The image of esal
      * @return proposal id
      * @throws ParseException when dto date format is invalid
      * @throws IOException when multipart file is corrupt
@@ -70,7 +70,7 @@ public class RegisterProposalAction {
      * @param image image for the proposal
      * @param esal esal related to the proposal
      * @param proposalStatus status of the proposal
-     * @return
+     * @return id of the proposal
      * @throws ParseException
      * @throws IOException
      */

@@ -25,9 +25,9 @@ public class DbUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         JpaCredential jpaCredential = jpaCredentialRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Patient with username: " + email + " was not found."));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
-        return new User(jpaCredential.getEmail(), jpaCredential.getHashedPassword(), getAuthority(jpaCredential));
+        return new User(jpaCredential.getId(), jpaCredential.getHashedPassword(), getAuthority(jpaCredential));
     }
 
     private List<GrantedAuthority> getAuthority(JpaCredential jpaCredential) {

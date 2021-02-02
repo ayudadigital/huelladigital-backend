@@ -2,6 +2,7 @@ package com.huellapositiva.infrastructure.orm.entities;
 
 
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +13,6 @@ import java.util.Set;
 @Table(name = "credentials")
 @Getter
 @Setter
-@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +20,12 @@ public class JpaCredential implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "surrogate_key")
+    private Integer surrogateKey;
+
+    @NaturalId
+    @Column(name = "id")
+    private String id;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -33,25 +38,18 @@ public class JpaCredential implements Serializable {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "credential_roles",
-            joinColumns = {@JoinColumn(name = "credential_id", referencedColumnName = "id")},
+            joinColumns = {@JoinColumn(name = "credential_id", referencedColumnName = "surrogate_key")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")}
     )
     private Set<Role> roles;
 
     @OneToOne(optional = false, cascade = CascadeType.MERGE)
     @JoinColumn(name = "email_confirmation_id")
-    private EmailConfirmation emailConfirmation;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "surname")
-    private String surname;
+    private JpaEmailConfirmation emailConfirmation;
 
     @Column(name = "hash_recovery_password", unique = true)
     private String hashRecoveryPassword;
 
     @Column(name = "created_recovery_hash_on")
     private LocalDateTime createdRecoveryHashOn;
-
 }

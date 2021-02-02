@@ -28,10 +28,6 @@ public class ESAL {
         this.id = id;
     }
 
-    public EmailAddress getEmail() {
-        return this.contactPersonEmail;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

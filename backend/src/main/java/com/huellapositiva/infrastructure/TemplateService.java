@@ -1,13 +1,18 @@
 package com.huellapositiva.infrastructure;
 
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.TemplateNotAvailableException;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +52,10 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalRevisionWithFeedbackTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
+        if (proposalRevisionRequestEmail.getReviser() == null) {
+            throw new UserNotFoundException("Reviser was not found.");
+        }
+
         String relativePath = "classpath:templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
@@ -84,5 +93,23 @@ public class TemplateService {
         String relativePath = "classpath:templates/emails/confirmationPasswordChanged.txt";
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
+    }
+
+    public EmailTemplate getEmailChangedTemplate(EmailConfirmation emailConfirmation){
+        String relativePath = "classpath:templates/emails/emailChange.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String url = emailConfirmation.getUrl();
+        variables.put("CONFIRMATION_URL", url );
+        return new EmailTemplate(template).parse(variables);
+    }
+
+    public EmailTemplate getNewsletterEmailTemplate(URL url){
+        String relativePath = "classpath:templates/emails/newsletterEmail.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        String stringUrl = url.toString();
+        variables.put("NEWSLETTER_URL", stringUrl);
+        return new EmailTemplate(template).parse(variables);
     }
 }

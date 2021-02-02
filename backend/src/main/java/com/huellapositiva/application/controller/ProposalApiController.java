@@ -438,6 +438,10 @@ public class ProposalApiController {
                             description = "No Content, proposal status changed to CANCELLED successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request, illegal status."
+                    ),
+                    @ApiResponse(
                             responseCode = "404",
                             description = "Requested proposal not found."
                     ),
@@ -450,11 +454,14 @@ public class ProposalApiController {
     @PostMapping("/{id}/cancel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelProposalAsReviser(@PathVariable("id") String idProposal) {
+    public void cancelProposalAsReviser(@PathVariable("id") String idProposal,
+                                        @RequestBody ProposalCancelReasonDto dto) {
         try {
-            cancelProposalAction.executeByReviser(idProposal);
+            cancelProposalAction.executeByReviser(idProposal, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status of proposal is not suitable for cancelling");
         }
     }
 

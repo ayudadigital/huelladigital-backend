@@ -21,6 +21,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -718,14 +719,37 @@ class ProposalControllerShould {
         //WHEN + THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andReturn().getResponse();
 
-        Optional <JpaProposal> jpaProposal = jpaProposalRepository.findByNaturalId(proposalId);
-        assertThat(jpaProposal.get().getStatus().getId()).isEqualTo(CANCELLED.getId());
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(CANCELLED.getId());
+        assertThat(jpaProposal.getCancelReason()).isEqualTo(DEFAULT_CANCEL_REASON);
+    }
+
+    @Test
+    void return_400_when_cancel_a_proposal_with_illegal_state() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndFinishedProposal().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(FINISHED.getId());
     }
 
     @Test
@@ -738,6 +762,7 @@ class ProposalControllerShould {
         //WHEN + THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))

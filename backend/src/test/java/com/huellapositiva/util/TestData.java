@@ -53,6 +53,8 @@ public class TestData {
 
     public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
+    public static final String DEFAULT_CANCEL_REASON = "Not suitable volunteers listed";
+
     public static final String VALID_NAME = "Jose Ramon";
     public static final String VALID_SURNAME = "Apellido";
     public static final String VALID_PHONE = "+34 123456789";

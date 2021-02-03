@@ -5,6 +5,7 @@ import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
 import com.huellapositiva.domain.repository.ESALRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,19 @@ public class RegisterESALAction {
         if (contactPerson.hasESAL()) {
             throw new UserAlreadyHasESALException();
         }
-
-        Id id = esalRepository.newId();
-        ESAL esal = new ESAL(dto.getName(), id, contactPerson.getEmailAddress());
+        ESAL esal = ESAL.builder()
+                .id(esalRepository.newId())
+                .name(dto.getName())
+                .logoUrl(dto.getLogoUrl())
+                .description(dto.getDescription())
+                .webpage(dto.getWebpage())
+                .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())
+                .entityType(dto.getEntityType())
+                .dataProtectionPolicy(dto.getDataProtectionPolicy())
+                .privacyPolicy(dto.getPrivacyPolicy())
+                .registeredEntity(dto.getRegisteredEntity())
+                .contactPersonEmail(contactPerson.getEmailAddress())
+                .build();
         esalRepository.save(esal);
     }
 
@@ -45,7 +56,18 @@ public class RegisterESALAction {
      * @param dto contains the info to create a new ESAL
      */
     public void execute(ESALRequestDto dto) {
-        ESAL esal = new ESAL(dto.getName(), esalRepository.newId());
+        ESAL esal = ESAL.builder()
+                .id(esalRepository.newId())
+                .name(dto.getName())
+                .logoUrl(dto.getLogoUrl())
+                .description(dto.getDescription())
+                .webpage(dto.getWebpage())
+                .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())
+                .entityType(dto.getEntityType())
+                .dataProtectionPolicy(dto.getDataProtectionPolicy())
+                .privacyPolicy(dto.getPrivacyPolicy())
+                .registeredEntity(dto.getRegisteredEntity())
+                .build();
         esalRepository.saveAsReviser(esal);
     }
 }

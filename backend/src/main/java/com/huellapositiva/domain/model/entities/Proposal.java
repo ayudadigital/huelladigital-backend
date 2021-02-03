@@ -123,7 +123,7 @@ public class Proposal {
         return Proposal.builder()
                 .surrogateKey(jpaProposal.getSurrogateKey())
                 .id(new Id(jpaProposal.getId()))
-                .esal(new ESAL(jpaProposal.getEsal().getName(), new Id(jpaProposal.getEsal().getId())))
+                .esal(ESAL.parseJpa(jpaProposal.getEsal()))
                 .title(jpaProposal.getTitle())
                 .location(new Location(
                         jpaProposal.getLocation().getProvince(),

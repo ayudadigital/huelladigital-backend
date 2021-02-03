@@ -34,10 +34,7 @@ public class ESALRepository {
     public ESAL findByName(String esalName) {
         JpaESAL esal = jpaESALRepository.findByName(esalName)
                 .orElseThrow(() -> new RuntimeException("Could not find the ESAL by the provided name"));
-        return new ESAL(
-                esal.getName(),
-                new Id(esal.getId()),
-                null);
+        return ESAL.parseJpa(esal);
     }
 
     public void save(ESAL model) {

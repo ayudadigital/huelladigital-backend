@@ -27,4 +27,31 @@ public class JpaESAL implements Serializable {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "logo_url", nullable = false)
+    private String logoUrl;
+
+    @Column(name = "webpage")
+    private String webpage;
+
+    @Column(name = "registered_entity", nullable = false)
+    private Boolean registeredEntity;
+
+    @Column(name = "entity_type", nullable = false)
+    private String entityType;
+
+    @Column(name = "privacy_policy", nullable = false)
+    private Boolean privacyPolicy;
+
+    @Column(name = "data_protection_policy", nullable = false)
+    private Boolean dataProtectionPolicy;
+
+    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private JpaLocation location;
+
+
 }

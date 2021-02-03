@@ -67,6 +67,14 @@ public class TestData {
     public static final String VALID_LINKEDIN = "https://linkedin.com/in/home";
     public static final String VALID_ADDITIONAL_INFO = "Additional information";
 
+    public static final Location DEFAULT_LOCATION = Location.builder()
+            .island(VALID_ISLAND)
+            .zipCode(VALID_ZIPCODE)
+            .address(VALID_ADDRESS)
+            .province(VALID_PROVINCE)
+            .town(VALID_TOWN)
+            .build();
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -249,8 +257,12 @@ public class TestData {
     }
 
     public ESAL createESAL(String id, String name) {
-        JpaESAL savedEsal = jpaESALRepository.save(JpaESAL.builder().id(id).name(name).build());
-        return new ESAL(savedEsal.getName(), new Id(savedEsal.getId()));
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .build();
+        JpaESAL savedEsal = jpaESALRepository.save(JpaESAL.builder().id(id).name(name).location(jpaLocation).build());
+        return ESAL.parseJpa(savedEsal);
     }
 
     public JpaProposal createProposal(JpaProposal jpaProposal) {
@@ -346,8 +358,12 @@ public class TestData {
         jpaVolunteers.add(jpaVolunteer);
         jpaVolunteers.add(jpaVolunteer2);
 
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .build();
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).location(jpaLocation).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
@@ -389,7 +405,11 @@ public class TestData {
     @SneakyThrows
     private JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .build();
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).location(jpaLocation).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
@@ -429,12 +449,16 @@ public class TestData {
 
     public String registerESALandPublishedProposalObject() throws ParseException {
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaLocation jpaLocation = JpaLocation.builder()
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .build();
+        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).location(jpaLocation).build();
         createAndLinkESAL(contactPerson, esal);
 
         Proposal proposal = Proposal.builder().id(Id.newId())
                 .title("Recogida de ropita")
-                .esal(new ESAL(esal.getName(), new Id(esal.getId())))
+                .esal(ESAL.parseJpa(esal))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
                 .startingProposalDate(new ProposalDate(Date.from(now().minus(1, DAYS))))
                 .closingProposalDate(new ProposalDate(Date.from(now().plus(1, DAYS))))

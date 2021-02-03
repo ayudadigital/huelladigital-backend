@@ -56,11 +56,26 @@ class ESALControllerShould {
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(getESALRequestDto()))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    private ESALRequestDto getESALRequestDto() {
+        return ESALRequestDto.builder()
+                .name("Huella positiva")
+                .webpage("webpage.com")
+                .description("description")
+                .dataProtectionPolicy(true)
+                .entityType("Fundation")
+                .island("Gran Canaria")
+                .zipCode("35000")
+                .logoUrl("logourl")
+                .privacyPolicy(true)
+                .registeredEntity(true)
+                .build();
     }
 
     @Test
@@ -70,7 +85,7 @@ class ESALControllerShould {
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(getESALRequestDto()))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -84,7 +99,7 @@ class ESALControllerShould {
 
         mvc.perform(post("/api/v1/esal/reviser")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(getESALRequestDto()))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -118,7 +133,7 @@ class ESALControllerShould {
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(new ESALRequestDto("Huella positiva")))
+                .content(objectMapper.writeValueAsString(getESALRequestDto()))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -131,11 +146,10 @@ class ESALControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String esalName = "Huella Positiva";
         testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name(esalName).build());
-        ESALRequestDto esalRequestDto = new ESALRequestDto(esalName);
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(esalRequestDto))
+                .content(objectMapper.writeValueAsString(getESALRequestDto()))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))

@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -19,7 +20,7 @@ public class Location {
     private final String zipCode;
 
     private final String island;
-
+    @Builder
     public Location(String province, String town, String address, String zipCode, String island) {
         this.zipCode = zipCode;
         this.id = Id.newId();

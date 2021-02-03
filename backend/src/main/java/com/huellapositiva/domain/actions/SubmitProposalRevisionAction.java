@@ -2,6 +2,7 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
+import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
@@ -15,6 +16,9 @@ import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.domain.service.EmailCommunicationService;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
+import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,10 @@ public class SubmitProposalRevisionAction {
     private final ContactPersonRepository contactPersonRepository;
 
     private final CredentialsRepository credentialsRepository;
+
+    private final JpaProposalRepository jpaProposalRepository;
+
+    private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
     /**
      * Fetch the ESAL of the database for get the ContactPerson and send an email with the revision of the reviser.
@@ -67,7 +75,9 @@ public class SubmitProposalRevisionAction {
             revisionBuilder.hasFeedback(hasFeedback);
         }
 
-        /*Cambiar el status de la proposal REVIEW_PENDING->CHANGED_REQUESTED*/
+        JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findById(2)
+                .orElseThrow(() -> new StatusNotFoundException("Proposal not found. Account ID: " + proposalId));
+        jpaProposalRepository.updateStatusById(proposal.getId().getValue(), jpaProposalStatus);
 
         communicationService.sendSubmittedProposalRevision(revisionBuilder.build());
     }

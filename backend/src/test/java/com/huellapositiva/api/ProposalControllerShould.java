@@ -12,6 +12,8 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRe
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
@@ -515,14 +518,22 @@ class ProposalControllerShould {
         assertThat(proposalsFetch.getProposals()).isEmpty();
     }
 
-    @Test
-    void return_200_and_send_an_email_to_contact_person_when_submitting_a_revision_as_reviser() throws Exception {
+    private static Stream<ProposalRevisionDto> provideProposalRevisionDTO() {
+        return Stream.of(
+                new ProposalRevisionDto("Deberías profundizar más en la descripción", true),
+                new ProposalRevisionDto(null, true),
+                new ProposalRevisionDto(null, false)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideProposalRevisionDTO")
+    void return_200_and_send_an_email_to_contact_person_when_submitting_a_revision_as_reviser(ProposalRevisionDto revisionDto) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = new ProposalRevisionDto("Deberías profundizar más en la descripción", true);
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
@@ -532,50 +543,10 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
 
         JpaProposal jpaProposalWithStatusChanged = jpaProposalRepository.findByNaturalId(proposalId)
                 .orElseThrow(() -> new UserNotFoundException("Proposal not found. Account ID: " + proposalId));
-        System.out.println("hgoasgasf");
-        //assertThat(jpaProposalWithStatusChanged).isEqualTo()
-    }
-
-    @Test
-    void return_200_when_submitting_revision_as_revisor_has_feedback_but_not_feedback_text() throws Exception {
-        // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
-        String proposalId = jpaProposal.getId();
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, true);
-
-        // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(revisionDto))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void return_200_when_submitting_revision_as_revisor_but_has_not_feedback() throws Exception {
-        // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
-        String proposalId = jpaProposal.getId();
-        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, false);
-
-        // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(revisionDto))
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        assertThat(jpaProposalWithStatusChanged.getStatus().getId()).isEqualTo(2);
     }
 
     @Test

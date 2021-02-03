@@ -1,12 +1,15 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Reviser;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
 import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail.ProposalRevisionEmailBuilder;
+import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
@@ -39,6 +42,12 @@ public class SubmitProposalRevisionAction {
      */
 
     public void execute(String proposalId, ProposalRevisionDto revisionDto, URI proposalURI, String accountId) {
+        Proposal proposal = proposalRepository.fetch(proposalId);
+
+        if (ProposalStatus.REVIEW_PENDING.getId() != proposal.getStatus().getId()) {
+            throw new InvalidStatusIdException();
+        }
+
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
         Reviser reviser = Reviser.from(credentialsRepository.findReviserByAccountId(accountId));
@@ -57,6 +66,8 @@ public class SubmitProposalRevisionAction {
         } else {
             revisionBuilder.hasFeedback(hasFeedback);
         }
+
+        /*Cambiar el status de la proposal REVIEW_PENDING->CHANGED_REQUESTED*/
 
         communicationService.sendSubmittedProposalRevision(revisionBuilder.build());
     }

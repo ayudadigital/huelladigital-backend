@@ -7,6 +7,7 @@ import com.huellapositiva.application.exception.ProposalNotPublicException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
+import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -311,6 +312,10 @@ public class ProposalApiController {
                             description = "Ok, email with proposal sent to reviser."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request. The ID is not in review pending."
+                    ),
+                    @ApiResponse(
                             responseCode = "404",
                             description = "Not found, requested proposal not found or not published."
                     )
@@ -328,6 +333,8 @@ public class ProposalApiController {
                     .path(PATH_ID).buildAndExpand(id)
                     .toUri();
             submitProposalRevisionAction.execute(id, dto, uri, accountId);
+        } catch (InvalidStatusIdException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The ID is not in REVIEW_PENDING.");
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }

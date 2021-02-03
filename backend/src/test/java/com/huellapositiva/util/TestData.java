@@ -327,6 +327,10 @@ public class TestData {
         return registerESALAndProposal(UNPUBLISHED);
     }
 
+    public JpaProposal registerESALAndReviewPendingProposal() {
+        return registerESALAndProposal(REVIEW_PENDING);
+    }
+
     public JpaProposal registerESALAndFinishedProposal() {
         return registerESALAndProposal(FINISHED);
     }

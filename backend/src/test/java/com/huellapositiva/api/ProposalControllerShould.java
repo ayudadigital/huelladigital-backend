@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
@@ -517,7 +518,7 @@ class ProposalControllerShould {
     @Test
     void return_200_and_send_an_email_to_contact_person_when_submitting_a_revision_as_reviser() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -531,12 +532,18 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+
+        JpaProposal jpaProposalWithStatusChanged = jpaProposalRepository.findByNaturalId(proposalId)
+                .orElseThrow(() -> new UserNotFoundException("Proposal not found. Account ID: " + proposalId));
+        System.out.println("hgoasgasf");
+        //assertThat(jpaProposalWithStatusChanged).isEqualTo()
     }
 
     @Test
     void return_200_when_submitting_revision_as_revisor_has_feedback_but_not_feedback_text() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -555,7 +562,7 @@ class ProposalControllerShould {
     @Test
     void return_200_when_submitting_revision_as_revisor_but_has_not_feedback() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndNotPublishedProposal();
+        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -569,6 +576,25 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void return_404_when_the_given_proposal_id_does_not_review_pending() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndPublishedProposal();
+        String proposalId = jpaProposal.getId();
+        testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, false);
+
+        // WHEN + THEN
+        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(revisionDto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

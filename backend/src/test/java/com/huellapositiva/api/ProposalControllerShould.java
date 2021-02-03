@@ -732,7 +732,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_400_when_cancel_a_proposal_with_illegal_state() throws Exception {
+    void return_412_when_cancel_a_finished_proposal() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndFinishedProposal().getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -745,11 +745,53 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isPreconditionFailed())
                 .andReturn().getResponse();
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
         assertThat(jpaProposal.getStatus().getId()).isEqualTo(FINISHED.getId());
+    }
+
+    @Test
+    void return_412_when_cancel_an_inadequate_proposal() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndInadequateProposal().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isPreconditionFailed())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(INADEQUATE.getId());
+    }
+
+    @Test
+    void return_412_when_cancel_an_already_cancelled_proposal() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndCancelledProposal().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isPreconditionFailed())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(CANCELLED.getId());
     }
 
     @Test

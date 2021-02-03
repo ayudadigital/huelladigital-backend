@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+
 @Service
 public class CancelProposalAction {
 
@@ -23,14 +25,14 @@ public class CancelProposalAction {
     /**
      * This method changes the specified proposal status to CANCELLED.
      *
-     * @param id Proposal id
-     *
-     * (method "updateProposalStatus" returns 0 in case it doesn't find any proposal with that id)
+     * @param id  Proposal id
+     * @param dto Reason of why a proposal has been cancelled
+     *            (method "updateProposalStatus" returns 0 in case it doesn't find any proposal with that id)
      */
     public void executeByReviser(String id, ProposalCancelReasonDto dto) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
         Integer status = proposal.getStatus().getId();
-        if(status.equals(ProposalStatus.FINISHED.getId()) || status.equals(ProposalStatus.INADEQUATE.getId()) ){
+        if (status.equals(FINISHED.getId()) || status.equals(INADEQUATE.getId()) || status.equals(CANCELLED.getId())) {
             throw new IllegalStateException();
         }
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()

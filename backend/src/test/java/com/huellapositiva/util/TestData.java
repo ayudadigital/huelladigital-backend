@@ -333,6 +333,10 @@ public class TestData {
         return registerESALAndProposal(FINISHED);
     }
 
+    public JpaProposal registerESALAndInadequateProposal() { return registerESALAndProposal(INADEQUATE); }
+
+    public JpaProposal registerESALAndCancelledProposal() { return registerESALAndProposal(CANCELLED); }
+
     public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }

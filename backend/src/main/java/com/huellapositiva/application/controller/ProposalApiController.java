@@ -438,12 +438,12 @@ public class ProposalApiController {
                             description = "No Content, proposal status changed to CANCELLED successfully."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad Request, illegal status."
-                    ),
-                    @ApiResponse(
                             responseCode = "404",
                             description = "Requested proposal not found."
+                    ),
+                    @ApiResponse(
+                            responseCode = "412",
+                            description = "Precondition failed, illegal status."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -461,7 +461,7 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (IllegalStateException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status of proposal is not suitable for cancelling");
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Status of proposal is not suitable for cancelling");
         }
     }
 

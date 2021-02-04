@@ -223,7 +223,7 @@ class ProposalControllerShould {
     @Test
     void fetch_and_return_proposal() throws Exception {
         // GIVEN
-        JpaProposal proposal = testData.registerESALAndPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndProposal(PUBLISHED);
 
         // WHEN
         MockHttpServletResponse fetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -257,7 +257,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
-        JpaProposal proposal = testData.registerESALAndNotPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndProposal(UNPUBLISHED);
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -269,7 +269,7 @@ class ProposalControllerShould {
     @Test
     void fetch_a_finished_proposal_but_do_not_list_it() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndFinishedProposal();
+        JpaProposal jpaProposal = testData.registerESALAndProposal(FINISHED);
 
         // WHEN
         String singleFetchResponse = mvc.perform(get(FETCH_PROPOSAL_URI + jpaProposal.getId())
@@ -321,7 +321,7 @@ class ProposalControllerShould {
     void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String proposalId = testData.registerESALAndNotPublishedProposal().getId();
+        String proposalId = testData.registerESALAndProposal(UNPUBLISHED).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -353,7 +353,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JpaProposal proposal = testData.registerESALAndPublishedProposal();
+        JpaProposal proposal = testData.registerESALAndProposal(PUBLISHED);
         proposal.setClosingProposalDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
         jpaProposalRepository.save(proposal);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -451,7 +451,7 @@ class ProposalControllerShould {
     @Test
     void fetch_a_paginated_list_of_published_proposals() throws Exception {
         // GIVEN
-        testData.registerESALAndPublishedProposal();
+        testData.registerESALAndProposal(PUBLISHED);
         JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
         testData.createProposal(JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
@@ -530,7 +530,7 @@ class ProposalControllerShould {
     @MethodSource("provideProposalRevisionDTO")
     void return_200_and_send_an_email_to_contact_person_when_submitting_a_revision_as_reviser(ProposalRevisionDto revisionDto) throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndReviewPendingProposal();
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -552,7 +552,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_the_given_proposal_id_does_not_review_pending() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndPublishedProposal();
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -591,7 +591,7 @@ class ProposalControllerShould {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.registerESALAndFinishedProposal();
+        testData.registerESALAndProposal(FINISHED);
         JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
         testData.createProposal(JpaProposal.builder()
                 .id(UUID.randomUUID().toString())

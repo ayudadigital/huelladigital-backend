@@ -319,22 +319,6 @@ public class TestData {
         return proposal;
     }
 
-    public JpaProposal registerESALAndPublishedProposal() {
-        return registerESALAndProposal(PUBLISHED);
-    }
-
-    public JpaProposal registerESALAndNotPublishedProposal() {
-        return registerESALAndProposal(UNPUBLISHED);
-    }
-
-    public JpaProposal registerESALAndReviewPendingProposal() {
-        return registerESALAndProposal(REVIEW_PENDING);
-    }
-
-    public JpaProposal registerESALAndFinishedProposal() {
-        return registerESALAndProposal(FINISHED);
-    }
-
     public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
@@ -391,7 +375,7 @@ public class TestData {
     }
 
     @SneakyThrows
-    private JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
+    public JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
         JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);

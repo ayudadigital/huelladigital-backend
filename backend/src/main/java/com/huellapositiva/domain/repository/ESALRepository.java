@@ -5,6 +5,7 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import lombok.AllArgsConstructor;
@@ -43,7 +44,23 @@ public class ESALRepository {
         JpaESAL esal = JpaESAL.builder()
                 .id(model.getId().toString())
                 .name(model.getName())
+                .description(model.getDescription())
+                .logoUrl(model.getLogoUrl())
+                .webpage(model.getWebpage())
+                .location(JpaLocation.builder()
+                        .id(model.getLocation().getId().toString())
+                        .province(model.getLocation().getProvince())
+                        .town(model.getLocation().getTown())
+                        .address(model.getLocation().getAddress())
+                        .zipCode(model.getLocation().getZipCode())
+                        .island(model.getLocation().getIsland())
+                        .build())
+                .registeredEntity(model.getRegisteredEntity())
+                .entityType(model.getEntityType())
+                .privacyPolicy(model.getPrivacyPolicy())
+                .dataProtectionPolicy(model.getDataProtectionPolicy())
                 .build();
+
         try {
             jpaESALRepository.save(esal);
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);

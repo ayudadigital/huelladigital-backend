@@ -1,12 +1,10 @@
 package com.huellapositiva.application.dto;
 
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
 @Data

@@ -83,7 +83,7 @@ public class ProposalService {
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
         Reviser reviser = Reviser.from(credentialsRepository.findReviserByAccountId(accountId));
 
-        ProposalRevisionEmail revisionBuilder = ProposalRevisionEmail.builder()
+        ProposalRevisionEmail proposalRevisionEmail = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)
                 .feedback(revisionDto.getFeedback())
@@ -94,15 +94,15 @@ public class ProposalService {
 
         Boolean hasFeedback =  revisionDto.getHasFeedback();
         if (hasFeedback != null && hasFeedback && revisionDto.getFeedback() == null) {
-            revisionBuilder.setHasFeedback(false);
+            proposalRevisionEmail.setHasFeedback(false);
         } else {
-            revisionBuilder.setHasFeedback(hasFeedback);
+            proposalRevisionEmail.setHasFeedback(hasFeedback);
         }
 
         JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findByName(CHANGES_REQUESTED.toString().toLowerCase())
                 .orElseThrow(() -> new StatusNotFoundException("Proposal status not found: " + proposalId));
         jpaProposalRepository.updateStatusById(proposal.getId().getValue(), jpaProposalStatus);
 
-        return revisionBuilder;
+        return proposalRevisionEmail;
     }
 }

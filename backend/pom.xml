@@ -17,6 +17,7 @@
         <db.unit.version>2.5.4</db.unit.version>
         <db.unit.spring.version>1.3.0</db.unit.spring.version>
         <flyway.version>5.2.4</flyway.version>
+        <git.commit.id.version>4.0.3</git.commit.id.version>
         <h2.version>1.4.200</h2.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hibernate.version>5.4.12.Final</hibernate.version>
@@ -318,7 +319,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>4.0.3</version>
+                <version>${git.commit.id.version}</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>

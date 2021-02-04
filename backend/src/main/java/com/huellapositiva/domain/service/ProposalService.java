@@ -3,7 +3,7 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
-import com.huellapositiva.domain.exception.InvalidStatusIdException;
+import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.*;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -76,7 +76,7 @@ public class ProposalService {
         Proposal proposal = proposalRepository.fetch(proposalId);
 
         if (ProposalStatus.REVIEW_PENDING.getId() != proposal.getStatus().getId()) {
-            throw new InvalidStatusIdException();
+            throw new InvalidProposalStatusException();
         }
 
         ESAL esal = proposalRepository.fetch(proposalId).getEsal();

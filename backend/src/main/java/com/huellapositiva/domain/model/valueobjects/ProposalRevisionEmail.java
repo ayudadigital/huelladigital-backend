@@ -2,16 +2,14 @@ package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.Reviser;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 
 import java.net.URI;
 
 @RequiredArgsConstructor
 @Data
 @Builder
+@AllArgsConstructor
 public class ProposalRevisionEmail {
 
     private final Id proposalId;
@@ -26,7 +24,7 @@ public class ProposalRevisionEmail {
 
     private final Reviser reviser;
 
-    private final Boolean hasFeedback;
+    private Boolean hasFeedback;
 
     public String getEmailAddress() {
         return esalContactPerson.getEmailAddress().toString();
@@ -38,6 +36,10 @@ public class ProposalRevisionEmail {
 
     public boolean hasFeedback(){
         return hasFeedback;
+    }
+
+    public void setHasFeedback(Boolean hasFeedback) {
+        this.hasFeedback = hasFeedback;
     }
 
     @SneakyThrows

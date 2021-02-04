@@ -58,6 +58,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             new AntPathRequestMatcher("/swagger-ui/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/v3/api-docs/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/actuator/health", HttpMethod.GET.name()),
+            new AntPathRequestMatcher("/actuator/info", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/email-confirmation/**", HttpMethod.GET.name()),
             new AntPathRequestMatcher("/api/v1/esal", HttpMethod.POST.name()),
             new AntPathRequestMatcher("/api/v1/volunteers", HttpMethod.POST.name()),

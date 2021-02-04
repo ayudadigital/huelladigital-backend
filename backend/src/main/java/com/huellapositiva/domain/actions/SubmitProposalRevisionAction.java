@@ -26,7 +26,7 @@ public class SubmitProposalRevisionAction {
      * @param accountId Account ID of logged user
      */
     public void execute(String proposalId, ProposalRevisionDto revisionDto, URI proposalURI, String accountId) {
-        ProposalRevisionEmail revisionEmail = proposalService.proposalChangeStatusToChangedRequested(proposalId, revisionDto, proposalURI, accountId);
+        ProposalRevisionEmail revisionEmail = proposalService.requestChanges(proposalId, revisionDto, proposalURI, accountId);
         communicationService.sendSubmittedProposalRevision(revisionEmail);
     }
 }

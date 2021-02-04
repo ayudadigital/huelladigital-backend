@@ -68,7 +68,7 @@ class ProposalRevisionShould {
                 .token(Token.createToken())
                 .build();
 
-        when(proposalService.proposalChangeStatusToChangedRequested(proposalID, proposalRevisionDto, uri, accountID))
+        when(proposalService.requestChanges(proposalID, proposalRevisionDto, uri, accountID))
                 .thenReturn(proposalRevisionEmail);
 
         submitProposalRevisionAction.execute(proposalID, proposalRevisionDto, uri, accountID);

@@ -67,7 +67,7 @@ public class ProposalService {
      * @param proposalURI : URI the proposal to revise.
      * @param accountId Account ID of logged user
      */
-    public ProposalRevisionEmail proposalChangeStatusToChangedRequested(
+    public ProposalRevisionEmail requestChanges(
             String proposalId,
             ProposalRevisionDto revisionDto,
             URI proposalURI,

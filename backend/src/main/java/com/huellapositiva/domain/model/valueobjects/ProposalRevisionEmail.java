@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.net.URI;
 
-@RequiredArgsConstructor
 @Data
 @Builder
 @AllArgsConstructor

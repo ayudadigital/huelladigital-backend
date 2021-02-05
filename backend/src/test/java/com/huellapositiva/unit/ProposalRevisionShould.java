@@ -72,7 +72,6 @@ class ProposalRevisionShould {
 
         submitProposalRevisionAction.execute(proposalID, proposalRevisionDto, uri, accountID);
 
-        verify(emailCommunicationService).sendSubmittedProposalRevision(any());
+        verify(emailCommunicationService).sendSubmittedProposalRevision(proposalRevisionEmail);
     }
-
 }

@@ -546,7 +546,7 @@ class ProposalControllerShould {
 
         JpaProposal jpaProposalWithStatusChanged = jpaProposalRepository.findByNaturalId(proposalId)
                 .orElseThrow(() -> new UserNotFoundException("Proposal not found. Account ID: " + proposalId));
-        assertThat(jpaProposalWithStatusChanged.getStatus().getName().toUpperCase()).isEqualTo(CHANGES_REQUESTED.toString());
+        assertThat(jpaProposalWithStatusChanged.getStatus().getId()).isEqualTo(CHANGES_REQUESTED.getId());
     }
 
     @Test

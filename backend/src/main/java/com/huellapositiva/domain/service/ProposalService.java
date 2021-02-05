@@ -100,6 +100,11 @@ public class ProposalService {
         return proposalRevisionEmail;
     }
 
+    /**
+     * Check for feedback message
+     *
+     * @param proposalRevisionDto Contains the email reviser and the feedback if has it.
+     */
     private boolean hasFeedback(ProposalRevisionDto proposalRevisionDto) {
         return proposalRevisionDto.getFeedback() != null;
     }

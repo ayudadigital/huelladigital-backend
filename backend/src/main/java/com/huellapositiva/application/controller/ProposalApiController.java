@@ -453,6 +453,10 @@ public class ProposalApiController {
                             description = "Requested proposal not found."
                     ),
                     @ApiResponse(
+                            responseCode = "412",
+                            description = "Precondition failed, illegal status."
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
@@ -461,11 +465,14 @@ public class ProposalApiController {
     @PostMapping("/{id}/cancel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelProposalAsReviser(@PathVariable("id") String idProposal) {
+    public void cancelProposalAsReviser(@PathVariable("id") String idProposal,
+                                        @RequestBody ProposalCancelReasonDto dto) {
         try {
-            cancelProposalAction.executeByReviser(idProposal);
+            cancelProposalAction.executeByReviser(idProposal, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Status of proposal is not suitable for cancelling");
         }
     }
 

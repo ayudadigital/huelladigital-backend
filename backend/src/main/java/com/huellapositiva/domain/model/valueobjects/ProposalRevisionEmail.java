@@ -23,7 +23,7 @@ public class ProposalRevisionEmail {
 
     private final Reviser reviser;
 
-    private Boolean hasFeedback;
+    private final Boolean hasFeedback;
 
     public String getEmailAddress() {
         return esalContactPerson.getEmailAddress().toString();
@@ -35,10 +35,6 @@ public class ProposalRevisionEmail {
 
     public boolean hasFeedback(){
         return hasFeedback;
-    }
-
-    public void setHasFeedback(Boolean hasFeedback) {
-        this.hasFeedback = hasFeedback;
     }
 
     @SneakyThrows

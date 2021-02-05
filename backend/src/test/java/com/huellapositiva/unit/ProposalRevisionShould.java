@@ -51,7 +51,6 @@ class ProposalRevisionShould {
         String proposalID = "00000000-0000-0000-0000-000000000000";
         ProposalRevisionDto proposalRevisionDto = ProposalRevisionDto
                 .builder()
-                .hasFeedback(true)
                 .feedback("Cambia el nombre")
                 .build();
         URI uri = ServletUriComponentsBuilder

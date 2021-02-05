@@ -520,9 +520,8 @@ class ProposalControllerShould {
 
     private static Stream<ProposalRevisionDto> provideProposalRevisionDTO() {
         return Stream.of(
-                new ProposalRevisionDto("Deberías profundizar más en la descripción", true),
-                new ProposalRevisionDto(null, true),
-                new ProposalRevisionDto(null, false)
+                new ProposalRevisionDto("Deberías profundizar más en la descripción"),
+                new ProposalRevisionDto(null)
         );
     }
 
@@ -556,7 +555,7 @@ class ProposalControllerShould {
         String proposalId = jpaProposal.getId();
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null, false);
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto(null);
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
@@ -573,7 +572,7 @@ class ProposalControllerShould {
         // GIVEN
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        ProposalRevisionDto revisionDto = new ProposalRevisionDto("Deberías profundizar más en la descripción", false);
+        ProposalRevisionDto revisionDto = new ProposalRevisionDto("Deberías profundizar más en la descripción");
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN

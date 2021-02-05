@@ -63,13 +63,13 @@ public class ProposalService {
      * Fetch the ESAL of the database for get the ContactPerson, change status of the proposal and send an email with the revision of the reviser.
      *
      * @param proposalId : The id of the proposal to be revised.
-     * @param revisionDto : Contains the email reviser and the feedback if has it.
+     * @param proposalRevisionDto : Contains the email reviser and the feedback if has it.
      * @param proposalURI : URI the proposal to revise.
      * @param accountId Account ID of logged user
      */
     public ProposalRevisionEmail requestChanges(
             String proposalId,
-            ProposalRevisionDto revisionDto,
+            ProposalRevisionDto proposalRevisionDto,
             URI proposalURI,
             String accountId) {
 
@@ -86,23 +86,21 @@ public class ProposalService {
         ProposalRevisionEmail proposalRevisionEmail = ProposalRevisionEmail.builder()
                 .proposalId(new Id(proposalId))
                 .proposalURI(proposalURI)
-                .feedback(revisionDto.getFeedback())
+                .feedback(proposalRevisionDto.getFeedback())
+                .hasFeedback(hasFeedback(proposalRevisionDto))
                 .esalContactPerson(contactPerson)
                 .reviser(reviser)
                 .token(Token.createToken())
                 .build();
-
-        Boolean hasFeedback =  revisionDto.getHasFeedback();
-        if (hasFeedback != null && hasFeedback && revisionDto.getFeedback() == null) {
-            proposalRevisionEmail.setHasFeedback(false);
-        } else {
-            proposalRevisionEmail.setHasFeedback(hasFeedback);
-        }
 
         JpaProposalStatus jpaProposalStatus = jpaProposalStatusRepository.findByName(CHANGES_REQUESTED.toString().toLowerCase())
                 .orElseThrow(() -> new StatusNotFoundException("Proposal status not found: " + proposalId));
         jpaProposalRepository.updateStatusById(proposal.getId().getValue(), jpaProposalStatus);
 
         return proposalRevisionEmail;
+    }
+
+    private boolean hasFeedback(ProposalRevisionDto proposalRevisionDto) {
+        return proposalRevisionDto.getFeedback() != null;
     }
 }

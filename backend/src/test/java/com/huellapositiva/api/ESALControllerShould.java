@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
 
 import static com.huellapositiva.util.TestData.*;
@@ -56,49 +57,39 @@ class ESALControllerShould {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        ESALRequestDto esalRequestDto = getESALRequestDto();
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(getESALRequestDto()))
+                .content(objectMapper.writeValueAsString(esalRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        JpaESAL jpaESAL = jpaESALRepository.findByName("Huella Positiva").orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaESAL.getWebpage()).isEqualTo(esalRequestDto.getWebpage());
+        assertThat(jpaESAL.getLogoUrl()).isEqualTo(esalRequestDto.getLogoUrl());
+        assertThat(jpaESAL.getDescription()).isEqualTo(esalRequestDto.getDescription());
+        assertThat(jpaESAL.getRegisteredEntity()).isEqualTo(esalRequestDto.getRegisteredEntity());
+        assertThat(jpaESAL.getEntityType()).isEqualTo(esalRequestDto.getEntityType());
+        assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(esalRequestDto.getIsland());
+        assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(esalRequestDto.getZipCode());
+        assertThat(jpaESAL.getDataProtectionPolicy()).isEqualTo(esalRequestDto.getDataProtectionPolicy());
+        assertThat(jpaESAL.getPrivacyPolicy()).isEqualTo(esalRequestDto.getPrivacyPolicy());
     }
 
     private ESALRequestDto getESALRequestDto() {
         return ESALRequestDto.builder()
                 .name("Huella Positiva")
-                .webpage("webpage.com")
+                .webpage("http://webpage.com")
                 .description("description")
                 .dataProtectionPolicy(true)
-                .entityType("Foundation")
+                .entityType("Fundación")
                 .island("Gran Canaria")
                 .zipCode("35000")
                 .logoUrl("logourl")
                 .privacyPolicy(true)
                 .registeredEntity(true)
-                .build();
-    }
-
-    private JpaESAL getJpaESAL(String esalName){
-        return JpaESAL.builder()
-                .id(Id.newId().toString())
-                .name(esalName)
-                .description("description")
-                .logoUrl("logourl")
-                .webpage("webpage.com")
-                .location(JpaLocation.builder()
-                    .id(Id.newId().toString())
-                    .province("Las Palmas")
-                    .zipCode("35100")
-                    .town("Maspalomas")
-                    .address("Calle Italia N1")
-                    .island("Gran Canaria")
-                    .build())
-                .registeredEntity(true)
-                .entityType("Foundation")
-                .privacyPolicy(true)
-                .dataProtectionPolicy(true)
                 .build();
     }
 
@@ -135,7 +126,7 @@ class ESALControllerShould {
     @Test
     void allow_members_to_delete_their_ESAL() throws Exception {
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String esalId = testData.createAndLinkESAL(contactPerson, getJpaESAL(DEFAULT_ESAL));
+        String esalId = testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -152,7 +143,7 @@ class ESALControllerShould {
     @Test
     void not_allow_to_create_an_ESAL_when_member_already_has_one() throws Exception {
         JpaContactPerson member = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(member, getJpaESAL("Huella Negativa"));
+        testData.createAndLinkESAL(member, testData.buildJpaESAL("Huella Negativa"));
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/esal")
@@ -168,7 +159,7 @@ class ESALControllerShould {
     void return_409_when_ESAL_is_already_taken() throws Exception {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createJpaESAL(getJpaESAL("Huella Positiva"));
+        testData.createJpaESAL(testData.buildJpaESAL("Huella Positiva"));
 
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -182,8 +173,8 @@ class ESALControllerShould {
     @Test
     void return_403_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, getJpaESAL("Huella Positiva"));
-        String secondESALId = testData.createJpaESAL(getJpaESAL("Huella Negativa")).getId();
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
+        String secondESALId = testData.createJpaESAL(testData.buildJpaESAL("Huella Negativa")).getId();
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 

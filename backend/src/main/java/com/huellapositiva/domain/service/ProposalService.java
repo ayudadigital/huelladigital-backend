@@ -79,7 +79,7 @@ public class ProposalService {
             throw new InvalidProposalStatusException();
         }
 
-        ESAL esal = proposalRepository.fetch(proposalId).getEsal();
+        ESAL esal = proposal.getEsal();
         ContactPerson contactPerson = contactPersonRepository.findByJoinedEsalId(esal.getId().toString());
         Reviser reviser = Reviser.from(credentialsRepository.findReviserByAccountId(accountId));
 

@@ -87,6 +87,8 @@ class ResendEmailConfirmationActionShould {
         emailConfirmationAction.execute(hash);
 
         // WHEN + THEN
-        assertThrows(EmailConfirmationAlreadyConfirmedException.class, () -> resendEmailConfirmationAction.execute(jpaCredential.getId()));
+        String id = jpaCredential.getId();
+        assertThrows(EmailConfirmationAlreadyConfirmedException.class,
+                () -> resendEmailConfirmationAction.execute(id));
     }
 }

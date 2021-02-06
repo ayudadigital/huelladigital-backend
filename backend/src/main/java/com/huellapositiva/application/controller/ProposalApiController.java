@@ -7,6 +7,7 @@ import com.huellapositiva.application.exception.ProposalNotPublicException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
+import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -313,6 +314,14 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, requested proposal not found or not published."
+                    ),
+                    @ApiResponse(
+                            responseCode = "412",
+                            description = "Bad request. The ID is not in review pending."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -330,6 +339,8 @@ public class ProposalApiController {
             submitProposalRevisionAction.execute(id, dto, uri, accountId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        } catch (InvalidProposalStatusException ex) {
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The ID is not in REVIEW_PENDING.");
         }
     }
 

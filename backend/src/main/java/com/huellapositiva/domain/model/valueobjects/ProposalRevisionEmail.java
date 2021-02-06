@@ -2,16 +2,13 @@ package com.huellapositiva.domain.model.valueobjects;
 
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.Reviser;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
+import lombok.*;
 
 import java.net.URI;
 
-@RequiredArgsConstructor
 @Data
 @Builder
+@AllArgsConstructor
 public class ProposalRevisionEmail {
 
     private final Id proposalId;

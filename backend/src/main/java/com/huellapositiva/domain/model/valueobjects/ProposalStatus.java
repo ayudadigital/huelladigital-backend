@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public enum ProposalStatus {
     REVIEW_PENDING (1),
-    CHANGED_REQUESTED (2),
+    CHANGES_REQUESTED (2),
     PUBLISHED (3),
     UNPUBLISHED (4),
     FINISHED(5),

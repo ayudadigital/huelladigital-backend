@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.servlet.http.Cookie;
 
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
 import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
 import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
@@ -135,7 +136,7 @@ class SecurityConfigShould {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
-        String proposalId = testData.registerESALAndPublishedProposal().getId();
+        String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();
 
         // WHEN + THEN
         mvc.perform(post("/api/v1/proposals/" + proposalId + "/join")

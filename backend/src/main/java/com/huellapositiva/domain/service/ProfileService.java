@@ -54,7 +54,7 @@ public class ProfileService {
      */
     public UpdateProfileResult updateProfile(UpdateProfileRequestDto updateProfileRequestDto, String accountId) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
-                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));;
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
         boolean isNewEmail = !jpaVolunteer.getCredential().getEmail().equalsIgnoreCase(updateProfileRequestDto.getEmail());
         validations(updateProfileRequestDto, isNewEmail);
 

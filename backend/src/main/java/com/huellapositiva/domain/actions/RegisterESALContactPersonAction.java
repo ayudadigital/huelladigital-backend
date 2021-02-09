@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 
-import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ESALContactPersonService;
@@ -28,7 +28,7 @@ public class RegisterESALContactPersonAction {
      * @param dto contains email and password of the ContactPerson
      * @return id of the ContactPerson created
      */
-    public Id execute(CredentialsESALMemberRequestDto dto){
+    public Id execute(RegisterESALMemberRequestDto dto){
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         Id id = esalContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), emailConfirmation);
         emailCommunicationService.sendRegistrationConfirmationEmail(emailConfirmation);

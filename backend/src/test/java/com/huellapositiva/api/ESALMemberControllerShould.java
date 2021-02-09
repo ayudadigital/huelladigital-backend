@@ -1,7 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
@@ -55,7 +55,7 @@ class ESALMemberControllerShould {
     @Test
     void register_member_and_return_201_and_tokens() throws Exception {
         // GIVEN
-        CredentialsESALMemberRequestDto dto = new CredentialsESALMemberRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        RegisterESALMemberRequestDto dto = new RegisterESALMemberRequestDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
         MockHttpServletResponse response = mvc.perform(post("/api/v1/contactperson")

@@ -1,6 +1,6 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
@@ -62,7 +62,7 @@ public class ESALContactPersonApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerContactPerson(@RequestBody CredentialsESALMemberRequestDto dto, HttpServletResponse res) {
+    public JwtResponseDto registerContactPerson(@RequestBody RegisterESALMemberRequestDto dto, HttpServletResponse res) {
         Id contactPersonId = registerESALContactPersonAction.execute(dto);
         String username = dto.getEmail();
         List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());

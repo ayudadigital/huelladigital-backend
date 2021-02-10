@@ -55,7 +55,7 @@ public class ESALRepository {
                 .id(model.getId().toString())
                 .name(model.getName())
                 .description(model.getDescription())
-                .logoUrl(model.getLogoUrl())
+                .logoUrl(model.getLogoUrl() != null ? model.getLogoUrl().toExternalForm() : null)
                 .webpage(model.getWebpage())
                 .location(JpaLocation.builder()
                         .id(model.getLocation().getId().toString())

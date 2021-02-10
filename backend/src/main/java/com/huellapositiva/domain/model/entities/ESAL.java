@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 
 @Getter
@@ -22,7 +24,7 @@ public class ESAL {
     @NotEmpty
     private final Id id;
     private final String description;
-    private final String logoUrl;
+    private URL logoUrl;
     private final String webpage;
     @NotEmpty
     private final Boolean registeredEntity;
@@ -50,11 +52,15 @@ public class ESAL {
         return Objects.hash(id);
     }
 
-    public static ESAL parseJpa(JpaESAL esal){
+    public static ESAL parseJpa(JpaESAL esal) {
+        URL logoUrl;
+        try{ logoUrl = new URL(esal.getLogoUrl()); }
+        catch (MalformedURLException ex) { logoUrl = null; }
+
         return ESAL.builder()
                 .id(new Id(esal.getId()))
                 .name(esal.getName())
-                .logoUrl(esal.getLogoUrl())
+                .logoUrl(logoUrl)
                 .webpage(esal.getWebpage())
                 .description(esal.getDescription())
                 .registeredEntity(esal.getRegisteredEntity())

@@ -1,40 +1,28 @@
 package com.huellapositiva.unit;
 
 import com.huellapositiva.application.exception.InvalidFieldException;
-import com.huellapositiva.domain.actions.UploadPhotoAction;
 import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
-import com.huellapositiva.domain.repository.VolunteerRepository;
-import com.huellapositiva.domain.service.RemoteStorageService;
+import com.huellapositiva.domain.service.ImageService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static com.huellapositiva.util.TestData.DEFAULT_ACCOUNT_ID;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
-class UploadPhotoActionShould {
+class ImageServiceShould {
 
-    @Mock
-    private RemoteStorageService remoteStorageService;
-
-    @Mock
-    private VolunteerRepository volunteerRepository;
-
-    private UploadPhotoAction uploadPhotoAction;
+    private ImageService imageService;
 
     @BeforeEach
     void beforeEach() {
-        uploadPhotoAction = new UploadPhotoAction(remoteStorageService, volunteerRepository, 1024000, 400, 400);
+        imageService = new ImageService(1024000, 400, 400,
+                102400,400,400);
     }
 
     @ParameterizedTest
@@ -46,7 +34,7 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(InvalidFieldException.class, () -> uploadPhotoAction.execute(result, DEFAULT_ACCOUNT_ID));
+        assertThrows(InvalidFieldException.class, () -> imageService.validateProfileImage(result));
     }
 
     private static Stream<String> provideIncorrectPhotos() {
@@ -66,6 +54,6 @@ class UploadPhotoActionShould {
 
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
-        assertThrows(FileTypeNotSupportedException.class, () -> uploadPhotoAction.execute(result, DEFAULT_ACCOUNT_ID));
+        assertThrows(FileTypeNotSupportedException.class, () -> imageService.validateProfileImage(result));
     }
 }

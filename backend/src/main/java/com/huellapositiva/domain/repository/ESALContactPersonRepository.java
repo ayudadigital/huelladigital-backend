@@ -57,6 +57,9 @@ public class ESALContactPersonRepository {
         JpaContactPerson jpaContactPerson = JpaContactPerson.builder()
                 .credential(jpaCredential)
                 .id(contactPerson.getId().getValue())
+                .name(contactPerson.getName())
+                .surname(contactPerson.getSurname())
+                .phone_number(contactPerson.getPhone_number())
                 .build();
         jpaContactPersonRepository.save(jpaContactPerson);
         return contactPerson.getId();

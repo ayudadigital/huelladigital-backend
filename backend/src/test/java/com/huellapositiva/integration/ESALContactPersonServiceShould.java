@@ -49,12 +49,15 @@ class ESALContactPersonServiceShould {
     void register_a_new_member() {
         // GIVEN
         RegisterESALMemberRequestDto dto = RegisterESALMemberRequestDto.builder()
+                .name("Fernando")
+                .surname("Alonso")
+                .phone_number("+34 928123242")
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();
 
         // WHEN
-        Id contactPersonId = ESALContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Id contactPersonId = ESALContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());

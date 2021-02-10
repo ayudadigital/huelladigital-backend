@@ -29,4 +29,13 @@ public class JpaContactPerson {
     @JoinColumn(name = "esal_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private JpaESAL joinedEsal;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "surname")
+    private String surname;
+
+    @Column(name = "phone_number")
+    private String phone_number;
 }

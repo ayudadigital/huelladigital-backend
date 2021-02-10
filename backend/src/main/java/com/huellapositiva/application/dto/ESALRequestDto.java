@@ -29,13 +29,6 @@ public class ESALRequestDto {
     private final String description;
 
     @Schema(
-            description = "URL with the ESAL's logo image",
-            example = ""
-    )
-    @NotBlank
-    private final String logoUrl;
-
-    @Schema(
             description = "ESAL's webpage",
             example = "https://www.foo-bar.com/"
     )
@@ -58,13 +51,15 @@ public class ESALRequestDto {
     private final String entityType;
 
     @Schema(
-            description = "Whether the ESAL has accepted the Privacy Policy"
+            description = "Whether the ESAL has accepted the Privacy Policy",
+            example = "True"
     )
     @NotBlank
     private final Boolean privacyPolicy;
 
     @Schema(
-            description = "Whether the ESAL has accepted the Data Protection Policy"
+            description = "Whether the ESAL has accepted the Data Protection Policy",
+            example = "True"
     )
     @NotBlank
     private final Boolean dataProtectionPolicy;

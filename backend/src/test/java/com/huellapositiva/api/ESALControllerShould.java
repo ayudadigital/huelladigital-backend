@@ -3,11 +3,9 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +50,20 @@ class ESALControllerShould {
         testData.resetData();
     }
 
+    private ESALRequestDto getESALRequestDto() {
+        return ESALRequestDto.builder()
+                .name("Huella Positiva")
+                .webpage("http://webpage.com")
+                .description("description")
+                .dataProtectionPolicy(true)
+                .entityType("Fundación")
+                .island("Gran Canaria")
+                .zipCode("35000")
+                .privacyPolicy(true)
+                .registeredEntity(true)
+                .build();
+    }
+
     @Test
     void create_an_ESAL_and_update_member_joined_ESAL() throws Exception {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -66,9 +78,9 @@ class ESALControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        JpaESAL jpaESAL = jpaESALRepository.findByName("Huella Positiva").orElseThrow(EntityNotFoundException::new);
+        JpaESAL jpaESAL = jpaESALRepository.findByName(esalRequestDto.getName())
+                .orElseThrow(EntityNotFoundException::new);
         assertThat(jpaESAL.getWebpage()).isEqualTo(esalRequestDto.getWebpage());
-        assertThat(jpaESAL.getLogoUrl()).isEqualTo(esalRequestDto.getLogoUrl());
         assertThat(jpaESAL.getDescription()).isEqualTo(esalRequestDto.getDescription());
         assertThat(jpaESAL.getRegisteredEntity()).isEqualTo(esalRequestDto.getRegisteredEntity());
         assertThat(jpaESAL.getEntityType()).isEqualTo(esalRequestDto.getEntityType());
@@ -78,33 +90,20 @@ class ESALControllerShould {
         assertThat(jpaESAL.getPrivacyPolicy()).isEqualTo(esalRequestDto.getPrivacyPolicy());
     }
 
-    private ESALRequestDto getESALRequestDto() {
-        return ESALRequestDto.builder()
-                .name("Huella Positiva")
-                .webpage("http://webpage.com")
-                .description("description")
-                .dataProtectionPolicy(true)
-                .entityType("Fundación")
-                .island("Gran Canaria")
-                .zipCode("35000")
-                .logoUrl("logourl")
-                .privacyPolicy(true)
-                .registeredEntity(true)
-                .build();
-    }
-
     @Test
     void create_an_ESAL_as_a_not_confirmed_contact_person() throws Exception {
         testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.CONTACT_PERSON_NOT_CONFIRMED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        ESALRequestDto esalRequestDto = getESALRequestDto();
         mvc.perform(post("/api/v1/esal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(getESALRequestDto()))
+                .content(objectMapper.writeValueAsString(esalRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
+        assertThat(jpaESALRepository.findByName(esalRequestDto.getName())).isPresent();
     }
 
     @Test
@@ -112,15 +111,25 @@ class ESALControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
+        ESALRequestDto esalRequestDto = getESALRequestDto();
         mvc.perform(post("/api/v1/esal/reviser")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(getESALRequestDto()))
+                .content(objectMapper.writeValueAsString(esalRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        assertThat(jpaESALRepository.findByName("Huella Positiva")).isPresent();
+        JpaESAL jpaESAL = jpaESALRepository.findByName(esalRequestDto.getName())
+                .orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaESAL.getWebpage()).isEqualTo(esalRequestDto.getWebpage());
+        assertThat(jpaESAL.getDescription()).isEqualTo(esalRequestDto.getDescription());
+        assertThat(jpaESAL.getRegisteredEntity()).isEqualTo(esalRequestDto.getRegisteredEntity());
+        assertThat(jpaESAL.getEntityType()).isEqualTo(esalRequestDto.getEntityType());
+        assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(esalRequestDto.getIsland());
+        assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(esalRequestDto.getZipCode());
+        assertThat(jpaESAL.getDataProtectionPolicy()).isEqualTo(esalRequestDto.getDataProtectionPolicy());
+        assertThat(jpaESAL.getPrivacyPolicy()).isEqualTo(esalRequestDto.getPrivacyPolicy());
     }
 
     @Test

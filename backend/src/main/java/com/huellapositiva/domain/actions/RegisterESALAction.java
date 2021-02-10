@@ -4,7 +4,6 @@ import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
-import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
 import com.huellapositiva.domain.repository.ESALRepository;
@@ -37,7 +36,6 @@ public class RegisterESALAction {
         ESAL esal = ESAL.builder()
                 .id(esalRepository.newId())
                 .name(dto.getName())
-                .logoUrl(dto.getLogoUrl())
                 .description(dto.getDescription())
                 .webpage(dto.getWebpage())
                 .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())
@@ -59,7 +57,6 @@ public class RegisterESALAction {
         ESAL esal = ESAL.builder()
                 .id(esalRepository.newId())
                 .name(dto.getName())
-                .logoUrl(dto.getLogoUrl())
                 .description(dto.getDescription())
                 .webpage(dto.getWebpage())
                 .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())

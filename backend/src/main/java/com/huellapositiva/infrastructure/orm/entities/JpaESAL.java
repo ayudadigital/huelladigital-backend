@@ -31,7 +31,7 @@ public class JpaESAL implements Serializable {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "logo_url", nullable = false)
+    @Column(name = "logo_url")
     private String logoUrl;
 
     @Column(name = "webpage")
@@ -49,7 +49,7 @@ public class JpaESAL implements Serializable {
     @Column(name = "data_protection_policy", nullable = false)
     private Boolean dataProtectionPolicy;
 
-    @JoinColumn(name = "location_id", referencedColumnName = "id")
+    @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JpaLocation location;
 

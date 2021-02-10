@@ -22,7 +22,6 @@ public class ESAL {
     @NotEmpty
     private final Id id;
     private final String description;
-    @NotEmpty
     private final String logoUrl;
     private final String webpage;
     @NotEmpty

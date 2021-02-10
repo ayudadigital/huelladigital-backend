@@ -41,7 +41,17 @@ public class ESALRepository {
     public void save(ESAL model) {
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEmail(model.getContactPersonEmail().toString())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact person not found"));
-        JpaESAL esal = JpaESAL.builder()
+        JpaESAL esal = buildJpaESAL(model);
+        try {
+            jpaESALRepository.save(esal);
+            jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
+        }
+    }
+
+    private JpaESAL buildJpaESAL(ESAL model) {
+        return JpaESAL.builder()
                 .id(model.getId().toString())
                 .name(model.getName())
                 .description(model.getDescription())
@@ -60,20 +70,10 @@ public class ESALRepository {
                 .privacyPolicy(model.getPrivacyPolicy())
                 .dataProtectionPolicy(model.getDataProtectionPolicy())
                 .build();
-
-        try {
-            jpaESALRepository.save(esal);
-            jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
-        } catch (DataIntegrityViolationException ex) {
-            throw new ESALAlreadyExistsException("Integrity violation found while persisting an ESAL", ex);
-        }
     }
 
     public void saveAsReviser(ESAL model) {
-        JpaESAL esal = JpaESAL.builder()
-                .id(model.getId().toString())
-                .name(model.getName())
-                .build();
+        JpaESAL esal = buildJpaESAL(model);
         try {
             jpaESALRepository.save(esal);
         } catch (DataIntegrityViolationException ex) {

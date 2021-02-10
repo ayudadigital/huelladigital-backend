@@ -29,9 +29,7 @@ public class RegisterESALContactPersonAction {
      * @return id of the ContactPerson created
      */
     public Id execute(RegisterESALMemberRequestDto dto){
-        // Validaciones
-
-        ////////////////////////////////
+        esalContactPersonService.validations(dto.getPhoneNumber());
 
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         Id id = esalContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), emailConfirmation);

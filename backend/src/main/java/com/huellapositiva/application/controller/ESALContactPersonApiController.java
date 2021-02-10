@@ -48,6 +48,10 @@ public class ESALContactPersonApiController {
                             description = "Ok, ESAL member has been registered successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, some parameter is not valid."
+                    ),
+                    @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, could not register the user due to a constraint violation.",
                             content = @Content(mediaType = "application/json")

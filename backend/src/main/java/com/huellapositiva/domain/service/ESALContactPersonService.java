@@ -2,7 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
-import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import static com.huellapositiva.domain.model.valueobjects.PhoneNumber.isNotPhoneNumber;
 
 @Slf4j
 @Service
@@ -54,5 +56,11 @@ public class ESALContactPersonService {
      */
     public Integer updateJoinedESAL(JpaContactPerson jpaContactPerson, JpaESAL jpaESAL) {
         return esalContactPersonRepository.updateESAL(jpaContactPerson.getId(), jpaESAL);
+    }
+
+    public void validations(String phone) {
+        if (isNotPhoneNumber(phone)) {
+            throw new InvalidFieldException("The phone number field is invalid");
+        }
     }
 }

@@ -238,7 +238,7 @@ public class TestData {
                 .id(UUID.randomUUID().toString())
                 .name(name)
                 .surname(surname)
-                .phone_number(phone_number)
+                .phoneNumber(phone_number)
                 .build();
         return jpaContactPersonRepository.save(contactPerson);
     }

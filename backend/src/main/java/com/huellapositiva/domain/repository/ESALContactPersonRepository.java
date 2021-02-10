@@ -59,7 +59,7 @@ public class ESALContactPersonRepository {
                 .id(contactPerson.getId().getValue())
                 .name(contactPerson.getName())
                 .surname(contactPerson.getSurname())
-                .phone_number(contactPerson.getPhone_number())
+                .phoneNumber(contactPerson.getPhoneNumber())
                 .build();
         jpaContactPersonRepository.save(jpaContactPerson);
         return contactPerson.getId();

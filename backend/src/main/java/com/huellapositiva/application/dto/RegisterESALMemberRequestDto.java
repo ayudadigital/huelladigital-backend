@@ -33,7 +33,7 @@ public class RegisterESALMemberRequestDto {
             example = "+850 12419287524"
     )
     @NotBlank
-    private final String phone_number;
+    private final String phoneNumber;
 
     @Schema(
             description = "Organization email unique",

@@ -1,7 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
-import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
@@ -18,7 +17,7 @@ public class ContactPerson extends User {
 
     private String surname;
 
-    private String phone_number;
+    private String phoneNumber;
 
     public ContactPerson(Id accountId, EmailAddress emailAddress, Id id) {
         super(accountId, emailAddress, id);
@@ -32,7 +31,7 @@ public class ContactPerson extends User {
         super(accountId, emailAddress, passwordHash, id);
         this.name = dto.getName();
         this.surname = dto.getSurname();
-        this.phone_number = dto.getPhone_number();
+        this.phoneNumber = dto.getPhoneNumber();
     }
 
     public boolean hasESAL() {

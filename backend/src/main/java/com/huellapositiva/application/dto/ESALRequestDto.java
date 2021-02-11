@@ -44,10 +44,10 @@ public class ESALRequestDto {
 
     @Schema(
             description = "Entity type of the ESAL",
-            example = "Asociación"
+            example = "Asociacion"
     )
     @NotBlank
-    @Pattern(regexp = "^(Asociación|Fundación|Federación Deportiva|Colegio Profesional|Club Deportivo)")
+    @Pattern(regexp = "^(Asociacion|Fundacion|Federacion Deportiva|Colegio Profesional|Club Deportivo)$")
     private final String entityType;
 
     @Schema(

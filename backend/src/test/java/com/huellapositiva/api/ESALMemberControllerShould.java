@@ -96,7 +96,7 @@ class ESALMemberControllerShould {
     void return_400_when_register_contact_person_with_malformed_data_request(RegisterESALMemberRequestDto registerESALMemberRequestDto) throws Exception {
         // GIVEN
         RegisterESALMemberRequestDto dto = registerESALMemberRequestDto;
-        // WHEN
+        // WHEN + THEN
         mvc.perform(post("/api/v1/contactperson")
                 .content(objectMapper.writeValueAsString(dto))
                 .contentType(APPLICATION_JSON)

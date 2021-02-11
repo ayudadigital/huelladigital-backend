@@ -2,9 +2,9 @@ package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
-import com.huellapositiva.domain.repository.ESALRepository;
 import com.huellapositiva.domain.service.ImageService;
 import com.huellapositiva.domain.service.RemoteStorageService;
+import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class UploadLogoAction {
     private final ESALContactPersonRepository esalContactPersonRepository;
 
     @Autowired
-    private final ESALRepository esalRepository;
+    private final JpaESALRepository jpaESALRepository;
 
     @Autowired
     private final ImageService imageService;
@@ -39,8 +39,7 @@ public class UploadLogoAction {
         imageService.validateEsalLogo(logo);
 
         ESAL joinedESAL = esalContactPersonRepository.getJoinedESAL(accountId);
-        URL photoUrl = remoteStorageService.uploadESALLogo(logo, joinedESAL.getId().toString());
-        joinedESAL.setLogoUrl(photoUrl);
-        esalRepository.save(joinedESAL);
+        URL logoURL = remoteStorageService.uploadESALLogo(logo, joinedESAL.getId().toString());
+        jpaESALRepository.updateLogo(joinedESAL.getId().getValue(), logoURL.toExternalForm());
     }
 }

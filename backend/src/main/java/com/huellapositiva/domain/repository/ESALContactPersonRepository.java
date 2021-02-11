@@ -88,6 +88,8 @@ public class ESALContactPersonRepository {
     public ESAL getJoinedESAL(String accountId) {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new UserNotFoundException("User not found. Account ID: " + accountId));
-        return ESAL.parseJpa(jpaContactPerson.getJoinedEsal());
+        ESAL esal = ESAL.parseJpa(jpaContactPerson.getJoinedEsal());
+        esal.setContactPersonEmail(EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
+        return esal;
     }
 }

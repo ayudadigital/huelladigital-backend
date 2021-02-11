@@ -116,7 +116,7 @@ class ESALControllerShould {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .file(new MockMultipartFile("logo", "huellapositiva-logo.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -135,7 +135,7 @@ class ESALControllerShould {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
+                .file(new MockMultipartFile("logo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -151,7 +151,7 @@ class ESALControllerShould {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/oversized.png");
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("photo", "Sample-png-image-3mb.png", "image/png", is))
+                .file(new MockMultipartFile("logo", "Sample-png-image-3mb.png", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -167,7 +167,7 @@ class ESALControllerShould {
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("photo", "pdf-test.pdf", "application/pdf", is))
+                .file(new MockMultipartFile("logo", "pdf-test.pdf", "application/pdf", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -182,7 +182,7 @@ class ESALControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
+                .file(new MockMultipartFile("logo", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())

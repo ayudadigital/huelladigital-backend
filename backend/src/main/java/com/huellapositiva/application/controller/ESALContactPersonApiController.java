@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -66,7 +67,7 @@ public class ESALContactPersonApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerContactPerson(@RequestBody RegisterESALMemberRequestDto dto, HttpServletResponse res) {
+    public JwtResponseDto registerContactPerson(@Validated @RequestBody RegisterESALMemberRequestDto dto, HttpServletResponse res) {
         Id contactPersonId = registerESALContactPersonAction.execute(dto);
         String username = dto.getEmail();
         List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());

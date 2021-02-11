@@ -5,6 +5,7 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
@@ -174,7 +175,6 @@ public class TestData {
                 .build();
 
         if (REVISER.toString().equals(userRole.toString())) {
-            System.out.println("HOlaaaa");
             JpaReviser jpaReviser = JpaReviser.builder()
                     .id(Id.newId().toString())
                     .credential(jpaCredential)
@@ -264,6 +264,7 @@ public class TestData {
 
 
     public ProposalRequestDto buildProposalDto(){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         return ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -271,14 +272,14 @@ public class TestData {
                 .address("Avenida Weyler 4")
                 .zipCode("12345")
                 .island("Tenerife")
-                .startingProposalDate("15-06-2021")
-                .closingProposalDate("24-06-2021")
+                .startingProposalDate(simpleDateFormat.format(Date.from(now().plus(5, DAYS))))
+                .closingProposalDate(simpleDateFormat.format(Date.from(now().plus(10, DAYS))))
+                .startingVolunteeringDate(simpleDateFormat.format(Date.from(now().plus(15, DAYS))))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
-                .startingVolunteeringDate("30-06-2021")
                 .category(ProposalCategory.ON_SITE.toString())
                 .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
                 .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
@@ -297,14 +298,15 @@ public class TestData {
 
     @SneakyThrows
     public Proposal buildProposal(ESAL esal, ProposalStatus status) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         Proposal proposal = Proposal.builder()
                 .id(Id.newId())
                 .title("Recogida de ropita")
                 .esal(esal)
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
-                .startingProposalDate(ProposalDate.createStartingProposalDate("20-01-2021"))
-                .closingProposalDate(ProposalDate.createClosingProposalDate("24-01-2021"))
-                .startingVolunteeringDate(ProposalDate.createClosingProposalDate("25-01-2021"))
+                .startingProposalDate(new ProposalDate(Date.from(now().plus(5, DAYS))))
+                .closingProposalDate(ProposalDate.createClosingProposalDate(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
+                .startingVolunteeringDate(new ProposalDate(Date.from(now().plus(15, DAYS))))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
                 .status(status)
@@ -330,8 +332,6 @@ public class TestData {
 
     @SneakyThrows
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-
         JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);
         JpaVolunteer jpaVolunteer2 = createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD, Roles.VOLUNTEER);
 
@@ -353,9 +353,9 @@ public class TestData {
                         .island("Tenerife")
                         .zipCode("12345").build())
                 .esal(esal)
-                .startingProposalDate(simpleDateFormat.parse("20-08-2020"))
-                .closingProposalDate( simpleDateFormat.parse("24-08-2020"))
-                .startingVolunteeringDate(simpleDateFormat.parse("25-08-2020"))
+                .startingProposalDate(Date.from(now().plus(5, DAYS)))
+                .closingProposalDate(Date.from(now().plus(10, DAYS)))
+                .startingVolunteeringDate(Date.from(now().plus(15, DAYS)))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -395,9 +395,9 @@ public class TestData {
                         .zipCode("12345")
                         .island("Tenerife").build())
                 .esal(esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-08-2020"))
-                .closingProposalDate( new SimpleDateFormat("dd-MM-yyyy").parse("24-08-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-08-2020"))
+                .startingProposalDate(Date.from(now().plus(5, DAYS)))
+                .closingProposalDate(Date.from(now().plus(10, DAYS)))
+                .startingVolunteeringDate(Date.from(now().plus(15, DAYS)))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -429,9 +429,9 @@ public class TestData {
                 .title("Recogida de ropita")
                 .esal(new ESAL(esal.getName(), new Id(esal.getId())))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
-                .startingProposalDate(new ProposalDate(Date.from(now().minus(1, DAYS))))
-                .closingProposalDate(new ProposalDate(Date.from(now().plus(1, DAYS))))
-                .startingVolunteeringDate(new ProposalDate(Date.from(now().plus(2, DAYS))))
+                .startingProposalDate(new ProposalDate(Date.from(now().plus(5, DAYS))))
+                .closingProposalDate(new ProposalDate(Date.from(now().plus(10, DAYS))))
+                .startingVolunteeringDate(new ProposalDate(Date.from(now().plus(15, DAYS))))
                 .requiredDays("Weekends")
                 .permittedAgeRange(AgeRange.create(18, 26))
                 .status(PUBLISHED)

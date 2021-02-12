@@ -3,7 +3,6 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,38 +21,22 @@ public class ImageService {
 
     private final Set<String> imageExtensions = new HashSet<>(Arrays.asList(".jpg", ".jpeg", ".png", ".gif"));
 
-    private final int profileImageMaxBytes;
-    private final int profileImageMaxWidth;
-    private final int profileImageMaxHeight;
+    private static final int PROFILE_IMAGE_MAX_BYTES = 1100000;
 
-    private final int esalLogoMaxBytes;
-    private final int esalLogoMaxWidth;
-    private final int esalLogoMaxHeight;
+    private static final int PROFILE_IMAGE_MAX_WIDTH = 400;
 
-    public ImageService(@Value("${huellapositiva.profile.image.max-bytes}") int profileImageMaxBytes,
-                        @Value("${huellapositiva.profile.image.max-width}") int profileImageMaxWidth,
-                        @Value("${huellapositiva.profile.image.max-height}") int profileImageMaxHeight,
-                        @Value("1100000") int esalLogoMaxBytes,
-                        @Value("400") int esalLogoMaxWidth,
-                        @Value("400") int esalLogoMaxHeight){
-        this.profileImageMaxBytes = profileImageMaxBytes;
-        this.profileImageMaxWidth= profileImageMaxWidth;
-        this.profileImageMaxHeight = profileImageMaxHeight;
-        this.esalLogoMaxBytes = esalLogoMaxBytes;
-        this.esalLogoMaxWidth = esalLogoMaxWidth;
-        this.esalLogoMaxHeight = esalLogoMaxHeight;
-    }
+    private static final int PROFILE_IMAGE_MAX_HEIGHT = 400;
 
-    /**
-     * Validate profile image.
-     *
-     * @param photo new photo of profile
-     */
-    public void validateProfileImage(MultipartFile photo) throws IOException {
-        validateImage(photo, profileImageMaxBytes, profileImageMaxWidth, profileImageMaxHeight);
-    }
+    private static final int ESAL_LOGO_MAX_BYTES = 1100000;
 
-    private void validateImage(MultipartFile photo, int imageMaxBytes, int imageMaxWidth, int imageMaxHeight) throws IOException {
+    private static final int ESAL_LOGO_MAX_WIDTH = 400;
+
+    private static final int ESAL_LOGO_MAX_HEIGHT = 400;
+
+    private void validateImage(MultipartFile photo,
+                               int imageMaxBytes,
+                               int imageMaxWidth,
+                               int imageMaxHeight) throws IOException {
         if (photo.getSize() > imageMaxBytes) {
             throw new InvalidFieldException("The image size is too big. Max size: " + imageMaxBytes);
         }
@@ -75,11 +58,20 @@ public class ImageService {
     }
 
     /**
+     * Validate profile image.
+     *
+     * @param photo new photo of profile
+     */
+    public void validateProfileImage(MultipartFile photo) throws IOException {
+        validateImage(photo, PROFILE_IMAGE_MAX_BYTES, PROFILE_IMAGE_MAX_WIDTH, PROFILE_IMAGE_MAX_HEIGHT);
+    }
+
+    /**
      * Validate esal logo.
      *
      * @param logo new logo of profile
      */
     public void validateEsalLogo(MultipartFile logo) throws IOException {
-        validateImage(logo, esalLogoMaxBytes, esalLogoMaxWidth, esalLogoMaxHeight);
+        validateImage(logo, ESAL_LOGO_MAX_BYTES, ESAL_LOGO_MAX_WIDTH, ESAL_LOGO_MAX_HEIGHT);
     }
 }

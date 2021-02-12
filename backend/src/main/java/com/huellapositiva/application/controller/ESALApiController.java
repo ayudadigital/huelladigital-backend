@@ -125,7 +125,7 @@ public class ESALApiController {
     @PostMapping(path = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void uploadLogo(@RequestParam("logo")MultipartFile logo,
+    public void uploadLogo(@RequestPart("logo")MultipartFile logo,
                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
             uploadLogoAction.execute(logo, accountId);

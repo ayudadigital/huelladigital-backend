@@ -10,6 +10,8 @@ import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,7 +22,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
@@ -127,15 +131,17 @@ class ESALControllerShould {
         assertThat(esal.getLogoUrl()).isNotNull();
     }
 
-    @Test
-    void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
+    @ParameterizedTest
+    @MethodSource("provideInvalidImages")
+    void return_400_when_the_photo_uploaded_is_too_big(List<String> logoURI) throws Exception {
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/Sample-png-image-3mb.png");
+        MockMultipartFile file = new MockMultipartFile("logo", logoURI.get(0),
+                logoURI.get(1), getClass().getClassLoader().getResourceAsStream(logoURI.get(0)));
         mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("logo", "Sample-png-image-3mb.png", "image/png", is))
+                .file(file)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
@@ -143,36 +149,12 @@ class ESALControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void return_400_when_the_photo_uploaded_is_oversized() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/oversized.png");
-        mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("logo", "Sample-png-image-3mb.png", "image/png", is))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
-                .with(csrf())
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void return_400_when_uploaded_file_is_not_JPG_JPEG_PNG_GIF() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        InputStream is = getClass().getClassLoader().getResourceAsStream("documents/pdf-test.pdf");
-        mvc.perform(multipart("/api/v1/esal/logo")
-                .file(new MockMultipartFile("logo", "pdf-test.pdf", "application/pdf", is))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .contentType(MULTIPART_FORM_DATA)
-                .with(csrf())
-                .accept(APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+    private static Stream<List<String>> provideInvalidImages(){
+        return Stream.of(
+                List.of("images/Sample-png-image-3mb.png","image/png"),
+                List.of("images/oversized.png","image/png"),
+                List.of("documents/pdf-test.pdf","application/pdf")
+        );
     }
 
     @Test

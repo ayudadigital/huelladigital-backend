@@ -21,8 +21,7 @@ class ImageServiceShould {
 
     @BeforeEach
     void beforeEach() {
-        imageService = new ImageService(1024000, 400, 400,
-                102400,400,400);
+        imageService = new ImageService();
     }
 
     @ParameterizedTest
@@ -35,6 +34,7 @@ class ImageServiceShould {
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
         assertThrows(InvalidFieldException.class, () -> imageService.validateProfileImage(result));
+        assertThrows(InvalidFieldException.class, () -> imageService.validateEsalLogo(result));
     }
 
     private static Stream<String> provideIncorrectPhotos() {
@@ -55,5 +55,6 @@ class ImageServiceShould {
         MultipartFile result = new MockMultipartFile(name, image, contentType, content);
 
         assertThrows(FileTypeNotSupportedException.class, () -> imageService.validateProfileImage(result));
+        assertThrows(FileTypeNotSupportedException.class, () -> imageService.validateEsalLogo(result));
     }
 }

@@ -5,17 +5,23 @@ import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.service.EmailCommunicationService;
+import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.huellapositiva.util.TestData.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterContactPersonShould {
+
+    @Autowired
+    private TestData testData;
 
     @Mock
     private ESALContactPersonService esalContactPersonService;
@@ -33,11 +39,11 @@ class RegisterContactPersonShould {
     @Test
     void send_confirmation_email() {
         registerESALContactPersonAction.execute(RegisterESALMemberRequestDto.builder()
-                .name("Fernando")
-                .surname("Alonso")
-                .phoneNumber("+34 928573378")
-                .email("foo@huellapositiva.com")
-                .password("123456")
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
+                .phoneNumber(VALID_PHONE)
+                .email(DEFAULT_EMAIL)
+                .password(DEFAULT_PASSWORD)
                 .build());
 
         verify(communicationService).sendRegistrationConfirmationEmail(any());

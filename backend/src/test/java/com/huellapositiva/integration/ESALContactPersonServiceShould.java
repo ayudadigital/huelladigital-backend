@@ -49,9 +49,9 @@ class ESALContactPersonServiceShould {
     void register_a_new_member() {
         // GIVEN
         RegisterESALMemberRequestDto dto = RegisterESALMemberRequestDto.builder()
-                .name("Fernando")
-                .surname("Alonso")
-                .phoneNumber("+34 928123242")
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
+                .phoneNumber(VALID_PHONE)
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();

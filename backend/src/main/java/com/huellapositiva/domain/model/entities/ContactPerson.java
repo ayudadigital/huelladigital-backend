@@ -19,16 +19,16 @@ public class ContactPerson extends User {
 
     private String phoneNumber;
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, Id id) {
-        super(accountId, emailAddress, id);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, Id contactPersonId) {
+        super(accountId, emailAddress, contactPersonId);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id) {
-        super(accountId, emailAddress, passwordHash, id);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId) {
+        super(accountId, emailAddress, passwordHash, contactPersonId);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id id, RegisterESALMemberRequestDto dto) {
-        super(accountId, emailAddress, passwordHash, id);
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId, RegisterESALMemberRequestDto dto) {
+        super(accountId, emailAddress, passwordHash, contactPersonId);
         this.name = dto.getName();
         this.surname = dto.getSurname();
         this.phoneNumber = dto.getPhoneNumber();

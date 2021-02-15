@@ -66,6 +66,8 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
+    private final UpdateProposalAction updateProposalAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
@@ -510,7 +512,8 @@ public class ProposalApiController {
     @PostMapping("/updateProposal")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProposal(@Parameter(hidden = true) @AuthenticationPrincipal String accountId){
-        System.out.println("Probando");
+    public void updateProposal(@RequestBody UpdateProposalRequestDto updateProposalRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+        //System.out.println("Probando");
+        updateProposalAction.execute(updateProposalRequestDto, accountId);
     }
 }

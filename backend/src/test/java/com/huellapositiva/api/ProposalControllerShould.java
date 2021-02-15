@@ -842,13 +842,37 @@ class ProposalControllerShould {
     @Test
     void return_200_when_updates_proposal_and_change_status_to_review_pending() throws Exception {
         // GIVEN
-        testData.registerESALAndProposal(REVIEW_PENDING);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
+                .id(jpaProposal.getId())
+                .title(jpaProposal.getTitle())
+                .esalName(jpaProposal.getEsal().getName())
+                .province(jpaProposal.getLocation().getProvince())
+                .town(jpaProposal.getLocation().getTown())
+                .address(jpaProposal.getLocation().getAddress())
+                .island(jpaProposal.getLocation().getIsland())
+                .zipCode(jpaProposal.getLocation().getZipCode())
+                .requiredDays(jpaProposal.getRequiredDays())
+                .minimumAge(jpaProposal.getMinimumAge())
+                .maximumAge(jpaProposal.getMaximumAge())
+                .startingProposalDate(jpaProposal.getStartingProposalDate().toString())
+                .closingProposalDate(jpaProposal.getClosingProposalDate().toString())
+                .startingVolunteeringDate(jpaProposal.getStartingVolunteeringDate().toString())
+                .description(jpaProposal.getDescription())
+                .durationInDays(jpaProposal.getDurationInDays())
+                .category(jpaProposal.getCategory())
+                .skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
+                .requirements(new String[]{"Traer DNI"})
+                .extraInfo(jpaProposal.getExtraInfo())
+                .instructions(jpaProposal.getInstructions())
+                .build();
 
         // THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                //.content(objectMapper.writeValueAsString(changeStatusVolunteerDtos))
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))

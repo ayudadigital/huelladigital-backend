@@ -19,6 +19,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusReposit
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 
@@ -27,6 +28,7 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLIS
 
 @Slf4j
 @Service
+@Transactional
 @AllArgsConstructor
 public class ProposalService {
 

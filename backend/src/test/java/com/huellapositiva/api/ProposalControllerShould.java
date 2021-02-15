@@ -838,4 +838,20 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
+
+    @Test
+    void return_200_when_updates_proposal_and_change_status_to_review_pending() throws Exception {
+        // GIVEN
+        testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                //.content(objectMapper.writeValueAsString(changeStatusVolunteerDtos))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
 }

@@ -506,4 +506,11 @@ public class ProposalApiController {
     public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
+
+    @PostMapping("/updateProposal")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProposal(@Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+        System.out.println("Probando");
+    }
 }

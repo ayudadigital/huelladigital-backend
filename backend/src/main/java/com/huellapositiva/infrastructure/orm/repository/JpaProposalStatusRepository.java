@@ -14,4 +14,6 @@ public interface JpaProposalStatusRepository extends JpaRepository<JpaProposalSt
     @Query("FROM JpaProposalStatus s WHERE s.id = :id")
     Optional<JpaProposalStatus> findById(@Param("id") Integer id);
 
+    @Query("FROM JpaProposalStatus s WHERE s.name = :name")
+    Optional<JpaProposalStatus> findByName(@Param("name") String name);
 }

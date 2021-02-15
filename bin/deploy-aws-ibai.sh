@@ -7,9 +7,9 @@ TASK_DEFINITION=$4
 DOCKER_TAG=$5
 
 DOCKER_IMAGE=ayudadigital/huelladigital-backend:${DOCKER_TAG}
-CLUSTER_NAME=default
-TASK_FAMILY=backend-task
-SERVICE_NAME=backend-service-ssm
+CLUSTER_NAME=dev-ecs-cluster
+TASK_FAMILY=dev-huellapositiva-backend-td
+SERVICE_NAME=huellapositiva-backend-ecs-service
 
 #TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition ${TASK_DEFINITION_NAME} --region us-east-1)
 #TASK_DEFINITION=$(cat ~/Documents/ayudadigital/backend_task_definition_template.json)

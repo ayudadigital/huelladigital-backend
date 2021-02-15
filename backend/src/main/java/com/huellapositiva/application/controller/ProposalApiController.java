@@ -514,6 +514,6 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProposal(@RequestBody UpdateProposalRequestDto updateProposalRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         //System.out.println("Probando");
-        updateProposalAction.execute(updateProposalRequestDto, accountId);
+        updateProposalAction.execute(updateProposalRequestDto);
     }
 }

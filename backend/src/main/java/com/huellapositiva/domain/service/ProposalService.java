@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
+import com.huellapositiva.application.dto.UpdateProposalRequestDto;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
@@ -13,6 +14,7 @@ import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
@@ -21,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.CHANGES_REQUESTED;
@@ -100,6 +103,12 @@ public class ProposalService {
         jpaProposalRepository.updateStatusById(proposal.getId().getValue(), jpaProposalStatus);
 
         return proposalRevisionEmail;
+    }
+
+    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto){
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(updateProposalRequestDto.getId())
+                .orElseThrow(EntityNotFoundException::new);
+        System.out.println("Holaaa");
     }
 
     /**

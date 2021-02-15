@@ -15,7 +15,8 @@ public class UpdateProposalAction {
 
     public final ProposalService proposalService;
 
-    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId) {
+    public void execute(UpdateProposalRequestDto updateProposalRequestDto) {
+        proposalService.updateProposal(updateProposalRequestDto);
         //UpdateProfileResult result = profileService.updateProfile(updateProfileRequestDto, accountId);
         /*if (result.isNewEmail()) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(updateProfileRequestDto.getEmail(), emailConfirmationBaseUrl);

@@ -18,6 +18,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
+@Data
 @AllArgsConstructor
 public class Proposal {
 
@@ -27,43 +28,43 @@ public class Proposal {
     private final Id id;
 
     @NotEmpty
-    private final String title;
+    private String title;
 
     @NotEmpty
-    private final ESAL esal;
+    private ESAL esal;
 
     @NotEmpty
-    private final Location location;
+    private Location location;
 
     @NotEmpty
-    private final String requiredDays;
+    private String requiredDays;
 
     @NotEmpty
-    private final AgeRange permittedAgeRange;
+    private AgeRange permittedAgeRange;
 
     @NotEmpty
-    private final ProposalDate startingProposalDate;
+    private ProposalDate startingProposalDate;
 
     @NotEmpty
-    private final ProposalDate closingProposalDate;
+    private ProposalDate closingProposalDate;
 
     @NotEmpty
-    private final ProposalDate startingVolunteeringDate;
+    private ProposalDate startingVolunteeringDate;
 
     @NotEmpty
-    private final String description;
+    private String description;
 
     @NotEmpty
-    private final String durationInDays;
+    private String durationInDays;
 
     @NotEmpty
-    private final ProposalCategory category;
+    private ProposalCategory category;
 
     @NotEmpty
-    private final String extraInfo;
+    private String extraInfo;
 
     @NotEmpty
-    private final String instructions;
+    private String instructions;
 
     private final List<Volunteer> inscribedVolunteers = new ArrayList<>();
 
@@ -83,8 +84,28 @@ public class Proposal {
         skills.add(skill);
     }
 
+    public void deleteSkill(Skill skill) {
+        int positionOfSkill = -1;
+        for (Skill skillProposal : skills) {
+            if (skill.getName().equals(skillProposal.getName())){
+                positionOfSkill = skills.indexOf(skillProposal);
+            }
+        }
+        skills.remove(positionOfSkill);
+    }
+
     public void addRequirement(Requirement requirement) {
         requirements.add(requirement);
+    }
+
+    public void deleteRequeriment(Requirement requirement) {
+        int positionOfRequirement = -1;
+        for (Requirement requirementProposal : requirements) {
+            if (requirement.getName().equals(requirementProposal.getName())){
+                positionOfRequirement = requirements.indexOf(requirementProposal);
+            }
+        }
+        requirements.remove(positionOfRequirement);
     }
 
     public static Proposal parseDto(ProposalRequestDto dto, ESAL joinedESAL) throws ParseException {

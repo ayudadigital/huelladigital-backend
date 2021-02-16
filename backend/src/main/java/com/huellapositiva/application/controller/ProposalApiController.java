@@ -514,6 +514,10 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProposal(@RequestBody UpdateProposalRequestDto updateProposalRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         //System.out.println("Probando");
-        updateProposalAction.execute(updateProposalRequestDto);
+        try {
+            updateProposalAction.execute(updateProposalRequestDto);
+        } catch (EntityNotFoundException | ParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request, the proposal don't exist in the database");
+        }
     }
 }

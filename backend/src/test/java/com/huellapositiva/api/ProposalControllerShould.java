@@ -35,6 +35,8 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createCl
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -845,6 +847,7 @@ class ProposalControllerShould {
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
                 .id(jpaProposal.getId())
                 .title(jpaProposal.getTitle())
@@ -857,9 +860,9 @@ class ProposalControllerShould {
                 .requiredDays(jpaProposal.getRequiredDays())
                 .minimumAge(jpaProposal.getMinimumAge())
                 .maximumAge(jpaProposal.getMaximumAge())
-                .startingProposalDate(jpaProposal.getStartingProposalDate().toString())
-                .closingProposalDate(jpaProposal.getClosingProposalDate().toString())
-                .startingVolunteeringDate(jpaProposal.getStartingVolunteeringDate().toString())
+                .startingProposalDate(simpleDateFormat.format(Date.from(now().plus(5, DAYS))))
+                .closingProposalDate(simpleDateFormat.format(Date.from(now().plus(10, DAYS))))
+                .startingVolunteeringDate(simpleDateFormat.format(Date.from(now().plus(15, DAYS))))
                 .description(jpaProposal.getDescription())
                 .durationInDays(jpaProposal.getDurationInDays())
                 .category(jpaProposal.getCategory())

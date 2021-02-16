@@ -11,7 +11,7 @@ import java.util.Objects;
 @Setter
 public class ESAL {
 
-    private final String name;
+    private String name;
 
     private final Id id;
 

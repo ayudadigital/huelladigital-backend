@@ -1,24 +1,26 @@
 package com.huellapositiva.domain.model.valueobjects;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
 @Getter
+@Setter
 public class Location {
 
     private final Id id;
 
-    private final String province;
+    private String province;
 
-    private final String town;
+    private String town;
 
-    private final String address;
+    private String address;
 
-    private final String zipCode;
+    private String zipCode;
 
-    private final String island;
+    private String island;
 
     public Location(String province, String town, String address, String zipCode, String island) {
         this.zipCode = zipCode;

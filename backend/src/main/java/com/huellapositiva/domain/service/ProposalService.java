@@ -7,10 +7,7 @@ import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.*;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
-import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
-import com.huellapositiva.domain.model.valueobjects.Token;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
@@ -25,6 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.net.URI;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.CHANGES_REQUESTED;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
@@ -105,10 +106,102 @@ public class ProposalService {
         return proposalRevisionEmail;
     }
 
-    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto){
-        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(updateProposalRequestDto.getId())
-                .orElseThrow(EntityNotFoundException::new);
-        System.out.println("Holaaa");
+    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto) throws ParseException {
+        Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
+        /*JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(updateProposalRequestDto.getId())
+                .orElseThrow(EntityNotFoundException::new);*/
+
+        /* Validación si la edad es número */
+        /* Validación si las fechas tienen sentido */
+        /* Validación de proposalCategory, es un ENUM */
+        /* Las skills son parte de la base de datos*/
+        /* Los requeriments también son parte de la base de datos*/
+
+        proposal.setTitle(updateProposalRequestDto.getTitle());
+        proposal.getEsal().setName(updateProposalRequestDto.getEsalName());
+        proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
+        proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
+        proposal.getLocation().setTown(updateProposalRequestDto.getTown());
+        proposal.getLocation().setZipCode(updateProposalRequestDto.getZipCode());
+        proposal.getLocation().setAddress(updateProposalRequestDto.getAddress());
+        proposal.setRequiredDays(updateProposalRequestDto.getRequiredDays());
+        proposal.setPermittedAgeRange(
+                AgeRange.create(
+                        updateProposalRequestDto.getMinimumAge(),
+                        updateProposalRequestDto.getMaximumAge()
+                )
+        );
+        proposal.setStartingProposalDate(
+                ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate())
+        );
+        proposal.setStartingProposalDate(
+                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getStartingProposalDate())
+        );
+        proposal.setStartingProposalDate(
+                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingProposalDate())
+        );
+        proposal.setDescription(updateProposalRequestDto.getDescription());
+        proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
+
+        if ("ON_SITE".equals(updateProposalRequestDto.getCategory())) {
+            proposal.setCategory(ProposalCategory.ON_SITE);
+        } else if ("REMOTE".equals(updateProposalRequestDto.getCategory())) {
+            proposal.setCategory(ProposalCategory.REMOTE);
+        } else {
+            proposal.setCategory(ProposalCategory.MIXED);
+        }
+
+        proposal.setExtraInfo(updateProposalRequestDto.getExtraInfo());
+        proposal.setInstructions(updateProposalRequestDto.getInstructions());
+
+        /* Es para saltarme una excepción de concurrencia*/
+        List<Skill> deleteSkills = new ArrayList<>();
+        for (Skill skill : proposal.getSkills()) {
+            String name = skill.getName();
+            String description = skill.getDescription();
+            Skill skillToKill = new Skill(name, description);
+            deleteSkills.add(skillToKill);
+        }
+        for (Skill skill : deleteSkills) {
+            proposal.deleteSkill(skill);
+        }
+        for (String[] skill : updateProposalRequestDto.getSkills()) {
+            Skill newSkill = new Skill(skill[0], skill[1]);
+            proposal.addSkill(newSkill);
+        }
+        /*---------------------------*/
+
+        /* Es para saltarme una excepción de concurrencia*/
+        List<Requirement> deleteRequirements = new ArrayList<>();
+        for (Requirement requirement : proposal.getRequirements()) {
+            String name = requirement.getName();
+            Requirement requirementToKill = new Requirement(name);
+            deleteRequirements.add(requirementToKill);
+        }
+        for (Requirement requirement : deleteRequirements) {
+            proposal.deleteRequeriment(requirement);
+        }
+        for (String requirement : updateProposalRequestDto.getRequirements()) {
+            Requirement newRequirement = new Requirement(requirement);
+            proposal.addRequirement(newRequirement);
+        }
+        /*---------------------------*/
+
+        System.out.println("Hola");
+
+        /*Arrays.stream(updateProposalRequestDto.getSkills())
+                .forEach(s -> {
+                    if (proposal.getSkills().contains(s[0])) {
+                        proposal.addSkill(new Skill(s[0], s[1]));
+                    }
+                });
+
+        Arrays.stream(updateProposalRequestDto.getRequirements())
+                .forEach(r -> {
+                    if (proposal.getRequirements().contains(r)) {
+                        proposal.addRequirement(new Requirement(r));
+                    }
+                });*/
     }
 
     /**

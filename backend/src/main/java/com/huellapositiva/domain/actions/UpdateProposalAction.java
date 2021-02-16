@@ -9,13 +9,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
+
 @Service
 @RequiredArgsConstructor
 public class UpdateProposalAction {
 
     public final ProposalService proposalService;
 
-    public void execute(UpdateProposalRequestDto updateProposalRequestDto) {
+    public void execute(UpdateProposalRequestDto updateProposalRequestDto) throws ParseException {
         proposalService.updateProposal(updateProposalRequestDto);
         //UpdateProfileResult result = profileService.updateProfile(updateProfileRequestDto, accountId);
         /*if (result.isNewEmail()) {

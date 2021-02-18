@@ -35,13 +35,13 @@ public class ESALRepository {
     public ESAL findByName(String esalName) {
         JpaESAL esal = jpaESALRepository.findByName(esalName)
                 .orElseThrow(() -> new RuntimeException("Could not find the ESAL by the provided name"));
-        return ESAL.parseJpa(esal);
+        return ESAL.fromJpa(esal);
     }
 
     public void save(ESAL model) {
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEmail(model.getContactPersonEmail().toString())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact person not found"));
-        JpaESAL esal = buildJpaESAL(model);
+        JpaESAL esal = toJpa(model);
         try {
             jpaESALRepository.save(esal);
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
@@ -50,13 +50,13 @@ public class ESALRepository {
         }
     }
 
-    private JpaESAL buildJpaESAL(ESAL model) {
+    private JpaESAL toJpa(ESAL model) {
         return JpaESAL.builder()
                 .id(model.getId().toString())
                 .name(model.getName())
                 .description(model.getDescription())
                 .logoUrl(model.getLogoUrl() != null ? model.getLogoUrl().toExternalForm() : null)
-                .webpage(model.getWebpage())
+                .website(model.getWebsite())
                 .location(JpaLocation.builder()
                         .id(model.getLocation().getId().toString())
                         .province(model.getLocation().getProvince())
@@ -65,15 +65,15 @@ public class ESALRepository {
                         .zipCode(model.getLocation().getZipCode())
                         .island(model.getLocation().getIsland())
                         .build())
-                .registeredEntity(model.getRegisteredEntity())
+                .registeredEntity(model.isRegisteredEntity())
                 .entityType(model.getEntityType())
-                .privacyPolicy(model.getPrivacyPolicy())
-                .dataProtectionPolicy(model.getDataProtectionPolicy())
+                .privacyPolicy(model.isPrivacyPolicy())
+                .dataProtectionPolicy(model.isDataProtectionPolicy())
                 .build();
     }
 
     public void saveAsReviser(ESAL model) {
-        JpaESAL esal = buildJpaESAL(model);
+        JpaESAL esal = toJpa(model);
         try {
             jpaESALRepository.save(esal);
         } catch (DataIntegrityViolationException ex) {

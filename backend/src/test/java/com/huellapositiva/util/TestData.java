@@ -5,7 +5,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
@@ -260,7 +259,7 @@ public class TestData {
                 .name(esalName)
                 .description("description")
                 .logoUrl("logourl")
-                .webpage("webpage.com")
+                .website("website.com")
                 .location(JpaLocation.builder()
                         .id(Id.newId().toString())
                         .province(VALID_PROVINCE)
@@ -282,7 +281,7 @@ public class TestData {
 
     public ESAL createESAL(String name) {
         JpaESAL savedEsal = createJpaESAL(buildJpaESAL(name));
-        return ESAL.parseJpa(savedEsal);
+        return ESAL.fromJpa(savedEsal);
     }
 
     public JpaProposal createProposal(JpaProposal jpaProposal) {
@@ -455,7 +454,7 @@ public class TestData {
         Proposal proposal = Proposal.builder()
                 .id(Id.newId())
                 .title("Recogida de ropita")
-                .esal(ESAL.parseJpa(esal))
+                .esal(ESAL.fromJpa(esal))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
                 .startingProposalDate(new ProposalDate(Date.from(now().plus(5, DAYS))))
                 .closingProposalDate(new ProposalDate(Date.from(now().plus(10, DAYS))))

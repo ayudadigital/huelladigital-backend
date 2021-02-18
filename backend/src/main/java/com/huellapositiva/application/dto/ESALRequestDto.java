@@ -29,18 +29,18 @@ public class ESALRequestDto {
     private final String description;
 
     @Schema(
-            description = "ESAL's webpage",
+            description = "ESAL's website",
             example = "https://www.foo-bar.com/"
     )
     @Pattern(regexp = "^https?://(www.)?[-a-zA-Z0-9+&@#%=~_|]*.(com|es|net|org)/[-a-zA-Z0-9+&@#%=~_|]*")
-    private final String webpage;
+    private final String website;
 
     @Schema(
             description = "Whether the ESAL is registered as an Volunteering Entity by Gobierno de Canarias",
-            example = "True"
+            example = "true"
     )
     @NotBlank
-    private final Boolean registeredEntity;
+    private final boolean registeredEntity;
 
     @Schema(
             description = "Entity type of the ESAL",
@@ -52,17 +52,17 @@ public class ESALRequestDto {
 
     @Schema(
             description = "Whether the ESAL has accepted the Privacy Policy",
-            example = "True"
+            example = "true"
     )
     @NotBlank
-    private final Boolean privacyPolicy;
+    private final boolean privacyPolicy;
 
     @Schema(
             description = "Whether the ESAL has accepted the Data Protection Policy",
-            example = "True"
+            example = "true"
     )
     @NotBlank
-    private final Boolean dataProtectionPolicy;
+    private final boolean dataProtectionPolicy;
 
     @Schema(
             description = "Where the ESAL is located. TIP: Only can be the eight islands of Canary Islands",

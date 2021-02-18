@@ -35,19 +35,19 @@ public class JpaESAL implements Serializable {
     private String logoUrl;
 
     @Column(name = "webpage")
-    private String webpage;
+    private String website;
 
     @Column(name = "registered_entity", nullable = false)
-    private Boolean registeredEntity;
+    private boolean registeredEntity;
 
     @Column(name = "entity_type", nullable = false)
     private String entityType;
 
     @Column(name = "privacy_policy", nullable = false)
-    private Boolean privacyPolicy;
+    private boolean privacyPolicy;
 
     @Column(name = "data_protection_policy", nullable = false)
-    private Boolean dataProtectionPolicy;
+    private boolean dataProtectionPolicy;
 
     @JoinColumn(name = "location_id", referencedColumnName = "id", nullable = false)
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)

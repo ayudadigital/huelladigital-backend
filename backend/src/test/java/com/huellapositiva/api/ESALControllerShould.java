@@ -59,7 +59,7 @@ class ESALControllerShould {
     private ESALRequestDto getESALRequestDto() {
         return ESALRequestDto.builder()
                 .name("Huella Positiva")
-                .webpage("http://webpage.com")
+                .website("http://website.com")
                 .description("description")
                 .dataProtectionPolicy(true)
                 .entityType("Fundacion")
@@ -86,14 +86,14 @@ class ESALControllerShould {
 
         JpaESAL jpaESAL = jpaESALRepository.findByName(esalRequestDto.getName())
                 .orElseThrow(EntityNotFoundException::new);
-        assertThat(jpaESAL.getWebpage()).isEqualTo(esalRequestDto.getWebpage());
+        assertThat(jpaESAL.getWebsite()).isEqualTo(esalRequestDto.getWebsite());
         assertThat(jpaESAL.getDescription()).isEqualTo(esalRequestDto.getDescription());
-        assertThat(jpaESAL.getRegisteredEntity()).isEqualTo(esalRequestDto.getRegisteredEntity());
+        assertThat(jpaESAL.isRegisteredEntity()).isEqualTo(esalRequestDto.isRegisteredEntity());
         assertThat(jpaESAL.getEntityType()).isEqualTo(esalRequestDto.getEntityType());
         assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(esalRequestDto.getIsland());
         assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(esalRequestDto.getZipCode());
-        assertThat(jpaESAL.getDataProtectionPolicy()).isEqualTo(esalRequestDto.getDataProtectionPolicy());
-        assertThat(jpaESAL.getPrivacyPolicy()).isEqualTo(esalRequestDto.getPrivacyPolicy());
+        assertThat(jpaESAL.isDataProtectionPolicy()).isEqualTo(esalRequestDto.isDataProtectionPolicy());
+        assertThat(jpaESAL.isPrivacyPolicy()).isEqualTo(esalRequestDto.isPrivacyPolicy());
     }
 
     @Test
@@ -188,14 +188,14 @@ class ESALControllerShould {
 
         JpaESAL jpaESAL = jpaESALRepository.findByName(esalRequestDto.getName())
                 .orElseThrow(EntityNotFoundException::new);
-        assertThat(jpaESAL.getWebpage()).isEqualTo(esalRequestDto.getWebpage());
+        assertThat(jpaESAL.getWebsite()).isEqualTo(esalRequestDto.getWebsite());
         assertThat(jpaESAL.getDescription()).isEqualTo(esalRequestDto.getDescription());
-        assertThat(jpaESAL.getRegisteredEntity()).isEqualTo(esalRequestDto.getRegisteredEntity());
+        assertThat(jpaESAL.isRegisteredEntity()).isEqualTo(esalRequestDto.isRegisteredEntity());
         assertThat(jpaESAL.getEntityType()).isEqualTo(esalRequestDto.getEntityType());
         assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(esalRequestDto.getIsland());
         assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(esalRequestDto.getZipCode());
-        assertThat(jpaESAL.getDataProtectionPolicy()).isEqualTo(esalRequestDto.getDataProtectionPolicy());
-        assertThat(jpaESAL.getPrivacyPolicy()).isEqualTo(esalRequestDto.getPrivacyPolicy());
+        assertThat(jpaESAL.isDataProtectionPolicy()).isEqualTo(esalRequestDto.isDataProtectionPolicy());
+        assertThat(jpaESAL.isPrivacyPolicy()).isEqualTo(esalRequestDto.isPrivacyPolicy());
     }
 
     @Test

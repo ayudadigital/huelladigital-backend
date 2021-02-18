@@ -25,15 +25,15 @@ public class ESAL {
     private final Id id;
     private final String description;
     private URL logoUrl;
-    private final String webpage;
+    private final String website;
     @NotEmpty
-    private final Boolean registeredEntity;
+    private final boolean registeredEntity;
     @NotEmpty
     private final String entityType;
     @NotEmpty
-    private final Boolean privacyPolicy;
+    private final boolean privacyPolicy;
     @NotEmpty
-    private final Boolean dataProtectionPolicy;
+    private final boolean dataProtectionPolicy;
     @NotEmpty
     private final Location location;
 
@@ -52,7 +52,7 @@ public class ESAL {
         return Objects.hash(id);
     }
 
-    public static ESAL parseJpa(JpaESAL esal) {
+    public static ESAL fromJpa(JpaESAL esal) {
         URL logoUrl;
         try{ logoUrl = new URL(esal.getLogoUrl()); }
         catch (MalformedURLException ex) { logoUrl = null; }
@@ -61,13 +61,13 @@ public class ESAL {
                 .id(new Id(esal.getId()))
                 .name(esal.getName())
                 .logoUrl(logoUrl)
-                .webpage(esal.getWebpage())
+                .website(esal.getWebsite())
                 .description(esal.getDescription())
-                .registeredEntity(esal.getRegisteredEntity())
+                .registeredEntity(esal.isRegisteredEntity())
                 .entityType(esal.getEntityType())
                 .location(Location.builder().island(esal.getLocation().getIsland()).zipCode(esal.getLocation().getZipCode()).build())
-                .privacyPolicy(esal.getPrivacyPolicy())
-                .dataProtectionPolicy(esal.getDataProtectionPolicy())
+                .privacyPolicy(esal.isPrivacyPolicy())
+                .dataProtectionPolicy(esal.isDataProtectionPolicy())
                 .build();
     }
 }

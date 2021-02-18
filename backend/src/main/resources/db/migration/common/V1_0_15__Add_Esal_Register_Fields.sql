@@ -1,7 +1,7 @@
 ALTER TABLE esals
     ADD COLUMN logo_url VARCHAR(255);
 ALTER TABLE esals
-    ADD COLUMN webpage VARCHAR(255);
+    ADD COLUMN website VARCHAR(255);
 ALTER TABLE esals
     ADD COLUMN description VARCHAR(500);
 ALTER TABLE esals

@@ -51,16 +51,33 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
-    @Autowired
-    private final JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+    public String insert(Proposal proposal) {
+        save(proposal);
+        insertProposalSkills(proposal);
+        insertProposalRequirements(proposal);
+        return proposal.getId().toString();
+    }
 
-    @Value("${huellapositiva.proposal.expiration-hour}")
-    private Integer expirationHour;
+    public String update(Proposal proposal) {
+        save(proposal);
+        jpaProposalSkillsRepository.deleteSkillByProposalId(proposal.getId().getValue());
+        jpaProposalRequirementsRepository.deleteRequirementsByProposalId(proposal.getId().getValue());
+        insertProposalSkills(proposal);
+        insertProposalRequirements(proposal);
+        return proposal.getId().toString();
+    }
 
-    @Value("${huellapositiva.proposal.expiration-minute}")
-    private Integer expirationMinute;
+    private void insertProposalSkills(Proposal proposal) {
+        proposal.getSkills()
+                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
+    }
 
-    public String save(Proposal proposal) {
+    private void insertProposalRequirements(Proposal proposal) {
+        proposal.getRequirements()
+                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
+    }
+
+    private void save(Proposal proposal) {
         JpaLocation jpaLocation = jpaLocationRepository.save(JpaLocation.builder()
                 .id(proposal.getLocation().getId().toString())
                 .province(proposal.getLocation().getProvince())
@@ -101,15 +118,10 @@ public class ProposalRepository {
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
         }
-        save(jpaProposal);
-        proposal.getSkills()
-                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
-        proposal.getRequirements()
-                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
-        return proposal.getId().toString();
+        insert(jpaProposal);
     }
 
-    public JpaProposal save(JpaProposal proposal) {
+    public JpaProposal insert(JpaProposal proposal) {
         return jpaProposalRepository.save(proposal);
     }
 

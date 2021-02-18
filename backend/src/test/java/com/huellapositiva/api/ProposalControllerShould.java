@@ -879,5 +879,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        System.out.println("Hola mundo");
     }
 }

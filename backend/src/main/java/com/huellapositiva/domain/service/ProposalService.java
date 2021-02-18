@@ -11,7 +11,6 @@ import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
@@ -20,11 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.CHANGES_REQUESTED;
@@ -62,7 +59,7 @@ public class ProposalService {
             throw new ProposalEnrollmentClosedException();
         }
         proposal.inscribeVolunteer(volunteer);
-        proposalRepository.save(proposal);
+        proposalRepository.insert(proposal);
     }
 
     /**
@@ -156,10 +153,10 @@ public class ProposalService {
         /* Es para saltarme una excepción de concurrencia*/
         List<Skill> deleteSkills = new ArrayList<>();
         for (Skill skill : proposal.getSkills()) {
-            String name = skill.getName();
-            String description = skill.getDescription();
-            Skill skillToKill = new Skill(name, description);
-            deleteSkills.add(skillToKill);
+            /*String name = skill.getName();
+            String description = skill.getDescription();*/
+            //Skill skillToKill = new Skill(name, description);
+            deleteSkills.add(skill);
         }
         for (Skill skill : deleteSkills) {
             proposal.deleteSkill(skill);
@@ -173,9 +170,9 @@ public class ProposalService {
         /* Es para saltarme una excepción de concurrencia*/
         List<Requirement> deleteRequirements = new ArrayList<>();
         for (Requirement requirement : proposal.getRequirements()) {
-            String name = requirement.getName();
-            Requirement requirementToKill = new Requirement(name);
-            deleteRequirements.add(requirementToKill);
+            /*String name = requirement.getName();
+            Requirement requirementToKill = new Requirement(name);*/
+            deleteRequirements.add(requirement);
         }
         for (Requirement requirement : deleteRequirements) {
             proposal.deleteRequeriment(requirement);
@@ -188,7 +185,7 @@ public class ProposalService {
 
 
         System.out.println("hola");
-        proposalRepository.save(proposal);
+        proposalRepository.update(proposal);
         System.out.println("hola");
     }
 

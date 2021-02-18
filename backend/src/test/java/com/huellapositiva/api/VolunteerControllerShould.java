@@ -499,15 +499,6 @@ class VolunteerControllerShould {
                         .zipCode("3510055")
                         .island(VALID_ISLAND)
                         .build(),
-//                UpdateProfileRequestDto.builder()
-//                        .name(VALID_NAME)
-//                        .name(VALID_SURNAME)
-//                        .email(DEFAULT_EMAIL_2)
-//                        .phoneNumber(VALID_PHONE)
-//                        .birthDate(LocalDate.parse("2000-12-60"))
-//                        .zipCode("35100")
-//                        .island(VALID_ISLAND)
-//                        .build(),
                 UpdateProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)

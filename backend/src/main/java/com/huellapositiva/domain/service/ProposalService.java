@@ -104,15 +104,12 @@ public class ProposalService {
     }
 
     public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto) throws ParseException {
-        Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
-        /*JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(updateProposalRequestDto.getId())
-                .orElseThrow(EntityNotFoundException::new);*/
-
+        /* Crear método para validaciones en el action (y las más especificas en su valueObject correspondiente) */
         /* Validación si la edad es número */
         /* Validación si las fechas tienen sentido */
         /* Validación de proposalCategory, es un ENUM */
-        /* Las skills son parte de la base de datos*/
-        /* Los requeriments también son parte de la base de datos*/
+
+        Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
@@ -150,28 +147,16 @@ public class ProposalService {
         proposal.setExtraInfo(updateProposalRequestDto.getExtraInfo());
         proposal.setInstructions(updateProposalRequestDto.getInstructions());
 
-        /* Es para saltarme una excepción de concurrencia*/
-        List<Skill> deleteSkills = new ArrayList<>();
-        for (Skill skill : proposal.getSkills()) {
-            /*String name = skill.getName();
-            String description = skill.getDescription();*/
-            //Skill skillToKill = new Skill(name, description);
-            deleteSkills.add(skill);
-        }
-        for (Skill skill : deleteSkills) {
-            proposal.deleteSkill(skill);
-        }
-        for (String[] skill : updateProposalRequestDto.getSkills()) {
-            Skill newSkill = new Skill(skill[0], skill[1]);
-            proposal.addSkill(newSkill);
-        }
-        /*---------------------------*/
+        addNewSkills(updateProposalRequestDto, proposal);
+        addNewRequeriments(updateProposalRequestDto, proposal);
 
+        proposalRepository.update(proposal);
+    }
+
+    private void addNewRequeriments(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
         /* Es para saltarme una excepción de concurrencia*/
         List<Requirement> deleteRequirements = new ArrayList<>();
         for (Requirement requirement : proposal.getRequirements()) {
-            /*String name = requirement.getName();
-            Requirement requirementToKill = new Requirement(name);*/
             deleteRequirements.add(requirement);
         }
         for (Requirement requirement : deleteRequirements) {
@@ -181,12 +166,21 @@ public class ProposalService {
             Requirement newRequirement = new Requirement(requirement);
             proposal.addRequirement(newRequirement);
         }
-        /*---------------------------*/
+    }
 
-
-        System.out.println("hola");
-        proposalRepository.update(proposal);
-        System.out.println("hola");
+    private void addNewSkills(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
+        /* Es para saltarme una excepción de concurrencia*/
+        List<Skill> deleteSkills = new ArrayList<>();
+        for (Skill skill : proposal.getSkills()) {
+            deleteSkills.add(skill);
+        }
+        for (Skill skill : deleteSkills) {
+            proposal.deleteSkill(skill);
+        }
+        for (String[] skill : updateProposalRequestDto.getSkills()) {
+            Skill newSkill = new Skill(skill[0], skill[1]);
+            proposal.addSkill(newSkill);
+        }
     }
 
     /**

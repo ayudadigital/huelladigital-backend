@@ -18,9 +18,6 @@ public class UpdateProposalRequestDto {
     private final String title;
 
     @NotEmpty
-    private String esalName;
-
-    @NotEmpty
     private final String province;
 
     @NotEmpty

@@ -118,7 +118,6 @@ public class ProposalService {
         /* Los requeriments también son parte de la base de datos*/
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
-        proposal.getEsal().setName(updateProposalRequestDto.getEsalName());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
         proposal.getLocation().setTown(updateProposalRequestDto.getTown());
@@ -187,21 +186,10 @@ public class ProposalService {
         }
         /*---------------------------*/
 
-        System.out.println("Hola");
 
-        /*Arrays.stream(updateProposalRequestDto.getSkills())
-                .forEach(s -> {
-                    if (proposal.getSkills().contains(s[0])) {
-                        proposal.addSkill(new Skill(s[0], s[1]));
-                    }
-                });
-
-        Arrays.stream(updateProposalRequestDto.getRequirements())
-                .forEach(r -> {
-                    if (proposal.getRequirements().contains(r)) {
-                        proposal.addRequirement(new Requirement(r));
-                    }
-                });*/
+        System.out.println("hola");
+        proposalRepository.save(proposal);
+        System.out.println("hola");
     }
 
     /**

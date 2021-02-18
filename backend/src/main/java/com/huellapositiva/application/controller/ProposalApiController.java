@@ -513,7 +513,6 @@ public class ProposalApiController {
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProposal(@RequestBody UpdateProposalRequestDto updateProposalRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
-        //System.out.println("Probando");
         try {
             updateProposalAction.execute(updateProposalRequestDto);
         } catch (EntityNotFoundException | ParseException e) {

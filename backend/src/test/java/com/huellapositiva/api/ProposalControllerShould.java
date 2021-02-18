@@ -850,8 +850,7 @@ class ProposalControllerShould {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
         UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
                 .id(jpaProposal.getId())
-                .title(jpaProposal.getTitle())
-                .esalName(jpaProposal.getEsal().getName())
+                .title("Esto es un nombre que me he inventado")
                 .province(jpaProposal.getLocation().getProvince())
                 .town(jpaProposal.getLocation().getTown())
                 .address(jpaProposal.getLocation().getAddress())

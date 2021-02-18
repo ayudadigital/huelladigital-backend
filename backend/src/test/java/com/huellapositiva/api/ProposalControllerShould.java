@@ -258,7 +258,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
-        JpaProposal proposal = testData.registerESALAndProposal(UNPUBLISHED);
+        JpaProposal proposal = testData.registerESALAndProposal(REVIEW_PENDING);
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -322,7 +322,7 @@ class ProposalControllerShould {
     void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String proposalId = testData.registerESALAndProposal(UNPUBLISHED).getId();
+        String proposalId = testData.registerESALAndProposal(REVIEW_PENDING).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -354,9 +354,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JpaProposal proposal = testData.registerESALAndProposal(PUBLISHED);
-        proposal.setClosingProposalDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
-        jpaProposalRepository.save(proposal);
+        JpaProposal proposal = testData.registerESALAndProposal(CLOSED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN

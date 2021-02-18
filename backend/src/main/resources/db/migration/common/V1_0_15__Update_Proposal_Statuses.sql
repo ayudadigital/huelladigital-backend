@@ -1,0 +1,1 @@
+UPDATE statuses SET name = 'closed' WHERE id = 4;

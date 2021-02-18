@@ -112,4 +112,13 @@ public class TemplateService {
         variables.put("NEWSLETTER_URL", stringUrl);
         return new EmailTemplate(template).parse(variables);
     }
+
+    public EmailTemplate getInadequateProposalEmailTemplate(String title, String reason){
+        String relativePath = "classpath:templates/emails/inadequateProposalEmail.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        variables.put("TITLE", title);
+        variables.put("REASON", reason);
+        return new EmailTemplate(template).parse(variables);
+    }
 }

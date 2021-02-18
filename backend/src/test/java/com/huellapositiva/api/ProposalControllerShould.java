@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.actions.ChangeStatusToInadequateAction;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
@@ -837,5 +838,68 @@ class ProposalControllerShould {
         List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
+    }
+
+    @Test
+    void return_204_when_proposal_status_changed_to_inadequate() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        ChangeToInadequateDto dto = ChangeToInadequateDto.builder()
+                .proposalId(jpaProposal.getId())
+                .reason("Pandemia")
+                .build();
+
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusToInadequate")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(proposal.getStatus().getId()).isEqualTo(INADEQUATE.getId());
+    }
+
+    @Test
+    void return_400_when_changing_to_inadequate_a_proposal_not_in_review_pending() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        ChangeToInadequateDto dto = ChangeToInadequateDto.builder()
+                .proposalId(jpaProposal.getId())
+                .reason("Pandemia")
+                .build();
+
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusToInadequate")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(proposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @Test
+    void return_404_when_changing_to_inadequate_a_non_existing_proposal() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        ChangeToInadequateDto dto = ChangeToInadequateDto.builder()
+                .proposalId("999")
+                .reason("Pandemia")
+                .build();
+
+        mvc.perform(post(FETCH_PROPOSAL_URI + "changeStatusToInadequate")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
     }
 }

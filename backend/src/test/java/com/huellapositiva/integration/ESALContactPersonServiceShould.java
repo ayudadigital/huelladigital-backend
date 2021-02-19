@@ -8,6 +8,7 @@ import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,9 @@ class ESALContactPersonServiceShould {
     @Autowired
     private JpaContactPersonRepository organizationMemberRepository;
 
+    @Autowired
+    private JpaContactPersonProfileRepository organizationMemberProfileRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -60,6 +64,7 @@ class ESALContactPersonServiceShould {
         Id contactPersonId = ESALContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
+        System.out.println("hoa");
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());
         assertTrue(employeeOptional.isPresent());
         JpaContactPerson contactPerson = employeeOptional.get();
@@ -68,5 +73,6 @@ class ESALContactPersonServiceShould {
         assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, jpaCredential.getHashedPassword()), is(true));
         assertThat(jpaCredential.getRoles(), hasSize(1));
         assertThat(jpaCredential.getRoles().iterator().next().getName(), is(Roles.CONTACT_PERSON_NOT_CONFIRMED.toString()));
+        System.out.println("Hola");
     }
 }

@@ -3,8 +3,6 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
-import com.huellapositiva.application.exception.EmailNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
@@ -85,7 +83,7 @@ class ESALMemberControllerShould {
         assertThat(jpaContactPersonRepository.findByUUID(id).get().getCredential().getEmail()).isEqualTo(DEFAULT_EMAIL);
 
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
-                .orElseThrow(() -> new EmailNotFoundException("The contact person not found with email: " + DEFAULT_EMAIL));
+                .orElseThrow(() -> new RuntimeException("The contact person not found with email: " + DEFAULT_EMAIL));
         assertThat(jpaContactPerson.getName()).isEqualTo(VALID_NAME);
         assertThat(jpaContactPerson.getSurname()).isEqualTo(VALID_SURNAME);
         assertThat(jpaContactPerson.getPhoneNumber()).isEqualTo(VALID_PHONE);

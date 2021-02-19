@@ -45,10 +45,9 @@ public class RegisterESALMemberRequestDto {
 
     @Schema(
             description = "Organization password",
-            example = "albaricoque29"
+            example = ")OAx7H6$d'2]5F5R,}i%"
     )
     @NotBlank(message = "The password is not blank space")
-    @NotEmpty(message = "You must to write something")
     @Size(min = 6, message = "The password is too short")
     @Pattern(regexp = "^[a-zA-Z0-9.,:+`%!@#$^'?(){}~_/\\-\\[\\]]*$", message = "The new password does not match with the regular expresion")
     private final String password;

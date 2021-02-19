@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "contact_person_profile")
@@ -13,7 +14,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class JpaContactPersonProfile {
+public class JpaContactPersonProfile implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

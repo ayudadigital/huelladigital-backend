@@ -64,7 +64,6 @@ class ESALContactPersonServiceShould {
         Id contactPersonId = ESALContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
-        System.out.println("hoa");
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());
         assertTrue(employeeOptional.isPresent());
         JpaContactPerson contactPerson = employeeOptional.get();
@@ -73,6 +72,5 @@ class ESALContactPersonServiceShould {
         assertThat(passwordEncoder.matches(DEFAULT_PASSWORD, jpaCredential.getHashedPassword()), is(true));
         assertThat(jpaCredential.getRoles(), hasSize(1));
         assertThat(jpaCredential.getRoles().iterator().next().getName(), is(Roles.CONTACT_PERSON_NOT_CONFIRMED.toString()));
-        System.out.println("Hola");
     }
 }

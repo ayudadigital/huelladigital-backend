@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public interface JpaESALRepository extends JpaRepository<JpaESAL, Integer> {
 
     @Query("FROM JpaESAL o WHERE o.name = :name")
@@ -20,7 +21,6 @@ public interface JpaESALRepository extends JpaRepository<JpaESAL, Integer> {
     Optional<JpaESAL> findByNaturalId(@Param("id") String id);
 
     @Modifying
-    @Transactional
     @Query("UPDATE JpaESAL p SET p.logoUrl = :logo WHERE p.id = :id")
     Integer updateLogo(@Param("id") String id, @Param("logo") String logo);
 

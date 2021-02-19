@@ -3,6 +3,7 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.FileTypeNotSupportedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 
 import static com.huellapositiva.domain.util.FileUtils.getExtension;
 
+@Slf4j
 @Service
 public class ImageService {
 
@@ -37,8 +39,11 @@ public class ImageService {
                                int imageMaxBytes,
                                int imageMaxWidth,
                                int imageMaxHeight) throws IOException {
+        String exMessage;
         if (photo.getSize() > imageMaxBytes) {
-            throw new InvalidFieldException("The image size is too big. Max size: " + imageMaxBytes);
+            exMessage = "The image size is too big. Max size: " + imageMaxBytes;
+            log.error(exMessage);
+            throw new InvalidFieldException(exMessage);
         }
         String extension = getExtension(photo.getOriginalFilename());
         if(!imageExtensions.contains(extension.toLowerCase())) {
@@ -46,7 +51,9 @@ public class ImageService {
         }
         InputStream is = photo.getInputStream();
         if(is.available() == 0){
-            throw new EmptyFileException("The image must not be empty.");
+            exMessage = "The image must not be empty.";
+            log.error(exMessage);
+            throw new EmptyFileException(exMessage);
         }
 
         BufferedImage image = ImageIO.read(is);

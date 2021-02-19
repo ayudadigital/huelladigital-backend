@@ -130,10 +130,8 @@ public class ESALApiController {
         try {
             uploadLogoAction.execute(logo, accountId);
         } catch (InvalidFieldException ex) {
-            log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         } catch (EmptyFileException ex) {
-            log.error("There is not any photo attached or is empty.");
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
 

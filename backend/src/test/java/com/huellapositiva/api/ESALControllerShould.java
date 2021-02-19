@@ -62,7 +62,7 @@ class ESALControllerShould {
                 .website("http://website.com")
                 .description("description")
                 .dataProtectionPolicy(true)
-                .entityType("Fundacion")
+                .entityType("FUNDACION")
                 .island("Gran Canaria")
                 .zipCode("35000")
                 .privacyPolicy(true)

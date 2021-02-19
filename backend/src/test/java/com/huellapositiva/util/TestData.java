@@ -269,7 +269,7 @@ public class TestData {
                         .island(VALID_ISLAND)
                         .build())
                 .registeredEntity(true)
-                .entityType("Foundation")
+                .entityType("FUNDACION")
                 .privacyPolicy(true)
                 .dataProtectionPolicy(true)
                 .build();

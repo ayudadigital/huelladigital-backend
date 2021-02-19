@@ -4,6 +4,7 @@ import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.entities.ESAL;
+import com.huellapositiva.domain.model.valueobjects.EntityType;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.domain.repository.ESALContactPersonRepository;
@@ -40,7 +41,7 @@ public class RegisterESALAction {
                 .description(dto.getDescription())
                 .website(dto.getWebsite())
                 .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())
-                .entityType(dto.getEntityType())
+                .entityType(EntityType.valueOf(dto.getEntityType()))
                 .dataProtectionPolicy(dto.isDataProtectionPolicy())
                 .privacyPolicy(dto.isPrivacyPolicy())
                 .registeredEntity(dto.isRegisteredEntity())
@@ -61,7 +62,7 @@ public class RegisterESALAction {
                 .description(dto.getDescription())
                 .website(dto.getWebsite())
                 .location(Location.builder().zipCode(dto.getZipCode()).island(dto.getIsland()).build())
-                .entityType(dto.getEntityType())
+                .entityType(EntityType.valueOf(dto.getEntityType()))
                 .dataProtectionPolicy(dto.isDataProtectionPolicy())
                 .privacyPolicy(dto.isPrivacyPolicy())
                 .registeredEntity(dto.isRegisteredEntity())

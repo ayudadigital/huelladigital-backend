@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.model.entities;
 
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.EntityType;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -29,7 +30,7 @@ public class ESAL {
     @NotEmpty
     private final boolean registeredEntity;
     @NotEmpty
-    private final String entityType;
+    private final EntityType entityType;
     @NotEmpty
     private final boolean privacyPolicy;
     @NotEmpty
@@ -64,7 +65,7 @@ public class ESAL {
                 .website(esal.getWebsite())
                 .description(esal.getDescription())
                 .registeredEntity(esal.isRegisteredEntity())
-                .entityType(esal.getEntityType())
+                .entityType(EntityType.valueOf(esal.getEntityType()))
                 .location(Location.builder().island(esal.getLocation().getIsland()).zipCode(esal.getLocation().getZipCode()).build())
                 .privacyPolicy(esal.isPrivacyPolicy())
                 .dataProtectionPolicy(esal.isDataProtectionPolicy())

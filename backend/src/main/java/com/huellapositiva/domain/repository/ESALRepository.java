@@ -66,7 +66,7 @@ public class ESALRepository {
                         .island(model.getLocation().getIsland())
                         .build())
                 .registeredEntity(model.isRegisteredEntity())
-                .entityType(model.getEntityType())
+                .entityType(model.getEntityType().toString())
                 .privacyPolicy(model.isPrivacyPolicy())
                 .dataProtectionPolicy(model.isDataProtectionPolicy())
                 .build();

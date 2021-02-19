@@ -6,7 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 @Data
 @Builder
@@ -26,13 +28,15 @@ public class ESALRequestDto {
             example = "ESAL dedicada a ayudar en la recogida de alimentos."
 
     )
+    @Size(max = 500)
     private final String description;
 
     @Schema(
             description = "ESAL's website",
             example = "https://www.foo-bar.com/"
     )
-    @Pattern(regexp = "^https?://(www.)?[-a-zA-Z0-9+&@#%=~_|]*.(com|es|net|org)/[-a-zA-Z0-9+&@#%=~_|]*")
+    @NotEmpty
+    @Size(max = 255)
     private final String website;
 
     @Schema(
@@ -47,7 +51,6 @@ public class ESALRequestDto {
             example = "Asociacion"
     )
     @NotBlank
-    @Pattern(regexp = "^(Asociacion|Fundacion|Federacion Deportiva|Colegio Profesional|Club Deportivo)$")
     private final String entityType;
 
     @Schema(

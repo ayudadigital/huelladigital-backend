@@ -34,7 +34,7 @@ public class JpaESAL implements Serializable {
     @Column(name = "logo_url")
     private String logoUrl;
 
-    @Column(name = "webpage")
+    @Column(name = "website")
     private String website;
 
     @Column(name = "registered_entity", nullable = false)

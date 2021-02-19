@@ -5,7 +5,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
@@ -26,7 +25,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.UNPUBLISHED;
 import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -449,7 +449,7 @@ public class TestData {
 
     @SneakyThrows
     public URL createMockImageUrl() {
-        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
+        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getDataBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
     }
 
     public MultipartFile createMockMultipartFile() {

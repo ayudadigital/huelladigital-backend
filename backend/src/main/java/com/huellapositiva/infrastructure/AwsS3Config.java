@@ -30,7 +30,7 @@ public class AwsS3Config {
                 .withRegion(awsS3Properties.getRegion())
                 .build();
 
-        failIfBucketDoesNotExist(s3client, awsS3Properties.getBucketName());
+        failIfBucketDoesNotExist(s3client, awsS3Properties.getDataBucketName());
 
         return s3client;
     }
@@ -44,10 +44,10 @@ public class AwsS3Config {
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsS3Properties.getEndpoint(), awsS3Properties.getRegion()))
                 .build();
 
-        if(!s3client.doesBucketExistV2(awsS3Properties.getBucketName())) {
-            CreateBucketRequest request = new CreateBucketRequest(awsS3Properties.getBucketName());
+        if(!s3client.doesBucketExistV2(awsS3Properties.getDataBucketName())) {
+            CreateBucketRequest request = new CreateBucketRequest(awsS3Properties.getDataBucketName());
             request.setCannedAcl(CannedAccessControlList.Private);
-            s3client.createBucket(new CreateBucketRequest(awsS3Properties.getBucketName()));
+            s3client.createBucket(new CreateBucketRequest(awsS3Properties.getDataBucketName()));
         }
 
         return s3client;

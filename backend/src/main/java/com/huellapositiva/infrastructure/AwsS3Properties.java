@@ -13,5 +13,21 @@ public class AwsS3Properties {
 
     private String region;
 
-    private String bucketName;
+    private Bucket buckets;
+
+    @Data
+    static class Bucket {
+
+        private String data;
+
+        private String mgmt;
+    }
+
+    public String getDataBucketName() {
+        return buckets.data;
+    }
+
+    public String getManagementBucketName() {
+        return buckets.mgmt;
+    }
 }

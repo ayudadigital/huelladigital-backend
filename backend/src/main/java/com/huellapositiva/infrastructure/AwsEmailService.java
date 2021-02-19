@@ -29,6 +29,5 @@ public class AwsEmailService implements EmailService{
                                     .withCharset("UTF-8").withData(emailMessage.getSubject())))
                     .withSource(emailMessage.getFrom());
             awsSesClient.sendEmail(request);
-
     }
 }

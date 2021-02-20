@@ -33,13 +33,4 @@ public class JpaContactPerson {
     @JoinColumn(name = "id_contact_person_profile", referencedColumnName = "id")
     @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private JpaContactPersonProfile contactPersonProfile;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "surname")
-    private String surname;
-
-    @Column(name = "phone_number")
-    private String phoneNumber;
 }

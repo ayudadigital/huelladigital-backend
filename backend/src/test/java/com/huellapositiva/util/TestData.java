@@ -5,7 +5,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
@@ -124,6 +123,9 @@ public class TestData {
     @Autowired
     private final JpaReviserRepository jpaReviserRepository;
 
+    @Autowired
+    private final JpaContactPersonProfileRepository jpaContactPersonProfileRepository;
+
     public void resetData() {
         jpaReviserRepository.deleteAll();
         jpaProposalSkillsRepository.deleteAll();
@@ -233,12 +235,17 @@ public class TestData {
 
     public JpaContactPerson createESALJpaContactPerson(String name, String surname, String phone_number, String email, String password, Roles role) {
         JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
-        JpaContactPerson contactPerson = JpaContactPerson.builder()
-                .credential(jpaCredential)
-                .id(UUID.randomUUID().toString())
+        JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
+                .id(Id.newId().getValue())
                 .name(name)
                 .surname(surname)
                 .phoneNumber(phone_number)
+                .build();
+        jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
+        JpaContactPerson contactPerson = JpaContactPerson.builder()
+                .credential(jpaCredential)
+                .id(UUID.randomUUID().toString())
+                .contactPersonProfile(jpaContactPersonProfile)
                 .build();
         return jpaContactPersonRepository.save(contactPerson);
     }

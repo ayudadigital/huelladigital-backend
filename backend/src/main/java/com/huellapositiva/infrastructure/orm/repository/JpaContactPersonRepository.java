@@ -19,7 +19,7 @@ public interface JpaContactPersonRepository extends JpaRepository<JpaContactPers
     @Query("FROM JpaContactPerson o LEFT JOIN FETCH o.credential c LEFT JOIN FETCH c.roles LEFT JOIN FETCH o.contactPersonProfile WHERE o.id = :id")
     Optional<JpaContactPerson> findByIdWithCredentialsAndRoles(@Param("id") String id);
 
-    @Query("FROM JpaContactPerson o LEFT JOIN FETCH o.credential c WHERE c.email = :email")
+    @Query("FROM JpaContactPerson o LEFT JOIN FETCH o.credential c LEFT JOIN FETCH o.contactPersonProfile WHERE c.email = :email")
     Optional<JpaContactPerson> findByEmail(@Param("email") String email);
 
     @Modifying

@@ -5,6 +5,8 @@ import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPersonProfile;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import com.huellapositiva.util.TestData;
@@ -51,6 +53,9 @@ class ESALMemberControllerShould {
     @Autowired
     private JpaContactPersonRepository jpaContactPersonRepository;
 
+    @Autowired
+    private JpaContactPersonProfileRepository jpaContactPersonProfileRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -84,9 +89,9 @@ class ESALMemberControllerShould {
 
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new RuntimeException("The contact person not found with email: " + DEFAULT_EMAIL));
-        assertThat(jpaContactPerson.getName()).isEqualTo(VALID_NAME);
-        assertThat(jpaContactPerson.getSurname()).isEqualTo(VALID_SURNAME);
-        assertThat(jpaContactPerson.getPhoneNumber()).isEqualTo(VALID_PHONE);
+        assertThat(jpaContactPerson.getContactPersonProfile().getName()).isEqualTo(VALID_NAME);
+        assertThat(jpaContactPerson.getContactPersonProfile().getSurname()).isEqualTo(VALID_SURNAME);
+        assertThat(jpaContactPerson.getContactPersonProfile().getPhoneNumber()).isEqualTo(VALID_PHONE);
     }
 
     @ParameterizedTest

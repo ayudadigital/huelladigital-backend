@@ -30,5 +30,5 @@ public class JpaContactPersonProfile implements Serializable {
     private String surname;
 
     @Column(name = "phone_number")
-    private String phone_number;
+    private String phoneNumber;
 }

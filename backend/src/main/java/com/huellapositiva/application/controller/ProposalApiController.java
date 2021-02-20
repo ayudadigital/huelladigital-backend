@@ -66,6 +66,8 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
+    private final ChangeReviewPendingProposalToPublishedAction changeReviewPendingProposalToPublishedAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
@@ -506,4 +508,13 @@ public class ProposalApiController {
     public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
+
+
+    @PutMapping("/publish")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeReviewPendingProposalToPublished(@RequestBody ChangeReviewPendingProposalToPublishedDto dto) {
+        changeReviewPendingProposalToPublishedAction.execute(dto.getIdProposal());
+    }
 }
+

@@ -184,7 +184,7 @@ public class VolunteerApiController {
     @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
+    public void uploadPhoto(@RequestParam("photo") MultipartFile photo,
                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
             uploadPhotoAction.execute(photo, accountId);

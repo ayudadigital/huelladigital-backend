@@ -5,7 +5,6 @@ import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPersonProfile;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.security.JwtService;

@@ -1,6 +1,5 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.AuthenticationRequestDto;
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.domain.service.ESALContactPersonService;
@@ -19,9 +18,6 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterContactPersonShould {
-
-    @Autowired
-    private TestData testData;
 
     @Mock
     private ESALContactPersonService esalContactPersonService;

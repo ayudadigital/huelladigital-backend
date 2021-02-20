@@ -838,4 +838,26 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
+
+    @Test
+    void return_204_when_update_proposal_to_published_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
 }

@@ -3,7 +3,7 @@
     {
       "name": "backend-container",
       "image": "283609209591.dkr.ecr.us-east-1.amazonaws.com/huellapositiva/backend:1.13",
-      "cpu": 256,
+      "cpu": 1024,
       "portMappings": [
         {
           "containerPort": 8080,
@@ -31,12 +31,12 @@
     }
   ],
   "family": "backend-task",
-  "taskRoleArn": "arn:aws:iam::283609209591:role/huellapositivaEcsRole",
+  "taskRoleArn": "arn:aws:iam::283609209591:role/huellapositiva-ecs-service-backend",
   "volumes": [],
   "placementConstraints": [],
   "requiresCompatibilities": [
     "EC2"
   ],
-  "cpu": "512",
+  "cpu": "1024",
   "memory": "512"
 }

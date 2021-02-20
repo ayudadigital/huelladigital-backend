@@ -23,10 +23,9 @@ public class ChangeReviewPendingProposalToPublishedAction {
 
     public void execute(String idProposal) {
         ChangeStatusToPublishedResult result = proposalService.changeStatusToPublished(idProposal);
-        /*Implementar mandar email después de la actualización*/
-        /*if (result.isNewEmail()) {
+        if (result.isNewEmail()) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(result.getEmail(), emailConfirmationBaseUrl);
-            emailCommunicationService.sendMessageEmailChanged(emailConfirmation);
-        }*/
+            emailCommunicationService.sendMessageProposalPublished(emailConfirmation);
+        }
     }
 }

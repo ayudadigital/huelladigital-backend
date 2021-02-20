@@ -13,10 +13,10 @@ public class AwsS3Properties {
 
     private String region;
 
-    private Bucket buckets;
+    private Buckets buckets;
 
     @Data
-    static class Bucket {
+    public static class Buckets {
 
         private String data;
 

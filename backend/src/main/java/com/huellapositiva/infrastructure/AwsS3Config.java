@@ -24,7 +24,7 @@ public class AwsS3Config {
     @Bean
     @Profile({"dev", "prod"})
     public AmazonS3 getAwsS3Client() {
-        log.info("Amazon S3 client enabled");
+        log.info("Amazon S3 client enabled. Using {}", awsS3Properties);
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()
                 .withCredentials(InstanceProfileCredentialsProvider.getInstance())
                 .withRegion(awsS3Properties.getRegion())
@@ -38,7 +38,7 @@ public class AwsS3Config {
     @Bean
     @Profile("!dev & !prod")
     public AmazonS3 getLocalstackAwsS3Client() {
-        log.info("Localstack Amazon S3 client enabled");
+        log.info("Localstack Amazon S3 client enabled, Using {}", awsS3Properties);
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()
                 .withPathStyleAccessEnabled(true)
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsS3Properties.getEndpoint(), awsS3Properties.getRegion()))
@@ -55,7 +55,7 @@ public class AwsS3Config {
 
     private void failIfBucketDoesNotExist(AmazonS3 s3client, String bucketName) {
         if(!s3client.doesBucketExistV2(bucketName)) {
-            throw new IllegalStateException("Bucket called " + bucketName + " does not exist.");
+            throw new IllegalStateException("Bucket " + bucketName + " does not exist.");
         }
     }
 }

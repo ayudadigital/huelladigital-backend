@@ -16,6 +16,7 @@ import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,8 @@ public class ProposalService {
     private final JpaProposalRepository jpaProposalRepository;
 
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
+
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     /**
      * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
@@ -121,6 +124,7 @@ public class ProposalService {
                 .id(ProposalStatus.PUBLISHED.getId())
                 .name("PUBLISHED").build();
         jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
-        return null;
+
+        return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), true, proposal.getTitle());
     }
 }

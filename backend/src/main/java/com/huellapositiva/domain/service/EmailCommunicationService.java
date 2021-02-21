@@ -111,9 +111,9 @@ public class EmailCommunicationService {
         emailService.sendEmail(emailMessage);
     }
 
-    public void sendMessageProposalPublished(EmailConfirmation emailConfirmation) {
+    public void sendMessageProposalPublished(EmailConfirmation emailConfirmation, String proposalTitle) {
         final String PROPOSAL_PUBLISHED_EMAIL_SUBJECT = "Convocatoria publicada";
-        EmailTemplate emailTemplate = templateService.getProposalPublishedTemplate(emailConfirmation);
+        EmailTemplate emailTemplate = templateService.getProposalPublishedTemplate(proposalTitle);
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(),
                 PROPOSAL_PUBLISHED_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);

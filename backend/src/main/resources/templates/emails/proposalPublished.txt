@@ -1,3 +1,1 @@
-Para confirmar la publicación de la convocatoria acceda al siguiente enlace:
-
-<a href="${PROPOSAL_PUBLISHED_URL}">Clic aquí</a>
+La convocatoria ${PROPOSAL_TITLE} ha sido publicada.

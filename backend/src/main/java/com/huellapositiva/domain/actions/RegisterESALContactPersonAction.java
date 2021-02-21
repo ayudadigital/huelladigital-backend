@@ -44,7 +44,7 @@ public class RegisterESALContactPersonAction {
      *
      * @param phoneNumber phone number to be validated
      */
-    public void validatePhoneNumber(String phoneNumber) {
+    private void validatePhoneNumber(String phoneNumber) {
         if (isNotPhoneNumber(phoneNumber)) {
             throw new InvalidFieldException("The phone number field is invalid");
         }

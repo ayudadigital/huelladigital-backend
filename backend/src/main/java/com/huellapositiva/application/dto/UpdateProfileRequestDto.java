@@ -57,7 +57,7 @@ public class UpdateProfileRequestDto {
             description = "Where the user lives",
             example = "Las Palmas"
     )
-    @Pattern(regexp = "^(Las Palmas|Santa Cruz)$")
+    @Pattern(regexp = "^(Las Palmas|Santa Cruz de Tenerife)$")
     private final String province;
 
     @Schema(

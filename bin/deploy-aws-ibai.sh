@@ -25,8 +25,6 @@ NEW_TASK_VERSION=$(echo "${NEW_TASK_DEFINITION_RESULT}" | jq --raw-output '.task
 echo "New task version: ${NEW_TASK_VERSION}"
 echo ""
 echo "======================================"
-echo "Updating service with new task definition:"
-NEW_SERVICE_DEFINITION=$(aws ecs update-service --cluster "$CLUSTER_NAME" --service $SERVICE_NAME --task-definition "$TASK_FAMILY":"$NEW_TASK_VERSION" --region us-east-1)
+echo "Updating service with new task definition."
 echo "New service:"
-echo "$NEW_SERVICE_DEFINITION"
-echo ""
+aws ecs update-service --cluster "$CLUSTER_NAME" --service $SERVICE_NAME --task-definition "$TASK_FAMILY":"$NEW_TASK_VERSION" --region us-east-1

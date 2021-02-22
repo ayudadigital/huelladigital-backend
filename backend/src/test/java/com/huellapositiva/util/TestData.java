@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.UNPUBLISHED;
 import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;

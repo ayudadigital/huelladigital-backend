@@ -5,6 +5,5 @@ import lombok.Value;
 @Value
 public class ChangeStatusToPublishedResult {
     String email;
-    boolean newEmail;
     String proposalTitle;
 }

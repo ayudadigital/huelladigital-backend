@@ -21,9 +21,7 @@ public class ChangeReviewPendingProposalToPublishedAction {
 
     public void execute(String idProposal) {
         ChangeStatusToPublishedResult result = proposalService.changeStatusToPublished(idProposal);
-        if (result.isNewEmail()) {
-            EmailConfirmation emailConfirmation = EmailConfirmation.from(result.getEmail(), emailConfirmationBaseUrl);
-            emailCommunicationService.sendMessageProposalPublished(emailConfirmation, result.getProposalTitle());
-        }
+        EmailConfirmation emailConfirmation = EmailConfirmation.from(result.getEmail(), emailConfirmationBaseUrl);
+        emailCommunicationService.sendMessageProposalPublished(emailConfirmation, result.getProposalTitle());
     }
 }

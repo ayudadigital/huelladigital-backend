@@ -125,6 +125,6 @@ public class ProposalService {
                 .name("PUBLISHED").build();
         jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
 
-        return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), true, proposal.getTitle());
+        return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), proposal.getTitle());
     }
 }

@@ -5,7 +5,6 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.AwsS3Properties;
@@ -124,6 +123,9 @@ public class TestData {
     @Autowired
     private final JpaReviserRepository jpaReviserRepository;
 
+    @Autowired
+    private final JpaContactPersonProfileRepository jpaContactPersonProfileRepository;
+
     public void resetData() {
         jpaReviserRepository.deleteAll();
         jpaProposalSkillsRepository.deleteAll();
@@ -227,15 +229,23 @@ public class TestData {
         return volunteerRepository.save(volunteer);
     }
 
-    public JpaContactPerson createESALJpaContactPerson(String email, String password) {
-        return createESALJpaContactPerson(email, password, Roles.CONTACT_PERSON);
+    public JpaContactPerson createESALJpaContactPerson(String name, String surname, String phone_number, String email, String password) {
+        return createESALJpaContactPerson(name, surname, phone_number, email, password, Roles.CONTACT_PERSON);
     }
 
-    public JpaContactPerson createESALJpaContactPerson(String email, String password, Roles role) {
+    public JpaContactPerson createESALJpaContactPerson(String name, String surname, String phone_number, String email, String password, Roles role) {
         JpaCredential jpaCredential = createCredential(email, UUID.randomUUID(), password, role);
+        JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
+                .id(Id.newId().getValue())
+                .name(name)
+                .surname(surname)
+                .phoneNumber(phone_number)
+                .build();
+        jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
         JpaContactPerson contactPerson = JpaContactPerson.builder()
                 .credential(jpaCredential)
                 .id(UUID.randomUUID().toString())
+                .contactPersonProfile(jpaContactPersonProfile)
                 .build();
         return jpaContactPersonRepository.save(contactPerson);
     }
@@ -332,7 +342,7 @@ public class TestData {
         jpaVolunteers.add(jpaVolunteer);
         jpaVolunteers.add(jpaVolunteer2);
 
-        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
@@ -374,7 +384,7 @@ public class TestData {
 
     @SneakyThrows
     public JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
-        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
@@ -414,7 +424,7 @@ public class TestData {
     }
 
     public String registerESALandPublishedProposalObject() throws ParseException {
-        JpaContactPerson contactPerson = createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);
 

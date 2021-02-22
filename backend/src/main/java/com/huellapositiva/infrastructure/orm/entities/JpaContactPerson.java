@@ -29,4 +29,8 @@ public class JpaContactPerson {
     @JoinColumn(name = "esal_id", referencedColumnName = "id")
     @ManyToOne(fetch = FetchType.LAZY)
     private JpaESAL joinedEsal;
+
+    @JoinColumn(name = "id_contact_person_profile", referencedColumnName = "id")
+    @OneToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private JpaContactPersonProfile contactPersonProfile;
 }

@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.util.TestData;
@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import static com.huellapositiva.util.TestData.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,7 +35,7 @@ class RegisterESALContactPersonActionShould {
     @Test
     void send_email_to_confirm_a_new_organization_member(){
         //GIVEN
-        CredentialsESALMemberRequestDto dto = new CredentialsESALMemberRequestDto("foo@huellapositiva.com", "plain-password");
+        RegisterESALMemberRequestDto dto = new RegisterESALMemberRequestDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         //WHEN
         organizationMemberAction.execute(dto);

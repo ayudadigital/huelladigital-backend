@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.CredentialsESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.ESALContactPersonService;
@@ -8,6 +8,7 @@ import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,6 +41,9 @@ class ESALContactPersonServiceShould {
     @Autowired
     private JpaContactPersonRepository organizationMemberRepository;
 
+    @Autowired
+    private JpaContactPersonProfileRepository organizationMemberProfileRepository;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
@@ -48,13 +52,16 @@ class ESALContactPersonServiceShould {
     @Test
     void register_a_new_member() {
         // GIVEN
-        CredentialsESALMemberRequestDto dto = CredentialsESALMemberRequestDto.builder()
+        RegisterESALMemberRequestDto dto = RegisterESALMemberRequestDto.builder()
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
+                .phoneNumber(VALID_PHONE)
                 .email(DEFAULT_EMAIL)
                 .password(DEFAULT_PASSWORD)
                 .build();
 
         // WHEN
-        Id contactPersonId = ESALContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Id contactPersonId = ESALContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
 
         // THEN
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());

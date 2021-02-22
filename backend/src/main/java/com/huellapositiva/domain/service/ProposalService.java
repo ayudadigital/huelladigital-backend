@@ -54,12 +54,12 @@ public class ProposalService {
      */
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
+
+        if (proposal.getStatus() == ENROLLMENT_CLOSED) {
+            throw new ProposalEnrollmentClosedException();
+        }
         if (proposal.getStatus() != PUBLISHED) {
             throw new ProposalNotPublishedException("Proposal not found. Proposal ID: " + proposalId);
-        }
-        boolean isEnrollmentClosed = proposal.getClosingProposalDate().isBeforeNow();
-        if (isEnrollmentClosed) {
-            throw new ProposalEnrollmentClosedException();
         }
         proposal.inscribeVolunteer(volunteer);
         proposalRepository.save(proposal);

@@ -16,12 +16,8 @@ public class ChangeReviewPendingProposalToPublishedAction {
 
     private final EmailCommunicationService emailCommunicationService;
 
-    @Value("${huellapositiva.api.v1.confirmation-email}")
-    private String emailConfirmationBaseUrl;
-
     public void execute(String idProposal) {
         ChangeStatusToPublishedResult result = proposalService.changeStatusToPublished(idProposal);
-        EmailConfirmation emailConfirmation = EmailConfirmation.from(result.getEmail(), emailConfirmationBaseUrl);
-        emailCommunicationService.sendMessageProposalPublished(emailConfirmation, result.getProposalTitle());
+        emailCommunicationService.sendMessageProposalPublished(result.getEmail(), result.getProposalTitle());
     }
 }

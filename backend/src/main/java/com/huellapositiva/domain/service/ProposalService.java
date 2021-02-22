@@ -117,8 +117,8 @@ public class ProposalService {
 
     public ChangeStatusToPublishedResult changeStatusToPublished(String idProposal) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
-        Integer status = proposal.getStatus().getId();
-        if (status.equals(REVIEW_PENDING.getId())) {
+        String status = proposal.getStatus().getName().toUpperCase();
+        if (REVIEW_PENDING.toString().equals(status) || ENROLLMENT_CLOSED.toString().equals(status)) {
             JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
                     .id(ProposalStatus.PUBLISHED.getId())
                     .name("PUBLISHED").build();

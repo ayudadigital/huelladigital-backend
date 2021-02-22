@@ -839,11 +839,12 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 
-    @Test
-    void return_204_when_update_proposal_to_published_successfully() throws Exception {
+    @ParameterizedTest
+    @MethodSource("provideGoodProposalStatus")
+    void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
-        String proposalId = testData.registerESALAndReviewPendingProposalWithInscribedVolunteers().getId();
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
         ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);
 
@@ -861,11 +862,17 @@ class ProposalControllerShould {
         assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
     }
 
+    private static Stream<ProposalStatus> provideGoodProposalStatus() {
+        return Stream.of(
+                REVIEW_PENDING,
+                ENROLLMENT_CLOSED
+        );
+    }
+
     @ParameterizedTest
-    @MethodSource("provideProposalStatus")
+    @MethodSource("provideBadProposalStatus")
     void return_400_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
-        //String proposalId = proposal.getId();
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
@@ -882,7 +889,7 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
     }
 
-    private static Stream<ProposalStatus> provideProposalStatus() {
+    private static Stream<ProposalStatus> provideBadProposalStatus() {
         return Stream.of(
                 CHANGES_REQUESTED,
                 CANCELLED,

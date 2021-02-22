@@ -514,7 +514,30 @@ public class ProposalApiController {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 
-
+    @Operation(
+            summary = "Updates the proposal status to PUBLISHED",
+            description = "The reviser can update the proposal status from REVIEW_PENDING and ENROLLMENT_CLOSE to PUBLISHED.",
+            tags = {"proposals, reviser"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to PUBLISHED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "The proposal status in database is not REVIEW_PENDING or ENROLLMENT_CLOSE."
+                    )
+            }
+    )
     @PutMapping("/publish")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)

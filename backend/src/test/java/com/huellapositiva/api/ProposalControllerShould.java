@@ -12,6 +12,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaVolunteersProposalsRe
 import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
@@ -859,5 +861,35 @@ class ProposalControllerShould {
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
         assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideProposalsWithInvalidStatus")
+    void return_400_when_proposal_status_is_no_review_pending(JpaProposal proposal) throws Exception {
+        //GIVEN
+        String proposalId = proposal.getId();
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andReturn().getResponse();
+    }
+
+    private Stream<JpaProposal> provideProposalsWithInvalidStatus() {
+        return Stream.of(
+                testData.registerESALAndChangeRequestedProposalWithInscribedVolunteers()
+                //testData.registerESALAndUnpublishedProposalWithInscribedVolunteers(),
+                //testData.registerESALAndInadequateProposalWithInscribedVolunteers(),
+                //testData.registerESALAndFinishedProposalWithInscribedVolunteers(),
+                //testData.registerESALAndReviewPendingProposalWithInscribedVolunteers()
+        );
     }
 }

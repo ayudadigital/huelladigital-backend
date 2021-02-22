@@ -76,7 +76,7 @@ On the another hand the documentation is disable with the profile `prod`, only w
     * `docker volume rm local_postgres-data` which deletes your local postgres configuration.
     * `docker-compose up -d` (the flag _-d_ runs the command in background).
   * In case you have IntelliJ Ultimate, you can manually delete the tables of the database (locally).
-  
+   
   Then, you can restart the project, and the latest migration version will be loaded.
 * _cloud.localstack.docker.exception.LocalstackDockerException: Could not start the localstack docker container_: 
   * Restart docker containers. Afterwards, lift up only **local_huellapositiva_database_1** (postgres).

@@ -299,10 +299,6 @@ public class TestData {
         return buildProposal(esal, PUBLISHED);
     }
 
-    public Proposal buildUnpublishedProposalWithEsal(ESAL esal) {
-        return buildProposal(esal, UNPUBLISHED);
-    }
-
     @SneakyThrows
     public Proposal buildProposal(ESAL esal, ProposalStatus status) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");

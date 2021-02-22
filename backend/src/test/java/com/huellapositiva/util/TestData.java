@@ -328,31 +328,9 @@ public class TestData {
         return registerESALAndProposalWithInscribedVolunteers(REVIEW_PENDING);
     }
 
-    public JpaProposal registerESALAndChangeRequestedProposalWithInscribedVolunteers() {
-        return registerESALAndProposalWithInscribedVolunteers(CHANGES_REQUESTED);
-    }
-
-    public JpaProposal registerESALAndUnpublishedProposalWithInscribedVolunteers() {
-        return registerESALAndProposalWithInscribedVolunteers(UNPUBLISHED);
-    }
-
-    public JpaProposal registerESALAndFinishedProposalWithInscribedVolunteers() {
-        return registerESALAndProposalWithInscribedVolunteers(FINISHED);
-    }
-
-    public JpaProposal registerESALAndCancelledProposalWithInscribedVolunteers() {
-        return registerESALAndProposalWithInscribedVolunteers(CANCELLED);
-    }
-
-    public JpaProposal registerESALAndInadequateProposalWithInscribedVolunteers() {
-        return registerESALAndProposalWithInscribedVolunteers(INADEQUATE);
-    }
-
     public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
-
-
 
     @SneakyThrows
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {

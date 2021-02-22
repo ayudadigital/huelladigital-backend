@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
+import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
@@ -45,7 +46,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestData.class)
@@ -864,13 +864,14 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideProposalsWithInvalidStatus")
-    void return_400_when_proposal_status_is_no_review_pending(JpaProposal proposal) throws Exception {
+    @MethodSource("provideProposalStatus")
+    void return_400_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
-        String proposalId = proposal.getId();
+        //String proposalId = proposal.getId();
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);
+        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(jpaProposal.getId());
 
         //WHEN + THEN
         mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
@@ -883,13 +884,12 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
     }
 
-    private Stream<JpaProposal> provideProposalsWithInvalidStatus() {
+    private static Stream<ProposalStatus> provideProposalStatus() {
         return Stream.of(
-                testData.registerESALAndChangeRequestedProposalWithInscribedVolunteers()
-                //testData.registerESALAndUnpublishedProposalWithInscribedVolunteers(),
-                //testData.registerESALAndInadequateProposalWithInscribedVolunteers(),
-                //testData.registerESALAndFinishedProposalWithInscribedVolunteers(),
-                //testData.registerESALAndReviewPendingProposalWithInscribedVolunteers()
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED
         );
     }
 }

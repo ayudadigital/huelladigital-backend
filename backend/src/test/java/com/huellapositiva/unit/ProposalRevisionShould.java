@@ -46,7 +46,7 @@ class ProposalRevisionShould {
     }
 
     @Test
-    void send_email_when_revisor_does_revision_of_the_proposal() {
+    void send_email_when_reviser_does_revision_of_the_proposal() {
         String proposalID = "00000000-0000-0000-0000-000000000000";
         ProposalRevisionDto proposalRevisionDto = ProposalRevisionDto
                 .builder()

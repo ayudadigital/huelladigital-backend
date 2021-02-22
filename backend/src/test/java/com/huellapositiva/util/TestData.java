@@ -45,6 +45,8 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL_2 = "foo_2@huellapositiva.com";
 
+    public static final String DEFAULT_EMAIL_REVISER = "revisor@huellapositiva.com";
+
     public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";

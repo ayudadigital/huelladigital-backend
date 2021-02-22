@@ -11,7 +11,7 @@ CLUSTER_NAME=dev-ecs-cluster
 TASK_FAMILY=dev-huellapositiva-backend-td
 SERVICE_NAME=huellapositiva-backend-ecs-service
 
-TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${TASK_DEFINITION_NAME}" --region "us-east-1")
+TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${TASK_FAMILY}" --region "us-east-1")
 echo "======================================"
 echo "Current task definition:"
 echo "${TASK_DEFINITION}"

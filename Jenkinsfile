@@ -100,36 +100,36 @@ pipeline {
 //                }
 //            }
 //        }
-//        stage('Package JAR') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend package'
-//            }
-//        }
-//        stage("Docker Publish") {
-//            agent { label 'docker' }
-//            steps {
-//                script {
-//                    env.DOCKER_TAG = "${BUILD_NUMBER}"
-//                }
-//                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
-//                buildAndPublishDockerImages("${env.DOCKER_TAG}")
-//            }
-//        }
-//        stage("Remote deploy") {
-//            agent { label 'docker' }
-//            when { branch 'develop' }
-//            steps {
-//                sshagent (credentials: ['jpl-ssh-credentials']) {
-//                    sh "bin/deploy.sh dev"
-//                }
-//            }
-//        }
+        stage('Package JAR') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend package'
+            }
+        }
+        stage("Docker Publish") {
+            agent { label 'docker' }
+            steps {
+                script {
+                    env.DOCKER_TAG = "${BUILD_NUMBER}"
+                }
+                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
+                buildAndPublishDockerImages("${env.DOCKER_TAG}")
+            }
+        }
+        stage("Remote deploy") {
+            agent { label 'docker' }
+            when { branch 'develop' }
+            steps {
+                sshagent (credentials: ['jpl-ssh-credentials']) {
+                    sh "bin/deploy.sh dev"
+                }
+            }
+        }
         stage("AWS deploy") {
             agent {
                 dockerfile {
@@ -143,7 +143,7 @@ pipeline {
                         echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
                         echo 'Deploying ... ======================================================='
                         export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-                        bin/deploy-aws-ibai.sh dev 124
+                        bin/deploy-aws-ibai.sh dev ${env.DOCKER_TAG}
                     """
                 }
             }

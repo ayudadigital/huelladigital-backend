@@ -842,7 +842,7 @@ class ProposalControllerShould {
     @Test
     void return_204_when_update_proposal_to_published_successfully() throws Exception {
         //GIVEN
-        String proposalId = testData.registerESALAndProposalWithInscribedVolunteers().getId();
+        String proposalId = testData.registerESALAndReviewPendingProposalWithInscribedVolunteers().getId();
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
         ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);

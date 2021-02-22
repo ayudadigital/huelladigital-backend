@@ -328,6 +328,10 @@ public class TestData {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
 
+    public JpaProposal registerESALAndReviewPendingProposalWithInscribedVolunteers() {
+        return registerESALAndProposalWithInscribedVolunteers(REVIEW_PENDING);
+    }
+
     @SneakyThrows
     private JpaProposal registerESALAndProposalWithInscribedVolunteers(ProposalStatus proposalStatus) {
         JpaVolunteer jpaVolunteer = createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.VOLUNTEER);

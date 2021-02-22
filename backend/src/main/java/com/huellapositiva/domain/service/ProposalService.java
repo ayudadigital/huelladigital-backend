@@ -117,14 +117,15 @@ public class ProposalService {
     public ChangeStatusToPublishedResult changeStatusToPublished(String idProposal) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
         Integer status = proposal.getStatus().getId();
-        if (status.equals(FINISHED.getId()) || status.equals(INADEQUATE.getId()) || status.equals(CANCELLED.getId())) {
+        if (status.equals(REVIEW_PENDING.getId())) {
+            JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                    .id(ProposalStatus.PUBLISHED.getId())
+                    .name("PUBLISHED").build();
+            jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
+
+            return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), proposal.getTitle());
+        } else {
             throw new IllegalStateException();
         }
-        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
-                .id(ProposalStatus.PUBLISHED.getId())
-                .name("PUBLISHED").build();
-        jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
-
-        return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), proposal.getTitle());
     }
 }

@@ -78,7 +78,7 @@ class ProposalControllerShould {
     @Test
     void persist_a_proposal() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
@@ -104,7 +104,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -144,7 +144,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_age_is_out_of_range() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 17;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -184,7 +184,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         int invalidMinimumAge = 30;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
@@ -258,7 +258,7 @@ class ProposalControllerShould {
     @Test
     void return_404_when_fetching_a_not_published_or_not_finished_proposal() throws Exception {
         // GIVEN
-        JpaProposal proposal = testData.registerESALAndProposal(UNPUBLISHED);
+        JpaProposal proposal = testData.registerESALAndProposal(REVIEW_PENDING);
 
         // WHEN + THEN
         mvc.perform(get(FETCH_PROPOSAL_URI + proposal.getId())
@@ -322,7 +322,7 @@ class ProposalControllerShould {
     void return_404_when_joining_a_not_published_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String proposalId = testData.registerESALAndProposal(UNPUBLISHED).getId();
+        String proposalId = testData.registerESALAndProposal(REVIEW_PENDING).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -354,9 +354,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JpaProposal proposal = testData.registerESALAndProposal(PUBLISHED);
-        proposal.setClosingProposalDate(Date.from(Instant.now().minus(1, ChronoUnit.DAYS)));
-        jpaProposalRepository.save(proposal);
+        JpaProposal proposal = testData.registerESALAndProposal(ENROLLMENT_CLOSED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -373,7 +371,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
@@ -396,7 +394,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
@@ -413,7 +411,7 @@ class ProposalControllerShould {
     @Test
     void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
         // GIVEN
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")

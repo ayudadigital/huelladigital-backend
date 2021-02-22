@@ -17,8 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.servlet.http.Cookie;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
-import static com.huellapositiva.util.TestData.DEFAULT_EMAIL;
-import static com.huellapositiva.util.TestData.DEFAULT_PASSWORD;
+import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static com.huellapositiva.util.TestUtils.loginRequest;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -133,7 +132,7 @@ class SecurityConfigShould {
     @Test
     void allow_access_only_to_allowed_roles() throws Exception {
         // GIVEN
-        testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         MockHttpServletResponse loginResponse = loginRequest(mvc, new AuthenticationRequestDto(DEFAULT_EMAIL, DEFAULT_PASSWORD));
         JwtResponseDto jwtResponseDto = objectMapper.readValue(loginResponse.getContentAsString(), JwtResponseDto.class);
         String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();

@@ -1,9 +1,7 @@
 #!/bin/bash
 
 env=$1
-AWS_ACCESS_KEY_ID=$2
-AWS_SECRET_ACCESS_KEY=$3
-DOCKER_TAG=$4
+DOCKER_TAG=$2
 
 DOCKER_IMAGE=ayudadigital/huelladigital-backend:${DOCKER_TAG}
 CLUSTER_NAME="${env}-ecs-cluster"
@@ -28,7 +26,7 @@ echo "New task version: ${NEW_TASK_VERSION}"
 echo ""
 echo "======================================"
 echo "Updating service with new task definition:"
-NEW_SERVICE_DEFINITION=$(aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --task-definition $TASK_FAMILY:"$NEW_TASK_VERSION" --region us-east-1)
+NEW_SERVICE_DEFINITION=$(aws ecs update-service --cluster "$CLUSTER_NAME" --service $SERVICE_NAME --task-definition "$TASK_FAMILY":"$NEW_TASK_VERSION" --region us-east-1)
 echo "New service:"
 echo "$NEW_SERVICE_DEFINITION"
 echo ""

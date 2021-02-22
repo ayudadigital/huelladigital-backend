@@ -1,1 +1,1 @@
-UPDATE statuses SET name = 'closed' WHERE id = 4;
+UPDATE statuses SET name = 'enrollment_closed' WHERE id = 4;

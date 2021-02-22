@@ -48,7 +48,7 @@ public class ProposalService {
     public void enrollVolunteer(String proposalId, Volunteer volunteer) {
         Proposal proposal = proposalRepository.fetch(proposalId);
 
-        if (proposal.getStatus() == CLOSED) {
+        if (proposal.getStatus() == ENROLLMENT_CLOSED) {
             throw new ProposalEnrollmentClosedException();
         }
         if (proposal.getStatus() != PUBLISHED) {

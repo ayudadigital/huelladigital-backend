@@ -354,7 +354,7 @@ class ProposalControllerShould {
     void return_410_when_joining_a_non_existent_proposal() throws Exception {
         // GIVEN
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JpaProposal proposal = testData.registerESALAndProposal(CLOSED);
+        JpaProposal proposal = testData.registerESALAndProposal(ENROLLMENT_CLOSED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN

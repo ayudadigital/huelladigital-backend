@@ -1,9 +1,10 @@
 {
   "containerDefinitions": [
     {
-      "name": "backend-container",
+      "name": "dev-backend-container",
       "image": "283609209591.dkr.ecr.us-east-1.amazonaws.com/huellapositiva/backend:1.13",
       "cpu": 1024,
+      "memory": 512,
       "portMappings": [
         {
           "containerPort": 8080,
@@ -11,6 +12,14 @@
           "protocol": "tcp"
         }
       ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "dev-huellapositiva-backend-lg",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "awslogs-dev-huellapositiva-backend"
+        }
+      },
       "essential": true,
       "environment": [
         {
@@ -24,6 +33,10 @@
         {
           "name": "PROFILE",
           "value": "dev"
+        },
+        {
+          "name": "SERVICE_NAME",
+          "value": "backend"
         }
       ],
       "mountPoints": [],
@@ -32,10 +45,37 @@
   ],
   "family": "backend-task",
   "taskRoleArn": "arn:aws:iam::283609209591:role/huellapositiva-ecs-service-backend",
+  "executionRoleArn": "arn:aws:iam::283609209591:role/huellapositiva-ecs-service-backend-execution",
   "volumes": [],
   "placementConstraints": [],
   "requiresCompatibilities": [
     "EC2"
+  ],
+  "requiresAttributes": [
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    }
   ],
   "cpu": "1024",
   "memory": "512"

@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
-import com.huellapositiva.application.exception.BadProposalStatusException;
+import com.huellapositiva.application.exception.ProposalNotPublishableException;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
@@ -132,7 +132,7 @@ public class ProposalService {
 
             return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), proposal.getTitle());
         } else {
-            throw new BadProposalStatusException();
+            throw new ProposalNotPublishableException();
         }
     }
 }

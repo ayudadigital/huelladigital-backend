@@ -868,7 +868,7 @@ class ProposalControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideBadProposalStatus")
-    void return_400_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
+    void return_409_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
@@ -882,7 +882,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isConflict())
                 .andReturn().getResponse();
     }
 

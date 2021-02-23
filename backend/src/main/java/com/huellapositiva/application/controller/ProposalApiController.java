@@ -173,7 +173,12 @@ public class ProposalApiController {
                     @ApiResponse(
                             responseCode = "404",
                             description = "Not found, the given ID was not found or is not published."
+                    ),
+                    @ApiResponse(
+                            responseCode = "410",
+                            description = "Gone, the proposal is already closed."
                     )
+
             }
     )
     @PostMapping("/{id}/join")

@@ -119,7 +119,7 @@ public class ProposalService {
 
     /**
      * This method find the proposal in the database and checks if the status is REVIEW_PENDING or ENROLLMENT_CLOSED for
-     * publish. Otherwise, a BadProposalStatusException with response status 400 will be throw.
+     * publish. Otherwise, a ProposalNotPublishableException with response status 409 will be throw.
      * @param idProposal : The id of the proposal to be checked and updated.
      * @return result with the proposal person email and proposal title.
      */

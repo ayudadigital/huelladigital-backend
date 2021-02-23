@@ -533,7 +533,7 @@ public class ProposalApiController {
                             description = "No Content, proposal status changed to PUBLISHED successfully."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
+                            responseCode = "409",
                             description = "The proposal status in database is not REVIEW_PENDING or ENROLLMENT_CLOSE."
                     )
             }

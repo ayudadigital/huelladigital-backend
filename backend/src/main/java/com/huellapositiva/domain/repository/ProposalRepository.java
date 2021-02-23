@@ -50,6 +50,9 @@ public class ProposalRepository {
     @Autowired
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
+    @Autowired
+    private final JpaContactPersonRepository jpaContactPersonRepository;
+
     public String insert(Proposal proposal) {
         save(proposal);
         insertProposalSkills(proposal);
@@ -129,6 +132,9 @@ public class ProposalRepository {
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id)
                 .orElseThrow(EntityNotFoundException::new);
         Proposal proposal = Proposal.parseJpa(jpaProposal);
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(jpaProposal.getEsal().getId())
+                .orElseThrow(ESALNotFoundException::new);
+        proposal.getEsal().setContactPersonEmail(EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
         jpaProposal.getInscribedVolunteers()
                 .stream()
                 .map(v -> new Volunteer(new Id(v.getCredential().getId()), EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))

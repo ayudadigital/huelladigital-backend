@@ -863,7 +863,7 @@ class ProposalControllerShould {
                 .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
                 .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
                 .description(jpaProposal.getDescription())
-                .durationInDays(jpaProposal.getDurationInDays())
+                .durationInDays("5")
                 .category(jpaProposal.getCategory())
                 .skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
                 .requirements(new String[]{"Traer DNI"})

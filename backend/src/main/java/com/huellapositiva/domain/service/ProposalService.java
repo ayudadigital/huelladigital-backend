@@ -3,7 +3,9 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
+import com.huellapositiva.application.exception.ProposalNotLinkedWithContactPersonException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.*;
@@ -11,7 +13,9 @@ import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
@@ -42,6 +46,8 @@ public class ProposalService {
     private final JpaProposalRepository jpaProposalRepository;
 
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
+
+    private final JpaCredentialRepository jpaCredentialRepository;
 
     /**
      * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
@@ -103,17 +109,22 @@ public class ProposalService {
         return proposalRevisionEmail;
     }
 
-    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto) throws ParseException {
+    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
         /* Crear método para validaciones en el action (y las más especificas en su valueObject correspondiente) */
         /* Validación si la edad es número */
         /* Validación si las fechas tienen sentido */
         /* Validación de proposalCategory, es un ENUM */
 
         Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
+        JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
 
         /*
-        Comprobar si esa proposal coincide con el ID del Contact Person
-         */
+        Esto es por si al usuario se le ocurriera modificar el JavaScript
+        */
+        if(!(jpaCredential.getEmail().equals(proposal.getEsal().getContactPersonEmail().toString()))){
+            throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
+        }
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());

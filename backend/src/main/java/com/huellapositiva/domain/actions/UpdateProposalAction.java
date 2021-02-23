@@ -17,8 +17,8 @@ public class UpdateProposalAction {
 
     public final ProposalService proposalService;
 
-    public void execute(UpdateProposalRequestDto updateProposalRequestDto) throws ParseException {
-        proposalService.updateProposal(updateProposalRequestDto);
+    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
+        proposalService.updateProposal(updateProposalRequestDto, accountId);
         //UpdateProfileResult result = profileService.updateProfile(updateProfileRequestDto, accountId);
         /*if (result.isNewEmail()) {
             EmailConfirmation emailConfirmation = EmailConfirmation.from(updateProfileRequestDto.getEmail(), emailConfirmationBaseUrl);

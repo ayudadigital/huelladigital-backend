@@ -127,16 +127,17 @@ public class ProposalService {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
         String esalId = proposal.getEsal().getId();
         String status = proposal.getStatus().getName().toUpperCase();
-        if (REVIEW_PENDING.toString().equals(status) || ENROLLMENT_CLOSED.toString().equals(status)) {
-            JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
-                    .id(ProposalStatus.PUBLISHED.getId())
-                    .name("PUBLISHED").build();
-            jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
 
-            JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
-            return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());
-        } else {
+        if (!REVIEW_PENDING.toString().equals(status) && !ENROLLMENT_CLOSED.toString().equals(status)) {
             throw new ProposalNotPublishableException();
         }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(ProposalStatus.PUBLISHED.getId())
+                .name("PUBLISHED").build();
+        jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
+
+        JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
+        return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());
     }
 }

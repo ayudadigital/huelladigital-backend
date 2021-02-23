@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
@@ -55,10 +56,11 @@ class ProposalControllerShould {
 
     private static final String FETCH_PROPOSAL_URI = "/api/v1/proposals/";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     @Autowired
     private TestData testData;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
@@ -845,7 +847,7 @@ class ProposalControllerShould {
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
                 .id(jpaProposal.getId())
                 .title("Esto es un nombre que me he inventado")
@@ -857,9 +859,9 @@ class ProposalControllerShould {
                 .requiredDays(jpaProposal.getRequiredDays())
                 .minimumAge(jpaProposal.getMinimumAge())
                 .maximumAge(jpaProposal.getMaximumAge())
-                .startingProposalDate(simpleDateFormat.format(Date.from(now().plus(5, DAYS))))
-                .closingProposalDate(simpleDateFormat.format(Date.from(now().plus(10, DAYS))))
-                .startingVolunteeringDate(simpleDateFormat.format(Date.from(now().plus(15, DAYS))))
+                .startingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(5, DAYS)))))
+                .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
+                .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
                 .description(jpaProposal.getDescription())
                 .durationInDays(jpaProposal.getDurationInDays())
                 .category(jpaProposal.getCategory())

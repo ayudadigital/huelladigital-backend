@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -517,7 +518,8 @@ public class ProposalApiController {
     @PostMapping("/updateProposal")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProposal(@RequestBody UpdateProposalRequestDto updateProposalRequestDto, @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+    public void updateProposal(@Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
+                               @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         try {
             updateProposalAction.execute(updateProposalRequestDto);
         } catch (EntityNotFoundException | ParseException e) {

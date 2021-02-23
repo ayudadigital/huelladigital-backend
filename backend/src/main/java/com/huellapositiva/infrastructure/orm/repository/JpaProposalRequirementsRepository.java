@@ -21,6 +21,6 @@ public interface JpaProposalRequirementsRepository extends JpaRepository<JpaProp
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM JpaProposalRequirements p WHERE p.proposal.id = :proposal_id")
-    void deleteRequirementsByProposalId(@Param("proposal_id") String proposal_id);
+    @Query("DELETE FROM JpaProposalRequirements p WHERE p.proposal.id = :proposalId")
+    void deleteRequirementsByProposalId(@Param("proposalId") String proposalId);
 }

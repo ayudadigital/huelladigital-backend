@@ -21,6 +21,6 @@ public interface JpaProposalSkillsRepository extends JpaRepository<JpaProposalSk
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM JpaProposalSkills p WHERE p.proposal.id = :proposal_id")
-    void deleteSkillByProposalId(@Param("proposal_id") String proposal_id);
+    @Query("DELETE FROM JpaProposalSkills p WHERE p.proposal.id = :proposalId")
+    void deleteSkillByProposalId(@Param("proposalId") String proposalId);
 }

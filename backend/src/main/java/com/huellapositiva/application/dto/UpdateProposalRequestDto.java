@@ -5,9 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -58,22 +57,36 @@ public class UpdateProposalRequestDto {
     private final String island;
 
     @NotBlank
+    @Pattern(regexp = "^[a-zA-Z0-9 ]*$")
     private final String requiredDays;
 
-    @NotBlank
+    @NotNull
     private final int minimumAge;
 
-    @NotBlank
+    @NotNull
     private final int maximumAge;
 
-    @NotBlank
-    private final String startingProposalDate;
+    @Schema(
+            description = "Starting the enrollment of volunteers for the proposal, " +
+                    "is before than closeProposalDate and startingVolunteeringDate",
+            example = "1990-06-27"
+    )
+    private final LocalDate startingProposalDate;
 
-    @NotBlank
-    private final String closingProposalDate;
+    @Schema(
+            description = "Close the enrollment of volunteers for the proposal, " +
+                    "is before than startingVolunteeringDate",
+            example = "1990-06-27"
+    )
+    @NotNull
+    private final LocalDate closingProposalDate;
 
-    @NotBlank
-    private final String startingVolunteeringDate;
+    @Schema(
+            description = "Date the volunteering starts",
+            example = "1990-06-27"
+    )
+    @NotNull
+    private final LocalDate startingVolunteeringDate;
 
     @NotBlank
     private final String description;
@@ -84,15 +97,11 @@ public class UpdateProposalRequestDto {
     @NotBlank
     private final String category;
 
-    @NotBlank
     private final String[][] skills;
 
-    @NotBlank
     private final String[] requirements;
 
-    @NotBlank
     private final String extraInfo;
 
-    @NotBlank
     private final String instructions;
 }

@@ -92,6 +92,7 @@ public class UpdateProposalRequestDto {
     private final String description;
 
     @NotBlank
+    @Pattern(regexp = "^[0-9]*$")
     private final String durationInDays;
 
     @NotBlank

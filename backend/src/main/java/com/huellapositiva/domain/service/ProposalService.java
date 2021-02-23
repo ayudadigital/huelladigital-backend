@@ -111,19 +111,27 @@ public class ProposalService {
 
         Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
 
+        /*
+        Comprobar si esa proposal coincide con el ID del Contact Person
+         */
+
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
+        /*Validar*/
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
         proposal.getLocation().setTown(updateProposalRequestDto.getTown());
+        /*Validar*/
         proposal.getLocation().setZipCode(updateProposalRequestDto.getZipCode());
         proposal.getLocation().setAddress(updateProposalRequestDto.getAddress());
         proposal.setRequiredDays(updateProposalRequestDto.getRequiredDays());
+        /*Ya está validado*/
         proposal.setPermittedAgeRange(
                 AgeRange.create(
                         updateProposalRequestDto.getMinimumAge(),
                         updateProposalRequestDto.getMaximumAge()
                 )
         );
+        /*Validar con ProposalDate*/
         proposal.setStartingProposalDate(
                 ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
         );
@@ -133,7 +141,9 @@ public class ProposalService {
         proposal.setStartingProposalDate(
                 ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingProposalDate().toString())
         );
+        /*Validar con longitud máxima*/
         proposal.setDescription(updateProposalRequestDto.getDescription());
+        /*Validar como número*/
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
 
         if ("ON_SITE".equals(updateProposalRequestDto.getCategory())) {
@@ -144,7 +154,9 @@ public class ProposalService {
             proposal.setCategory(ProposalCategory.MIXED);
         }
 
+        /*Validar con longitud máxima*/
         proposal.setExtraInfo(updateProposalRequestDto.getExtraInfo());
+        /*Validar con longitud máxima*/
         proposal.setInstructions(updateProposalRequestDto.getInstructions());
 
         addNewSkills(updateProposalRequestDto, proposal);

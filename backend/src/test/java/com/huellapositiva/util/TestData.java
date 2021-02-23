@@ -395,7 +395,7 @@ public class TestData {
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4")
-                        .zipCode("12345")
+                        .zipCode("38000")
                         .island("Tenerife").build())
                 .esal(esal)
                 .startingProposalDate(Date.from(now().plus(5, DAYS)))

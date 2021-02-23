@@ -2,10 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
-import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
-import com.huellapositiva.application.exception.ProposalNotLinkedWithContactPersonException;
-import com.huellapositiva.application.exception.ProposalNotPublishedException;
-import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.application.exception.*;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.*;
@@ -29,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.huellapositiva.domain.model.valueobjects.AdditionalInformation.isLengthInvalid;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 
 @Slf4j
@@ -125,13 +123,24 @@ public class ProposalService {
         if(!(jpaCredential.getEmail().equals(proposal.getEsal().getContactPersonEmail().toString()))){
             throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
         }
+        if(Location.isNotIsland(updateProposalRequestDto.getIsland())) {
+            throw new InvalidFieldException("The island field is invalid");
+        }
+        if(Location.isNotZipCode(updateProposalRequestDto.getZipCode())) {
+            throw new InvalidFieldException("The zip code field is invalid");
+        }
+        /*Cuidado porque el máximo son 200 lineas, mirar aqui https://trello.com/c/BRAkzDe3/21-crear-propuesta-de-convocatoria*/
+        if (isLengthInvalid(updateProposalRequestDto.getDescription())) {
+            throw new InvalidFieldException("The additional information field is invalid");
+        }
+
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
-        /*Validar*/
+        /*SI Validado*/
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
         proposal.getLocation().setTown(updateProposalRequestDto.getTown());
-        /*Validar*/
+        /*SI Validado*/
         proposal.getLocation().setZipCode(updateProposalRequestDto.getZipCode());
         proposal.getLocation().setAddress(updateProposalRequestDto.getAddress());
         proposal.setRequiredDays(updateProposalRequestDto.getRequiredDays());

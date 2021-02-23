@@ -2,4 +2,4 @@ aws:
   paramstore:
     enabled: true
     failFast: true
-    prefix: /config-test
+    prefix: /config

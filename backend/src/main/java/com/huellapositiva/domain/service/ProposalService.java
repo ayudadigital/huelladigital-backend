@@ -15,8 +15,10 @@ import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
@@ -44,7 +46,7 @@ public class ProposalService {
 
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
-    private final JpaCredentialRepository jpaCredentialRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
     /**
      * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
@@ -123,6 +125,7 @@ public class ProposalService {
      */
     public ChangeStatusToPublishedResult changeStatusToPublished(String idProposal) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
+        String esalId = proposal.getEsal().getId();
         String status = proposal.getStatus().getName().toUpperCase();
         if (REVIEW_PENDING.toString().equals(status) || ENROLLMENT_CLOSED.toString().equals(status)) {
             JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
@@ -130,7 +133,8 @@ public class ProposalService {
                     .name("PUBLISHED").build();
             jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
 
-            return new ChangeStatusToPublishedResult(jpaCredentialRepository.getContactPersonEmail(idProposal), proposal.getTitle());
+            JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
+            return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());
         } else {
             throw new ProposalNotPublishableException();
         }

@@ -16,6 +16,6 @@ public class ChangePublishedProposalToEnrollmentClosedAction {
      * @param idProposal
      */
     public void execute(String idProposal) {
-        proposalService.changeStatusToEnrollmentClosed(idProposal);
+        proposalService.closeEnrollment(idProposal);
     }
 }

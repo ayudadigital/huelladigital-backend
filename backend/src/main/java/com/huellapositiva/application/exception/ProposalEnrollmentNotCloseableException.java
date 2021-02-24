@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ProposalNotClosableException extends RuntimeException{
-    public ProposalNotClosableException() {
+public class ProposalEnrollmentNotCloseableException extends RuntimeException{
+    public ProposalEnrollmentNotCloseableException() {
         super();
     }
 }

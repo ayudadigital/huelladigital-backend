@@ -2,7 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
-import com.huellapositiva.application.exception.ProposalNotClosableException;
+import com.huellapositiva.application.exception.ProposalEnrollmentNotCloseableException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
@@ -112,16 +112,16 @@ public class ProposalService {
     }
 
     /**
-     * This method find the proposal in the database and checks if the status is PUBLISHED for
-     * close the enrollment. Otherwise, a ProposalNotClosableException with response status 409 will be throw.
+     * Close the enrollment of the provided proposal.
      * @param idProposal : The id of the proposal to be checked and updated.
+     * @throws ProposalEnrollmentNotCloseableException when the proposal is not published.
      */
-    public void changeStatusToEnrollmentClosed(String idProposal) {
+    public void closeEnrollment(String idProposal) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
         String status = proposal.getStatus().getName().toUpperCase();
 
         if (!PUBLISHED.toString().equals(status)) {
-            throw new ProposalNotClosableException();
+            throw new ProposalEnrollmentNotCloseableException();
         }
 
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()

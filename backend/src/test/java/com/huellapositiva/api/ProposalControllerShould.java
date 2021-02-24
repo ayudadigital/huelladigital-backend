@@ -915,16 +915,11 @@ class ProposalControllerShould {
                         .requiredDays("Weekend")
                         .minimumAge(18)
                         .maximumAge(55)
-                        .startingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(5, DAYS)))))
                         .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
                         .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
                         .description("Una descripcion menor de 200 caracteres")
                         .durationInDays("5")
                         .category("MIXED")
-                        //.skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
-                        //.requirements(new String[]{"Traer DNI"})
-                        //.extraInfo("Una extra info menor de 200 caracteres")
-                        //.instructions("Una instructions menor de 200 caracteres")
         );
     }
 }

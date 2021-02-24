@@ -124,14 +124,16 @@ public class ProposalService {
                         updateProposalRequestDto.getMaximumAge()
                 )
         );
+        if (updateProposalRequestDto.getStartingProposalDate() != null){
+            proposal.setStartingProposalDate(
+                    ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
+            );
+        }
         proposal.setStartingProposalDate(
-                ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
+                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().toString())
         );
         proposal.setStartingProposalDate(
-                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
-        );
-        proposal.setStartingProposalDate(
-                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingProposalDate().toString())
+                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().toString())
         );
         proposal.setDescription(updateProposalRequestDto.getDescription());
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());

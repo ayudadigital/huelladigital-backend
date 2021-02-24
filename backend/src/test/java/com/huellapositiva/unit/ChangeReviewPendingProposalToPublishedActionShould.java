@@ -1,6 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.ChangeReviewPendingProposalToPublishedDto;
+import com.huellapositiva.application.dto.ChangeStatusProposalRequestDto;
 import com.huellapositiva.domain.actions.ChangeReviewPendingProposalToPublishedAction;
 import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -33,7 +33,7 @@ class ChangeReviewPendingProposalToPublishedActionShould {
 
     @Test
     void send_change_email() {
-        ChangeReviewPendingProposalToPublishedDto dto = ChangeReviewPendingProposalToPublishedDto.builder().idProposal("1").build();
+        ChangeStatusProposalRequestDto dto = ChangeStatusProposalRequestDto.builder().idProposal("1").build();
 
         when(proposalService.changeStatusToPublished(dto.getIdProposal())).thenReturn(new ChangeStatusToPublishedResult(DEFAULT_ESAL_CONTACT_PERSON_EMAIL,"Recogida de ropita"));
 

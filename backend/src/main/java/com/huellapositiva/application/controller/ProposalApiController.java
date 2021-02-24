@@ -541,7 +541,7 @@ public class ProposalApiController {
     @PutMapping("/publish")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeReviewPendingProposalToPublished(@RequestBody ChangeReviewPendingProposalToPublishedDto dto) {
+    public void changeReviewPendingProposalToPublished(@RequestBody ChangeStatusProposalRequestDto dto) {
         changeReviewPendingProposalToPublishedAction.execute(dto.getIdProposal());
     }
 }

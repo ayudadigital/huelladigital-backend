@@ -843,7 +843,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(proposalId);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
 
         //WHEN + THEN
         mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
@@ -873,7 +873,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeReviewPendingProposalToPublishedDto dto = new ChangeReviewPendingProposalToPublishedDto(jpaProposal.getId());
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
 
         //WHEN + THEN
         mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")

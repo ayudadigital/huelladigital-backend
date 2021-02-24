@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class ChangeReviewPendingProposalToPublishedDto {
+public class ChangeStatusProposalRequestDto {
     @Schema(
             example = "ff79038b-3fec-41f0-bab8-6e0d11db986e"
     )

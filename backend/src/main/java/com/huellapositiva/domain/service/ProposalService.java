@@ -22,11 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.huellapositiva.domain.model.valueobjects.AdditionalInformation.isLengthInvalid;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 
 @Slf4j
@@ -108,50 +106,24 @@ public class ProposalService {
     }
 
     public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
-        /* Crear método para validaciones en el action (y las más especificas en su valueObject correspondiente) */
-        /* Validación si la edad es número */
-        /* Validación si las fechas tienen sentido */
-        /* Validación de proposalCategory, es un ENUM */
-
         Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
         JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
-
-        /*
-        Esto es por si al usuario se le ocurriera modificar el JavaScript
-        */
-        if(!(jpaCredential.getEmail().equals(proposal.getEsal().getContactPersonEmail().toString()))){
-            throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
-        }
-        if(Location.isNotIsland(updateProposalRequestDto.getIsland())) {
-            throw new InvalidFieldException("The island field is invalid");
-        }
-        if(Location.isNotZipCode(updateProposalRequestDto.getZipCode())) {
-            throw new InvalidFieldException("The zip code field is invalid");
-        }
-        /*Cuidado porque el máximo son 200 lineas, mirar aqui https://trello.com/c/BRAkzDe3/21-crear-propuesta-de-convocatoria*/
-        if (isLengthInvalid(updateProposalRequestDto.getDescription())) {
-            throw new InvalidFieldException("The additional information field is invalid");
-        }
-
+        validationsOfUpdateProposal(updateProposalRequestDto, jpaCredential, proposal.getEsal().getContactPersonEmail().toString());
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
-        /*SI Validado*/
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
         proposal.getLocation().setTown(updateProposalRequestDto.getTown());
-        /*SI Validado*/
         proposal.getLocation().setZipCode(updateProposalRequestDto.getZipCode());
         proposal.getLocation().setAddress(updateProposalRequestDto.getAddress());
         proposal.setRequiredDays(updateProposalRequestDto.getRequiredDays());
-        /*Ya está validado*/
         proposal.setPermittedAgeRange(
                 AgeRange.create(
                         updateProposalRequestDto.getMinimumAge(),
                         updateProposalRequestDto.getMaximumAge()
                 )
         );
-        /*Validar con ProposalDate*/
         proposal.setStartingProposalDate(
                 ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
         );
@@ -161,28 +133,52 @@ public class ProposalService {
         proposal.setStartingProposalDate(
                 ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingProposalDate().toString())
         );
-        /*Validar con longitud máxima*/
         proposal.setDescription(updateProposalRequestDto.getDescription());
-        /*Validar como número*/
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
+        proposal.setCategory(ProposalCategory.getCategory(updateProposalRequestDto.getCategory()));
 
-        if ("ON_SITE".equals(updateProposalRequestDto.getCategory())) {
+        /*if (ProposalCategory.ON_SITE.toString().equals(updateProposalRequestDto.getCategory())) {
             proposal.setCategory(ProposalCategory.ON_SITE);
-        } else if ("REMOTE".equals(updateProposalRequestDto.getCategory())) {
+        } else if (ProposalCategory.REMOTE.toString().equals(updateProposalRequestDto.getCategory())) {
             proposal.setCategory(ProposalCategory.REMOTE);
         } else {
             proposal.setCategory(ProposalCategory.MIXED);
-        }
-
-        /*Validar con longitud máxima*/
+        }*/
         proposal.setExtraInfo(updateProposalRequestDto.getExtraInfo());
-        /*Validar con longitud máxima*/
         proposal.setInstructions(updateProposalRequestDto.getInstructions());
 
         addNewSkills(updateProposalRequestDto, proposal);
         addNewRequeriments(updateProposalRequestDto, proposal);
 
         proposalRepository.update(proposal);
+    }
+
+    private void validationsOfUpdateProposal(UpdateProposalRequestDto updateProposalRequestDto, JpaCredential jpaCredential, String email) {
+        if(!(jpaCredential.getEmail().equals(email))){
+            throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
+        }
+        if(Location.isNotIsland(updateProposalRequestDto.getIsland())) {
+            throw new InvalidFieldException("The island field is invalid");
+        }
+        if(Location.isNotZipCode(updateProposalRequestDto.getZipCode())) {
+            throw new InvalidFieldException("The zip code field is invalid");
+        }
+        if (updateProposalRequestDto.getExtraInfo() != null &&
+                updateProposalRequestDto.getDescription().length() > 200) {
+            throw new InvalidFieldException("The additional information field is invalid");
+        }
+        if (updateProposalRequestDto.getExtraInfo() != null &&
+                updateProposalRequestDto.getExtraInfo().length() > 200) {
+            throw new InvalidFieldException("The additional information field is invalid");
+        }
+        if (updateProposalRequestDto.getExtraInfo() != null &&
+                updateProposalRequestDto.getInstructions().length() > 200) {
+            throw new InvalidFieldException("The additional information field is invalid");
+        }
+        if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate()) &&
+        updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
+            throw new InvalidFieldException("The dates are wrong");
+        }
     }
 
     private void addNewRequeriments(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {

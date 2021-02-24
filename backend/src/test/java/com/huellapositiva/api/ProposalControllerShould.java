@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
+import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
@@ -835,5 +836,56 @@ class ProposalControllerShould {
         List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
+    }
+
+    @Test
+    void return_204_when_update_proposal_to_enrollment_closed_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/close")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(ENROLLMENT_CLOSED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBadProposalStatus")
+    void return_409_when_proposal_status_is_not_published(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/close")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideBadProposalStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                ENROLLMENT_CLOSED,
+                REVIEW_PENDING
+        );
     }
 }

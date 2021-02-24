@@ -17,7 +17,7 @@ public class UpdateProposalRequestDto {
     private final String id;
 
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-Z0-9 ]+$")
     private final String title;
 
     @Schema(

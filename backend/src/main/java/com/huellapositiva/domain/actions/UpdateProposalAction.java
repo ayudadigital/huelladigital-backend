@@ -1,12 +1,8 @@
 package com.huellapositiva.domain.actions;
 
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
-import com.huellapositiva.domain.dto.UpdateProfileResult;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.service.ProposalService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;

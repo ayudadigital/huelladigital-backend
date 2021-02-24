@@ -136,14 +136,6 @@ public class ProposalService {
         proposal.setDescription(updateProposalRequestDto.getDescription());
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
         proposal.setCategory(ProposalCategory.getCategory(updateProposalRequestDto.getCategory()));
-
-        /*if (ProposalCategory.ON_SITE.toString().equals(updateProposalRequestDto.getCategory())) {
-            proposal.setCategory(ProposalCategory.ON_SITE);
-        } else if (ProposalCategory.REMOTE.toString().equals(updateProposalRequestDto.getCategory())) {
-            proposal.setCategory(ProposalCategory.REMOTE);
-        } else {
-            proposal.setCategory(ProposalCategory.MIXED);
-        }*/
         proposal.setExtraInfo(updateProposalRequestDto.getExtraInfo());
         proposal.setInstructions(updateProposalRequestDto.getInstructions());
 
@@ -163,17 +155,21 @@ public class ProposalService {
         if(Location.isNotZipCode(updateProposalRequestDto.getZipCode())) {
             throw new InvalidFieldException("The zip code field is invalid");
         }
-        if (updateProposalRequestDto.getExtraInfo() != null &&
-                updateProposalRequestDto.getDescription().length() > 200) {
+        if (updateProposalRequestDto.getTitle() != null &&
+                updateProposalRequestDto.getDescription().length() > 75) {
             throw new InvalidFieldException("The additional information field is invalid");
+        }
+        if (updateProposalRequestDto.getDescription() != null &&
+                updateProposalRequestDto.getDescription().length() > 200) {
+            throw new InvalidFieldException("The description field is invalid");
         }
         if (updateProposalRequestDto.getExtraInfo() != null &&
                 updateProposalRequestDto.getExtraInfo().length() > 200) {
-            throw new InvalidFieldException("The additional information field is invalid");
+            throw new InvalidFieldException("The extra info field is invalid");
         }
-        if (updateProposalRequestDto.getExtraInfo() != null &&
+        if (updateProposalRequestDto.getInstructions() != null &&
                 updateProposalRequestDto.getInstructions().length() > 200) {
-            throw new InvalidFieldException("The additional information field is invalid");
+            throw new InvalidFieldException("The instruction field is invalid");
         }
         if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate()) &&
         updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
@@ -190,9 +186,11 @@ public class ProposalService {
         for (Requirement requirement : deleteRequirements) {
             proposal.deleteRequeriment(requirement);
         }
-        for (String requirement : updateProposalRequestDto.getRequirements()) {
-            Requirement newRequirement = new Requirement(requirement);
-            proposal.addRequirement(newRequirement);
+        if (updateProposalRequestDto.getRequirements() != null) {
+            for (String requirement : updateProposalRequestDto.getRequirements()) {
+                Requirement newRequirement = new Requirement(requirement);
+                proposal.addRequirement(newRequirement);
+            }
         }
     }
 
@@ -205,9 +203,11 @@ public class ProposalService {
         for (Skill skill : deleteSkills) {
             proposal.deleteSkill(skill);
         }
-        for (String[] skill : updateProposalRequestDto.getSkills()) {
-            Skill newSkill = new Skill(skill[0], skill[1]);
-            proposal.addSkill(newSkill);
+        if (updateProposalRequestDto.getSkills() != null) {
+            for (String[] skill : updateProposalRequestDto.getSkills()) {
+                Skill newSkill = new Skill(skill[0], skill[1]);
+                proposal.addSkill(newSkill);
+            }
         }
     }
 

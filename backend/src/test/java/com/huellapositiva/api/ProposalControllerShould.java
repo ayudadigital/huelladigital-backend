@@ -26,9 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -841,13 +839,16 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 
-    @Test
-    void return_200_when_updates_proposal_and_change_status_to_review_pending() throws Exception {
+    @ParameterizedTest
+    @MethodSource("provideCorrectProposalInformation")
+    void return_200_when_updates_proposal_and_change_status_to_review_pending(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
+
+        /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
                 .id(jpaProposal.getId())
                 .title("Esto es un nombre que me he inventado")
@@ -863,14 +864,13 @@ class ProposalControllerShould {
                 .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
                 .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
                 .description(jpaProposal.getDescription())
-                /*No olvidar hacer este dato solo un número*/
                 .durationInDays("5")
                 .category(jpaProposal.getCategory())
                 .skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
                 .requirements(new String[]{"Traer DNI"})
                 .extraInfo(jpaProposal.getExtraInfo())
                 .instructions(jpaProposal.getInstructions())
-                .build();
+                .build();*/
 
         // THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
@@ -880,7 +880,51 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+    }
 
-        System.out.println("Hola mundo");
+    private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideCorrectProposalInformation() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return Stream.of(
+                UpdateProposalRequestDto.builder()
+                        .title("Titulo menor a 75 caracteres")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays("Weekend")
+                        .minimumAge(18)
+                        .maximumAge(55)
+                        .startingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(5, DAYS)))))
+                        .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
+                        .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
+                        .description("Una descripcion menor de 200 caracteres")
+                        .durationInDays("5")
+                        .category("MIXED")
+                        .skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
+                        .requirements(new String[]{"Traer DNI"})
+                        .extraInfo("Una extra info menor de 200 caracteres")
+                        .instructions("Una instructions menor de 200 caracteres"),
+                UpdateProposalRequestDto.builder()
+                        .title("Titulo menor a 75 caracteres")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays("Weekend")
+                        .minimumAge(18)
+                        .maximumAge(55)
+                        .startingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(5, DAYS)))))
+                        .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
+                        .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
+                        .description("Una descripcion menor de 200 caracteres")
+                        .durationInDays("5")
+                        .category("MIXED")
+                        //.skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
+                        //.requirements(new String[]{"Traer DNI"})
+                        //.extraInfo("Una extra info menor de 200 caracteres")
+                        //.instructions("Una instructions menor de 200 caracteres")
+        );
     }
 }

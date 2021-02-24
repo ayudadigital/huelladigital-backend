@@ -4,13 +4,11 @@ import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.util.TestData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.huellapositiva.util.TestData.*;
 import static org.mockito.ArgumentMatchers.any;

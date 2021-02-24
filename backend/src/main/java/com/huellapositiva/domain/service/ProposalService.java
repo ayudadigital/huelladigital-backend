@@ -111,6 +111,11 @@ public class ProposalService {
         return proposalRevisionDto.getFeedback() != null;
     }
 
+    /**
+     * This method find the proposal in the database and checks if the status is PUBLISHED for
+     * close the enrollment. Otherwise, a ProposalNotClosableException with response status 409 will be throw.
+     * @param idProposal : The id of the proposal to be checked and updated.
+     */
     public void changeStatusToEnrollmentClosed(String idProposal) {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
         String status = proposal.getStatus().getName().toUpperCase();

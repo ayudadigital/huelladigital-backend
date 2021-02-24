@@ -11,6 +11,10 @@ import org.springframework.stereotype.Service;
 public class ChangePublishedProposalToEnrollmentClosedAction {
     private final ProposalService proposalService;
 
+    /**
+     * Updates the proposal status from PUBLISHED to ENROLLMENT_CLOSED.
+     * @param idProposal
+     */
     public void execute(String idProposal) {
         proposalService.changeStatusToEnrollmentClosed(idProposal);
     }

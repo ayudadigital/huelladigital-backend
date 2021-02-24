@@ -2,6 +2,7 @@ package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
+import com.huellapositiva.application.exception.ProposalNotClosableException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
@@ -115,7 +116,7 @@ public class ProposalService {
         String status = proposal.getStatus().getName().toUpperCase();
 
         if (!PUBLISHED.toString().equals(status)) {
-            throw new ProposalNotPublishedException("The proposal can't change to enrollment closed because is not published");
+            throw new ProposalNotClosableException();
         }
 
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()

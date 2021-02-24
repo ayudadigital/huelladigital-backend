@@ -43,7 +43,6 @@ public class ESALRequestDto {
             description = "Whether the ESAL is registered as an Volunteering Entity by Gobierno de Canarias",
             example = "true"
     )
-    @NotBlank
     private final boolean registeredEntity;
 
     @Schema(
@@ -57,14 +56,12 @@ public class ESALRequestDto {
             description = "Whether the ESAL has accepted the Privacy Policy",
             example = "true"
     )
-    @NotBlank
     private final boolean privacyPolicy;
 
     @Schema(
             description = "Whether the ESAL has accepted the Data Protection Policy",
             example = "true"
     )
-    @NotBlank
     private final boolean dataProtectionPolicy;
 
     @Schema(

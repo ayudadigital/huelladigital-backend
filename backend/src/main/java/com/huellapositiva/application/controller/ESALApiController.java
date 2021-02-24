@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -61,6 +62,11 @@ public class ESALApiController {
                             description = "Ok, ESAL registered successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, the provided field is not valid.",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the provided name is already taken.",
                             content = @Content(mediaType = "application/json")
@@ -80,7 +86,7 @@ public class ESALApiController {
     @PostMapping
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto,
+    public void registerESAL(@Validated @RequestBody ESALRequestDto dto,
                              @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
             registerESALAction.execute(dto, accountId);
@@ -129,9 +135,7 @@ public class ESALApiController {
                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
             uploadLogoAction.execute(logo, accountId);
-        } catch (InvalidFieldException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
-        } catch (EmptyFileException ex) {
+        } catch (InvalidFieldException | EmptyFileException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
         }
 

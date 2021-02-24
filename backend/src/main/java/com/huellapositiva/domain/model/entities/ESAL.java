@@ -5,13 +5,9 @@ import com.huellapositiva.domain.model.valueobjects.EntityType;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Location;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 
@@ -53,15 +49,12 @@ public class ESAL {
         return Objects.hash(id);
     }
 
+    @SneakyThrows
     public static ESAL fromJpa(JpaESAL esal) {
-        URL logoUrl;
-        try{ logoUrl = new URL(esal.getLogoUrl()); }
-        catch (MalformedURLException ex) { logoUrl = null; }
-
         return ESAL.builder()
                 .id(new Id(esal.getId()))
                 .name(esal.getName())
-                .logoUrl(logoUrl)
+                .logoUrl(esal.getLogoUrl() != null ? new URL(esal.getLogoUrl()) : null)
                 .website(esal.getWebsite())
                 .description(esal.getDescription())
                 .registeredEntity(esal.isRegisteredEntity())

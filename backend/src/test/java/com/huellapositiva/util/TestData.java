@@ -258,7 +258,7 @@ public class TestData {
                 .id(Id.newId().toString())
                 .name(esalName)
                 .description("description")
-                .logoUrl("logourl")
+                .logoUrl(createMockImageUrl().toString())
                 .website("website.com")
                 .location(JpaLocation.builder()
                         .id(Id.newId().toString())
@@ -269,7 +269,7 @@ public class TestData {
                         .island(VALID_ISLAND)
                         .build())
                 .registeredEntity(true)
-                .entityType("FUNDACION")
+                .entityType("FOUNDATION")
                 .privacyPolicy(true)
                 .dataProtectionPolicy(true)
                 .build();

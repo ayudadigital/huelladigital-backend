@@ -19,7 +19,6 @@ import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
-import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
@@ -135,7 +134,7 @@ public class ProposalService {
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
                 .id(ProposalStatus.PUBLISHED.getId())
                 .name("PUBLISHED").build();
-        jpaProposalRepository.changeStatusToPublished(idProposal, jpaProposalStatus);
+        jpaProposalRepository.updateStatusById(idProposal, jpaProposalStatus);
 
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
         return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());

@@ -33,9 +33,4 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     @Transactional
     @Query("UPDATE JpaProposal p SET p.status = :status, p.cancelReason = :reason WHERE p.id = :id")
     Integer cancelProposalById(@Param("id") String id, @Param("status") JpaProposalStatus status, @Param("reason") String reason);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE JpaProposal p SET p.status = :status WHERE p.id = :id")
-    Integer changeStatusToPublished(@Param("id") String id, @Param("status") JpaProposalStatus status);
 }

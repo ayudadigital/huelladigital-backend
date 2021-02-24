@@ -66,6 +66,8 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
+    private final ChangePublishedProposalToEnrollmentClosedAction changePublishedProposalToEnrollmentClosedAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
@@ -510,5 +512,36 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
+    }
+
+    @Operation(
+            summary = "Updates the proposal status to ENROLLMENT_CLOSED",
+            description = "The contact person can update the proposal status from PUBLISHED to ENROLLMENT_CLOSE.",
+            tags = {"proposals, reviser"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to ENROLLMENT_CLOSE successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "The proposal status in database is not PUBLISHED."
+                    )
+            }
+    )
+    @PutMapping("/close")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeReviewPendingProposalToPublished(@RequestBody ChangeStatusProposalRequestDto dto) {
+        changePublishedProposalToEnrollmentClosedAction.execute(dto.getIdProposal());
     }
 }

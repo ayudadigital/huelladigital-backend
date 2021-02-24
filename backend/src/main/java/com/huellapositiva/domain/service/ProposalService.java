@@ -13,6 +13,7 @@ import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
@@ -20,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
@@ -106,5 +108,19 @@ public class ProposalService {
      */
     private boolean hasFeedback(ProposalRevisionDto proposalRevisionDto) {
         return proposalRevisionDto.getFeedback() != null;
+    }
+
+    public void changeStatusToEnrollmentClosed(String idProposal) {
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
+        String status = proposal.getStatus().getName().toUpperCase();
+
+        if (!PUBLISHED.toString().equals(status)) {
+            throw new ProposalNotPublishedException("The proposal can't change to enrollment closed because is not published");
+        }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(ENROLLMENT_CLOSED.getId())
+                .name("ENROLLMENT_CLOSED").build();
+        jpaProposalRepository.updateStatusById(idProposal, jpaProposalStatus);
     }
 }

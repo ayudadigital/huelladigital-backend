@@ -103,6 +103,14 @@ public class EmailCommunicationService {
         emailService.sendEmail(emailMessage);
     }
 
+    public void sendMessageUpdateProposal(ProposalRevisionRequestEmail email) {
+        final String UPDATE_EMAIL_SUBJECT = "Cambios ";
+        EmailTemplate emailTemplate = templateService.getEmailUpdateProposalTemplate(email);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, email.getEmailAddress(),
+                UPDATE_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
+
     public void sendNewsletterSubscriptorsEmail(EmailAddress emailAddress, URL url) {
         final String NEWSLETTER_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
         EmailTemplate emailTemplate = templateService.getNewsletterEmailTemplate(url);

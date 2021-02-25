@@ -1,25 +1,35 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
+import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
+import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProposalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.text.ParseException;
 
 @Service
 @RequiredArgsConstructor
 public class UpdateProposalAction {
 
-    public final ProposalService proposalService;
+    private final ProposalService proposalService;
 
-    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
+    private final EmailCommunicationService emailCommunicationService;
+
+    @Value("${huellapositiva.revision.email.from}")
+    private String reviserEmail;
+
+    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId, URI uri) throws ParseException {
         proposalService.updateProposal(updateProposalRequestDto, accountId);
-        //UpdateProfileResult result = profileService.updateProfile(updateProfileRequestDto, accountId);
-        /*if (result.isNewEmail()) {
-            EmailConfirmation emailConfirmation = EmailConfirmation.from(updateProfileRequestDto.getEmail(), emailConfirmationBaseUrl);
-            emailCommunicationService.sendMessageEmailChanged(emailConfirmation);
-        }*/
+
+        ProposalRevisionRequestEmail email = ProposalRevisionRequestEmail.from(reviserEmail, uri.toString());
+        emailCommunicationService.sendMessageUpdateProposal(email);
     }
 
 }

@@ -110,7 +110,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalPublishedTemplate(String proposalTitle) {
-        String relativePath = "classpath:templates/emails/proposalPublished.txt";
+        String relativePath = "templates/emails/proposalPublished.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put("PROPOSAL_TITLE", proposalTitle );

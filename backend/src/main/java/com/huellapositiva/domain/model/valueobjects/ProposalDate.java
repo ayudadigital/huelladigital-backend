@@ -26,15 +26,15 @@ public class ProposalDate {
     }
 
     public static ProposalDate createStartingProposalDate(String date) throws ParseException {
-        return new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(date));
+        return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse(date));
     }
 
     public static ProposalDate createClosingProposalDate(String date) throws ParseException {
-        return new ProposalDate(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse(date + " 23:55:00"));
+        return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy hh:mm:ss").parse(date + " 23:55:00"));
     }
 
     public static ProposalDate createStartingVolunteeringDate(String date) throws ParseException {
-        return new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(date));
+        return new ProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse(date));
     }
 
     public boolean isBefore(ProposalDate date){

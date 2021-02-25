@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,14 +128,14 @@ public class ProposalService {
         );
         if (updateProposalRequestDto.getStartingProposalDate() != null){
             proposal.setStartingProposalDate(
-                    ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
+                    ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
             );
         }
         proposal.setClosingProposalDate(
-                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().toString())
+                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
         );
         proposal.setStartingVolunteeringDate(
-                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().toString())
+                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
         );
         proposal.setDescription(updateProposalRequestDto.getDescription());
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());

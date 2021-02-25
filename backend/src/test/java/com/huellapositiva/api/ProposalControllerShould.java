@@ -879,7 +879,23 @@ class ProposalControllerShould {
         }
         assertThat(proposal.getClosingProposalDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getClosingProposalDate().toString())).toString());
         assertThat(proposal.getStartingVolunteeringDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingVolunteeringDate().toString())).toString());
-        //System.out.println("Hola");
+
+        assertThat(proposal.getDescription()).isEqualTo(updateProposalRequestDto.getDescription());
+        assertThat(proposal.getDurationInDays()).isEqualTo(updateProposalRequestDto.getDurationInDays());
+        assertThat(proposal.getCategory().toString()).isEqualTo(updateProposalRequestDto.getCategory());
+
+        if (updateProposalRequestDto.getSkills() != null) {
+            assertThat(proposal.getSkills().size()).isEqualTo(updateProposalRequestDto.getSkills().length);
+        }
+        if (updateProposalRequestDto.getRequirements() != null) {
+            assertThat(proposal.getRequirements().size()).isEqualTo(updateProposalRequestDto.getRequirements().length);
+        }
+        if (updateProposalRequestDto.getExtraInfo() != null) {
+            assertThat(proposal.getExtraInfo()).isEqualTo(updateProposalRequestDto.getExtraInfo());
+        }
+        if (updateProposalRequestDto.getInstructions() != null) {
+            assertThat(proposal.getInstructions()).isEqualTo(updateProposalRequestDto.getInstructions());
+        }
     }
 
     private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideCorrectProposalInformation() {

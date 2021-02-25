@@ -858,7 +858,7 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideBadProposalStatus")
+    @MethodSource("provideEnrollmentNotCloseableStatus")
     void return_409_when_proposal_status_is_not_published(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
@@ -876,7 +876,7 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
     }
 
-    private static Stream<ProposalStatus> provideBadProposalStatus() {
+    private static Stream<ProposalStatus> provideEnrollmentNotCloseableStatus() {
         return Stream.of(
                 CHANGES_REQUESTED,
                 CANCELLED,
@@ -884,6 +884,65 @@ class ProposalControllerShould {
                 FINISHED,
                 ENROLLMENT_CLOSED,
                 REVIEW_PENDING
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("providePublishableStatus")
+    void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    private static Stream<ProposalStatus> providePublishableStatus() {
+        return Stream.of(
+                REVIEW_PENDING,
+                ENROLLMENT_CLOSED
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotPublishableStatus")
+    void return_409_when_proposal_status_is_no_review_pending_or_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideNotPublishableStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED
         );
     }
 }

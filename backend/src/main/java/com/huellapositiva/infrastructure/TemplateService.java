@@ -108,4 +108,12 @@ public class TemplateService {
         variables.put("NEWSLETTER_URL", stringUrl);
         return new EmailTemplate(template).parse(variables);
     }
+
+    public EmailTemplate getProposalPublishedTemplate(String proposalTitle) {
+        String relativePath = "classpath:templates/emails/proposalPublished.txt";
+        String template = getFileContent(relativePath);
+        Map<String, String> variables = new HashMap<>();
+        variables.put("PROPOSAL_TITLE", proposalTitle );
+        return new EmailTemplate(template).parse(variables);
+    }
 }

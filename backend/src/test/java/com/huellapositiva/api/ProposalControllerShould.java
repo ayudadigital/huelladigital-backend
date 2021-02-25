@@ -3,8 +3,11 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
+import com.huellapositiva.domain.model.valueobjects.ProposalDate;
 import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -71,6 +74,9 @@ class ProposalControllerShould {
 
     @Autowired
     private JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+
+    @Autowired
+    private ProposalRepository proposalRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -846,31 +852,8 @@ class ProposalControllerShould {
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
+        // WHEN
         UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
-
-        /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
-                .id(jpaProposal.getId())
-                .title("Esto es un nombre que me he inventado")
-                .province(jpaProposal.getLocation().getProvince())
-                .town(jpaProposal.getLocation().getTown())
-                .address(jpaProposal.getLocation().getAddress())
-                .island(jpaProposal.getLocation().getIsland())
-                .zipCode(jpaProposal.getLocation().getZipCode())
-                .requiredDays(jpaProposal.getRequiredDays())
-                .minimumAge(jpaProposal.getMinimumAge())
-                .maximumAge(jpaProposal.getMaximumAge())
-                .startingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(5, DAYS)))))
-                .closingProposalDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(10, DAYS)))))
-                .startingVolunteeringDate(LocalDate.parse(simpleDateFormat.format(Date.from(now().plus(15, DAYS)))))
-                .description(jpaProposal.getDescription())
-                .durationInDays("5")
-                .category(jpaProposal.getCategory())
-                .skills(new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}})
-                .requirements(new String[]{"Traer DNI"})
-                .extraInfo(jpaProposal.getExtraInfo())
-                .instructions(jpaProposal.getInstructions())
-                .build();*/
 
         // THEN
         mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
@@ -880,6 +863,23 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        Proposal proposal = proposalRepository.fetch(jpaProposal.getId());
+        assertThat(proposal.getTitle()).isEqualTo(updateProposalRequestDto.getTitle());
+        assertThat(proposal.getLocation().getProvince()).isEqualTo(updateProposalRequestDto.getProvince());
+        assertThat(proposal.getLocation().getTown()).isEqualTo(updateProposalRequestDto.getTown());
+        assertThat(proposal.getLocation().getAddress()).isEqualTo(updateProposalRequestDto.getAddress());
+        assertThat(proposal.getLocation().getIsland()).isEqualTo(updateProposalRequestDto.getIsland());
+        assertThat(proposal.getLocation().getZipCode()).isEqualTo(updateProposalRequestDto.getZipCode());
+        assertThat(proposal.getRequiredDays()).isEqualTo(updateProposalRequestDto.getRequiredDays());
+        assertThat(proposal.getPermittedAgeRange().getMinimum()).isEqualTo(updateProposalRequestDto.getMinimumAge());
+        assertThat(proposal.getPermittedAgeRange().getMaximum()).isEqualTo(updateProposalRequestDto.getMaximumAge());
+        if (updateProposalRequestDto.getStartingProposalDate() != null) {
+            assertThat(proposal.getStartingProposalDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingProposalDate().toString())).toString());
+        }
+        assertThat(proposal.getClosingProposalDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getClosingProposalDate().toString())).toString());
+        assertThat(proposal.getStartingVolunteeringDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingVolunteeringDate().toString())).toString());
+        //System.out.println("Hola");
     }
 
     private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideCorrectProposalInformation() {

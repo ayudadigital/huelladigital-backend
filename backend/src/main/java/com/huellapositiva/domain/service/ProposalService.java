@@ -129,10 +129,10 @@ public class ProposalService {
                     ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().toString())
             );
         }
-        proposal.setStartingProposalDate(
+        proposal.setClosingProposalDate(
                 ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().toString())
         );
-        proposal.setStartingProposalDate(
+        proposal.setStartingVolunteeringDate(
                 ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().toString())
         );
         proposal.setDescription(updateProposalRequestDto.getDescription());

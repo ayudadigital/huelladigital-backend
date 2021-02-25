@@ -25,10 +25,11 @@ public class UpdateProposalAction {
     @Value("${huellapositiva.revision.email.from}")
     private String reviserEmail;
 
-    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId, URI uri) throws ParseException {
+    public void execute(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
         proposalService.updateProposal(updateProposalRequestDto, accountId);
 
-        ProposalRevisionRequestEmail email = ProposalRevisionRequestEmail.from(reviserEmail, uri.toString());
+        String uri = "http://localhost/api/v1/proposals/" + updateProposalRequestDto.getId();
+        ProposalRevisionRequestEmail email = ProposalRevisionRequestEmail.from(reviserEmail, uri);
         emailCommunicationService.sendMessageUpdateProposal(email);
     }
 

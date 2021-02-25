@@ -521,10 +521,7 @@ public class ProposalApiController {
     public void updateProposal(@Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
                                @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         try {
-            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path(PATH_ID).buildAndExpand(updateProposalRequestDto.getId())
-                    .toUri();
-            updateProposalAction.execute(updateProposalRequestDto, accountId, uri);
+            updateProposalAction.execute(updateProposalRequestDto, accountId);
         } catch (EntityNotFoundException | ParseException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request, the proposal don't exist in the database");
         }

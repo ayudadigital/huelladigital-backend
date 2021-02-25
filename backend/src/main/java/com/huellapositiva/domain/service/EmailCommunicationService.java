@@ -110,4 +110,12 @@ public class EmailCommunicationService {
                 NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
+
+    public void sendMessageProposalPublished(String email, String proposalTitle) {
+        final String PROPOSAL_PUBLISHED_EMAIL_SUBJECT = "Convocatoria publicada";
+        EmailTemplate emailTemplate = templateService.getProposalPublishedTemplate(proposalTitle);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, email,
+                PROPOSAL_PUBLISHED_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
 }

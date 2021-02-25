@@ -139,4 +139,23 @@ public class ProposalService {
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
         return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());
     }
+
+    /**
+     * Publish proposal if the proposal have status ENROLLMENT_CLOSED.
+     * @param idProposal : The id of the proposal to be checked and updated.
+     * @throws - ProposalNotPublishableException
+     */
+    public void changeStatusToPublishedFromEnrollmentClosed(String idProposal) {
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
+        String status = proposal.getStatus().getName().toUpperCase();
+
+        if (!ENROLLMENT_CLOSED.toString().equals(status)) {
+            throw new ProposalNotPublishableException();
+        }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(ProposalStatus.PUBLISHED.getId())
+                .name("PUBLISHED").build();
+        jpaProposalRepository.updateStatusById(idProposal, jpaProposalStatus);
+    }
 }

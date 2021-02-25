@@ -66,6 +66,8 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
+    private UpdateProposalImageAction updateProposalImageAction;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(
@@ -510,5 +512,14 @@ public class ProposalApiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeStatusVolunteerInProposal(@RequestBody List<ChangeStatusVolunteerDto> changeStatusVolunteerDtos) {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
+    }
+
+    @PostMapping("/udpateProposalImage")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProposalImage(@RequestPart("photo") MultipartFile photo, @RequestBody String proposalId,
+                                  @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
+        updateProposalImageAction.execute(photo, accountId, proposalId);
+
     }
 }

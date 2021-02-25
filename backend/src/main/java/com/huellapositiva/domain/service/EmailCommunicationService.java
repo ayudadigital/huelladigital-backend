@@ -110,4 +110,11 @@ public class EmailCommunicationService {
                 NEWSLETTER_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
+
+    public void sendProposalImageUpdateEmail(EmailAddress emailAddress) {
+        final String UPDATE_PHOTO_SUBJECT = "Información sobre la modificación de su convocatoria";
+        EmailTemplate emailTemplate = templateService.getUpdateProposalImageTemplate();
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(), UPDATE_PHOTO_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
 }

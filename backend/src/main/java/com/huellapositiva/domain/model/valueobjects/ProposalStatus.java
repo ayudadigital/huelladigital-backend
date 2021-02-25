@@ -8,7 +8,7 @@ public enum ProposalStatus {
     REVIEW_PENDING (1),
     CHANGES_REQUESTED (2),
     PUBLISHED (3),
-    UNPUBLISHED (4),
+    ENROLLMENT_CLOSED (4),
     FINISHED(5),
     CANCELLED(6),
     INADEQUATE (99);

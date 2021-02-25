@@ -72,7 +72,7 @@ class ESALControllerShould {
 
     @Test
     void create_an_ESAL_and_update_member_joined_ESAL() throws Exception {
-        testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         ESALRequestDto esalRequestDto = getESALRequestDto();
@@ -98,7 +98,7 @@ class ESALControllerShould {
 
     @Test
     void create_an_ESAL_as_a_not_confirmed_contact_person() throws Exception {
-        testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.CONTACT_PERSON_NOT_CONFIRMED);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD, Roles.CONTACT_PERSON_NOT_CONFIRMED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         ESALRequestDto esalRequestDto = getESALRequestDto();
@@ -200,9 +200,8 @@ class ESALControllerShould {
 
     @Test
     void allow_members_to_delete_their_ESAL() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         String esalId = testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
-
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(delete("/api/v1/esal/" + esalId)
@@ -217,7 +216,7 @@ class ESALControllerShould {
 
     @Test
     void not_allow_to_create_an_ESAL_when_member_already_has_one() throws Exception {
-        JpaContactPerson member = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson member = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(member, testData.buildJpaESAL("Huella Negativa"));
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -232,7 +231,7 @@ class ESALControllerShould {
 
     @Test
     void return_409_when_ESAL_is_already_taken() throws Exception {
-        testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createJpaESAL(testData.buildJpaESAL("Huella Positiva"));
 
@@ -247,10 +246,9 @@ class ESALControllerShould {
 
     @Test
     void return_403_when_a_user_attempts_to_delete_an_ESAL_that_does_not_belong_to() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         String secondESALId = testData.createJpaESAL(testData.buildJpaESAL("Huella Negativa")).getId();
-
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(delete("/api/v1/esal/" + secondESALId)

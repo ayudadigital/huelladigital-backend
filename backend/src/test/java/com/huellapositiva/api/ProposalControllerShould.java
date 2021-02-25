@@ -842,15 +842,14 @@ class ProposalControllerShould {
 
     @Test
     void return_204_when_proposal_image_changed_successfully() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        String id = testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(id)
+                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
@@ -859,15 +858,15 @@ class ProposalControllerShould {
 
     @Test
     void return_400_when_contact_person_email_is_not_equal_to_proposal_contact_person_email() throws Exception {
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        String id = testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(id)
+                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
@@ -876,10 +875,6 @@ class ProposalControllerShould {
 
     @Test
     void return_400_when_proposal_status_is_different_from_published_or_review_pending() throws Exception {
-        /*
-        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        String id = testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
-        */
         JpaProposal jpaProposal = testData.registerESALAndProposal(INADEQUATE);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 

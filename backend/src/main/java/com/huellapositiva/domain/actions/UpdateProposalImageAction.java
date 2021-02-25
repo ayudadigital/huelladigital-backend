@@ -6,7 +6,6 @@ import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.RemoteStorageService;
-import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;

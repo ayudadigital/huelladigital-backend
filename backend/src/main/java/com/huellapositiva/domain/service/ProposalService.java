@@ -131,12 +131,15 @@ public class ProposalService {
                     ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
             );
         }
+        //if (proposal.getClosingProposalDate().isBefore(updateProposalRequestDto.get)) {
         proposal.setClosingProposalDate(
                 ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
         );
-        proposal.setStartingVolunteeringDate(
-                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
-        );
+        //if (proposal.getClosingProposalDate().isBefore(updateProposalRequestDto.get)) {
+            proposal.setStartingVolunteeringDate(
+                    ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
+            );
+        //}
         proposal.setDescription(updateProposalRequestDto.getDescription());
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
         proposal.setCategory(ProposalCategory.getCategory(updateProposalRequestDto.getCategory()));
@@ -145,6 +148,8 @@ public class ProposalService {
 
         addNewSkills(updateProposalRequestDto, proposal);
         addNewRequeriments(updateProposalRequestDto, proposal);
+
+        proposal.setStatus(REVIEW_PENDING);
 
         proposalRepository.update(proposal);
     }
@@ -175,9 +180,15 @@ public class ProposalService {
                 updateProposalRequestDto.getInstructions().length() > 200) {
             throw new InvalidFieldException("The instruction field is invalid");
         }
-        if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate()) &&
-        updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
-            throw new InvalidFieldException("The dates are wrong");
+        if (updateProposalRequestDto.getStartingProposalDate() == null) {
+            if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate())) {
+                throw new InvalidFieldException("The dates are wrong");
+            }
+        } else {
+            if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate()) ||
+                    updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
+                throw new InvalidFieldException("The dates are wrong");
+            }
         }
     }
 

@@ -69,6 +69,22 @@ public class TestData {
     public static final String VALID_LINKEDIN = "https://linkedin.com/in/home";
     public static final String VALID_ADDITIONAL_INFO = "Additional information";
 
+    public static final String VALID_TITLE = "Titulo menor a 75 caracteres";
+    public static final String VALID_REQUIRED_DAYS = "Weekend";
+    public static final int VALID_MINIMUM_AGE = 18;
+    public static final int VALID_MAXIMUM_AGE = 70;
+    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    public static final LocalDate VALID_PROPOSAL_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(5, DAYS))));
+    public static final LocalDate VALID_CLOSING_PROPOSAL_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(10, DAYS))));
+    public static final LocalDate VALID_STARTING_VOLUNTERING_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(15, DAYS))));
+    public static final String VALID_DESCRIPTION = "Una descripcion menor de 200 caracteres";
+    public static final String VALID_DURATION_IN_DAYS = "5";
+    public static final String VALID_CATEGORY = "MIXED";
+    public static final String[][] VALID_SKILLS = new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}};
+    public static final String[] VALID_REQUERIMENTS = new String[]{"Traer DNI"};
+    public static final String VALID_EXTRA_INFO = "Una extra info menor de 200 caracteres";
+    public static final String VALID_INSTRUCTIONS = "Una instructions menor de 200 caracteres";
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 

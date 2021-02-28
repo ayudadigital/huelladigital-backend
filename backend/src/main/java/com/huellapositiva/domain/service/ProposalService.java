@@ -197,7 +197,6 @@ public class ProposalService {
                 updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
             throw new InvalidFieldException("The closing recruitment can not before of the starting proposal");
         }
-
         if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate())) {
             throw new InvalidFieldException("The starting voluntering can not before of the closing recruitment");
         }
@@ -212,10 +211,7 @@ public class ProposalService {
      * @param proposal The proposal to update
      */
     private void addNewRequeriments(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
-        List<Requirement> deleteRequirements = new ArrayList<>();
-        for (Requirement requirement : proposal.getRequirements()) {
-            deleteRequirements.add(requirement);
-        }
+        List<Requirement> deleteRequirements = new ArrayList<>(proposal.getRequirements());
         for (Requirement requirement : deleteRequirements) {
             proposal.deleteRequirement(requirement);
         }
@@ -236,10 +232,7 @@ public class ProposalService {
      * @param proposal The proposal to update
      */
     private void addNewSkills(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
-        List<Skill> deleteSkills = new ArrayList<>();
-        for (Skill skill : proposal.getSkills()) {
-            deleteSkills.add(skill);
-        }
+        List<Skill> deleteSkills = new ArrayList<>(proposal.getSkills());
         for (Skill skill : deleteSkills) {
             proposal.deleteSkill(skill);
         }

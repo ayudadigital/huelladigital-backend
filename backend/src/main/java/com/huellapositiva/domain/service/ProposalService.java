@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URI;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +106,12 @@ public class ProposalService {
         return proposalRevisionEmail;
     }
 
+    /**
+     * This method updates the proposal and chages its status by REVIEW_PENDING
+     *
+     * @param updateProposalRequestDto The new information about the proposal
+     * @param accountId The account id of the user
+     */
     public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
         Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
         JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
@@ -152,6 +157,13 @@ public class ProposalService {
         proposalRepository.update(proposal);
     }
 
+    /**
+     * Some validations of the proposal fields
+     *
+     * @param updateProposalRequestDto The new information about the proposal
+     * @param jpaCredential The credentials of the Contact Person
+     * @param email The email of the Contact Person for to check if the proposal has the same email
+     */
     private void validationsOfUpdateProposal(UpdateProposalRequestDto updateProposalRequestDto, JpaCredential jpaCredential, String email) {
         if(!(jpaCredential.getEmail().equals(email))){
             throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
@@ -190,14 +202,21 @@ public class ProposalService {
         }
     }
 
+    /**
+     * In this method delete the old skills and add the new skills in the proposal.
+     * This method is a bit ugly by the loops, it is to avoid concurrency exceptions,
+     * is not possible read and delete information at the same time.
+     *
+     * @param updateProposalRequestDto The new information about the proposal
+     * @param proposal The proposal to update
+     */
     private void addNewRequeriments(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
-        /* Es para saltarme una excepción de concurrencia*/
         List<Requirement> deleteRequirements = new ArrayList<>();
         for (Requirement requirement : proposal.getRequirements()) {
             deleteRequirements.add(requirement);
         }
         for (Requirement requirement : deleteRequirements) {
-            proposal.deleteRequeriment(requirement);
+            proposal.deleteRequirement(requirement);
         }
         if (updateProposalRequestDto.getRequirements() != null) {
             for (String requirement : updateProposalRequestDto.getRequirements()) {
@@ -207,8 +226,15 @@ public class ProposalService {
         }
     }
 
+    /**
+     * In this method delete the old skills and add the new skills in the proposal.
+     * This method is a bit ugly by the loops, it is to avoid concurrency exceptions,
+     * is not possible read and delete information at the same time.
+     *
+     * @param updateProposalRequestDto The new information about the proposal
+     * @param proposal The proposal to update
+     */
     private void addNewSkills(UpdateProposalRequestDto updateProposalRequestDto, Proposal proposal) {
-        /* Es para saltarme una excepción de concurrencia*/
         List<Skill> deleteSkills = new ArrayList<>();
         for (Skill skill : proposal.getSkills()) {
             deleteSkills.add(skill);

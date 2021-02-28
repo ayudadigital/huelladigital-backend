@@ -62,6 +62,11 @@ public class ProposalRepository {
         return proposal.getId().toString();
     }
 
+    /**
+     * This method update the proposal in database, validate and, add the skills and the requirements
+     *
+     * @param proposal The new proposal to update
+     */
     public String update(Proposal proposal) {
         save(proposal);
         jpaProposalSkillsRepository.deleteSkillByProposalId(proposal.getId().getValue());
@@ -151,6 +156,11 @@ public class ProposalRepository {
         return jpaProposalRepository.save(proposal);
     }
 
+    /**
+     * Format a proposal with all relevant data
+     *
+     * @param id id of the proposal
+     */
     @SneakyThrows
     public Proposal fetch(String id) {
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id)

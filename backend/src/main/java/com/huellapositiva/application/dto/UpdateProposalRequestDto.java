@@ -13,9 +13,17 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class UpdateProposalRequestDto {
 
+    @Schema(
+            description = "Id of the proposal",
+            example = "abcd1234-abcd-1234-abcd-abcdef1234561"
+    )
     @NotBlank
     private final String id;
 
+    @Schema(
+            description = "Title of the proposal",
+            example = "Recogida de ropa"
+    )
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z0-9 ]+$")
     private final String title;
@@ -56,13 +64,25 @@ public class UpdateProposalRequestDto {
     @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String island;
 
+    @Schema(
+            description = "The period of days to volunteer",
+            example = "Weekend"
+    )
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z0-9 ]*$")
     private final String requiredDays;
 
+    @Schema(
+            description = "The minimum age to participate in volunteering",
+            example = "20"
+    )
     @NotNull
     private final int minimumAge;
 
+    @Schema(
+            description = "The maximum age to participate in volunteering",
+            example = "50"
+    )
     @NotNull
     private final int maximumAge;
 
@@ -88,21 +108,49 @@ public class UpdateProposalRequestDto {
     @NotNull
     private final LocalDate startingVolunteeringDate;
 
+    @Schema(
+            description = "The description of the proposal",
+            example = "Una propuesta de voluntariado para recoger ropa en centros comerciales"
+    )
     @NotBlank
     private final String description;
 
+    @Schema(
+            description = "The duration of days of a volunteer proposal",
+            example = "20"
+    )
     @NotBlank
     @Pattern(regexp = "^[0-9]*$")
     private final String durationInDays;
 
+    @Schema(
+            description = "The way to make the volunteer proposal: on site, remote or mixed",
+            example = "ON_SITE"
+    )
     @NotBlank
     private final String category;
 
+    @Schema(
+            description = "The necessary skills to carry out specific volunteer actions",
+            example = "{{'Fuerte'}, {'Se van a mover cargas bastante pesadas'}}"
+    )
     private final String[][] skills;
 
+    @Schema(
+            description = "The necessary skills to carry out specific volunteer actions",
+            example = "{'Es necesario disponer del DNI'}"
+    )
     private final String[] requirements;
 
+    @Schema(
+            description = "Extra information for the volunteers",
+            example = "Cuidado hay desprendimientos en la zona"
+    )
     private final String extraInfo;
 
+    @Schema(
+            description = "Instructions for volunteering",
+            example = "Debes de aparcar el coche en el aparcamiento del lugar, mostrar tu DNI y aparcar tranquilamente"
+    )
     private final String instructions;
 }

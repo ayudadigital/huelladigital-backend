@@ -512,6 +512,42 @@ public class ProposalApiController {
         changeStatusVolunteerAction.execute(changeStatusVolunteerDtos);
     }
 
+    @Operation(
+            summary = "Update proposal",
+            description = "The contact person can to update the proposal and this change the status to REVIEW_PENDING. Roles allowed CONTACT_PERSON.",
+            tags = {"proposals, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, the proposal has been modified."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, some field has wrong format."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, the contact person not found in the database or the proposal not found in the database."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the proposal is not linked with the contact person, or some skill/requirement is duplicated."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
     @PostMapping("/updateProposal")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)

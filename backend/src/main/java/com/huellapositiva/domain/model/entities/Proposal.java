@@ -86,6 +86,11 @@ public class Proposal {
         skills.add(skill);
     }
 
+    /**
+     * This method delete the skills if to find the same
+     *
+     * @param skill To check if it is on the list or not
+     */
     public void deleteSkill(Skill skill) {
         int positionOfSkill = -1;
         for (Skill skillProposal : skills) {
@@ -100,7 +105,12 @@ public class Proposal {
         requirements.add(requirement);
     }
 
-    public void deleteRequeriment(Requirement requirement) {
+    /**
+     * This method delete the requirement if to find the same
+     *
+     * @param requirement To check if it is on the list or not
+     */
+    public void deleteRequirement(Requirement requirement) {
         int positionOfRequirement = -1;
         for (Requirement requirementProposal : requirements) {
             if (requirement.getName().equals(requirementProposal.getName())){

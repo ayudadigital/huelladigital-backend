@@ -120,6 +120,12 @@ public class ProposalService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
 
+        if (FINISHED.toString().equals(proposal.getStatus().toString()) ||
+                CANCELLED.toString().equals(proposal.getStatus().toString()) ||
+                INADEQUATE.toString().equals(proposal.getStatus().toString())) {
+            proposal.setStatus(REVIEW_PENDING);
+        }
+
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
@@ -155,7 +161,6 @@ public class ProposalService {
         addNewSkills(updateProposalRequestDto, proposal);
         addNewRequeriments(updateProposalRequestDto, proposal);
 
-        proposal.setStatus(REVIEW_PENDING);
 
         proposalRepository.update(proposal);
     }

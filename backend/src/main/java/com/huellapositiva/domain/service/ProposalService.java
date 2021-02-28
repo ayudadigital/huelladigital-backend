@@ -118,6 +118,8 @@ public class ProposalService {
                 .orElseThrow(() -> new UserNotFoundException("Contact person not found. Account ID: " + accountId));
         validationsOfUpdateProposal(updateProposalRequestDto, jpaCredential, proposal.getEsal().getContactPersonEmail().toString());
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
+
         proposal.setTitle(updateProposalRequestDto.getTitle());
         proposal.getLocation().setProvince(updateProposalRequestDto.getProvince());
         proposal.getLocation().setIsland(updateProposalRequestDto.getIsland());
@@ -131,16 +133,17 @@ public class ProposalService {
                         updateProposalRequestDto.getMaximumAge()
                 )
         );
+
         if (updateProposalRequestDto.getStartingProposalDate() != null){
             proposal.setStartingProposalDate(
-                    ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
+                    ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().format(formatter))
             );
         }
         proposal.setClosingProposalDate(
-                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
+                ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().format(formatter))
         );
         proposal.setStartingVolunteeringDate(
-                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
+                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(formatter))
         );
 
         proposal.setDescription(updateProposalRequestDto.getDescription());
@@ -175,7 +178,7 @@ public class ProposalService {
             throw new InvalidFieldException("The zip code field is invalid");
         }
         if (updateProposalRequestDto.getTitle() != null &&
-                updateProposalRequestDto.getDescription().length() > 75) {
+                updateProposalRequestDto.getTitle().length() > 75) {
             throw new InvalidFieldException("The additional information field is invalid");
         }
         if (updateProposalRequestDto.getDescription() != null &&
@@ -190,15 +193,13 @@ public class ProposalService {
                 updateProposalRequestDto.getInstructions().length() > 200) {
             throw new InvalidFieldException("The instruction field is invalid");
         }
-        if (updateProposalRequestDto.getStartingProposalDate() == null) {
-            if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate())) {
-                throw new InvalidFieldException("The dates are wrong");
-            }
-        } else {
-            if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate()) ||
-                    updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
-                throw new InvalidFieldException("The dates are wrong");
-            }
+        if (updateProposalRequestDto.getStartingProposalDate() != null &&
+                updateProposalRequestDto.getClosingProposalDate().isBefore(updateProposalRequestDto.getStartingProposalDate())) {
+            throw new InvalidFieldException("The closing recruitment can not before of the starting proposal");
+        }
+
+        if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate())) {
+            throw new InvalidFieldException("The starting voluntering can not before of the closing recruitment");
         }
     }
 

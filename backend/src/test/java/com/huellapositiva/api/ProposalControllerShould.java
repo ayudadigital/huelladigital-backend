@@ -876,14 +876,24 @@ class ProposalControllerShould {
         assertThat(proposal.getPermittedAgeRange().getMinimum()).isEqualTo(updateProposalRequestDto.getMinimumAge());
         assertThat(proposal.getPermittedAgeRange().getMaximum()).isEqualTo(updateProposalRequestDto.getMaximumAge());
         if (updateProposalRequestDto.getStartingProposalDate() != null) {
-            assertThat(proposal.getStartingProposalDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingProposalDate().toString())).toString());
+            String proposalStartingDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingProposalDate().toString())).toString();
+            String proposalStartingDateToCheck = proposal.getStartingProposalDate().toString();
+            assertThat(proposalStartingDateToCheck).isEqualTo(proposalStartingDate);
         }
-        assertThat(proposal.getClosingProposalDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getClosingProposalDate().toString())).toString());
-        assertThat(proposal.getStartingVolunteeringDate().toString()).isEqualTo(new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingVolunteeringDate().toString())).toString());
+
+        String proposalClosingDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getClosingProposalDate().toString())).toString();
+        String proposalClosingDateToCheck = proposal.getClosingProposalDate().toString();
+        assertThat(proposalClosingDateToCheck).isEqualTo(proposalClosingDate);
+
+        String proposalStartingVolunteringDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingVolunteeringDate().toString())).toString();
+        String proposalStartingVolunteringDateToCheck = proposal.getStartingVolunteeringDate().toString();
+        assertThat(proposalStartingVolunteringDateToCheck).isEqualTo(proposalStartingVolunteringDate);
 
         assertThat(proposal.getDescription()).isEqualTo(updateProposalRequestDto.getDescription());
         assertThat(proposal.getDurationInDays()).isEqualTo(updateProposalRequestDto.getDurationInDays());
-        assertThat(proposal.getCategory().toString()).isEqualTo(updateProposalRequestDto.getCategory());
+
+        String proposalCategory = proposal.getCategory().toString();
+        assertThat(proposalCategory).isEqualTo(updateProposalRequestDto.getCategory());
 
         if (updateProposalRequestDto.getSkills() != null) {
             assertThat(proposal.getSkills().size()).isEqualTo(updateProposalRequestDto.getSkills().length);

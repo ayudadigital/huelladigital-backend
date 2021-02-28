@@ -109,7 +109,7 @@ public class TemplateService {
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = proposalRevisionEmail.getProposalUrl();
-        variables.put("PROPOSAL_URL", url);
+        variables.put("PROPOSAL_URL_INFORMATION", url);
         return new EmailTemplate(template).parse(variables);
     }
 

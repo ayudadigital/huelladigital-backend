@@ -2,10 +2,8 @@ package com.huellapositiva.domain.model.entities;
 
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
-import com.huellapositiva.application.exception.ESALNotFoundException;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.model.valueobjects.*;
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import lombok.*;
 

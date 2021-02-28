@@ -120,9 +120,9 @@ public class ProposalService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
 
-        if (FINISHED.toString().equals(proposal.getStatus().toString()) ||
-                CANCELLED.toString().equals(proposal.getStatus().toString()) ||
-                INADEQUATE.toString().equals(proposal.getStatus().toString())) {
+        if (!FINISHED.toString().equals(proposal.getStatus().toString()) ||
+                !CANCELLED.toString().equals(proposal.getStatus().toString()) ||
+                !INADEQUATE.toString().equals(proposal.getStatus().toString())) {
             proposal.setStatus(REVIEW_PENDING);
         }
 

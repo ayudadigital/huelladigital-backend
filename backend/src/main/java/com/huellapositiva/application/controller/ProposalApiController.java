@@ -2,10 +2,7 @@ package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.application.exception.FailedToPersistProposalException;
-import com.huellapositiva.application.exception.ProposalNotPublicException;
-import com.huellapositiva.application.exception.ProposalNotPublishedException;
-import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.application.exception.*;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -522,13 +519,13 @@ public class ProposalApiController {
                                @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         try {
             updateProposalAction.execute(updateProposalRequestDto, accountId);
-        } catch (EntityNotFoundException | ParseException e) {
+        } catch (ParseException | InvalidProposalCategoryException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (InvalidProposalCategoryException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (UserNotFoundException e) {
+        } catch (UserNotFoundException | EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (SkillAlreadyExistsException | RequirementAlreadyExistsException e) {
+        } catch (SkillAlreadyExistsException |
+                RequirementAlreadyExistsException |
+                ProposalNotLinkedWithContactPersonException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }

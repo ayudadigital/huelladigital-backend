@@ -1179,5 +1179,76 @@ class ProposalControllerShould {
         );
     }
 
+    @Test
+    void return_404_when_updates_proposal_with_wrong_proposal_id() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
+                .title(VALID_TITLE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .requiredDays(VALID_REQUIRED_DAYS)
+                .minimumAge(VALID_MINIMUM_AGE)
+                .maximumAge(VALID_MAXIMUM_AGE)
+                .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                .description(VALID_DESCRIPTION)
+                .durationInDays(VALID_DURATION_IN_DAYS)
+                .category(VALID_CATEGORY)
+                .id("abcd1234-abcd-1234-abcd-abcdef123456")
+                .build();
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_409_when_updates_proposal_with_wrong_contact_person() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
+
+        // WHEN
+        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
+                .id(jpaProposal.getId())
+                .title(VALID_TITLE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .requiredDays(VALID_REQUIRED_DAYS)
+                .minimumAge(VALID_MINIMUM_AGE)
+                .maximumAge(VALID_MAXIMUM_AGE)
+                .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                .description(VALID_DESCRIPTION)
+                .durationInDays(VALID_DURATION_IN_DAYS)
+                .category(VALID_CATEGORY)
+                .build();
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
     // Testear el 404 y el 409
 }

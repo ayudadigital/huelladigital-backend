@@ -110,7 +110,7 @@ public class ProposalService {
     public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
         Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
         JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Account ID: " + accountId));
         validationsOfUpdateProposal(updateProposalRequestDto, jpaCredential, proposal.getEsal().getContactPersonEmail().toString());
 
         proposal.setTitle(updateProposalRequestDto.getTitle());
@@ -131,15 +131,13 @@ public class ProposalService {
                     ProposalDate.createStartingProposalDate(updateProposalRequestDto.getStartingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
             );
         }
-        //if (proposal.getClosingProposalDate().isBefore(updateProposalRequestDto.get)) {
         proposal.setClosingProposalDate(
                 ProposalDate.createClosingProposalDate(updateProposalRequestDto.getClosingProposalDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
         );
-        //if (proposal.getClosingProposalDate().isBefore(updateProposalRequestDto.get)) {
-            proposal.setStartingVolunteeringDate(
-                    ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
-            );
-        //}
+        proposal.setStartingVolunteeringDate(
+                ProposalDate.createStartingVolunteeringDate(updateProposalRequestDto.getStartingVolunteeringDate().format(DateTimeFormatter.ofPattern("dd-MM-yyy")))
+        );
+
         proposal.setDescription(updateProposalRequestDto.getDescription());
         proposal.setDurationInDays(updateProposalRequestDto.getDurationInDays());
         proposal.setCategory(ProposalCategory.getCategory(updateProposalRequestDto.getCategory()));

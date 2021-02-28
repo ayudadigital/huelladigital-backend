@@ -3,6 +3,8 @@ package com.huellapositiva.domain.repository;
 import com.huellapositiva.application.exception.ESALNotFoundException;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
+import com.huellapositiva.domain.exception.RequirementAlreadyExistsException;
+import com.huellapositiva.domain.exception.SkillAlreadyExistsException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.*;
@@ -64,9 +66,35 @@ public class ProposalRepository {
         save(proposal);
         jpaProposalSkillsRepository.deleteSkillByProposalId(proposal.getId().getValue());
         jpaProposalRequirementsRepository.deleteRequirementsByProposalId(proposal.getId().getValue());
+        isSkillRepeated(proposal);
+        isRequirementRepeated(proposal);
         insertProposalSkills(proposal);
         insertProposalRequirements(proposal);
         return proposal.getId().toString();
+    }
+
+    private void isSkillRepeated(Proposal proposal){
+        for (Requirement requirement : proposal.getRequirements()) {
+            List<JpaProposalRequirements> requirementsProposal = jpaProposalRequirementsRepository.findByProposalId(proposal.getId().toString());
+
+            for (JpaProposalRequirements jpaProposalRequirement : requirementsProposal) {
+                if (jpaProposalRequirement.getName().equalsIgnoreCase(requirement.getName())){
+                    throw new SkillAlreadyExistsException("The skill already exists for its proposal");
+                }
+            }
+        }
+    }
+
+    private void isRequirementRepeated(Proposal proposal){
+        for (Skill skill : proposal.getSkills()) {
+            List<JpaProposalSkills> skillsProposal = jpaProposalSkillsRepository.findByProposalId(proposal.getId().toString());
+
+            for (JpaProposalSkills jpaProposalSkill : skillsProposal) {
+                if (jpaProposalSkill.getName().equalsIgnoreCase(skill.getName())){
+                    throw new RequirementAlreadyExistsException("The requirement already exists for its proposal");
+                }
+            }
+        }
     }
 
     private void insertProposalSkills(Proposal proposal) {

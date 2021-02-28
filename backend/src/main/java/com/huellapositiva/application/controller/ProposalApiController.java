@@ -5,9 +5,9 @@ import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.FailedToPersistProposalException;
 import com.huellapositiva.application.exception.ProposalNotPublicException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
+import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.*;
-import com.huellapositiva.domain.exception.InvalidProposalRequestException;
-import com.huellapositiva.domain.exception.InvalidProposalStatusException;
+import com.huellapositiva.domain.exception.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -523,7 +523,13 @@ public class ProposalApiController {
         try {
             updateProposalAction.execute(updateProposalRequestDto, accountId);
         } catch (EntityNotFoundException | ParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request, the proposal don't exist in the database");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (InvalidProposalCategoryException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (SkillAlreadyExistsException | RequirementAlreadyExistsException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

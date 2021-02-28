@@ -941,7 +941,7 @@ class ProposalControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProposalInformation")
-    void return_400_when_updates_proposal_with_wrong_fields(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
+    void return_400_when_tries_update_proposal_with_wrong_fields(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
@@ -1180,9 +1180,9 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_404_when_updates_proposal_with_wrong_proposal_id() throws Exception {
+    void return_404_when_tries_update_proposal_with_wrong_proposal_id() throws Exception {
         // GIVEN
-        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
@@ -1215,7 +1215,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_409_when_updates_proposal_with_wrong_contact_person() throws Exception {
+    void return_409_when_tries_update_proposal_with_wrong_contact_person() throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
@@ -1250,5 +1250,60 @@ class ProposalControllerShould {
                 .andExpect(status().isConflict());
     }
 
-    // Testear el 404 y el 409
+    @ParameterizedTest
+    @MethodSource("provideIncorrectProposalWithWrongSkillOrRequirements")
+    void return_409_when_tries_update_proposal_with_duplicate_skill_or_requirements(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
+
+        // THEN
+        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+    }
+
+    private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideIncorrectProposalWithWrongSkillOrRequirements() {
+        return Stream.of(
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .skills(new String[][]{{"SkillRepetida", "descipcion"}, {"SkillRepetida", "descipcion"}}),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .requirements(new String[]{"Un requerimiento", "Un requerimiento"})
+        );
+    }
 }

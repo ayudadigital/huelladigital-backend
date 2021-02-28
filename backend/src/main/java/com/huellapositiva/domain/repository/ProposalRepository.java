@@ -73,25 +73,21 @@ public class ProposalRepository {
         return proposal.getId().toString();
     }
 
-    private void isSkillRepeated(Proposal proposal){
-        for (Requirement requirement : proposal.getRequirements()) {
-            List<JpaProposalRequirements> requirementsProposal = jpaProposalRequirementsRepository.findByProposalId(proposal.getId().toString());
-
-            for (JpaProposalRequirements jpaProposalRequirement : requirementsProposal) {
-                if (jpaProposalRequirement.getName().equalsIgnoreCase(requirement.getName())){
-                    throw new SkillAlreadyExistsException("The skill already exists for its proposal");
+    private void isRequirementRepeated(Proposal proposal){
+        for (int i = 0; i < proposal.getRequirements().size(); i++) {
+            for (int j = 0; j < proposal.getRequirements().size(); j++) {
+                if (i != j && proposal.getRequirements().get(i).getName().equalsIgnoreCase(proposal.getRequirements().get(j).getName())){
+                    throw new RequirementAlreadyExistsException("The requirement already exists for its proposal");
                 }
             }
         }
     }
 
-    private void isRequirementRepeated(Proposal proposal){
-        for (Skill skill : proposal.getSkills()) {
-            List<JpaProposalSkills> skillsProposal = jpaProposalSkillsRepository.findByProposalId(proposal.getId().toString());
-
-            for (JpaProposalSkills jpaProposalSkill : skillsProposal) {
-                if (jpaProposalSkill.getName().equalsIgnoreCase(skill.getName())){
-                    throw new RequirementAlreadyExistsException("The requirement already exists for its proposal");
+    private void isSkillRepeated(Proposal proposal){
+        for (int i = 0; i < proposal.getSkills().size(); i++) {
+            for (int j = 0; j < proposal.getSkills().size(); j++) {
+                if (i != j && proposal.getSkills().get(i).getName().equalsIgnoreCase(proposal.getSkills().get(j).getName())){
+                    throw new SkillAlreadyExistsException("The skill already exists for its proposal");
                 }
             }
         }

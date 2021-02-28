@@ -561,7 +561,8 @@ public class ProposalApiController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (SkillAlreadyExistsException |
                 RequirementAlreadyExistsException |
-                ProposalNotLinkedWithContactPersonException e) {
+                ProposalNotLinkedWithContactPersonException |
+                InvalidProposalStatusException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }

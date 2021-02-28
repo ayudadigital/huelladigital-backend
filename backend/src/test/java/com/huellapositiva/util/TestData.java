@@ -45,6 +45,8 @@ public class TestData {
 
     public static final String DEFAULT_EMAIL_2 = "foo_2@huellapositiva.com";
 
+    public static final String DEFAULT_EMAIL_REVISER = "revisor@huellapositiva.com";
+
     public static final String DEFAULT_ESAL_CONTACT_PERSON_EMAIL = "organizationEmployee@huellapositiva.com";
 
     public static final String DEFAULT_PASSWORD = "plainPassword";
@@ -345,6 +347,10 @@ public class TestData {
         return proposal;
     }
 
+    public JpaProposal registerESALAndReviewPendingProposalWithInscribedVolunteers() {
+        return registerESALAndProposalWithInscribedVolunteers(REVIEW_PENDING);
+    }
+
     public JpaProposal registerESALAndProposalWithInscribedVolunteers() {
         return registerESALAndProposalWithInscribedVolunteers(PUBLISHED);
     }
@@ -439,7 +445,7 @@ public class TestData {
         return jpaProposal;
     }
 
-    public String registerESALandPublishedProposalObject() throws ParseException {
+    public String registerESALandPublishedProposalObject() {
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
         createAndLinkESAL(contactPerson, esal);

@@ -6,6 +6,7 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.ProposalDate;
+import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
@@ -1314,6 +1315,65 @@ class ProposalControllerShould {
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
                         .requirements(new String[]{"Un requerimiento", "Un requerimiento"})
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideGoodProposalStatus")
+    void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    private static Stream<ProposalStatus> provideGoodProposalStatus() {
+        return Stream.of(
+                REVIEW_PENDING,
+                ENROLLMENT_CLOSED
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBadProposalStatus")
+    void return_409_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideBadProposalStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED
         );
     }
 }

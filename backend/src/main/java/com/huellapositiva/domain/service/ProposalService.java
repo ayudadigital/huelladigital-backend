@@ -3,6 +3,10 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
 import com.huellapositiva.application.exception.*;
+import com.huellapositiva.application.exception.ProposalNotPublishableException;
+import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
+import com.huellapositiva.application.exception.ProposalNotPublishedException;
+import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
 import com.huellapositiva.domain.model.entities.*;
@@ -11,8 +15,11 @@ import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
 import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
@@ -20,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
@@ -45,6 +53,8 @@ public class ProposalService {
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
     private final JpaCredentialRepository jpaCredentialRepository;
+
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
     /**
      * This method fetches the proposal requested to enroll in and if enrollment is available it enrolls the volunteer
@@ -258,5 +268,29 @@ public class ProposalService {
      */
     private boolean hasFeedback(ProposalRevisionDto proposalRevisionDto) {
         return proposalRevisionDto.getFeedback() != null;
+    }
+
+    /**
+     * This method find the proposal in the database and checks if the status is REVIEW_PENDING or ENROLLMENT_CLOSED for
+     * publish. Otherwise, a ProposalNotPublishableException with response status 409 will be throw.
+     * @param idProposal : The id of the proposal to be checked and updated.
+     * @return result with the proposal person email and proposal title.
+     */
+    public ChangeStatusToPublishedResult changeStatusToPublished(String idProposal) {
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
+        String esalId = proposal.getEsal().getId();
+        String status = proposal.getStatus().getName().toUpperCase();
+
+        if (!REVIEW_PENDING.toString().equals(status) && !ENROLLMENT_CLOSED.toString().equals(status)) {
+            throw new ProposalNotPublishableException();
+        }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(ProposalStatus.PUBLISHED.getId())
+                .name("PUBLISHED").build();
+        jpaProposalRepository.updateStatusById(idProposal, jpaProposalStatus);
+
+        JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
+        return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());
     }
 }

@@ -987,7 +987,7 @@ class ProposalControllerShould {
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY),
                 UpdateProposalRequestDto.builder()
-                        .title("Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres")
+                        .title("Titulo mayor a 75 caracteres,  Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres")
                         .province(VALID_PROVINCE)
                         .town(VALID_TOWN)
                         .island(VALID_ISLAND)

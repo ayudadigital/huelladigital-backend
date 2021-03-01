@@ -3,13 +3,13 @@ package com.huellapositiva.application.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-@Data
 @Builder
+@Getter
 @AllArgsConstructor
 public class UpdateProposalRequestDto {
 

@@ -29,36 +29,36 @@ public class UpdateProposalRequestDto {
     private final String title;
 
     @Schema(
-            description = "Where the user lives",
-            example = "Las Palmas"
+            description = "Where the users live",
+            example = "Santa Cruz de Tenerife"
     )
     @Pattern(regexp = "^(Las Palmas|Santa Cruz de Tenerife)$")
     private final String province;
 
     @Schema(
-            description = "Where the user lives. TIP: Can be +35xxx or 38xxx",
-            example = "35241"
+            description = "Where the users lives. Can be +35xxx or 38xxx",
+            example = "38253"
     )
     @NotBlank
     @Pattern(regexp = "^\\d{5}$")
     private final String zipCode;
 
     @Schema(
-            description = "Where the user lives",
-            example = "Agaete"
+            description = "Where the users live",
+            example = "La Orotava"
     )
     @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String town;
 
     @Schema(
-            description = "Where the user lives",
-            example = "Calle Guacimeta N2"
+            description = "Where the users live",
+            example = "Calle Abajo N5"
     )
     private final String address;
 
     @Schema(
-            description = "Where the user lives. TIP: Only can be the eight islands of Canary Islands",
-            example = "Gran Canaria"
+            description = "Where the users live. Only can be the eight islands of Canary Islands",
+            example = "Tenerife"
     )
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z ]*$")

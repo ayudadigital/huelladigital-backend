@@ -35,7 +35,7 @@ class PublishProposalActionShould {
         String proposalId = "1";
         when(proposalService.changeStatusToPublished(proposalId)).thenReturn(new ChangeStatusToPublishedResult(DEFAULT_ESAL_CONTACT_PERSON_EMAIL,"Recogida de ropita"));
 
-        publishProposalAction.execute(proposalId);
+        publishProposalAction.executeAsReviser(proposalId);
 
         verify(emailCommunicationService).sendMessageProposalPublished(any(), any());
     }

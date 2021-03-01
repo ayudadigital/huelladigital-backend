@@ -8,6 +8,7 @@ import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +39,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static com.huellapositiva.domain.util.StringUtils.maskEmailAddress;
 
 @Slf4j
@@ -572,9 +575,19 @@ public class ProposalApiController {
             }
     )
     @PutMapping("/{id}/status/publish")
-    @RolesAllowed("REVISER")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void publishProposal(@PathVariable("id") String proposalId) {
-        publishProposalAction.execute(proposalId);
+    public void publishProposal(@PathVariable("id") String proposalId,
+                                Authentication authentication) {
+        List<Roles> roles = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> Roles.valueOf(grantedAuthority.getAuthority().replace("ROLE_", "")))
+                .collect(Collectors.toList());
+
+        if (roles.contains(REVISER)) {
+            publishProposalAction.executeAsReviser(proposalId);
+            return;
+        }
+
+        publishProposalAction.executeAsContactPerson(proposalId);
     }
 }

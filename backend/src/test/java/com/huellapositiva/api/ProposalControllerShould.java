@@ -941,4 +941,51 @@ class ProposalControllerShould {
                 FINISHED
         );
     }
+
+    @Test
+    void return_204_when_update_proposal_to_published_successfully_from_enrollment_closed() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(ENROLLMENT_CLOSED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotPublishableFromEnrollmentClosedStatus")
+    void return_409_when_proposal_status_is_not_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideNotPublishableFromEnrollmentClosedStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                PUBLISHED,
+                REVIEW_PENDING
+        );
+    }
 }

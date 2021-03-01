@@ -17,10 +17,14 @@ public class PublishProposalAction {
     /**
      * Method for update status proposal to published and send email to Proposal Contact Person.
      *
-     * @param idProposal : The ID of the proposal.
+     * @param proposalId : The ID of the proposal.
      */
-    public void execute(String idProposal) {
-        ChangeStatusToPublishedResult result = proposalService.changeStatusToPublished(idProposal);
+    public void executeAsReviser(String proposalId) {
+        ChangeStatusToPublishedResult result = proposalService.changeStatusToPublished(proposalId);
         emailCommunicationService.sendMessageProposalPublished(result.getEmail(), result.getProposalTitle());
+    }
+
+    public void executeAsContactPerson(String proposalId) {
+        proposalService.changeStatusToPublishedFromEnrollmentClosed(proposalId);
     }
 }

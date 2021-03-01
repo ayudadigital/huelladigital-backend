@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ChangeReviewPendingProposalToPublishedAction {
+public class PublishProposalAction {
 
     private final ProposalService proposalService;
 

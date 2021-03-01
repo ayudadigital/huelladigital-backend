@@ -1,9 +1,9 @@
 package com.huellapositiva.domain.service;
 
 import com.huellapositiva.application.dto.ProposalRevisionDto;
-import com.huellapositiva.application.exception.ProposalNotPublishableException;
 import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
 import com.huellapositiva.application.exception.ProposalEnrollmentNotCloseableException;
+import com.huellapositiva.application.exception.ProposalNotPublishableException;
 import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
@@ -16,7 +16,6 @@ import com.huellapositiva.domain.model.valueobjects.Token;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
@@ -140,11 +139,11 @@ public class ProposalService {
     /**
      * This method find the proposal in the database and checks if the status is REVIEW_PENDING or ENROLLMENT_CLOSED for
      * publish. Otherwise, a ProposalNotPublishableException with response status 409 will be throw.
-     * @param idProposal : The id of the proposal to be checked and updated.
+     * @param proposalId : The id of the proposal to be checked and updated.
      * @return result with the proposal person email and proposal title.
      */
-    public ChangeStatusToPublishedResult changeStatusToPublished(String idProposal) {
-        JpaProposal proposal = jpaProposalRepository.findByNaturalId(idProposal).orElseThrow(EntityNotFoundException::new);
+    public ChangeStatusToPublishedResult changeStatusToPublished(String proposalId) {
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
         String esalId = proposal.getEsal().getId();
         String status = proposal.getStatus().getName().toUpperCase();
 
@@ -155,7 +154,7 @@ public class ProposalService {
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
                 .id(ProposalStatus.PUBLISHED.getId())
                 .name("PUBLISHED").build();
-        jpaProposalRepository.updateStatusById(idProposal, jpaProposalStatus);
+        jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
 
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(EntityNotFoundException::new);
         return new ChangeStatusToPublishedResult(contactPerson.getCredential().getEmail(), proposal.getTitle());

@@ -66,9 +66,9 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
-    private final ChangePublishedProposalToEnrollmentClosedAction changePublishedProposalToEnrollmentClosedAction;
+    private final CloseProposalEnrollmentAction closeProposalEnrollmentAction;
 
-    private final ChangeReviewPendingProposalToPublishedAction changeReviewPendingProposalToPublishedAction;
+    private final PublishProposalAction publishProposalAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -471,13 +471,13 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/{id}/cancel")
+    @PostMapping("/{id}/status/cancel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelProposalAsReviser(@PathVariable("id") String idProposal,
+    public void cancelProposalAsReviser(@PathVariable("id") String proposalId,
                                         @RequestBody ProposalCancelReasonDto dto) {
         try {
-            cancelProposalAction.executeByReviser(idProposal, dto);
+            cancelProposalAction.executeByReviser(proposalId, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (IllegalStateException ex) {
@@ -540,11 +540,11 @@ public class ProposalApiController {
                     )
             }
     )
-    @PutMapping("/close")
+    @PutMapping("{id}/status/close")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePublishedProposalToEnrollmentClosed(@RequestBody ChangeStatusProposalRequestDto dto) {
-        changePublishedProposalToEnrollmentClosedAction.execute(dto.getIdProposal());
+    public void closeEnrollment(@PathVariable("id") String proposalId) {
+        closeProposalEnrollmentAction.execute(proposalId);
     }
 
     @Operation(
@@ -571,10 +571,10 @@ public class ProposalApiController {
                     )
             }
     )
-    @PutMapping("/publish")
+    @PutMapping("/{id}/status/publish")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeReviewPendingProposalToPublished(@RequestBody ChangeStatusProposalRequestDto dto) {
-        changeReviewPendingProposalToPublishedAction.execute(dto.getIdProposal());
+    public void publishProposal(@PathVariable("id") String proposalId) {
+        publishProposalAction.execute(proposalId);
     }
 }

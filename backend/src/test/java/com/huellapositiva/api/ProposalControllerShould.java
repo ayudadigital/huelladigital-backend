@@ -713,7 +713,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -735,7 +735,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -756,7 +756,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -777,7 +777,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -798,7 +798,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -844,12 +844,10 @@ class ProposalControllerShould {
         //GIVEN
         String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/close")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -866,12 +864,10 @@ class ProposalControllerShould {
         //GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/close")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", jpaProposal.getId()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -897,12 +893,10 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -927,12 +921,11 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))

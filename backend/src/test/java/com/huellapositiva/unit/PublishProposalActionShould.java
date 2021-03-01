@@ -1,7 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.ChangeStatusProposalRequestDto;
-import com.huellapositiva.domain.actions.ChangeReviewPendingProposalToPublishedAction;
+import com.huellapositiva.domain.actions.PublishProposalAction;
 import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
 import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ProposalService;
@@ -11,14 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static com.huellapositiva.util.TestData.DEFAULT_ESAL_CONTACT_PERSON_EMAIL;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static com.huellapositiva.util.TestData.*;
 
 @ExtendWith(MockitoExtension.class)
-class ChangeReviewPendingProposalToPublishedActionShould {
-    private ChangeReviewPendingProposalToPublishedAction changeReviewPendingProposalToPublishedAction;
+class PublishProposalActionShould {
+    private PublishProposalAction publishProposalAction;
 
     @Mock
     private EmailCommunicationService emailCommunicationService;
@@ -28,16 +27,15 @@ class ChangeReviewPendingProposalToPublishedActionShould {
 
     @BeforeEach
     void beforeEach(){
-        changeReviewPendingProposalToPublishedAction = new ChangeReviewPendingProposalToPublishedAction(proposalService, emailCommunicationService);
+        publishProposalAction = new PublishProposalAction(proposalService, emailCommunicationService);
     }
 
     @Test
     void send_change_email() {
-        ChangeStatusProposalRequestDto dto = ChangeStatusProposalRequestDto.builder().idProposal("1").build();
+        String proposalId = "1";
+        when(proposalService.changeStatusToPublished(proposalId)).thenReturn(new ChangeStatusToPublishedResult(DEFAULT_ESAL_CONTACT_PERSON_EMAIL,"Recogida de ropita"));
 
-        when(proposalService.changeStatusToPublished(dto.getIdProposal())).thenReturn(new ChangeStatusToPublishedResult(DEFAULT_ESAL_CONTACT_PERSON_EMAIL,"Recogida de ropita"));
-
-        changeReviewPendingProposalToPublishedAction.execute(dto.getIdProposal());
+        publishProposalAction.execute(proposalId);
 
         verify(emailCommunicationService).sendMessageProposalPublished(any(), any());
     }

@@ -334,7 +334,7 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping(path = "/revision/{id}")
+    @PostMapping(path = "/{id}/revision")
     @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
@@ -383,12 +383,12 @@ public class ProposalApiController {
                     )
             }
     )
-    @GetMapping("/{idProposal}/volunteers")
+    @GetMapping("/{id}/volunteers")
     @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable("id") String proposalId) {
         try {
-            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
+            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(proposalId);
             return proposalResponseDto.getInscribedVolunteers()
                     .stream()
                     .map(v -> new VolunteerDto(v.getId(), maskEmailAddress(v.getEmailAddress()), v.getConfirmed()))
@@ -428,12 +428,12 @@ public class ProposalApiController {
                     )
             }
     )
-    @GetMapping("/{idProposal}/proposal")
+    @GetMapping("/{id}/proposal")
     @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable("id") String proposalId) {
         try {
-            return fetchProposalAction.execute(idProposal);
+            return fetchProposalAction.execute(proposalId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }

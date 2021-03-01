@@ -27,13 +27,16 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -533,7 +536,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -556,7 +559,7 @@ class ProposalControllerShould {
         ProposalRevisionDto revisionDto = new ProposalRevisionDto(null);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -574,7 +577,7 @@ class ProposalControllerShould {
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + nonExistingProposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", nonExistingProposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())

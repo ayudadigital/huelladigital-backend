@@ -987,6 +987,20 @@ class ProposalControllerShould {
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY),
                 UpdateProposalRequestDto.builder()
+                        .title("Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY),
+                UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province("Malaga")
                         .town(VALID_TOWN)
@@ -1169,6 +1183,27 @@ class ProposalControllerShould {
                         .startingProposalDate(VALID_PROPOSAL_DATE)
                         .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description("Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres.")
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays("Campo de letras")
                         .category(VALID_CATEGORY),
@@ -1186,7 +1221,51 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category("Categoria no valida")
+                        .category("Categoria no valida"),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .extraInfo("Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres."),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .instructions("Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres, " +
+                                "Campo mayor que 200 caracteres.")
         );
     }
 

@@ -111,6 +111,14 @@ public class EmailCommunicationService {
         emailService.sendEmail(emailMessage);
     }
 
+    public void sendMessageProposalPublished(String email, String proposalTitle) {
+        final String PROPOSAL_PUBLISHED_EMAIL_SUBJECT = "Convocatoria publicada";
+        EmailTemplate emailTemplate = templateService.getProposalPublishedTemplate(proposalTitle);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, email,
+                PROPOSAL_PUBLISHED_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
+
     public void sendProposalImageUpdateEmail(EmailAddress emailAddress) {
         final String UPDATE_PHOTO_SUBJECT = "Información sobre la modificación de su convocatoria";
         EmailTemplate emailTemplate = templateService.getUpdateProposalImageTemplate();

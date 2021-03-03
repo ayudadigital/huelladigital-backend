@@ -5,6 +5,7 @@ import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.JpaLocation;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaESALRepository;
 import lombok.AllArgsConstructor;
@@ -34,19 +35,13 @@ public class ESALRepository {
     public ESAL findByName(String esalName) {
         JpaESAL esal = jpaESALRepository.findByName(esalName)
                 .orElseThrow(() -> new RuntimeException("Could not find the ESAL by the provided name"));
-        return new ESAL(
-                esal.getName(),
-                new Id(esal.getId()),
-                null);
+        return ESAL.fromJpa(esal);
     }
 
     public void save(ESAL model) {
         JpaContactPerson contactPerson = jpaContactPersonRepository.findByEmail(model.getContactPersonEmail().toString())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Contact person not found"));
-        JpaESAL esal = JpaESAL.builder()
-                .id(model.getId().toString())
-                .name(model.getName())
-                .build();
+        JpaESAL esal = toJpa(model);
         try {
             jpaESALRepository.save(esal);
             jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
@@ -55,11 +50,30 @@ public class ESALRepository {
         }
     }
 
-    public void saveAsReviser(ESAL model) {
-        JpaESAL esal = JpaESAL.builder()
+    private JpaESAL toJpa(ESAL model) {
+        return JpaESAL.builder()
                 .id(model.getId().toString())
                 .name(model.getName())
+                .description(model.getDescription())
+                .logoUrl(model.getLogoUrl() != null ? model.getLogoUrl().toExternalForm() : null)
+                .website(model.getWebsite())
+                .location(JpaLocation.builder()
+                        .id(model.getLocation().getId().toString())
+                        .province(model.getLocation().getProvince())
+                        .town(model.getLocation().getTown())
+                        .address(model.getLocation().getAddress())
+                        .zipCode(model.getLocation().getZipCode())
+                        .island(model.getLocation().getIsland())
+                        .build())
+                .registeredEntity(model.isRegisteredEntity())
+                .entityType(model.getEntityType().toString())
+                .privacyPolicy(model.isPrivacyPolicy())
+                .dataProtectionPolicy(model.isDataProtectionPolicy())
                 .build();
+    }
+
+    public void saveAsReviser(ESAL model) {
+        JpaESAL esal = toJpa(model);
         try {
             jpaESALRepository.save(esal);
         } catch (DataIntegrityViolationException ex) {

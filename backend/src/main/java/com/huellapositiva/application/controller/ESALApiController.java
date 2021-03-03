@@ -2,9 +2,12 @@ package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.exception.ESALAlreadyExistsException;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.actions.DeleteESALAction;
 import com.huellapositiva.domain.actions.RegisterESALAction;
+import com.huellapositiva.domain.actions.UploadLogoAction;
+import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,13 +18,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.security.RolesAllowed;
+import java.io.IOException;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @Tag(name = "ESAL", description = "The ESAL API.")
@@ -29,6 +38,8 @@ import javax.annotation.security.RolesAllowed;
 public class ESALApiController {
 
     private final RegisterESALAction registerESALAction;
+
+    private final UploadLogoAction uploadLogoAction;
 
     private final DeleteESALAction deleteESALAction;
 
@@ -51,6 +62,11 @@ public class ESALApiController {
                             description = "Ok, ESAL registered successfully."
                     ),
                     @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, the provided field is not valid.",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
                             responseCode = "409",
                             description = "Conflict, the provided name is already taken.",
                             content = @Content(mediaType = "application/json")
@@ -70,7 +86,7 @@ public class ESALApiController {
     @PostMapping
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseBody
-    public void registerESAL(@RequestBody ESALRequestDto dto,
+    public void registerESAL(@Validated @RequestBody ESALRequestDto dto,
                              @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
             registerESALAction.execute(dto, accountId);
@@ -81,6 +97,48 @@ public class ESALApiController {
         } catch (UserNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
         }
+    }
+
+    @Operation(
+            summary = "Upload ESAL logo",
+            description = ". Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED.",
+            tags = "ESAL",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, logo uploaded successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, logo is not valid"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not upload the logo.",
+                            content = @Content(mediaType = "application/json")
+                    )
+            }
+    )
+    @PostMapping(path = "/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void uploadLogo(@RequestPart("logo")MultipartFile logo,
+                           @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
+        try {
+            uploadLogoAction.execute(logo, accountId);
+        } catch (InvalidFieldException | EmptyFileException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+
     }
 
     @Operation(

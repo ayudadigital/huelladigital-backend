@@ -7,6 +7,7 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import com.huellapositiva.infrastructure.orm.entities.*;
+import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaEmailConfirmationRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
@@ -29,6 +30,9 @@ public class ESALContactPersonRepository {
 
     @Autowired
     private final JpaEmailConfirmationRepository jpaEmailConfirmationRepository;
+
+    @Autowired
+    private final JpaContactPersonProfileRepository jpaContactPersonProfileRepository;
 
     @Autowired
     private final JpaRoleRepository jpaRoleRepository;
@@ -54,9 +58,17 @@ public class ESALContactPersonRepository {
                 .emailConfirmed(false)
                 .emailConfirmation(jpaEmailConfirmation)
                 .build();
+        JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
+                .id(Id.newId().getValue())
+                .name(contactPerson.getName())
+                .surname(contactPerson.getSurname())
+                .phoneNumber(contactPerson.getPhoneNumber())
+                .build();
+        jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
         JpaContactPerson jpaContactPerson = JpaContactPerson.builder()
                 .credential(jpaCredential)
                 .id(contactPerson.getId().getValue())
+                .contactPersonProfile(jpaContactPersonProfile)
                 .build();
         jpaContactPersonRepository.save(jpaContactPerson);
         return contactPerson.getId();
@@ -78,10 +90,7 @@ public class ESALContactPersonRepository {
 
         JpaESAL jpaESAL = jpaContactPerson.getJoinedEsal();
         if (jpaESAL != null) {
-            ESAL esal = new ESAL(
-                    jpaESAL.getName(),
-                    new Id(jpaESAL.getId()),
-                    EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
+            ESAL esal = ESAL.fromJpa(jpaESAL);
             contactPerson.setJoinedEsal(esal);
         }
 
@@ -91,8 +100,8 @@ public class ESALContactPersonRepository {
     public ESAL getJoinedESAL(String accountId) {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new UserNotFoundException("User not found. Account ID: " + accountId));
-        return new ESAL(jpaContactPerson.getJoinedEsal().getName(),
-                new Id(jpaContactPerson.getJoinedEsal().getId()),
-                EmailAddress.from(accountId));
+        ESAL esal = ESAL.fromJpa(jpaContactPerson.getJoinedEsal());
+        esal.setContactPersonEmail(EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
+        return esal;
     }
 }

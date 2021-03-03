@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.service;
 
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.UUID;
 
 import static com.huellapositiva.domain.util.FileUtils.getExtension;
 
@@ -29,8 +29,7 @@ public class RemoteStorageService {
      * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadProposalImage(MultipartFile image, String proposalId) throws IOException {
-        String destinationFileName = UUID.randomUUID().toString();
-        destinationFileName += getExtension(image.getOriginalFilename());
+        String destinationFileName = Id.newId() + getExtension(image.getOriginalFilename());
         String proposalImageRootKey = "images/proposals/" + proposalId + '/';
         return storageService.upload(proposalImageRootKey + destinationFileName, image.getInputStream(), image.getContentType());
     }
@@ -44,32 +43,49 @@ public class RemoteStorageService {
      * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerCV(MultipartFile cv, String volunteerId) throws IOException {
-        String extension = getExtension(cv.getOriginalFilename());
-        String destinationFileName = UUID.randomUUID() + extension;
+        String destinationFileName = Id.newId() + getExtension(cv.getOriginalFilename());
         String volunteerCVRootKey = "cv/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerCVRootKey + destinationFileName, cv.getInputStream(), cv.getContentType());
     }
 
     /**
-     * This method reads the bytes from the photo of a proposal and uploads it to the storage service
+     * This method reads the bytes from the photo of a volunteer and uploads it to the storage service
      *
      * @param photo New photo uploaded to the application
-     * @param volunteerId Id volunteer stored in database
+     * @param volunteerId Id of the volunteer stored in database
      * @return URL with the photo location in the storage
      * @throws IOException Exception occurred while uploading the image to the cloud
      */
     public URL uploadVolunteerPhoto(MultipartFile photo, String volunteerId) throws IOException {
-        String extension;
-        extension = getExtension(photo.getOriginalFilename());
-        String destinationFileName = UUID.randomUUID() + extension;
+        String destinationFileName = Id.newId() + getExtension(photo.getOriginalFilename());
         String volunteerPhotoRootKey = "photo/volunteers/" + volunteerId + '/';
         return storageService.upload(volunteerPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
     }
 
+    /**
+     * This method reads the bytes from the excel and uploads it to the storage service
+     *
+     * @param excel InputStream uploaded to the application
+     * @return URL with the excel location in the storage
+     */
     public URL uploadNewsletterExcel(InputStream excel) {
         String extension = ".xlsx";
-        String destinationFileName = UUID.randomUUID() + extension;
+        String destinationFileName = Id.newId() + extension;
         String volunteerExcelRootKey = "newsletter/";
         return storageService.upload(volunteerExcelRootKey + destinationFileName, excel, "application/vnd.ms-excel");
+    }
+
+    /**
+     * This method reads the bytes from the logo of an ESAL and uploads it to the storage service
+     *
+     * @param logo New logo uploaded to the application
+     * @param esalId Id of the ESAL stored in database
+     * @return URL with the logo location in the storage
+     * @throws IOException Exception occurred while uploading the image to the cloud
+     */
+    public URL uploadESALLogo(MultipartFile logo, String esalId) throws IOException {
+        String destinationFileName = Id.newId() + getExtension(logo.getOriginalFilename());
+        String volunteerPhotoRootKey = "logo/esal/" + esalId + '/';
+        return storageService.upload(volunteerPhotoRootKey + destinationFileName, logo.getInputStream(), logo.getContentType());
     }
 }

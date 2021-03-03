@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -28,8 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -41,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -82,7 +82,7 @@ class ProposalControllerShould {
     void persist_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -108,7 +108,7 @@ class ProposalControllerShould {
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -148,7 +148,7 @@ class ProposalControllerShould {
     void return_400_when_age_is_out_of_range() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 17;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -188,7 +188,7 @@ class ProposalControllerShould {
     void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 30;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -375,7 +375,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -396,9 +396,8 @@ class ProposalControllerShould {
     void return_400_when_multipart_file_is_missing() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -415,7 +414,7 @@ class ProposalControllerShould {
     void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -454,12 +453,12 @@ class ProposalControllerShould {
     void fetch_a_paginated_list_of_published_proposals() throws Exception {
         // GIVEN
         testData.registerESALAndProposal(PUBLISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(Id.newId().toString())
                 .title("Limpieza de playas")
                 .location(JpaLocation.builder()
-                        .id(UUID.randomUUID().toString())
+                        .id(Id.newId().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4")
@@ -593,7 +592,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.registerESALAndProposal(FINISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
                 .title("Limpieza de playas")
@@ -840,6 +839,65 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 
+    @ParameterizedTest
+    @MethodSource("provideGoodProposalStatus")
+    void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    private static Stream<ProposalStatus> provideGoodProposalStatus() {
+        return Stream.of(
+                REVIEW_PENDING,
+                ENROLLMENT_CLOSED
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBadProposalStatus")
+    void return_409_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
+        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
+
+        //WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideBadProposalStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED
+        );
+    }
+
     @Test
     void return_204_when_proposal_image_changed_successfully() throws Exception {
         JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
@@ -854,23 +912,9 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-    }
 
-    @Test
-    void return_400_when_contact_person_email_is_not_equal_to_proposal_contact_person_email() throws Exception {
-        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
-        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
-        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
-                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
-                .contentType(MULTIPART_FORM_DATA)
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+        JpaProposal jpaProposal1 = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal1.getImageUrl()).isNotNull();
     }
 
     @Test
@@ -886,6 +930,64 @@ class ProposalControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidImages")
+    void return_400_when_the_proposal_image_uploaded_is_too_big(List<String> proposalImageURI) throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        MockMultipartFile file = new MockMultipartFile("proposalImage", proposalImageURI.get(0),
+                proposalImageURI.get(1), getClass().getClassLoader().getResourceAsStream(proposalImageURI.get(0)));
+        mvc.perform(multipart(FETCH_PROPOSAL_URI+ "udpateProposalImage")
+                .file(file)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(jpaProposal.getId())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<List<String>> provideInvalidImages(){
+        return Stream.of(
+                List.of("images/Sample-png-image-3mb.png","image/png"),
+                List.of("images/oversized.png","image/png"),
+                List.of("documents/pdf-test.pdf","application/pdf")
+        );
+    }
+
+    @Test
+    void return_400_when_there_is_not_photo_uploaded() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(multipart(FETCH_PROPOSAL_URI+ "udpateProposalImage")
+                .file(new MockMultipartFile("proposalImage", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(jpaProposal.getId())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_403_when_contact_person_email_is_not_equal_to_proposal_contact_person_email() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(jpaProposal.getId())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

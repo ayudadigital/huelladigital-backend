@@ -5,6 +5,7 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.domain.service.EmailCommunicationService;
+import com.huellapositiva.domain.service.ImageService;
 import com.huellapositiva.domain.service.RemoteStorageService;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
@@ -18,38 +19,37 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.AccessDeniedException;
 
 @Service
 @AllArgsConstructor
 public class UpdateProposalImageAction {
 
     @Autowired
-    JpaContactPersonRepository jpaContactPersonRepository;
+    private JpaContactPersonRepository jpaContactPersonRepository;
 
     @Autowired
-    JpaProposalRepository jpaProposalRepository;
+    private JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    ProposalRepository proposalRepository;
+    private ProposalRepository proposalRepository;
 
     @Autowired
-    EmailCommunicationService emailCommunicationService;
+    private EmailCommunicationService emailCommunicationService;
+
+    @Autowired
+    private JpaContactPersonRepository contactPersonRepository;
+
+    @Autowired
+    private ImageService imageService;
 
     private final RemoteStorageService remoteStorageService;
 
     public void execute(MultipartFile photo, String accountId, String proposalId) throws IOException {
-        //Validar la photo con el Image Service
-        JpaContactPerson contactPerson = jpaContactPersonRepository.findByAccountId(accountId).orElseThrow(EntityNotFoundException::new);
+        imageService.validateProfileImage(photo);
+        JpaContactPerson accountContactPerson = jpaContactPersonRepository.findByAccountId(accountId).orElseThrow(EntityNotFoundException::new);
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
-        /*
-        if(!contactPerson.getCredential().getEmail().equals(proposal.getEsal().getContactPersonEmail)){
-            //throw new Exception
-        }
-         */
-        if(!jpaProposal.getStatus().getId().equals(ProposalStatus.PUBLISHED.getId()) &&
-                jpaProposal.getStatus().getId().equals(ProposalStatus.REVIEW_PENDING.getId())){
-            //throw new Exception
-        }
+        validateProposalUpdate(accountContactPerson,jpaProposal);
 
         URL url = remoteStorageService.uploadProposalImage(photo, proposalId);
         Proposal proposal = Proposal.parseJpa(jpaProposal);
@@ -57,6 +57,17 @@ public class UpdateProposalImageAction {
         proposal.setStatus(ProposalStatus.REVIEW_PENDING);
         proposalRepository.save(proposal);
 
-        emailCommunicationService.sendProposalImageUpdateEmail(EmailAddress.from(contactPerson.getCredential().getEmail()));
+        emailCommunicationService.sendProposalImageUpdateEmail(EmailAddress.from(accountContactPerson.getCredential().getEmail()));
+    }
+
+    private void validateProposalUpdate(JpaContactPerson accountContactPerson, JpaProposal jpaProposal) throws AccessDeniedException {
+        JpaContactPerson proposalContactPerson = contactPersonRepository.findByEsalId(jpaProposal.getEsal().getId()).orElseThrow(EntityNotFoundException::new);
+        if(!accountContactPerson.getCredential().getEmail().equals(proposalContactPerson.getCredential().getEmail())){
+            throw new AccessDeniedException("The contact person related to this proposal does not match the logged contact person.");
+        }
+        if(!jpaProposal.getStatus().getId().equals(ProposalStatus.PUBLISHED.getId()) &&
+                !jpaProposal.getStatus().getId().equals(ProposalStatus.REVIEW_PENDING.getId())){
+            throw new IllegalStateException();
+        }
     }
 }

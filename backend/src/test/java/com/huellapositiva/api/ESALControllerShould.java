@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.ESALRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.UpdateESALDto;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -64,9 +65,20 @@ class ESALControllerShould {
                 .dataProtectionPolicy(true)
                 .entityType("FOUNDATION")
                 .island("Gran Canaria")
-                .zipCode("35000")
+                .zipCode("36000")
                 .privacyPolicy(true)
                 .registeredEntity(true)
+                .build();
+    }
+
+    private UpdateESALDto getUpdateESALDto(){
+        return UpdateESALDto.builder()
+                .name(DEFAULT_ESAL)
+                .website("http://website.es")
+                .description("another description")
+                .entityType(DEFAULT_ENTITY_TYPE)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
                 .build();
     }
 
@@ -110,6 +122,109 @@ class ESALControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
         assertThat(jpaESALRepository.findByName(esalRequestDto.getName())).isPresent();
+    }
+
+    @Test
+    void return_200_when_updating_an_esal_successfully() throws Exception {
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        UpdateESALDto updateESALDto = getUpdateESALDto();
+        mvc.perform(post("/api/v1/esal/update")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateESALDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        JpaESAL jpaESAL = jpaESALRepository.findByName(updateESALDto.getName()).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaESAL.getName()).isEqualTo(updateESALDto.getName());
+        assertThat(jpaESAL.getDescription()).isEqualTo(updateESALDto.getDescription());
+        assertThat(jpaESAL.getWebsite()).isEqualTo(updateESALDto.getWebsite());
+        assertThat(jpaESAL.isRegisteredEntity()).isEqualTo(updateESALDto.isRegisteredEntity());
+        assertThat(jpaESAL.getEntityType()).isEqualTo(updateESALDto.getEntityType());
+        assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(updateESALDto.getIsland());
+        assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(updateESALDto.getZipCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectEsalInformation")
+    void return_400_when_provided_incorrect_information_for_updating_esal(UpdateESALDto dto) throws Exception {
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/esal/update")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<UpdateESALDto> provideIncorrectEsalInformation() {
+        return Stream.of(
+                UpdateESALDto.builder()
+                        .name("")
+                        .website("http://website.es")
+                        .description("another description")
+                        .entityType(DEFAULT_ENTITY_TYPE)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .build(),
+                UpdateESALDto.builder()
+                        .name(DEFAULT_ESAL)
+                        .website("")
+                        .description("another description")
+                        .entityType(DEFAULT_ENTITY_TYPE)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .build(),
+                UpdateESALDto.builder()
+                        .name(DEFAULT_ESAL)
+                        .website("http://website.es")
+                        .description("another description")
+                        .entityType("FUNDACION")
+                        .island("")
+                        .zipCode(VALID_ZIPCODE)
+                        .build(),
+                UpdateESALDto.builder()
+                        .name(DEFAULT_ESAL)
+                        .website("http://website.es")
+                        .description("another description")
+                        .entityType(DEFAULT_ENTITY_TYPE)
+                        .island(VALID_ISLAND)
+                        .zipCode("3555555")
+                        .build()
+        );
+    }
+
+    @Test
+    void return_409_when_updating_esal_name_to_an_already_existing_esal() throws Exception {
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
+        testData.createESAL("Huella Positiva");
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        UpdateESALDto updateESALDto = UpdateESALDto.builder()
+                .name("Huella Positiva")
+                .website("http://website.es")
+                .description("another description")
+                .entityType(DEFAULT_ENTITY_TYPE)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .build();
+
+        mvc.perform(post("/api/v1/esal/update")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateESALDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test

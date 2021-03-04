@@ -53,6 +53,8 @@ public class TestData {
 
     public static final String DEFAULT_ESAL = "Huella Digital";
 
+    public static final String DEFAULT_ENTITY_TYPE = "ASSOCIATION";
+
     public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
     public static final String DEFAULT_CANCEL_REASON = "Not suitable volunteers listed";

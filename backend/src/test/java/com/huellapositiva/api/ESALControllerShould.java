@@ -79,6 +79,9 @@ class ESALControllerShould {
                 .entityType(DEFAULT_ENTITY_TYPE)
                 .island(VALID_ISLAND)
                 .zipCode(VALID_ZIPCODE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
                 .build();
     }
 
@@ -147,6 +150,9 @@ class ESALControllerShould {
         assertThat(jpaESAL.getEntityType()).isEqualTo(updateESALDto.getEntityType());
         assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(updateESALDto.getIsland());
         assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(updateESALDto.getZipCode());
+        assertThat(jpaESAL.getLocation().getProvince()).isEqualTo(updateESALDto.getProvince());
+        assertThat(jpaESAL.getLocation().getTown()).isEqualTo(updateESALDto.getTown());
+        assertThat(jpaESAL.getLocation().getAddress()).isEqualTo(updateESALDto.getAddress());
     }
 
     @ParameterizedTest
@@ -174,6 +180,9 @@ class ESALControllerShould {
                         .entityType(DEFAULT_ENTITY_TYPE)
                         .island(VALID_ISLAND)
                         .zipCode(VALID_ZIPCODE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
                         .build(),
                 UpdateESALDto.builder()
                         .name(DEFAULT_ESAL)
@@ -182,6 +191,9 @@ class ESALControllerShould {
                         .entityType(DEFAULT_ENTITY_TYPE)
                         .island(VALID_ISLAND)
                         .zipCode(VALID_ZIPCODE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
                         .build(),
                 UpdateESALDto.builder()
                         .name(DEFAULT_ESAL)
@@ -190,6 +202,9 @@ class ESALControllerShould {
                         .entityType("FUNDACION")
                         .island("")
                         .zipCode(VALID_ZIPCODE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
                         .build(),
                 UpdateESALDto.builder()
                         .name(DEFAULT_ESAL)
@@ -198,7 +213,11 @@ class ESALControllerShould {
                         .entityType(DEFAULT_ENTITY_TYPE)
                         .island(VALID_ISLAND)
                         .zipCode("3555555")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
                         .build()
+
         );
     }
 
@@ -216,6 +235,9 @@ class ESALControllerShould {
                 .entityType(DEFAULT_ENTITY_TYPE)
                 .island(VALID_ISLAND)
                 .zipCode(VALID_ZIPCODE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
                 .build();
 
         mvc.perform(post("/api/v1/esal/update")

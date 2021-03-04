@@ -67,4 +67,24 @@ public class UpdateESALDto {
     @NotBlank
     @Pattern(regexp = "^\\d{5}$")
     private final String zipCode;
+
+    @Schema(
+            description = "Where the ESAL is located",
+            example = "Las Palmas"
+    )
+    @Pattern(regexp = "^(Las Palmas|Santa Cruz de Tenerife)$")
+    private final String province;
+
+    @Schema(
+            description = "Where the ESAL is located",
+            example = "Agaete"
+    )
+    @Pattern(regexp = "^[a-zA-Z ]*$")
+    private final String town;
+
+    @Schema(
+            description = "Where the ESAL is located",
+            example = "Calle Guacimeta N2"
+    )
+    private final String address;
 }

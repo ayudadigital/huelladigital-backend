@@ -43,6 +43,9 @@ public class UpdateESALAction {
                 .id(esalLocation.getId())
                 .island(dto.getIsland())
                 .zipCode(dto.getZipCode())
+                .province(dto.getProvince() != null ? dto.getProvince() : null)
+                .town(dto.getTown() != null ? dto.getTown() : null)
+                .address(dto.getAddress() != null ? dto.getAddress() : null)
                 .build();
         esal.setLocation(location);
     }

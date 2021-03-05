@@ -3,24 +3,36 @@ package com.huellapositiva.application.controller;
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
+import com.huellapositiva.domain.actions.UploadPhotoAction;
+import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaRoleRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +48,8 @@ public class ESALContactPersonApiController {
     private final JwtService jwtService;
 
     private final JpaRoleRepository jpaRoleRepository;
+
+    private final UploadPhotoAction uploadPhotoAction;
 
     @Operation(
             summary = "Register a new ESAL employee",
@@ -82,5 +96,46 @@ public class ESALContactPersonApiController {
     @ResponseStatus(HttpStatus.OK)
     public ProposalResponseDto getMember(@PathVariable Integer id) {
         throw new UnsupportedOperationException();
+    }
+
+    @Operation(
+            summary = "Upload contact person Photo",
+            description = "Upload contact person Photo to profile",
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, uploaded photo successfully"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, photo is not valid"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RolesAllowed({"CONTACT_PERSON","CONTACT_PERSON_NOT_CONFIRMED"})
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
+                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
+        try {
+            uploadPhotoAction.executeAsContactPerson(photo, accountId);
+        } catch (InvalidFieldException | EmptyFileException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -78,7 +79,7 @@ class ProposalControllerShould {
     void persist_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -103,8 +104,9 @@ class ProposalControllerShould {
     @Test
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
+
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -144,7 +146,7 @@ class ProposalControllerShould {
     void return_400_when_age_is_out_of_range() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 17;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -184,7 +186,7 @@ class ProposalControllerShould {
     void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 30;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -369,9 +371,9 @@ class ProposalControllerShould {
     void create_proposal_as_reviser() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
+      
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -392,9 +394,8 @@ class ProposalControllerShould {
     void return_400_when_multipart_file_is_missing() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -411,7 +412,7 @@ class ProposalControllerShould {
     void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -450,12 +451,12 @@ class ProposalControllerShould {
     void fetch_a_paginated_list_of_published_proposals() throws Exception {
         // GIVEN
         testData.registerESALAndProposal(PUBLISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(Id.newId().toString())
                 .title("Limpieza de playas")
                 .location(JpaLocation.builder()
-                        .id(UUID.randomUUID().toString())
+                        .id(Id.newId().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4")
@@ -589,7 +590,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.registerESALAndProposal(FINISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
                 .title("Limpieza de playas")

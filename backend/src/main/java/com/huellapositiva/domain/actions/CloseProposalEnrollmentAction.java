@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class ChangePublishedProposalToEnrollmentClosedAction {
+public class CloseProposalEnrollmentAction {
     private final ProposalService proposalService;
 
     /**

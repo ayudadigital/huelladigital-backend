@@ -8,6 +8,7 @@ import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +39,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static com.huellapositiva.domain.util.StringUtils.maskEmailAddress;
 
 @Slf4j
@@ -66,9 +69,9 @@ public class ProposalApiController {
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
 
-    private final ChangePublishedProposalToEnrollmentClosedAction changePublishedProposalToEnrollmentClosedAction;
+    private final CloseProposalEnrollmentAction closeProposalEnrollmentAction;
 
-    private final ChangeReviewPendingProposalToPublishedAction changeReviewPendingProposalToPublishedAction;
+    private final PublishProposalAction publishProposalAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -334,7 +337,7 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping(path = "/revision/{id}")
+    @PostMapping(path = "/{id}/revision")
     @RolesAllowed("REVISER")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
@@ -383,12 +386,12 @@ public class ProposalApiController {
                     )
             }
     )
-    @GetMapping("/{idProposal}/volunteers")
+    @GetMapping("/{id}/volunteers")
     @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable String idProposal) {
+    public List<VolunteerDto> fetchListedVolunteersInProposal(@PathVariable("id") String proposalId) {
         try {
-            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(idProposal);
+            ProposalResponseDto proposalResponseDto = fetchProposalAction.execute(proposalId);
             return proposalResponseDto.getInscribedVolunteers()
                     .stream()
                     .map(v -> new VolunteerDto(v.getId(), maskEmailAddress(v.getEmailAddress()), v.getConfirmed()))
@@ -428,12 +431,12 @@ public class ProposalApiController {
                     )
             }
     )
-    @GetMapping("/{idProposal}/proposal")
+    @GetMapping("/{id}/proposal")
     @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.OK)
-    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable String idProposal) {
+    public ProposalResponseDto fetchProposalWithVolunteers(@PathVariable("id") String proposalId) {
         try {
-            return fetchProposalAction.execute(idProposal);
+            return fetchProposalAction.execute(proposalId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         }
@@ -471,13 +474,13 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/{id}/cancel")
+    @PostMapping("/{id}/status/cancel")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelProposalAsReviser(@PathVariable("id") String idProposal,
+    public void cancelProposalAsReviser(@PathVariable("id") String proposalId,
                                         @RequestBody ProposalCancelReasonDto dto) {
         try {
-            cancelProposalAction.executeByReviser(idProposal, dto);
+            cancelProposalAction.executeByReviser(proposalId, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (IllegalStateException ex) {
@@ -540,11 +543,11 @@ public class ProposalApiController {
                     )
             }
     )
-    @PutMapping("/close")
+    @PutMapping("{id}/status/close")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePublishedProposalToEnrollmentClosed(@RequestBody ChangeStatusProposalRequestDto dto) {
-        changePublishedProposalToEnrollmentClosedAction.execute(dto.getIdProposal());
+    public void closeEnrollment(@PathVariable("id") String proposalId) {
+        closeProposalEnrollmentAction.execute(proposalId);
     }
 
     @Operation(
@@ -571,10 +574,20 @@ public class ProposalApiController {
                     )
             }
     )
-    @PutMapping("/publish")
-    @RolesAllowed("REVISER")
+    @PutMapping("/{id}/status/publish")
+    @RolesAllowed({"REVISER", "CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeReviewPendingProposalToPublished(@RequestBody ChangeStatusProposalRequestDto dto) {
-        changeReviewPendingProposalToPublishedAction.execute(dto.getIdProposal());
+    public void publishProposal(@PathVariable("id") String proposalId,
+                                Authentication authentication) {
+        List<Roles> roles = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> Roles.valueOf(grantedAuthority.getAuthority().replace("ROLE_", "")))
+                .collect(Collectors.toList());
+
+        if (roles.contains(REVISER)) {
+            publishProposalAction.executeAsReviser(proposalId);
+            return;
+        }
+
+        publishProposalAction.executeAsContactPerson(proposalId);
     }
 }

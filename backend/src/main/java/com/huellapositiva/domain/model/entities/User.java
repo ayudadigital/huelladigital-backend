@@ -6,10 +6,14 @@ import com.huellapositiva.domain.model.valueobjects.PasswordHash;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+
+import java.net.URL;
 
 @Builder
 @Getter
 @AllArgsConstructor
+@Setter
 public class User {
 
     private final Id accountId;
@@ -23,6 +27,8 @@ public class User {
     private String name;
 
     private String surname;
+
+    private URL photo;
 
     public User(Id accountId, EmailAddress emailAddress, Id id) {
         this.accountId = accountId;

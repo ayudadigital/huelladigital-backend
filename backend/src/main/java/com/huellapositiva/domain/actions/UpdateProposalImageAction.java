@@ -1,10 +1,8 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.service.ImageService;
 import com.huellapositiva.domain.service.RemoteStorageService;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;

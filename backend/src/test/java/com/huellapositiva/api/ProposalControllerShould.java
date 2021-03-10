@@ -25,11 +25,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -904,10 +907,14 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
@@ -923,10 +930,15 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+
+        mvc.perform(multipart
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
@@ -941,10 +953,15 @@ class ProposalControllerShould {
 
         MockMultipartFile file = new MockMultipartFile("proposalImage", proposalImageURI.get(0),
                 proposalImageURI.get(1), getClass().getClassLoader().getResourceAsStream(proposalImageURI.get(0)));
-        mvc.perform(multipart(FETCH_PROPOSAL_URI+ "udpateProposalImage")
+
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
                 .file(file)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
@@ -964,10 +981,14 @@ class ProposalControllerShould {
         JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(multipart(FETCH_PROPOSAL_URI+ "udpateProposalImage")
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
                 .file(new MockMultipartFile("proposalImage", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
@@ -981,10 +1002,14 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
-        mvc.perform(multipart(FETCH_PROPOSAL_URI + "udpateProposalImage")
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
                 .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(jpaProposal.getId())
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))

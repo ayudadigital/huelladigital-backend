@@ -586,10 +586,10 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/udpateProposalImage")
+    @PutMapping("/{proposalId}/image")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProposalImage(@RequestPart("photo") MultipartFile photo, @RequestBody String proposalId,
+    public void updateProposalImage(@RequestPart("photo") MultipartFile photo, @PathVariable String proposalId,
                                   @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
             updateProposalImageAction.execute(photo, accountId, proposalId);

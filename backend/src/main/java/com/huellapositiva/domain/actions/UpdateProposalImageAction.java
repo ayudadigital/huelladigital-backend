@@ -26,27 +26,24 @@ import java.nio.file.AccessDeniedException;
 public class UpdateProposalImageAction {
 
     @Autowired
-    private JpaContactPersonRepository jpaContactPersonRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
     @Autowired
-    private JpaProposalRepository jpaProposalRepository;
+    private final JpaProposalRepository jpaProposalRepository;
 
     @Autowired
-    private ProposalRepository proposalRepository;
+    private final ProposalRepository proposalRepository;
 
     @Autowired
-    private EmailCommunicationService emailCommunicationService;
+    private final JpaContactPersonRepository contactPersonRepository;
 
     @Autowired
-    private JpaContactPersonRepository contactPersonRepository;
-
-    @Autowired
-    private ImageService imageService;
+    private final ImageService imageService;
 
     private final RemoteStorageService remoteStorageService;
 
     public void execute(MultipartFile photo, String accountId, String proposalId) throws IOException {
-        imageService.validateProfileImage(photo);
+        imageService.validateProposalImage(photo);
         JpaContactPerson accountContactPerson = jpaContactPersonRepository.findByAccountId(accountId).orElseThrow(EntityNotFoundException::new);
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
         validateProposalUpdate(accountContactPerson,jpaProposal);
@@ -54,20 +51,17 @@ public class UpdateProposalImageAction {
         URL url = remoteStorageService.uploadProposalImage(photo, proposalId);
         Proposal proposal = Proposal.parseJpa(jpaProposal);
         proposal.setImage(url);
-        proposal.setStatus(ProposalStatus.REVIEW_PENDING);
         proposalRepository.save(proposal);
-
-        emailCommunicationService.sendProposalImageUpdateEmail(EmailAddress.from(accountContactPerson.getCredential().getEmail()));
     }
 
     private void validateProposalUpdate(JpaContactPerson accountContactPerson, JpaProposal jpaProposal) throws AccessDeniedException {
         JpaContactPerson proposalContactPerson = contactPersonRepository.findByEsalId(jpaProposal.getEsal().getId()).orElseThrow(EntityNotFoundException::new);
-        if(!accountContactPerson.getCredential().getEmail().equals(proposalContactPerson.getCredential().getEmail())){
+        if(!accountContactPerson.getCredential().getId().equals(proposalContactPerson.getCredential().getId())){
             throw new AccessDeniedException("The contact person related to this proposal does not match the logged contact person.");
         }
         if(!jpaProposal.getStatus().getId().equals(ProposalStatus.PUBLISHED.getId()) &&
                 !jpaProposal.getStatus().getId().equals(ProposalStatus.REVIEW_PENDING.getId())){
-            throw new IllegalStateException();
+            throw new IllegalStateException("The Proposal must be PUBLISHED or REVIEW_PENDING to update the image.");
         }
     }
 }

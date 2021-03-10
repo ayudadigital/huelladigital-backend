@@ -120,10 +120,4 @@ public class TemplateService {
         variables.put("PROPOSAL_TITLE", proposalTitle );
         return new EmailTemplate(template).parse(variables);
     }
-
-    public EmailTemplate getUpdateProposalImageTemplate() {
-        String relativePath = "classpath:templates/emails/updateProposalImageEmail.txt";
-        String template = getFileContent(relativePath);
-        return new EmailTemplate(template);
-    }
 }

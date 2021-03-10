@@ -134,7 +134,7 @@ class ESALControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         UpdateESALDto updateESALDto = getUpdateESALDto();
-        mvc.perform(post("/api/v1/esal/update")
+        mvc.perform(put("/api/v1/esal/update")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateESALDto))
                 .with(csrf())
@@ -162,7 +162,7 @@ class ESALControllerShould {
         testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/esal/update")
+        mvc.perform(put("/api/v1/esal/update")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
@@ -240,7 +240,7 @@ class ESALControllerShould {
                 .address(VALID_ADDRESS)
                 .build();
 
-        mvc.perform(post("/api/v1/esal/update")
+        mvc.perform(put("/api/v1/esal/update")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateESALDto))
                 .with(csrf())

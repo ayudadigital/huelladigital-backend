@@ -109,7 +109,7 @@ public class ESALApiController {
             description = "Updates the information of the ESAL linked to the logged employee. Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED.",
             tags = "ESAL",
             parameters = {
-                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
                     @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
@@ -125,6 +125,10 @@ public class ESALApiController {
                     @ApiResponse(
                             responseCode = "400",
                             description = "Bad Request, unable to validate provided data."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, user not found in db."
                     ),
                     @ApiResponse(
                             responseCode = "409",
@@ -146,7 +150,7 @@ public class ESALApiController {
         } catch (DataIntegrityViolationException ex){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "ESAL named " + dto.getName() + " already exists.");
         } catch (UserNotFoundException ex){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not find the user due to a connectivity issue.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Could not find the user due to a connectivity issue.");
         }
     }
 

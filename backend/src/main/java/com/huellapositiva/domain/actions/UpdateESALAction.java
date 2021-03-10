@@ -38,15 +38,11 @@ public class UpdateESALAction {
 
     private void updateLocation(JpaESAL esal, UpdateESALDto dto) {
         JpaLocation esalLocation = esal.getLocation();
-        JpaLocation location = JpaLocation.builder()
-                .surrogateKey(esalLocation.getSurrogateKey())
-                .id(esalLocation.getId())
-                .island(dto.getIsland())
-                .zipCode(dto.getZipCode())
-                .province(dto.getProvince() != null ? dto.getProvince() : null)
-                .town(dto.getTown() != null ? dto.getTown() : null)
-                .address(dto.getAddress() != null ? dto.getAddress() : null)
-                .build();
-        esal.setLocation(location);
+        esalLocation.setIsland(dto.getIsland());
+        esalLocation.setZipCode(dto.getZipCode());
+        esalLocation.setProvince(dto.getProvince() != null ? dto.getProvince() : null);
+        esalLocation.setTown(dto.getTown() != null ? dto.getTown() : null);
+        esalLocation.setAddress(dto.getAddress() != null ? dto.getAddress() : null);
+        esal.setLocation(esalLocation);
     }
 }

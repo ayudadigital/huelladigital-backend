@@ -109,7 +109,7 @@ public class ESALApiController {
             description = "Updates the information of the ESAL linked to the logged employee. Roles allowed CONTACT_PERSON and CONTACT_PERSON_NOT_CONFIRMED.",
             tags = "ESAL",
             parameters = {
-                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
                     @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE,required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
@@ -137,7 +137,7 @@ public class ESALApiController {
                     )
             }
     )
-    @PostMapping("/update")
+    @PutMapping("/update")
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     public void updateESAL(@Validated @RequestBody UpdateESALDto dto,
                            @Parameter(hidden = true) @AuthenticationPrincipal String accountId){

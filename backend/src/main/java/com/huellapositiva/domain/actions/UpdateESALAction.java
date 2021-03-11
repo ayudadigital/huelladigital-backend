@@ -40,9 +40,9 @@ public class UpdateESALAction {
         JpaLocation esalLocation = esal.getLocation();
         esalLocation.setIsland(dto.getIsland());
         esalLocation.setZipCode(dto.getZipCode());
-        esalLocation.setProvince(dto.getProvince() != null ? dto.getProvince() : null);
-        esalLocation.setTown(dto.getTown() != null ? dto.getTown() : null);
-        esalLocation.setAddress(dto.getAddress() != null ? dto.getAddress() : null);
+        esalLocation.setProvince(dto.getProvince());
+        esalLocation.setTown(dto.getTown());
+        esalLocation.setAddress(dto.getAddress());
         esal.setLocation(esalLocation);
     }
 }

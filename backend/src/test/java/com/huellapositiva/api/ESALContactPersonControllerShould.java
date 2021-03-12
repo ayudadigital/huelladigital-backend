@@ -231,6 +231,24 @@ class ESALContactPersonControllerShould {
     }
 
     @Test
+    void return_204_when_upload_photo_successfully_with_no_profile() throws Exception {
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        mvc.perform(multipart("/api/v1/contactperson/profile/photo")
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        contactPerson = jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
+        assertThat(contactPerson.getContactPersonProfile().getPhotoUrl()).isNotNull();
+    }
+
+    @Test
     void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
         testData.createESALJpaContactPersonWithProfile(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);

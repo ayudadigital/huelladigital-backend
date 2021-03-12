@@ -558,8 +558,6 @@ public class TestData {
         jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
 
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
-        jpaContactPersonRepository.updateProfile(jpaContactPerson.getId(), jpaContactPersonProfile);
-
         jpaContactPerson.setContactPersonProfile(jpaContactPersonProfile);
 
         return jpaContactPerson;

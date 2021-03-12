@@ -6,7 +6,6 @@ import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPersonProfile;
-import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,9 +19,6 @@ public class ContactPersonRepository {
 
     @Autowired
     private JpaContactPersonRepository jpaContactPersonRepository;
-
-    @Autowired
-    private JpaContactPersonProfileRepository jpaContactPersonProfileRepository;
 
     public ContactPerson findByJoinedEsalId(String esalId) {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(esalId).orElseThrow(UserNotFoundException::new);
@@ -53,17 +49,14 @@ public class ContactPersonRepository {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByAccountId(contactPerson.getAccountId().toString())
                 .orElseThrow(() -> new NoSuchElementException("No exists contact person with: " + contactPerson.getId()));
 
-        boolean profileIsNull = jpaContactPerson.getContactPersonProfile() == null;
-        if (profileIsNull) {
+        if (jpaContactPerson.getContactPersonProfile() == null) {
             JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
                     .id(Id.newId().toString())
-                    .photoUrl(contactPerson.getPhoto().toExternalForm())
                     .build();
-            jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
             jpaContactPerson.setContactPersonProfile(jpaContactPersonProfile);
-        } else {
-            jpaContactPerson.getContactPersonProfile().setPhotoUrl(contactPerson.getPhoto().toExternalForm());
         }
+
+        jpaContactPerson.getContactPersonProfile().setPhotoUrl(contactPerson.getPhoto().toExternalForm());
         jpaContactPersonRepository.save(jpaContactPerson);
     }
 }

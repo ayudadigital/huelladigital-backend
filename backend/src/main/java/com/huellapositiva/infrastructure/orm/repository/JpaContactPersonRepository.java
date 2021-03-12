@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -38,9 +37,4 @@ public interface JpaContactPersonRepository extends JpaRepository<JpaContactPers
 
     @Query("FROM JpaContactPerson cp LEFT JOIN FETCH cp.contactPersonProfile p LEFT JOIN FETCH cp.credential c WHERE c.id = :accountId")
     Optional<JpaContactPerson> findByAccountIdWithProfile(@Param("accountId") String accountId);
-
-    @Modifying
-    @Transactional
-    @Query("UPDATE JpaContactPerson cp SET cp.contactPersonProfile = :profile WHERE cp.id = :id")
-    Integer updateProfile(@Param("id") String id, @Param("profile") JpaContactPersonProfile profile);
 }

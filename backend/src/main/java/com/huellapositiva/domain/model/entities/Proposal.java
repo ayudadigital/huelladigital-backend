@@ -92,6 +92,7 @@ public class Proposal {
         for (Skill skillProposal : skills) {
             if (skill.getName().equals(skillProposal.getName())){
                 positionOfSkill = skills.indexOf(skillProposal);
+                break;
             }
         }
         skills.remove(positionOfSkill);

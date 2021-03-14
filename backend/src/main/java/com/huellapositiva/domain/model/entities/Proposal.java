@@ -16,8 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 @Builder
-@Getter
-@Setter
 @Data
 @AllArgsConstructor
 public class Proposal {

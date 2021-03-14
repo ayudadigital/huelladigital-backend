@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
 import com.huellapositiva.domain.model.valueobjects.ProposalDate;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
@@ -30,6 +31,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityNotFoundException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Stream;
@@ -40,6 +44,7 @@ import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -88,7 +93,7 @@ class ProposalControllerShould {
     void persist_a_proposal() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -113,8 +118,9 @@ class ProposalControllerShould {
     @Test
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
+
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         String invalidStartingDate = "20-01-2021";
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -154,7 +160,7 @@ class ProposalControllerShould {
     void return_400_when_age_is_out_of_range() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 17;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -194,7 +200,7 @@ class ProposalControllerShould {
     void return_400_when_minimum_age_is_greater_than_maximum_age() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         int invalidMinimumAge = 30;
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
@@ -381,7 +387,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -402,9 +408,8 @@ class ProposalControllerShould {
     void return_400_when_multipart_file_is_missing() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
         proposalDto.setEsalName("Huella Positiva");
 
@@ -421,7 +426,7 @@ class ProposalControllerShould {
     void return_400_when_closing_date_is_more_than_six_months_from_now() throws Exception {
         // GIVEN
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        testData.createAndLinkESAL(contactPerson, JpaESAL.builder().id(UUID.randomUUID().toString()).name("Huella Positiva").build());
+        testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = ProposalRequestDto.builder()
                 .title("Recogida de ropita")
                 .province("Santa Cruz de Tenerife")
@@ -460,12 +465,12 @@ class ProposalControllerShould {
     void fetch_a_paginated_list_of_published_proposals() throws Exception {
         // GIVEN
         testData.registerESALAndProposal(PUBLISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(Id.newId().toString())
                 .title("Limpieza de playas")
                 .location(JpaLocation.builder()
-                        .id(UUID.randomUUID().toString())
+                        .id(Id.newId().toString())
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4")
@@ -543,7 +548,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -566,7 +571,7 @@ class ProposalControllerShould {
         ProposalRevisionDto revisionDto = new ProposalRevisionDto(null);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -584,7 +589,7 @@ class ProposalControllerShould {
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + nonExistingProposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", nonExistingProposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -599,7 +604,7 @@ class ProposalControllerShould {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.registerESALAndProposal(FINISHED);
-        JpaESAL different_esal = testData.createJpaESAL(JpaESAL.builder().id(UUID.randomUUID().toString()).name("Different ESAL").build());
+        JpaESAL different_esal = testData.createJpaESAL(testData.buildJpaESAL("Different ESAL"));
         testData.createProposal(JpaProposal.builder()
                 .id(UUID.randomUUID().toString())
                 .title("Limpieza de playas")
@@ -720,7 +725,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -742,7 +747,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -763,7 +768,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -784,7 +789,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -805,7 +810,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -844,6 +849,53 @@ class ProposalControllerShould {
         List<JpaVolunteerProposal> volunteersProposalsModified = jpaVolunteersProposalsRepository.findAll();
         assertThat(volunteersProposalsModified.get(0).isConfirmed()).isFalse();
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
+    }
+
+    @Test
+    void return_204_when_update_proposal_to_enrollment_closed_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", proposalId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(ENROLLMENT_CLOSED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideEnrollmentNotCloseableStatus")
+    void return_409_when_proposal_status_is_not_published(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideEnrollmentNotCloseableStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                ENROLLMENT_CLOSED,
+                REVIEW_PENDING
+        );
     }
 
     @ParameterizedTest
@@ -1398,18 +1450,16 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideGoodProposalStatus")
+    @MethodSource("providePublishableStatus")
     void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -1420,7 +1470,7 @@ class ProposalControllerShould {
         assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
     }
 
-    private static Stream<ProposalStatus> provideGoodProposalStatus() {
+    private static Stream<ProposalStatus> providePublishableStatus() {
         return Stream.of(
                 REVIEW_PENDING,
                 ENROLLMENT_CLOSED
@@ -1428,18 +1478,17 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideBadProposalStatus")
-    void return_409_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
+    @MethodSource("provideNotPublishableStatus")
+    void return_409_when_proposal_status_is_no_review_pending_or_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -1447,12 +1496,59 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
     }
 
-    private static Stream<ProposalStatus> provideBadProposalStatus() {
+    private static Stream<ProposalStatus> provideNotPublishableStatus() {
         return Stream.of(
                 CHANGES_REQUESTED,
                 CANCELLED,
                 INADEQUATE,
                 FINISHED
+        );
+    }
+
+    @Test
+    void return_204_when_update_proposal_to_published_successfully_from_enrollment_closed() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(ENROLLMENT_CLOSED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotPublishableFromEnrollmentClosedStatus")
+    void return_409_when_proposal_status_is_not_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideNotPublishableFromEnrollmentClosedStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                PUBLISHED,
+                REVIEW_PENDING
         );
     }
 }

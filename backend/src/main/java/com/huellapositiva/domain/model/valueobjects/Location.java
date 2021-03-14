@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,7 @@ public class Location {
 
     private String island;
 
+    @Builder
     public Location(String province, String town, String address, String zipCode, String island) {
         this.zipCode = zipCode;
         this.id = Id.newId();

@@ -87,6 +87,14 @@ public class TestData {
     public static final String VALID_EXTRA_INFO = "Una extra info menor de 200 caracteres";
     public static final String VALID_INSTRUCTIONS = "Una instructions menor de 200 caracteres";
 
+    public static final Location DEFAULT_LOCATION = Location.builder()
+            .island(VALID_ISLAND)
+            .zipCode(VALID_ZIPCODE)
+            .address(VALID_ADDRESS)
+            .province(VALID_PROVINCE)
+            .town(VALID_TOWN)
+            .build();
+
     @Autowired
     private final JpaVolunteerRepository volunteerRepository;
 
@@ -274,13 +282,35 @@ public class TestData {
         return id;
     }
 
-    public JpaESAL createJpaESAL(JpaESAL esal) {
-        return jpaESALRepository.save(esal);
+    public JpaESAL buildJpaESAL(String esalName) {
+        return JpaESAL.builder()
+                .id(Id.newId().toString())
+                .name(esalName)
+                .description("description")
+                .logoUrl(createMockImageUrl().toString())
+                .website("website.com")
+                .location(JpaLocation.builder()
+                        .id(Id.newId().toString())
+                        .province(VALID_PROVINCE)
+                        .zipCode(VALID_ZIPCODE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .build())
+                .registeredEntity(true)
+                .entityType("FOUNDATION")
+                .privacyPolicy(true)
+                .dataProtectionPolicy(true)
+                .build();
     }
 
-    public ESAL createESAL(String id, String name) {
-        JpaESAL savedEsal = jpaESALRepository.save(JpaESAL.builder().id(id).name(name).build());
-        return new ESAL(savedEsal.getName(), new Id(savedEsal.getId()));
+    public JpaESAL createJpaESAL(JpaESAL jpaESAL){
+        return jpaESALRepository.save(jpaESAL);
+    }
+
+    public ESAL createESAL(String name) {
+        JpaESAL savedEsal = createJpaESAL(buildJpaESAL(name));
+        return ESAL.fromJpa(savedEsal);
     }
 
     public JpaProposal createProposal(JpaProposal jpaProposal) {
@@ -365,10 +395,10 @@ public class TestData {
         jpaVolunteers.add(jpaVolunteer2);
 
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaESAL esal = buildJpaESAL(DEFAULT_ESAL);
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(Id.newId().toString())
                 .title("Recogida de ropita")
                 .location(JpaLocation.builder()
                         .id(UUID.randomUUID().toString())
@@ -407,10 +437,10 @@ public class TestData {
     @SneakyThrows
     public JpaProposal registerESALAndProposal(ProposalStatus proposalStatus) {
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaESAL esal = buildJpaESAL(DEFAULT_ESAL);
         createAndLinkESAL(contactPerson, esal);
         JpaProposal jpaProposal = JpaProposal.builder()
-                .id(UUID.randomUUID().toString())
+                .id(Id.newId().toString())
                 .title("Recogida de ropita")
                 .location(JpaLocation.builder()
                         .id(UUID.randomUUID().toString())
@@ -447,12 +477,13 @@ public class TestData {
 
     public String registerESALandPublishedProposalObject() {
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JpaESAL esal = JpaESAL.builder().id(UUID.randomUUID().toString()).name(DEFAULT_ESAL).build();
+        JpaESAL esal = buildJpaESAL(DEFAULT_ESAL);
         createAndLinkESAL(contactPerson, esal);
 
-        Proposal proposal = Proposal.builder().id(Id.newId())
+        Proposal proposal = Proposal.builder()
+                .id(Id.newId())
                 .title("Recogida de ropita")
-                .esal(new ESAL(esal.getName(), new Id(esal.getId())))
+                .esal(ESAL.fromJpa(esal))
                 .location(new Location("SC Tenerife", "La Laguna", "Avenida Trinidad", "12345", "Tenerife"))
                 .startingProposalDate(new ProposalDate(Date.from(now().plus(5, DAYS))))
                 .closingProposalDate(new ProposalDate(Date.from(now().plus(10, DAYS))))
@@ -491,9 +522,8 @@ public class TestData {
 
     /*If was necessary, you would to do the method public... or create other method*/
     private JpaVolunteer createVolunteerProfile(String email) {
-        String id = Id.newId().toString();
         JpaProfile jpaProfile = JpaProfile.builder()
-                .id(id)
+                .id(Id.newId().toString())
                 .name("nombre")
                 .surname("apellidos")
                 .phoneNumber("12412412125")

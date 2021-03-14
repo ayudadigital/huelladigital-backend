@@ -1,32 +1,40 @@
 package com.huellapositiva.domain.model.entities;
 
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.EntityType;
 import com.huellapositiva.domain.model.valueobjects.Id;
-import lombok.Getter;
-import lombok.Setter;
+import com.huellapositiva.domain.model.valueobjects.Location;
+import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import lombok.*;
 
+import javax.validation.constraints.NotEmpty;
+import java.net.URL;
 import java.util.Objects;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class ESAL {
-
-    private String name;
-
+    @NotEmpty
+    private final String name;
+    @NotEmpty
     private final Id id;
+    private final String description;
+    private URL logoUrl;
+    private final String website;
+    @NotEmpty
+    private final boolean registeredEntity;
+    @NotEmpty
+    private final EntityType entityType;
+    @NotEmpty
+    private final boolean privacyPolicy;
+    @NotEmpty
+    private final boolean dataProtectionPolicy;
+    @NotEmpty
+    private final Location location;
 
     private EmailAddress contactPersonEmail;
-
-    public ESAL(String name, Id id, EmailAddress contactPersonEmail) {
-        this.name = name;
-        this.id = id;
-        this.contactPersonEmail = contactPersonEmail;
-    }
-
-    public ESAL(String name, Id id) {
-        this.name = name;
-        this.id = id;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -39,5 +47,21 @@ public class ESAL {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @SneakyThrows
+    public static ESAL fromJpa(JpaESAL esal) {
+        return ESAL.builder()
+                .id(new Id(esal.getId()))
+                .name(esal.getName())
+                .logoUrl(esal.getLogoUrl() != null ? new URL(esal.getLogoUrl()) : null)
+                .website(esal.getWebsite())
+                .description(esal.getDescription())
+                .registeredEntity(esal.isRegisteredEntity())
+                .entityType(EntityType.valueOf(esal.getEntityType()))
+                .location(Location.builder().island(esal.getLocation().getIsland()).zipCode(esal.getLocation().getZipCode()).build())
+                .privacyPolicy(esal.isPrivacyPolicy())
+                .dataProtectionPolicy(esal.isDataProtectionPolicy())
+                .build();
     }
 }

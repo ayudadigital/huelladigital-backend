@@ -119,7 +119,7 @@ The project has different roles:
         8º. Login with contact person.
         9º. Use this method.
         
-* Cancel proposal as reviser. Endpoint POST http://localhost:8080/api/v1/proposals/{id}/cancel
+* Cancel proposal as reviser. Endpoint POST http://localhost:8080/api/v1/proposals/{id}/status/cancel
     
     Steps to test in postman: 
     

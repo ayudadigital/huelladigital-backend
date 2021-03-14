@@ -41,7 +41,7 @@ class ProposalRepositoryShould {
     @Test
     void persist_a_default_expiration_hour(){
         // WHEN
-        ESAL esal = testData.createESAL(UUID.randomUUID().toString(), "Huella Positiva");
+        ESAL esal = testData.createESAL("Huella Positiva");
         Proposal proposal = testData.buildPublishedProposalWithEsal(esal);
         String id = proposalRepository.insert(proposal);
 

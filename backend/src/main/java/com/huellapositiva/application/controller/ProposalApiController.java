@@ -630,7 +630,7 @@ public class ProposalApiController {
             }
     )
     @PostMapping("/updateProposal")
-    @RolesAllowed("CONTACT_PERSON")
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProposal(@Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
                                @Parameter(hidden = true) @AuthenticationPrincipal String accountId){

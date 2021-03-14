@@ -112,6 +112,7 @@ public class Proposal {
         for (Requirement requirementProposal : requirements) {
             if (requirement.getName().equals(requirementProposal.getName())){
                 positionOfRequirement = requirements.indexOf(requirementProposal);
+                break;
             }
         }
         requirements.remove(positionOfRequirement);

@@ -36,7 +36,7 @@
         <maven.project.info.reports.version>3.0.0</maven.project.info.reports.version>
         <mockito.version>3.3.0</mockito.version>
         <nimbus-jose-jwt.version>8.19</nimbus-jose-jwt.version>
-        <postqresql.version>9.4-1201-jdbc4</postqresql.version>
+        <postqresql.version>42.2.16</postqresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -55,6 +55,7 @@
         <sonar.organization>ayudadigital</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+        <spring-cloud.version>Hoxton.SR7</spring-cloud.version>
         <springdoc-openapi-ui.version>1.4.3</springdoc-openapi-ui.version>
         <system.rules.version>1.17.2</system.rules.version>
         <springfox.version>2.9.2</springfox.version>
@@ -104,6 +105,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
+            <version>2.2.2.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -298,6 +304,18 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

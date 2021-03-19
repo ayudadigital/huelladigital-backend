@@ -6,14 +6,12 @@ import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.model.valueobjects.EmailTemplate;
 import com.huellapositiva.domain.model.valueobjects.ProposalRevisionEmail;
 import com.huellapositiva.domain.model.valueobjects.ProposalRevisionRequestEmail;
+import com.huellapositiva.domain.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,16 +23,14 @@ public class TemplateService {
 
     private String getFileContent(String relativePath) {
         try {
-            File file = ResourceUtils.getFile(relativePath);
-            return String.join("\n", Files.readAllLines(file.toPath()));
+            return FileUtils.getResourceContent(relativePath);
         } catch (IOException ex) {
-            log.error("Failed to open file {}", relativePath, ex);
             throw new TemplateNotAvailableException(ex);
         }
     }
 
     public EmailTemplate getEmailConfirmationTemplate(EmailConfirmation emailConfirmation) {
-        String relativePath = "classpath:templates/emails/emailConfirmation.txt";
+        String relativePath = "templates/emails/emailConfirmation.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = emailConfirmation.getUrl();
@@ -43,7 +39,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalRevisionRequestTemplate(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
-        String relativePath = "classpath:templates/emails/proposalRevisionRequest.txt";
+        String relativePath = "templates/emails/proposalRevisionRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = proposalRevisionRequestEmail.getProposalUrl();
@@ -56,7 +52,7 @@ public class TemplateService {
             throw new UserNotFoundException("Reviser was not found.");
         }
 
-        String relativePath = "classpath:templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
+        String relativePath = "templates/emails/proposalRevisionResponseWithFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put(PROPOSAL_URL, proposalRevisionRequestEmail.getProposalURL());
@@ -69,7 +65,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalRevisionWithoutFeedbackTemplate(ProposalRevisionEmail proposalRevisionRequestEmail) {
-        String relativePath = "classpath:templates/emails/proposalRevisionResponseWithoutFeedbackRequest.txt";
+        String relativePath = "templates/emails/proposalRevisionResponseWithoutFeedbackRequest.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put(PROPOSAL_URL, proposalRevisionRequestEmail.getProposalURL());
@@ -81,7 +77,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getRecoveryEmailTemplate(String hashPassword){
-        String relativePath = "classpath:templates/emails/recoveryPasswordEmail.txt";
+        String relativePath = "templates/emails/recoveryPasswordEmail.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = "/api/v1/restore-password/" + hashPassword;
@@ -90,13 +86,13 @@ public class TemplateService {
     }
 
     public EmailTemplate getConfirmationPasswordChangedTemplate(){
-        String relativePath = "classpath:templates/emails/confirmationPasswordChanged.txt";
+        String relativePath = "templates/emails/confirmationPasswordChanged.txt";
         String template = getFileContent(relativePath);
         return new EmailTemplate(template);
     }
 
     public EmailTemplate getEmailChangedTemplate(EmailConfirmation emailConfirmation){
-        String relativePath = "classpath:templates/emails/emailChange.txt";
+        String relativePath = "templates/emails/emailChange.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String url = emailConfirmation.getUrl();
@@ -105,7 +101,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getNewsletterEmailTemplate(URL url){
-        String relativePath = "classpath:templates/emails/newsletterEmail.txt";
+        String relativePath = "templates/emails/newsletterEmail.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         String stringUrl = url.toString();
@@ -114,7 +110,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getProposalPublishedTemplate(String proposalTitle) {
-        String relativePath = "classpath:templates/emails/proposalPublished.txt";
+        String relativePath = "templates/emails/proposalPublished.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put("PROPOSAL_TITLE", proposalTitle );

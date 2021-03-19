@@ -21,6 +21,9 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
     docker.withRegistry('', 'docker-token') {
         def customImage = docker.build("${env.DOCKER_ORGANIZATION}/huelladigital-backend:${nextReleaseNumber}", '--pull --no-cache backend')
         customImage.push()
+        if (nextReleaseNumber != 'beta') {
+            customImage.push('latest')
+        }
     }
 }
 
@@ -35,71 +38,71 @@ pipeline {
                 sh 'rm -rf backend/target'
             }
         }
-//        stage('Build') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend build'
-//            }
-//        }
-//        stage('Unit tests') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend unit-tests'
-//            }
-//        }
-//        stage('Integration tests') {
-//            agent { label 'docker'}
-//            steps {
-//                script {
-//                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
-//                        sh """
-//                        sleep 5
-//                        docker exec ${c.id} apk add openjdk11-jdk maven bash
-//                        docker exec ${c.id} chmod 777 /var/run/docker.sock
-//                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
-//                        """
-//                    }
-//                }
-//            }
-//        }
-//        stage('Acceptance Tests') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend acceptance-tests'
-//            }
-//        }
-//        stage('Sonar') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
-//                    sh """
-//                        branchName=${env.BRANCH_NAME}
-//                        echo \"Branch name: \${branchName}\"
-//                        bin/devcontrol.sh backend sonar \$branchName
-//                    """
-//                }
-//            }
-//        }
+        stage('Build') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend build'
+            }
+        }
+        stage('Unit tests') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend unit-tests'
+            }
+        }
+        stage('Integration tests') {
+            agent { label 'docker'}
+            steps {
+                script {
+                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
+                        sh """
+                        sleep 5
+                        docker exec ${c.id} apk add openjdk11-jdk maven bash
+                        docker exec ${c.id} chmod 777 /var/run/docker.sock
+                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
+                        """
+                    }
+                }
+            }
+        }
+        stage('Acceptance Tests') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend acceptance-tests'
+            }
+        }
+        stage('Sonar') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonarcloud_login', variable: 'sonarcloud_login')]) {
+                    sh """
+                        branchName=${env.BRANCH_NAME}
+                        echo \"Branch name: \${branchName}\"
+                        bin/devcontrol.sh backend sonar \$branchName
+                    """
+                }
+            }
+        }
         stage('Package JAR') {
             agent {
                 docker {
@@ -113,6 +116,7 @@ pipeline {
         }
         stage("Docker Publish") {
             agent { label 'docker' }
+            when { branch 'develop' }
             steps {
                 script {
                     env.COMMIT_HASH = "${GIT_COMMIT}"
@@ -139,6 +143,7 @@ pipeline {
                     dir 'backend/docker/build/aws'
                 }
             }
+            when { branch 'develop' }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh """

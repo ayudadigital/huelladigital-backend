@@ -119,10 +119,8 @@ pipeline {
             when { branch 'develop' }
             steps {
                 script {
-                    env.COMMIT_HASH = "${GIT_COMMIT}"
-                    env.DOCKER_TAG = "${BUILD_NUMBER}"
+                    env.DOCKER_TAG = "${GIT_COMMIT}"
                 }
-                sh "echo \"Building commit hash: ${env.COMMIT_HASH}\""
                 sh "echo \"Building tag: ${env.DOCKER_TAG}\""
                 buildAndPublishDockerImages("${env.DOCKER_TAG}")
             }

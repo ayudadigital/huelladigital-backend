@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -20,7 +19,7 @@ public class ESALRequestDto {
             example = "Canarias para todos"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String name;
 
     @Schema(
@@ -35,7 +34,7 @@ public class ESALRequestDto {
             description = "ESAL's website",
             example = "https://www.foo-bar.com/"
     )
-    @NotEmpty
+    @NotBlank
     @Size(max = 255)
     private final String website;
 
@@ -47,7 +46,7 @@ public class ESALRequestDto {
 
     @Schema(
             description = "Entity type of the ESAL",
-            example = "Asociacion"
+            example = "ASSOCIATION"
     )
     @NotBlank
     private final String entityType;

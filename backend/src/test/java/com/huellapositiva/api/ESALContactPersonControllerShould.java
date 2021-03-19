@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
+import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
@@ -26,6 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.*;
@@ -216,6 +219,7 @@ class ESALContactPersonControllerShould {
     void return_204_when_upload_photo_successfully_with_profile() throws Exception {
         JpaContactPerson contactPerson = testData.createESALJpaContactPersonWithProfile(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        String originalPhotoUrl = contactPerson.getContactPersonProfile().getPhotoUrl();
 
         InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
         mvc.perform(multipart("/api/v1/contactperson/profile/photo")
@@ -226,8 +230,12 @@ class ESALContactPersonControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        contactPerson = jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
-        assertThat(contactPerson.getContactPersonProfile().getPhotoUrl()).isNotNull();
+        JpaContactPerson updatedContactPerson =
+                jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
+        String updatedPhotoUrl = updatedContactPerson.getContactPersonProfile().getPhotoUrl();
+
+        assertThat(updatedPhotoUrl).isNotNull();
+        assertThat(updatedPhotoUrl).isNotEqualTo(originalPhotoUrl);
     }
 
     @Test
@@ -247,7 +255,6 @@ class ESALContactPersonControllerShould {
         contactPerson = jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
         assertThat(contactPerson.getContactPersonProfile().getPhotoUrl()).isNotNull();
     }
-
     @Test
     void return_400_when_the_photo_uploaded_is_too_big() throws Exception {
         testData.createESALJpaContactPersonWithProfile(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);

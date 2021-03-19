@@ -115,8 +115,10 @@ pipeline {
             agent { label 'docker' }
             steps {
                 script {
+                    env.COMMIT_HASH = "${GIT_COMMIT}"
                     env.DOCKER_TAG = "${BUILD_NUMBER}"
                 }
+                sh "echo \"Building commit hash: ${env.COMMIT_HASH}\""
                 sh "echo \"Building tag: ${env.DOCKER_TAG}\""
                 buildAndPublishDockerImages("${env.DOCKER_TAG}")
             }
@@ -134,16 +136,16 @@ pipeline {
             agent {
                 dockerfile {
                     filename 'Dockerfile'
-                    dir 'backend/docker/build/aws-ibai'
+                    dir 'backend/docker/build/aws'
                 }
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-ibai', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh """
                         echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
                         echo 'Deploying ... ======================================================='
                         export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-                        bin/deploy-aws-ibai.sh dev ${env.DOCKER_TAG}
+                        bin/deploy-aws.sh dev ${env.DOCKER_TAG}
                     """
                 }
             }

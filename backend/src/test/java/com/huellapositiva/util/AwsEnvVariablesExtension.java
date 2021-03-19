@@ -15,7 +15,7 @@ public class AwsEnvVariablesExtension implements BeforeAllCallback, BeforeEachCa
         log.debug("Executing custom before all");
         environmentVariables.set(SDKGlobalConfiguration.ACCESS_KEY_ENV_VAR, "dummyaccess");
         environmentVariables.set(SDKGlobalConfiguration.SECRET_KEY_ENV_VAR, "dummysecret");
-        environmentVariables.set(SDKGlobalConfiguration.AWS_REGION_ENV_VAR, "eu-west-1");
+        environmentVariables.set(SDKGlobalConfiguration.AWS_REGION_ENV_VAR, "us-east-1");
         environmentVariables.set("AWS_SES_ENDPOINT_HOST", "http://localhost:4579");
     }
 

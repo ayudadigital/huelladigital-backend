@@ -25,7 +25,7 @@ public class AwsStorageService implements StorageService {
 
     @Override
     public URL upload(String key, InputStream inputStream, String contentType) {
-        String bucketName = awsS3Properties.getBucketName();
+        String bucketName = awsS3Properties.getDataBucketName();
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(contentType);
         PutObjectRequest request = new PutObjectRequest(bucketName, key, inputStream, objectMetadata);

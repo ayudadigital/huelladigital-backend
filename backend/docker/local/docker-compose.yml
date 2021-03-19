@@ -18,10 +18,11 @@ services:
     container_name: "localstack-huellapositiva-local"
     image: localstack/localstack:0.11.5
     ports:
+      - "4583:4583"
       - "4579:4579"
       - "4572:4572"
     environment:
-      - SERVICES=ses:4579,s3:4572
+      - SERVICES=ses:4579,s3:4572,ssm:4583
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -35,7 +36,7 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=dummyaccess
       - AWS_SECRET_ACCESS_KEY=dummysecret
-      - AWS_DEFAULT_REGION=eu-west-1
+      - AWS_DEFAULT_REGION=us-east-1
       - AWS_LOCAL_BUCKET=backend-local
     entrypoint: /bin/sh -c
     command: >

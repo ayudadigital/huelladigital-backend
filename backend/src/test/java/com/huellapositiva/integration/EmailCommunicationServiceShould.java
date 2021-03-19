@@ -1,7 +1,7 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
+import com.huellapositiva.domain.service.EmailCommunicationService;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.infrastructure.orm.service.IssueService;
 import org.junit.jupiter.api.Test;

@@ -20,6 +20,6 @@ public class NoOpStorageService implements StorageService {
     @SneakyThrows
     @Override
     public URL upload(String key, InputStream inputStream, String contentType) {
-        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/no-op/" + key);
+        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getDataBucketName() + "/no-op/" + key);
     }
 }

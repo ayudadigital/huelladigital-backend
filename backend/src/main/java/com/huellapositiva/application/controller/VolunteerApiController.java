@@ -84,7 +84,6 @@ public class VolunteerApiController {
             }
     )
     @PostMapping
-    @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     public JwtResponseDto registerVolunteer(@Validated @RequestBody AuthenticationRequestDto dto, HttpServletResponse res) {
         try {
@@ -117,7 +116,7 @@ public class VolunteerApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "204",
                             description = "Ok, uploaded curriculum successfully"
                     ),
                     @ApiResponse(
@@ -136,8 +135,7 @@ public class VolunteerApiController {
     )
     @PostMapping(path = "/profile/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadCurriculumVitae(@RequestPart("cv") MultipartFile cv,
                                       @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
@@ -182,7 +180,6 @@ public class VolunteerApiController {
     )
     @PostMapping(path = "/profile/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
-    @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
@@ -255,7 +252,7 @@ public class VolunteerApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "204",
                             description = "Ok, update information user profile"
                     ),
                     @ApiResponse(
@@ -274,7 +271,6 @@ public class VolunteerApiController {
     )
     @PostMapping("/profile")
     @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
-    @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
@@ -307,7 +303,6 @@ public class VolunteerApiController {
     )
     @PostMapping("/profile/newsletter")
     @RolesAllowed("VOLUNTEER")
-    @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeStatusNewsletterSubscription(@RequestBody UpdateNewsletterSubscriptionDto newsletterSubscriptionDto,
                                                    @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {

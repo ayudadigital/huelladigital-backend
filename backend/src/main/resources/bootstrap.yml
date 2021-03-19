@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: backend
+
+aws:
+  paramstore:
+    enabled: false
+    failFast: true
+
+cloud:
+  aws:
+    region:
+      static: us-east-1

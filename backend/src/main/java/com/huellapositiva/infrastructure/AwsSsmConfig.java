@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
 @Slf4j
-@Profile("test-ssm")
 @BootstrapConfiguration
 public class AwsSsmConfig {
 

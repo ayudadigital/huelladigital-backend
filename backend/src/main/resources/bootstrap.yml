@@ -6,6 +6,8 @@ aws:
   paramstore:
     enabled: false
     failFast: false
+  ssm:
+    endpoint: http://localhost:4583
 
 cloud:
   aws:

@@ -11,7 +11,6 @@ import javax.validation.constraints.Size;
 @Builder
 @AllArgsConstructor
 public class ProposalCancelReasonDto {
-
     @Size(max = 500)
     @Schema(
             description = "Reason for cancelling proposal",

@@ -30,9 +30,7 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;

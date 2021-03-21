@@ -1134,7 +1134,7 @@ class ProposalControllerShould {
         JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
         ChangeToInadequateDto dto = new ChangeToInadequateDto("Pandemia");
 
-        mvc.perform(post(format(FETCH_PROPOSAL_URI + "%s/status/inadequate", jpaProposal.getId()))
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "%s/status/inadequate", jpaProposal.getId()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)

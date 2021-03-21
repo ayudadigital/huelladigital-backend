@@ -16,8 +16,8 @@ public class App implements CommandLineRunner {
     @Autowired
     private Environment env;
 
-    @Value("${aws.s3.buckets.data}")
-    private String dataBucketName;
+    @Value("${spring.datasource.url}")
+    private String datasourceUrl;
 
     @Autowired
     private ReviserService reviserService;
@@ -28,7 +28,7 @@ public class App implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), dataBucketName);
+        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), datasourceUrl);
         reviserService.createDefaultReviser();
     }
 }

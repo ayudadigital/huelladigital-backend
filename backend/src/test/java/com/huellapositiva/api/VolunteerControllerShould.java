@@ -199,7 +199,7 @@ class VolunteerControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();
@@ -217,7 +217,7 @@ class VolunteerControllerShould {
                 .contentType(MULTIPART_FORM_DATA)
                 .with(csrf())
                 .accept(APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialLocationAndProfile(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getCurriculumVitaeUrl()).isNotNull();

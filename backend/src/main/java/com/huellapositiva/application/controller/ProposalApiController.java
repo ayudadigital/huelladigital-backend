@@ -636,7 +636,9 @@ public class ProposalApiController {
                                @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         try {
             updateProposalAction.execute(updateProposalRequestDto, accountId);
-        } catch (ParseException | InvalidProposalCategoryException e) {
+        } catch (ParseException |
+                InvalidProposalCategoryException |
+                InvalidProposalRequestException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (ProposalNotLinkedWithContactPersonException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());

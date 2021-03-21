@@ -15,16 +15,16 @@ public class AgeRange {
         this.maximum = maximum;
     }
 
-    public boolean isOnRange(int age) {
+    /*public boolean isOnRange(int age) {
         return age > minimum && age < maximum;
-    }
+    }*/
 
     public static AgeRange create(int minimum, int maximum) {
         validateAge(minimum, maximum);
         return new AgeRange(minimum, maximum);
     }
 
-    public static AgeRange create(String ageMinimum, String ageMaximum) {
+    /*public static AgeRange create(String ageMinimum, String ageMaximum) {
         if (isNotNumeric(ageMinimum) || isNotNumeric(ageMaximum)) {
             throw new InvalidProposalRequestException("The age is not valid type");
         }
@@ -34,7 +34,7 @@ public class AgeRange {
         validateAge(minimum, maximum);
 
         return new AgeRange(minimum, maximum);
-    }
+    }*/
 
     private static void validateAge(int minimum, int maximum) {
         if (minimum < 18 || maximum > 80) {
@@ -45,7 +45,7 @@ public class AgeRange {
         }
     }
 
-    private static boolean isNotNumeric(String str) {
+    /*private static boolean isNotNumeric(String str) {
         return !str.matches("\\d+");
-    }
+    }*/
 }

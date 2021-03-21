@@ -33,7 +33,7 @@ public class AwsSsmConfig {
     @Bean
     @Profile("dev-alt")
     public AWSSimpleSystemsManagement devAlternateSimpleSystemsManagement() {
-        log.info("Setting up parameter-store in {} region ...", region);
+        log.info("Setting up lazy parameter-store in {} region ...", region);
         return AWSSimpleSystemsManagementClientBuilder.standard()
                 .withRegion(region)
                 .build();

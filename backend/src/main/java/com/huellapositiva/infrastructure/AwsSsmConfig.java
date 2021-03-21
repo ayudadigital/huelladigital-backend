@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure;
 
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
@@ -26,7 +26,16 @@ public class AwsSsmConfig {
     public AWSSimpleSystemsManagement awsSimpleSystemsManagement() {
         log.info("Setting up parameter-store in {} region ...", region);
         return AWSSimpleSystemsManagementClientBuilder.standard()
-                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
+                .withCredentials(new EC2ContainerCredentialsProviderWrapper())
+                .withRegion(region)
+                .build();
+    }
+
+    @Bean
+    @Profile("dev-alt")
+    public AWSSimpleSystemsManagement devAlternateSimpleSystemsManagement() {
+        log.info("Setting up parameter-store in {} region ...", region);
+        return AWSSimpleSystemsManagementClientBuilder.standard()
                 .withRegion(region)
                 .build();
     }

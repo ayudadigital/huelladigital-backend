@@ -36,7 +36,7 @@ public class AwsS3Config {
     }
 
     @Bean
-    @Profile("!dev & !prod")
+    @Profile("!dev & !dev-alt & !prod")
     public AmazonS3 getLocalstackAwsS3Client() {
         log.info("Localstack Amazon S3 client enabled, Using {}", awsS3Properties);
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()

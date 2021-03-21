@@ -5,7 +5,9 @@ spring:
 aws:
   paramstore:
     enabled: false
-    failFast: true
+    failFast: false
+  ssm:
+    endpoint: http://localhost:4583
 
 cloud:
   aws:

@@ -30,7 +30,7 @@ public class EmailConfig {
     }
 
     @Bean
-    @Profile("!dev & !prod")
+    @Profile("!dev & !dev-alt & !prod")
     public AmazonSimpleEmailService getLocalstackAwsSesClient() {
         log.info("Localstack AWS SES client enabled");
         return AmazonSimpleEmailServiceClientBuilder.standard()

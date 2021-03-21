@@ -1,7 +1,6 @@
 package com.huellapositiva.infrastructure.orm.repository;
 
-import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
-import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
+import com.huellapositiva.infrastructure.orm.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +34,7 @@ public interface JpaContactPersonRepository extends JpaRepository<JpaContactPers
 
     @Query("FROM JpaContactPerson cp LEFT JOIN FETCH cp.joinedEsal je WHERE je.id = :id")
     Optional<JpaContactPerson> findByEsalId(@Param("id") String id);
+
+    @Query("FROM JpaContactPerson cp LEFT JOIN FETCH cp.contactPersonProfile p LEFT JOIN FETCH cp.credential c WHERE c.id = :accountId")
+    Optional<JpaContactPerson> findByAccountIdWithProfile(@Param("accountId") String accountId);
 }

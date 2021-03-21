@@ -263,6 +263,11 @@ public class TestData {
         return jpaContactPersonRepository.save(contactPerson);
     }
 
+    public JpaContactPerson createESALJpaContactPersonWithProfile(String name, String surname, String phone_number, String email, String password){
+        createESALJpaContactPerson(name, surname, phone_number, email, password);
+        return createContactPersonProfile(email);
+    }
+
     public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
         String id = createJpaESAL(esal).getId();
         jpaContactPersonRepository.updateJoinedESAL(contactPerson.getId(), esal);
@@ -543,6 +548,22 @@ public class TestData {
         jpaVolunteer.setLocation(jpaLocation);
 
         return jpaVolunteer;
+    }
+
+    private JpaContactPerson createContactPersonProfile(String email) {
+        JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
+                .id(Id.newId().toString())
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .photoUrl("Una direccion ahi")
+                .build();
+        jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
+
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        jpaContactPerson.setContactPersonProfile(jpaContactPersonProfile);
+
+        return jpaContactPerson;
     }
 
     private JpaVolunteer createSubscribedVolunteerProfile(String email) {

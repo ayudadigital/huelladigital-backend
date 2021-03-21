@@ -63,6 +63,20 @@ public class RemoteStorageService {
     }
 
     /**
+     * This method reads the bytes from the photo of a contact person and uploads it to the storage service
+     *
+     * @param photo New photo uploaded to the application
+     * @param contactPersonId Id of the contact person stored in database
+     * @return URL with the photo location in the storage
+     * @throws IOException Exception occurred while uploading the image to the cloud
+     */
+    public URL uploadContactPersonPhoto(MultipartFile photo, String contactPersonId) throws IOException {
+        String destinationFileName = Id.newId() + getExtension(photo.getOriginalFilename());
+        String contactPersonPhotoRootKey = "photo/contactPerson/" + contactPersonId + '/';
+        return storageService.upload(contactPersonPhotoRootKey + destinationFileName, photo.getInputStream(), photo.getContentType());
+    }
+
+    /**
      * This method reads the bytes from the excel and uploads it to the storage service
      *
      * @param excel InputStream uploaded to the application
@@ -88,4 +102,5 @@ public class RemoteStorageService {
         String volunteerPhotoRootKey = "logo/esal/" + esalId + '/';
         return storageService.upload(volunteerPhotoRootKey + destinationFileName, logo.getInputStream(), logo.getContentType());
     }
+
 }

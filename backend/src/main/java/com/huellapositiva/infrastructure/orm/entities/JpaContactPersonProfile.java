@@ -31,4 +31,7 @@ public class JpaContactPersonProfile implements Serializable {
 
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
 }

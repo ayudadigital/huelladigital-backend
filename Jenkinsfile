@@ -21,9 +21,8 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
     docker.withRegistry('', 'docker-token') {
         def customImage = docker.build("${env.DOCKER_ORGANIZATION}/huelladigital-backend:${nextReleaseNumber}", '--pull --no-cache backend')
         customImage.push()
-        if (nextReleaseNumber != 'beta') {
-            customImage.push('latest')
-        }
+        customImage.push('beta') // Leave for compatibility with default deployment environment
+        customImage.push('latest')
     }
 }
 

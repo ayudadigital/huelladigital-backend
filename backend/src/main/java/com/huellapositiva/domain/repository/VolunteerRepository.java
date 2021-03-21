@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.NoSuchElementException;
 
 import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_CONFIRMED;
 
@@ -112,19 +111,18 @@ public class VolunteerRepository {
      */
     public void updatePhoto(Volunteer volunteer) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findById(volunteer.getId().toString())
-                .orElseThrow(() -> new NoSuchElementException("No exists volunteer with: " + volunteer.getId()));
+                .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Volunteer Id: " + volunteer.getId()));
 
-        boolean profileIsNull = jpaVolunteer.getProfile() == null;
-        if (profileIsNull) {
-            JpaProfile jpaProfile = JpaProfile.builder()
+        JpaProfile jpaProfile = jpaVolunteer.getProfile();
+        if (jpaProfile == null) {
+            jpaProfile = JpaProfile.builder()
                     .id(Id.newId().toString())
-                    .photoUrl(volunteer.getPhoto().toExternalForm())
                     .build();
-            jpaProfileRepository.save(jpaProfile);
-            jpaVolunteer.setProfile(jpaProfile);
-        } else {
-            jpaVolunteer.getProfile().setPhotoUrl(volunteer.getPhoto().toExternalForm());
         }
+        jpaProfile.setPhotoUrl(volunteer.getPhoto().toExternalForm());
+        jpaProfileRepository.save(jpaProfile);
+
+        jpaVolunteer.setProfile(jpaProfile);
         jpaVolunteerRepository.save(jpaVolunteer);
     }
 }

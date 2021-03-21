@@ -4,6 +4,7 @@ import cloud.localstack.docker.LocalstackDockerExtension;
 import cloud.localstack.docker.annotation.LocalstackDockerProperties;
 import com.huellapositiva.infrastructure.AwsStorageService;
 import com.huellapositiva.util.AwsEnvVariablesExtension;
+import com.huellapositiva.util.DockerCondition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
+@ExtendWith(DockerCondition.class)
 @ExtendWith(AwsEnvVariablesExtension.class)
 @ExtendWith(LocalstackDockerExtension.class)
 @LocalstackDockerProperties(services = { "s3" }, imageTag = "0.11.5")

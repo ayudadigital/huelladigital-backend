@@ -17,7 +17,7 @@ public class RegisterESALMemberRequestDto {
             example = "Guajiro Ermenegildo"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String name;
 
     @Schema(
@@ -25,7 +25,7 @@ public class RegisterESALMemberRequestDto {
             example = "Sánchez Inmaculado"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String surname;
 
     @Schema(

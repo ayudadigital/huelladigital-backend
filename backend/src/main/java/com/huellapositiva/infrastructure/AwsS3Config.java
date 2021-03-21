@@ -1,5 +1,6 @@
 package com.huellapositiva.infrastructure;
 
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -23,12 +24,13 @@ public class AwsS3Config {
     @Bean
     @Profile({"dev", "prod"})
     public AmazonS3 getAwsS3Client() {
-        log.info("Amazon S3 client enabled");
+        log.info("Amazon S3 client enabled. Using {}", awsS3Properties);
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()
+                .withCredentials(new EC2ContainerCredentialsProviderWrapper())
                 .withRegion(awsS3Properties.getRegion())
                 .build();
 
-        failIfBucketDoesNotExist(s3client, awsS3Properties.getBucketName());
+        failIfBucketDoesNotExist(s3client, awsS3Properties.getDataBucketName());
 
         return s3client;
     }
@@ -36,16 +38,16 @@ public class AwsS3Config {
     @Bean
     @Profile("!dev & !prod")
     public AmazonS3 getLocalstackAwsS3Client() {
-        log.info("Localstack Amazon S3 client enabled");
+        log.info("Localstack Amazon S3 client enabled, Using {}", awsS3Properties);
         AmazonS3 s3client = AmazonS3ClientBuilder.standard()
                 .withPathStyleAccessEnabled(true)
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsS3Properties.getEndpoint(), awsS3Properties.getRegion()))
                 .build();
 
-        if(!s3client.doesBucketExistV2(awsS3Properties.getBucketName())) {
-            CreateBucketRequest request = new CreateBucketRequest(awsS3Properties.getBucketName());
+        if(!s3client.doesBucketExistV2(awsS3Properties.getDataBucketName())) {
+            CreateBucketRequest request = new CreateBucketRequest(awsS3Properties.getDataBucketName());
             request.setCannedAcl(CannedAccessControlList.Private);
-            s3client.createBucket(new CreateBucketRequest(awsS3Properties.getBucketName()));
+            s3client.createBucket(new CreateBucketRequest(awsS3Properties.getDataBucketName()));
         }
 
         return s3client;
@@ -53,7 +55,7 @@ public class AwsS3Config {
 
     private void failIfBucketDoesNotExist(AmazonS3 s3client, String bucketName) {
         if(!s3client.doesBucketExistV2(bucketName)) {
-            throw new IllegalStateException("Bucket called " + bucketName + " does not exist.");
+            throw new IllegalStateException("Bucket " + bucketName + " does not exist.");
         }
     }
 }

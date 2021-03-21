@@ -12,6 +12,7 @@
     <!-- To see more logs set one of these to DEBUG -> Careful too spammy but you will learn a lot about Spring -->
     <logger name="org.springframework" level="INFO"/>
     <logger name="org.springframework.transaction" level="INFO"/>
+    <logger name="org.springframework.web.servlet.DispatcherServlet" level="DEBUG"/>
     <logger name="org.springframework.web.servlet.mvc" level="INFO"/>
     <logger name="org.springframework.security" level="INFO"/>
 

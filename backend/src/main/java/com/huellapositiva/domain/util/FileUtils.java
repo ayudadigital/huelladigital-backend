@@ -1,5 +1,14 @@
 package com.huellapositiva.domain.util;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
+@Slf4j
 public class FileUtils {
 
     private FileUtils() {
@@ -18,5 +27,14 @@ public class FileUtils {
             return index != -1  && fileName.substring(index).trim().length() > 1 ? fileName.substring(index) : "";
         }
         return "";
+    }
+
+    public static String getResourceContent(String relativePath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource(relativePath).getInputStream()))) {
+            return reader.lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            log.error("Failed to open resource file {}", relativePath, e);
+            throw e;
+        }
     }
 }

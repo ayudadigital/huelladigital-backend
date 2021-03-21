@@ -25,7 +25,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
 import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -508,7 +509,7 @@ public class TestData {
 
     @SneakyThrows
     public URL createMockImageUrl() {
-        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
+        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getDataBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
     }
 
     public MultipartFile createMockMultipartFile() {

@@ -1357,7 +1357,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_409_when_tries_update_proposal_with_wrong_contact_person() throws Exception {
+    void return_403_when_tries_update_proposal_with_wrong_contact_person() throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
@@ -1389,7 +1389,7 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest

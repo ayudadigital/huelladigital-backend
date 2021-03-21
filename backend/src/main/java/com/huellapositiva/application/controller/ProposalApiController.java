@@ -638,11 +638,12 @@ public class ProposalApiController {
             updateProposalAction.execute(updateProposalRequestDto, accountId);
         } catch (ParseException | InvalidProposalCategoryException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (ProposalNotLinkedWithContactPersonException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         } catch (UserNotFoundException | EntityNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (SkillAlreadyExistsException |
                 RequirementAlreadyExistsException |
-                ProposalNotLinkedWithContactPersonException |
                 InvalidProposalStatusException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }

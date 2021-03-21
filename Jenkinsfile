@@ -21,9 +21,8 @@ def buildAndPublishDockerImages(String nextReleaseNumber='') {
     docker.withRegistry('', 'docker-token') {
         def customImage = docker.build("${env.DOCKER_ORGANIZATION}/huelladigital-backend:${nextReleaseNumber}", '--pull --no-cache backend')
         customImage.push()
-        if (nextReleaseNumber != 'beta') {
-            customImage.push('latest')
-        }
+        customImage.push('beta') // Leave for compatibility with default deployment environment
+        customImage.push('latest')
     }
 }
 
@@ -118,7 +117,11 @@ pipeline {
             agent { label 'docker' }
             when { branch 'develop' }
             steps {
-                buildAndPublishDockerImages('beta')
+                script {
+                    env.DOCKER_TAG = "${GIT_COMMIT}"
+                }
+                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
+                buildAndPublishDockerImages("${env.DOCKER_TAG}")
             }
         }
         stage("Remote deploy") {
@@ -127,6 +130,25 @@ pipeline {
             steps {
                 sshagent (credentials: ['jpl-ssh-credentials']) {
                     sh "bin/deploy.sh dev"
+                }
+            }
+        }
+        stage("AWS deploy") {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile'
+                    dir 'backend/docker/build/aws'
+                }
+            }
+            when { branch 'develop' }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh """
+                        echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
+                        echo 'Deploying ... ======================================================='
+                        export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+                        bin/deploy-aws.sh dev ${env.DOCKER_TAG}
+                    """
                 }
             }
         }

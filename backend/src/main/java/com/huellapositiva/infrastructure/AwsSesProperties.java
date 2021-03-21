@@ -9,10 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix="aws.ses")
 class AwsSesProperties {
 
-    private String accessKey;
-
-    private String secretKey;
-
     private String endpoint;
 
     private String region;

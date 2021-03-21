@@ -26,8 +26,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
@@ -36,10 +38,13 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createCl
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -534,7 +539,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -557,7 +562,7 @@ class ProposalControllerShould {
         ProposalRevisionDto revisionDto = new ProposalRevisionDto(null);
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + proposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -575,7 +580,7 @@ class ProposalControllerShould {
         String nonExistingProposalId = "abcdefg";
 
         // WHEN + THEN
-        mvc.perform(post("/api/v1/proposals/revision/" + nonExistingProposalId)
+        mvc.perform(post(format("/api/v1/proposals/%s/revision/", nonExistingProposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(revisionDto))
                 .with(csrf())
@@ -711,7 +716,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -733,7 +738,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -754,7 +759,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -775,7 +780,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -796,7 +801,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
 
         //WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/cancel")
+        mvc.perform(post(FETCH_PROPOSAL_URI + proposalId + "/status/cancel")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(new ProposalCancelReasonDto(DEFAULT_CANCEL_REASON)))
                 .with(csrf())
@@ -837,19 +842,64 @@ class ProposalControllerShould {
         assertThat(volunteersProposalsModified.get(1).isConfirmed()).isTrue();
     }
 
+    @Test
+    void return_204_when_update_proposal_to_enrollment_closed_successfully() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(PUBLISHED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", proposalId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(ENROLLMENT_CLOSED.getId());
+    }
+
     @ParameterizedTest
-    @MethodSource("provideGoodProposalStatus")
+    @MethodSource("provideEnrollmentNotCloseableStatus")
+    void return_409_when_proposal_status_is_not_published(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/close", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideEnrollmentNotCloseableStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                ENROLLMENT_CLOSED,
+                REVIEW_PENDING
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("providePublishableStatus")
     void return_204_when_update_proposal_to_published_successfully(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         String proposalId = testData.registerESALAndProposal(proposalStatus).getId();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(proposalId);
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -860,7 +910,7 @@ class ProposalControllerShould {
         assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
     }
 
-    private static Stream<ProposalStatus> provideGoodProposalStatus() {
+    private static Stream<ProposalStatus> providePublishableStatus() {
         return Stream.of(
                 REVIEW_PENDING,
                 ENROLLMENT_CLOSED
@@ -868,18 +918,17 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideBadProposalStatus")
-    void return_409_when_proposal_status_is_no_review_pending(ProposalStatus proposalStatus) throws Exception {
+    @MethodSource("provideNotPublishableStatus")
+    void return_409_when_proposal_status_is_no_review_pending_or_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
         //GIVEN
         testData.createCredential(DEFAULT_EMAIL_REVISER, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL_REVISER, DEFAULT_PASSWORD);
-        ChangeStatusProposalRequestDto dto = new ChangeStatusProposalRequestDto(jpaProposal.getId());
 
         //WHEN + THEN
-        mvc.perform(put(FETCH_PROPOSAL_URI + "/publish")
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(dto))
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -887,13 +936,175 @@ class ProposalControllerShould {
                 .andReturn().getResponse();
     }
 
-    private static Stream<ProposalStatus> provideBadProposalStatus() {
+    private static Stream<ProposalStatus> provideNotPublishableStatus() {
         return Stream.of(
                 CHANGES_REQUESTED,
                 CANCELLED,
                 INADEQUATE,
                 FINISHED
         );
+    }
+
+    @Test
+    void return_204_when_update_proposal_to_published_successfully_from_enrollment_closed() throws Exception {
+        //GIVEN
+        String proposalId = testData.registerESALAndProposal(ENROLLMENT_CLOSED).getId();
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", proposalId))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andReturn().getResponse();
+
+        JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideNotPublishableFromEnrollmentClosedStatus")
+    void return_409_when_proposal_status_is_not_enrollment_closed(ProposalStatus proposalStatus) throws Exception {
+        //GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(proposalStatus);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        //WHEN + THEN
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/publish", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andReturn().getResponse();
+    }
+
+    private static Stream<ProposalStatus> provideNotPublishableFromEnrollmentClosedStatus() {
+        return Stream.of(
+                CHANGES_REQUESTED,
+                CANCELLED,
+                INADEQUATE,
+                FINISHED,
+                PUBLISHED,
+                REVIEW_PENDING
+        );
+    }
+
+    @Test
+    void return_204_when_proposal_image_changed_successfully() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaProposal jpaProposal1 = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal1.getImageUrl()).isNotNull();
+    }
+
+    @Test
+    void return_400_when_proposal_status_is_different_from_published_or_review_pending() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(INADEQUATE);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidImages")
+    void return_400_when_the_proposal_image_uploaded_is_too_big(List<String> proposalImageURI) throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        MockMultipartFile file = new MockMultipartFile("proposalImage", proposalImageURI.get(0),
+                proposalImageURI.get(1), getClass().getClassLoader().getResourceAsStream(proposalImageURI.get(0)));
+
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(file)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<List<String>> provideInvalidImages(){
+        return Stream.of(
+                List.of("images/Sample-png-image-3mb.png","image/png"),
+                List.of("images/oversized.png","image/png"),
+                List.of("documents/pdf-test.pdf","application/pdf")
+        );
+    }
+
+    @Test
+    void return_400_when_there_is_not_photo_uploaded() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("proposalImage", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_403_when_contact_person_email_is_not_equal_to_proposal_contact_person_email() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 
     @Test

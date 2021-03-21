@@ -20,7 +20,7 @@ public class UpdateProfileRequestDto {
             example = "Fernando Arnaldo"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String name;
 
     @Schema(
@@ -28,7 +28,7 @@ public class UpdateProfileRequestDto {
             example = "Santana Guajiro"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String surname;
 
     @Schema(
@@ -72,7 +72,7 @@ public class UpdateProfileRequestDto {
             description = "Where the user lives",
             example = "Agaete"
     )
-    @Pattern(regexp = "^[a-zA-Z ]*$")
+    @Pattern(regexp = "^[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ ]+$")
     private final String town;
 
     @Schema(
@@ -93,21 +93,21 @@ public class UpdateProfileRequestDto {
             description = "User's URL twitter",
             example = "https://twitter.com/foo-bar"
     )
-    @Pattern(regexp = "^https?://(www.)?twitter.com/[-a-zA-Z0-9+&@#%=~_|]+")
+    @Pattern(regexp = "^https?://(www.)?twitter.com/[-a-zA-Z0-9+&@#%=~_|]+/?")
     private final String twitter;
 
     @Schema(
             description = "User's URL instagram",
             example = "https://instagram.com/foo-bar"
     )
-    @Pattern(regexp = "^https?://(www.)?instagram.com/[-a-zA-Z0-9+&@#%=~_|]*")
+    @Pattern(regexp = "^https?://(www.)?instagram.com/[-a-zA-Z0-9+&@#%=~_|]*/?")
     private final String instagram;
 
     @Schema(
             description = "User's URL linkedin",
             example = "https://linkedin.com/in/foo-bar"
     )
-    @Pattern(regexp = "^https?://(www.)?linkedin.com/in/[-a-zA-Z0-9+&@#%=~_|]*")
+    @Pattern(regexp = "^https?://(www.)?linkedin.com/in/[-a-zA-Z0-9+&@#%=~_|]*/?")
     private final String linkedin;
 
     @Schema(

@@ -25,7 +25,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
-import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.PUBLISHED;
+import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.REVIEW_PENDING;
 import static com.huellapositiva.domain.model.valueobjects.Roles.REVISER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -52,6 +53,8 @@ public class TestData {
     public static final String DEFAULT_PASSWORD = "plainPassword";
 
     public static final String DEFAULT_ESAL = "Huella Digital";
+
+    public static final String DEFAULT_ENTITY_TYPE = "ASSOCIATION";
 
     public static final String UUID_REGEX = "\\b[0-9a-f]{8}\\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\\b[0-9a-f]{12}\\b";
 
@@ -258,6 +261,11 @@ public class TestData {
                 .contactPersonProfile(jpaContactPersonProfile)
                 .build();
         return jpaContactPersonRepository.save(contactPerson);
+    }
+
+    public JpaContactPerson createESALJpaContactPersonWithProfile(String name, String surname, String phone_number, String email, String password){
+        createESALJpaContactPerson(name, surname, phone_number, email, password);
+        return createContactPersonProfile(email);
     }
 
     public String createAndLinkESAL(JpaContactPerson contactPerson, JpaESAL esal) {
@@ -492,7 +500,7 @@ public class TestData {
 
     @SneakyThrows
     public URL createMockImageUrl() {
-        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
+        return new URL(awsS3Properties.getEndpoint() + '/' + awsS3Properties.getDataBucketName() + "/test-data/" + UUID.randomUUID() + ".png");
     }
 
     public MultipartFile createMockMultipartFile() {
@@ -540,6 +548,22 @@ public class TestData {
         jpaVolunteer.setLocation(jpaLocation);
 
         return jpaVolunteer;
+    }
+
+    private JpaContactPerson createContactPersonProfile(String email) {
+        JpaContactPersonProfile jpaContactPersonProfile = JpaContactPersonProfile.builder()
+                .id(Id.newId().toString())
+                .name("nombre")
+                .surname("apellidos")
+                .phoneNumber("12412412125")
+                .photoUrl("Una direccion ahi")
+                .build();
+        jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
+
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        jpaContactPerson.setContactPersonProfile(jpaContactPersonProfile);
+
+        return jpaContactPerson;
     }
 
     private JpaVolunteer createSubscribedVolunteerProfile(String email) {

@@ -1,6 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 import com.huellapositiva.application.dto.ProposalCancelReasonDto;
+import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static java.lang.String.format;
 
 @Service
 public class CancelProposalAction {
@@ -33,7 +35,7 @@ public class CancelProposalAction {
         JpaProposal proposal = jpaProposalRepository.findByNaturalId(id).orElseThrow(EntityNotFoundException::new);
         Integer status = proposal.getStatus().getId();
         if (status.equals(FINISHED.getId()) || status.equals(INADEQUATE.getId()) || status.equals(CANCELLED.getId())) {
-            throw new IllegalStateException();
+            throw new InvalidProposalStatusException(format("Invalid proposal transition status from %s to %s", proposal.getStatus(), CANCELLED));
         }
         JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
                 .id(ProposalStatus.CANCELLED.getId())

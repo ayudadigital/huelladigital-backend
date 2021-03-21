@@ -1,0 +1,6 @@
+Le informamos que la convocatoria con título ${TITLE} ha sido estimada como inadecuada. Los motivos de esta decisión
+son los siguientes:
+
+${REASON}
+
+Un cordial saludo.

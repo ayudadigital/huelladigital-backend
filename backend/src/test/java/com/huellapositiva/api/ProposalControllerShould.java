@@ -30,7 +30,9 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -109,7 +111,6 @@ class ProposalControllerShould {
     @Test
     void return_400_when_date_is_invalid_when_creating_a_proposal() throws Exception {
         // GIVEN
-
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         String invalidStartingDate = "20-01-2021";
@@ -568,7 +569,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed());
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -731,7 +732,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_cancel_a_finished_proposal() throws Exception {
+    void return_409_when_cancel_a_finished_proposal() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndProposal(FINISHED).getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -744,7 +745,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed())
+                .andExpect(status().isConflict())
                 .andReturn().getResponse();
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
@@ -752,7 +753,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_cancel_an_inadequate_proposal() throws Exception {
+    void return_409_when_cancel_an_inadequate_proposal() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndProposal(INADEQUATE).getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -765,7 +766,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed())
+                .andExpect(status().isConflict())
                 .andReturn().getResponse();
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
@@ -773,7 +774,7 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_412_when_cancel_an_already_cancelled_proposal() throws Exception {
+    void return_409_when_cancel_an_already_cancelled_proposal() throws Exception {
         //GIVEN
         String proposalId = testData.registerESALAndProposal(CANCELLED).getId();
         testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
@@ -786,7 +787,7 @@ class ProposalControllerShould {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isPreconditionFailed())
+                .andExpect(status().isConflict())
                 .andReturn().getResponse();
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(proposalId).orElseThrow(EntityNotFoundException::new);
@@ -1105,5 +1106,59 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void return_204_when_proposal_status_changed_to_inadequate() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        ChangeToInadequateDto dto = new ChangeToInadequateDto("Pandemia");
+
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "%s/status/inadequate", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(proposal.getStatus().getId()).isEqualTo(INADEQUATE.getId());
+    }
+
+    @Test
+    void return_409_when_changing_to_inadequate_a_proposal_not_in_review_pending() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        ChangeToInadequateDto dto = new ChangeToInadequateDto("Pandemia");
+
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "%s/status/inadequate", jpaProposal.getId()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(proposal.getStatus().getId()).isEqualTo(PUBLISHED.getId());
+    }
+
+    @Test
+    void return_404_when_changing_to_inadequate_a_non_existing_proposal() throws Exception {
+        testData.createCredential("revisor@huellapositiva.com", UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "revisor@huellapositiva.com", DEFAULT_PASSWORD);
+        ChangeToInadequateDto dto = new ChangeToInadequateDto("Pandemia");
+
+        mvc.perform(put(format(FETCH_PROPOSAL_URI + "/%s/status/inadequate", 999))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+
     }
 }

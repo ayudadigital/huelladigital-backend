@@ -334,8 +334,8 @@ public class ProposalApiController {
                             description = "Not found, requested proposal not found or not published."
                     ),
                     @ApiResponse(
-                            responseCode = "412",
-                            description = "Bad request. The ID is not in review pending."
+                            responseCode = "409",
+                            description = "Conflict. The ID is not in review pending."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -358,7 +358,7 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (InvalidProposalStatusException ex) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The ID is not in REVIEW_PENDING.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
     }
 
@@ -471,7 +471,7 @@ public class ProposalApiController {
                             description = "Requested proposal not found."
                     ),
                     @ApiResponse(
-                            responseCode = "412",
+                            responseCode = "409",
                             description = "Precondition failed, illegal status."
                     ),
                     @ApiResponse(
@@ -489,8 +489,8 @@ public class ProposalApiController {
             cancelProposalAction.executeByReviser(proposalId, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
-        } catch (IllegalStateException ex) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Status of proposal is not suitable for cancelling");
+        } catch (InvalidProposalStatusException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Status of proposal is not suitable for cancelling");
         }
     }
 
@@ -654,7 +654,7 @@ public class ProposalApiController {
             description = "The reviser decides to change the status of the proposal from review pending to inadequate after the revision",
             tags = {"proposals, reviser, contact person"},
             parameters = {
-                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
                     @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
             },
             security = {
@@ -668,12 +668,12 @@ public class ProposalApiController {
                             description = "No Content, proposal status changed to INADEQUATE successfully."
                     ),
                     @ApiResponse(
-                            responseCode = "400",
-                            description = "Bad request, changing the proposal status failed because the proposal was not in review pending."
-                    ),
-                    @ApiResponse(
                             responseCode = "404",
                             description = "Not Found, the proposal with the given id was not found in the database."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, changing the proposal status failed because the proposal was not in review pending."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -681,17 +681,18 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/changeStatusToInadequate")
+    @PutMapping("/{id}/status/inadequate")
     @RolesAllowed("REVISER")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changeStatusToInadequate(@RequestBody ChangeToInadequateDto dto,
+    public void changeStatusToInadequate(@PathVariable("id") String proposalId,
+                                         @RequestBody ChangeToInadequateDto dto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
         try {
-            changeStatusToInadequateAction.execute(dto);
+            changeStatusToInadequateAction.execute(dto, proposalId);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
-        } catch (IllegalStateException ex) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status of proposal is not suitable for changing to Inadequate");
+        } catch (InvalidProposalStatusException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
     }
 }

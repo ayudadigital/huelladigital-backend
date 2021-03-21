@@ -1,13 +1,15 @@
 package com.huellapositiva.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Value;
 
-@Data
-@Builder
-@AllArgsConstructor
-public class ChangeToInadequateDto {
-    String proposalId;
+import javax.validation.constraints.Size;
+
+@Value
+public class ChangeToInadequateDto {@Size(max = 500)
+    @Schema(
+            description = "Reason for set proposal to inadequate",
+            example = "Insufficient information provided."
+    )
     String reason;
 }

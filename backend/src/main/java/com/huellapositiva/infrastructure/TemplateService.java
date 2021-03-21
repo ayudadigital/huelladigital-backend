@@ -118,7 +118,7 @@ public class TemplateService {
     }
 
     public EmailTemplate getInadequateProposalEmailTemplate(String title, String reason){
-        String relativePath = "classpath:templates/emails/inadequateProposalEmail.txt";
+        String relativePath = "templates/emails/inadequateProposalEmail.txt";
         String template = getFileContent(relativePath);
         Map<String, String> variables = new HashMap<>();
         variables.put("TITLE", title);

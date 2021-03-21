@@ -35,6 +35,14 @@ public class ImageService {
 
     private static final int ESAL_LOGO_MAX_HEIGHT = 400;
 
+    private static final int PROPOSAL_IMAGE_MAX_BYTES = 1100000;
+
+    private static final int PROPOSAL_IMAGE_MAX_WIDTH = 400;
+
+    private static final int PROPOSAL_IMAGE_MAX_HEIGHT = 600;
+
+
+
     private void validateImage(MultipartFile photo,
                                int imageMaxBytes,
                                int imageMaxWidth,
@@ -80,5 +88,9 @@ public class ImageService {
      */
     public void validateEsalLogo(MultipartFile logo) throws IOException {
         validateImage(logo, ESAL_LOGO_MAX_BYTES, ESAL_LOGO_MAX_WIDTH, ESAL_LOGO_MAX_HEIGHT);
+    }
+
+    public void validateProposalImage(MultipartFile logo) throws IOException {
+        validateImage(logo, PROPOSAL_IMAGE_MAX_BYTES, PROPOSAL_IMAGE_MAX_WIDTH, PROPOSAL_IMAGE_MAX_HEIGHT);
     }
 }

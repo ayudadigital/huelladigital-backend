@@ -140,7 +140,7 @@ pipeline {
                     dir 'backend/docker/build/aws'
                 }
             }
-            when { branch 'develop' }
+//            when { branch 'develop' }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     sh """

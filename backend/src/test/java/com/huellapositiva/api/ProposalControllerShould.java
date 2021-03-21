@@ -25,8 +25,10 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Stream;
@@ -40,6 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -372,7 +376,7 @@ class ProposalControllerShould {
     void create_proposal_as_reviser() throws Exception {
         testData.createCredential(DEFAULT_EMAIL, UUID.randomUUID(), DEFAULT_PASSWORD, Roles.REVISER);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-      
+
         JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL("Huella Positiva"));
         ProposalRequestDto proposalDto = testData.buildProposalDto();
@@ -986,5 +990,120 @@ class ProposalControllerShould {
                 PUBLISHED,
                 REVIEW_PENDING
         );
+    }
+
+    @Test
+    void return_204_when_proposal_image_changed_successfully() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaProposal jpaProposal1 = jpaProposalRepository.findByNaturalId(jpaProposal.getId()).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaProposal1.getImageUrl()).isNotNull();
+    }
+
+    @Test
+    void return_400_when_proposal_status_is_different_from_published_or_review_pending() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(INADEQUATE);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidImages")
+    void return_400_when_the_proposal_image_uploaded_is_too_big(List<String> proposalImageURI) throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        MockMultipartFile file = new MockMultipartFile("proposalImage", proposalImageURI.get(0),
+                proposalImageURI.get(1), getClass().getClassLoader().getResourceAsStream(proposalImageURI.get(0)));
+
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(file)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<List<String>> provideInvalidImages(){
+        return Stream.of(
+                List.of("images/Sample-png-image-3mb.png","image/png"),
+                List.of("images/oversized.png","image/png"),
+                List.of("documents/pdf-test.pdf","application/pdf")
+        );
+    }
+
+    @Test
+    void return_400_when_there_is_not_photo_uploaded() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("proposalImage", "photo-test.PNG", "image/png", InputStream.nullInputStream()))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void return_403_when_contact_person_email_is_not_equal_to_proposal_contact_person_email() throws Exception {
+        JpaProposal jpaProposal = testData.registerESALAndProposal(PUBLISHED);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/huellapositiva-logo.png");
+        MockMultipartHttpServletRequestBuilder multipart = multipart(FETCH_PROPOSAL_URI + jpaProposal.getId() + "/image");
+        multipart.with(request -> {
+            request.setMethod("PUT");
+            return request;
+        });
+        mvc.perform(multipart
+                .file(new MockMultipartFile("photo", "photo-test.PNG", "image/png", is))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MULTIPART_FORM_DATA)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

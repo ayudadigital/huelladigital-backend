@@ -7,7 +7,10 @@ import com.huellapositiva.domain.exception.RequirementAlreadyExistsException;
 import com.huellapositiva.domain.exception.SkillAlreadyExistsException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
+import com.huellapositiva.domain.model.valueobjects.Id;
+import com.huellapositiva.domain.model.valueobjects.Requirement;
+import com.huellapositiva.domain.model.valueobjects.Skill;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -108,7 +111,7 @@ public class ProposalRepository {
                 .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
     }
 
-    private void save(Proposal proposal) {
+    public void save(Proposal proposal) {
         JpaLocation jpaLocation = jpaLocationRepository.save(JpaLocation.builder()
                 .id(proposal.getLocation().getId().toString())
                 .province(proposal.getLocation().getProvince())

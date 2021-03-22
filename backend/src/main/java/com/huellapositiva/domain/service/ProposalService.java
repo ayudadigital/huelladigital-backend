@@ -3,11 +3,6 @@ package com.huellapositiva.domain.service;
 import com.huellapositiva.application.dto.ProposalRevisionDto;
 import com.huellapositiva.application.dto.UpdateProposalRequestDto;
 import com.huellapositiva.application.exception.*;
-import com.huellapositiva.application.exception.ProposalNotPublishableException;
-import com.huellapositiva.application.exception.ProposalEnrollmentClosedException;
-import com.huellapositiva.application.exception.ProposalEnrollmentNotCloseableException;
-import com.huellapositiva.application.exception.ProposalNotPublishableException;
-import com.huellapositiva.application.exception.ProposalNotPublishedException;
 import com.huellapositiva.domain.dto.ChangeStatusToPublishedResult;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.exception.StatusNotFoundException;
@@ -16,12 +11,12 @@ import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ContactPersonRepository;
 import com.huellapositiva.domain.repository.CredentialsRepository;
 import com.huellapositiva.domain.repository.ProposalRepository;
-import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposalStatus;
-import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
+import com.huellapositiva.infrastructure.orm.repository.JpaCredentialRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
@@ -136,7 +131,7 @@ public class ProposalService {
         if (FINISHED.toString().equals(proposal.getStatus().toString()) ||
                 CANCELLED.toString().equals(proposal.getStatus().toString()) ||
                 INADEQUATE.toString().equals(proposal.getStatus().toString())) {
-            throw new InvalidProposalStatusException();
+            throw new InvalidProposalStatusException("Cannot update proposal with status " + proposal.getStatus());
         }
 
         proposal.setStatus(REVIEW_PENDING);

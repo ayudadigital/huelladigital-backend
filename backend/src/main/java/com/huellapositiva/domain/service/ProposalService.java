@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
+import static java.lang.String.format;
 
 @Slf4j
 @Service
@@ -94,7 +95,7 @@ public class ProposalService {
         Proposal proposal = proposalRepository.fetch(proposalId);
 
         if (ProposalStatus.REVIEW_PENDING.getId() != proposal.getStatus().getId()) {
-            throw new InvalidProposalStatusException();
+            throw new InvalidProposalStatusException(format("Invalid proposal transition status from %s to %s", REVIEW_PENDING, CHANGES_REQUESTED));
         }
 
         ESAL esal = proposal.getEsal();

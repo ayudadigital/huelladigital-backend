@@ -184,7 +184,7 @@ public class VolunteerApiController {
     public void uploadPhoto(@RequestPart("photo") MultipartFile photo,
                             @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
         try {
-            uploadPhotoAction.execute(photo, accountId);
+            uploadPhotoAction.executeAsVolunteer(photo, accountId);
         } catch (InvalidFieldException ex) {
             log.error(ex.getMessage());
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());

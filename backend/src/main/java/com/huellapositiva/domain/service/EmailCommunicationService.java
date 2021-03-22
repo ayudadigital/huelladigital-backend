@@ -124,4 +124,12 @@ public class EmailCommunicationService {
                 PROPOSAL_PUBLISHED_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }
+
+    public void sendInadequateProposalEmail(EmailAddress emailAddress, String title, String reason) {
+        final String INADEQUATE_PROPOSAL_EMAIL_SUBJECT = "Descarga de excel con voluntarios suscritos a la Newsletter";
+        EmailTemplate emailTemplate = templateService.getInadequateProposalEmailTemplate(title, reason);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, emailAddress.toString(),
+                INADEQUATE_PROPOSAL_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
 }

@@ -1,6 +1,6 @@
 package com.huellapositiva.infrastructure;
 
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.auth.EC2ContainerCredentialsProviderWrapper;
 import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagement;
 import com.amazonaws.services.simplesystemsmanagement.AWSSimpleSystemsManagementClientBuilder;
@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
 @Slf4j
-@Profile("test-ssm")
 @BootstrapConfiguration
 public class AwsSsmConfig {
 
@@ -26,7 +25,16 @@ public class AwsSsmConfig {
     public AWSSimpleSystemsManagement awsSimpleSystemsManagement() {
         log.info("Setting up parameter-store in {} region ...", region);
         return AWSSimpleSystemsManagementClientBuilder.standard()
-                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
+                .withCredentials(new EC2ContainerCredentialsProviderWrapper())
+                .withRegion(region)
+                .build();
+    }
+
+    @Bean
+    @Profile("dev-alt")
+    public AWSSimpleSystemsManagement devAlternateSimpleSystemsManagement() {
+        log.info("Setting up lazy parameter-store in {} region ...", region);
+        return AWSSimpleSystemsManagementClientBuilder.standard()
                 .withRegion(region)
                 .build();
     }

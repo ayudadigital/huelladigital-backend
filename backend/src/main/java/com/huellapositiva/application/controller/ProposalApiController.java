@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.*;
 import com.huellapositiva.domain.actions.*;
+import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.exception.InvalidProposalStatusException;
 import com.huellapositiva.domain.model.valueobjects.Roles;
@@ -35,6 +36,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.AccessDeniedException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,6 +76,10 @@ public class ProposalApiController {
     private final CloseProposalEnrollmentAction closeProposalEnrollmentAction;
 
     private final PublishProposalAction publishProposalAction;
+
+    private final UpdateProposalImageAction updateProposalImageAction;
+
+    private ChangeStatusToInadequateAction changeStatusToInadequateAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -185,7 +191,6 @@ public class ProposalApiController {
                             responseCode = "410",
                             description = "Gone, the proposal is already closed."
                     )
-
             }
     )
     @PostMapping("/{id}/join")
@@ -330,8 +335,8 @@ public class ProposalApiController {
                             description = "Not found, requested proposal not found or not published."
                     ),
                     @ApiResponse(
-                            responseCode = "412",
-                            description = "Bad request. The ID is not in review pending."
+                            responseCode = "409",
+                            description = "Conflict. The ID is not in review pending."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -354,7 +359,7 @@ public class ProposalApiController {
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (InvalidProposalStatusException ex) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The ID is not in REVIEW_PENDING.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
         }
     }
 
@@ -467,7 +472,7 @@ public class ProposalApiController {
                             description = "Requested proposal not found."
                     ),
                     @ApiResponse(
-                            responseCode = "412",
+                            responseCode = "409",
                             description = "Precondition failed, illegal status."
                     ),
                     @ApiResponse(
@@ -485,8 +490,8 @@ public class ProposalApiController {
             cancelProposalAction.executeByReviser(proposalId, dto);
         } catch (EntityNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
-        } catch (IllegalStateException ex) {
-            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Status of proposal is not suitable for cancelling");
+        } catch (InvalidProposalStatusException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Status of proposal is not suitable for cancelling");
         }
     }
 
@@ -572,7 +577,11 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "The proposal status in database is not REVIEW_PENDING or ENROLLMENT_CLOSE."
+                            description = "Conflict, The proposal status in database is not REVIEW_PENDING or ENROLLMENT_CLOSE."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
                     )
             }
     )
@@ -591,6 +600,101 @@ public class ProposalApiController {
         }
 
         publishProposalAction.executeAsContactPerson(proposalId);
+    }
+
+    @Operation(
+            summary = "Updates the proposal image",
+            description = "The contact person can update the image of the proposal.",
+            tags = {"proposals, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to PUBLISHED successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad Request, The proposal status or image not valid"
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden, The contact person related to this proposal does not match the logged contact person.."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PutMapping("/{proposalId}/image")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProposalImage(@RequestPart("photo") MultipartFile photo, @PathVariable String proposalId,
+                                  @Parameter(hidden = true) @AuthenticationPrincipal String accountId) throws IOException {
+        try {
+            updateProposalImageAction.execute(photo, accountId, proposalId);
+        } catch(AccessDeniedException ex){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, ex.getMessage());
+        } catch(IllegalStateException ex){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status of proposal is not suitable for changing image");
+        } catch (InvalidFieldException | EmptyFileException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Change status of the proposal to Inadequate",
+            description = "The reviser decides to change the status of the proposal from review pending to inadequate after the revision",
+            tags = {"proposals, reviser, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, proposal status changed to INADEQUATE successfully."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not Found, the proposal with the given id was not found in the database."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, changing the proposal status failed because the proposal was not in review pending."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PutMapping("/{id}/status/inadequate")
+    @RolesAllowed("REVISER")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changeStatusToInadequate(@PathVariable("id") String proposalId,
+                                         @RequestBody ChangeToInadequateDto dto,
+                                         @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        try {
+            changeStatusToInadequateAction.execute(dto, proposalId);
+        } catch (EntityNotFoundException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        } catch (InvalidProposalStatusException ex) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+        }
     }
 
     @Operation(
@@ -651,3 +755,4 @@ public class ProposalApiController {
         }
     }
 }
+

@@ -1,7 +1,9 @@
 package com.huellapositiva.domain.exception;
 
-public class InvalidProposalCategoryException extends RuntimeException {
-    public InvalidProposalCategoryException() {
-        super();
+import com.huellapositiva.application.exception.InvalidFieldException;
+
+public class InvalidProposalCategoryException extends InvalidFieldException {
+    public InvalidProposalCategoryException(String message) {
+        super(message);
     }
 }

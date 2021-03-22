@@ -115,13 +115,14 @@ public class ProposalService {
     }
 
     /**
-     * This method updates the proposal and chages its status by REVIEW_PENDING
+     * This method updates the proposal and changes its status by REVIEW_PENDING
      *
+     * @param proposalId Id of the proposal
      * @param updateProposalRequestDto The new information about the proposal
      * @param accountId The account id of the user
      */
-    public void updateProposal(UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
-        Proposal proposal = proposalRepository.fetch(updateProposalRequestDto.getId());
+    public void updateProposal(String proposalId, UpdateProposalRequestDto updateProposalRequestDto, String accountId) throws ParseException {
+        Proposal proposal = proposalRepository.fetch(proposalId);
         JpaCredential jpaCredential = jpaCredentialRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new UserNotFoundException("Contact person not found. Account ID: " + accountId));
         validationsOfUpdateProposal(updateProposalRequestDto, jpaCredential, proposal.getEsal().getContactPersonEmail().toString());

@@ -1,10 +1,8 @@
 package com.huellapositiva.domain.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import com.huellapositiva.application.exception.InvalidFieldException;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class InvalidProposalRequestException extends RuntimeException {
+public class InvalidProposalRequestException extends InvalidFieldException {
     public InvalidProposalRequestException(String message) {
         super(message);
     }

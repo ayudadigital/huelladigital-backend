@@ -5,20 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Builder
 @Getter
 @AllArgsConstructor
 public class UpdateProposalRequestDto {
-
-    @Schema(
-            description = "Id of the proposal",
-            example = "abcd1234-abcd-1234-abcd-abcdef1234561"
-    )
-    @NotBlank
-    private final String id;
 
     @Schema(
             description = "Title of the proposal",
@@ -30,7 +25,7 @@ public class UpdateProposalRequestDto {
 
     @Schema(
             description = "Where the users live",
-            example = "Santa Cruz de Tenerife"
+            example = "Las Palmas"
     )
     @Pattern(regexp = "^(Las Palmas|Santa Cruz de Tenerife)$")
     private final String province;
@@ -45,20 +40,20 @@ public class UpdateProposalRequestDto {
 
     @Schema(
             description = "Where the users live",
-            example = "La Orotava"
+            example = "Tejeda"
     )
     @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String town;
 
     @Schema(
             description = "Where the users live",
-            example = "Calle Abajo N5"
+            example = "Calle Arriba N5"
     )
     private final String address;
 
     @Schema(
             description = "Where the users live. Only can be the eight islands of Canary Islands",
-            example = "Tenerife"
+            example = "Fuerteventura"
     )
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z ]*$")

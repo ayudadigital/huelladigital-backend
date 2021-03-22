@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.domain.model.valueobjects.ProposalDate;
-import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
-import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
@@ -33,20 +29,22 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
+import static java.lang.String.format;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -63,7 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class ProposalControllerShould {
 
-    private static final String REGISTER_PROPOSAL_URI = "/api/v1/proposals";
+    private static final String PROPOSALS_BASE_URI = "/api/v1/proposals";
 
     private static final String FETCH_PROPOSAL_URI = "/api/v1/proposals/";
 
@@ -102,7 +100,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", null, "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -149,7 +147,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -189,7 +187,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -229,7 +227,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -454,7 +452,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -903,16 +901,13 @@ class ProposalControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProposalInformation")
-    void return_200_when_updates_proposal_and_change_status_to_review_pending(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
+    void return_200_when_updates_proposal_and_change_status_to_review_pending(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        // WHEN
-        UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
-
-        // THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -965,7 +960,7 @@ class ProposalControllerShould {
         }
     }
 
-    private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideCorrectProposalInformation() {
+    private static Stream<UpdateProposalRequestDto> provideCorrectProposalInformation() {
         return Stream.of(
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
@@ -986,7 +981,8 @@ class ProposalControllerShould {
                         .skills(VALID_SKILLS)
                         .requirements(VALID_REQUERIMENTS)
                         .extraInfo(VALID_EXTRA_INFO)
-                        .instructions(VALID_INSTRUCTIONS),
+                        .instructions(VALID_INSTRUCTIONS)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1002,21 +998,19 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
+                        .build()
         );
     }
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProposalInformation")
-    void return_400_when_tries_update_proposal_with_wrong_fields(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
+    void return_400_when_tries_update_proposal_with_wrong_fields(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        // WHEN
-        UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
-
-        // THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1025,7 +1019,7 @@ class ProposalControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideIncorrectProposalInformation() {
+    private static Stream<UpdateProposalRequestDto> provideIncorrectProposalInformation() {
         return Stream.of(
                 UpdateProposalRequestDto.builder()
                         .title("Una propo//sal no va~$lida")
@@ -1040,7 +1034,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title("Titulo mayor a 75 caracteres,  Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres")
                         .province(VALID_PROVINCE)
@@ -1054,7 +1049,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province("Malaga")
@@ -1068,7 +1064,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1082,7 +1079,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1096,7 +1094,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1110,7 +1109,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1124,7 +1124,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1138,7 +1139,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1152,7 +1154,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1166,7 +1169,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1180,7 +1184,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(-10, DAYS)))))
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1195,7 +1200,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1210,7 +1216,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(7, DAYS)))))
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1225,7 +1232,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description("")
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1238,15 +1246,10 @@ class ProposalControllerShould {
                         .startingProposalDate(VALID_PROPOSAL_DATE)
                         .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
-                        .description("Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres.")
+                        .description(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1261,7 +1264,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays("Campo de letras")
-                        .category(VALID_CATEGORY),
+                        .category(VALID_CATEGORY)
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1276,7 +1280,8 @@ class ProposalControllerShould {
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
-                        .category("Categoria no valida"),
+                        .category("Categoria no valida")
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1292,13 +1297,8 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .extraInfo("Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres."),
+                        .extraInfo(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1314,13 +1314,8 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .instructions("Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres, " +
-                                "Campo mayor que 200 caracteres.")
+                        .instructions(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
+                        .build()
         );
     }
 
@@ -1346,11 +1341,10 @@ class ProposalControllerShould {
                 .description(VALID_DESCRIPTION)
                 .durationInDays(VALID_DURATION_IN_DAYS)
                 .category(VALID_CATEGORY)
-                .id("abcd1234-abcd-1234-abcd-abcdef123456")
                 .build();
 
         // THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+        mvc.perform(put(FETCH_PROPOSAL_URI + "abcd1234-abcd-1234-abcd-abcdef123456")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1368,7 +1362,6 @@ class ProposalControllerShould {
 
         // WHEN
         UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
-                .id(jpaProposal.getId())
                 .title(VALID_TITLE)
                 .province(VALID_PROVINCE)
                 .town(VALID_TOWN)
@@ -1386,7 +1379,7 @@ class ProposalControllerShould {
                 .build();
 
         // THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1397,16 +1390,13 @@ class ProposalControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProposalWithWrongSkillOrRequirements")
-    void return_409_when_tries_update_proposal_with_duplicate_skill_or_requirements(UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder updateProposalRequestDtoBuilder) throws Exception {
+    void return_409_when_tries_update_proposal_with_duplicate_skill_or_requirements(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        // WHEN
-        UpdateProposalRequestDto updateProposalRequestDto = updateProposalRequestDtoBuilder.id(jpaProposal.getId()).build();
-
-        // THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + "/updateProposal")
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateProposalRequestDto))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1415,7 +1405,7 @@ class ProposalControllerShould {
                 .andExpect(status().isConflict());
     }
 
-    private static Stream<UpdateProposalRequestDto.UpdateProposalRequestDtoBuilder> provideIncorrectProposalWithWrongSkillOrRequirements() {
+    private static Stream<UpdateProposalRequestDto> provideIncorrectProposalWithWrongSkillOrRequirements() {
         return Stream.of(
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
@@ -1432,7 +1422,8 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .skills(new String[][]{{"SkillRepetida", "descipcion"}, {"SkillRepetida", "descipcion"}}),
+                        .skills(new String[][]{{"SkillRepetida", "descipcion"}, {"SkillRepetida", "descipcion"}})
+                        .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
                         .province(VALID_PROVINCE)
@@ -1449,6 +1440,7 @@ class ProposalControllerShould {
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
                         .requirements(new String[]{"Un requerimiento", "Un requerimiento"})
+                        .build()
         );
     }
 

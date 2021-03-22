@@ -11,6 +11,6 @@ public enum ProposalCategory {
         return Arrays.stream(ProposalCategory.values())
                 .filter(s -> s.toString().equals(category))
                 .findFirst()
-                .orElseThrow(InvalidProposalCategoryException::new);
+                .orElseThrow(() -> new InvalidProposalCategoryException("Proposal category does not exist: " + category));
     }
 }

@@ -4,11 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.*;
 import com.huellapositiva.domain.actions.*;
-import com.huellapositiva.domain.exception.EmptyFileException;
-import com.huellapositiva.domain.exception.InvalidProposalRequestException;
-import com.huellapositiva.domain.exception.InvalidProposalStatusException;
-import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.exception.*;
+import com.huellapositiva.domain.model.valueobjects.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -733,16 +730,15 @@ public class ProposalApiController {
                     )
             }
     )
-    @PostMapping("/updateProposal")
-    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
+    @PutMapping("/{id}")
+    @RolesAllowed({"CONTACT_PERSON"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProposal(@Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
+    public void updateProposal(@PathVariable("id") String proposalId,
+                               @Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
                                @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
         try {
-            updateProposalAction.execute(updateProposalRequestDto, accountId);
-        } catch (ParseException |
-                InvalidProposalCategoryException |
-                InvalidProposalRequestException e) {
+            updateProposalAction.execute(proposalId, updateProposalRequestDto, accountId);
+        } catch (ParseException | InvalidFieldException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (ProposalNotLinkedWithContactPersonException e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());

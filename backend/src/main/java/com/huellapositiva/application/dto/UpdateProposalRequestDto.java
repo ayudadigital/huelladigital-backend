@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.List;
 
 @Builder
 @Getter
@@ -86,6 +88,7 @@ public class UpdateProposalRequestDto {
                     "is before than closeProposalDate and startingVolunteeringDate",
             example = "1990-06-27"
     )
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final LocalDate startingProposalDate;
 
     @Schema(
@@ -94,6 +97,7 @@ public class UpdateProposalRequestDto {
             example = "1990-06-27"
     )
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final LocalDate closingProposalDate;
 
     @Schema(
@@ -101,6 +105,7 @@ public class UpdateProposalRequestDto {
             example = "1990-06-27"
     )
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private final LocalDate startingVolunteeringDate;
 
     @Schema(
@@ -126,16 +131,15 @@ public class UpdateProposalRequestDto {
     private final String category;
 
     @Schema(
-            description = "The necessary skills to carry out specific volunteer actions",
-            example = "{{'Fuerte'}, {'Se van a mover cargas bastante pesadas'}}"
+            description = "The necessary skills to carry out specific volunteer actions"
     )
-    private final String[][] skills;
+    private final List<SkillDto> skills;
 
     @Schema(
             description = "The necessary skills to carry out specific volunteer actions",
             example = "{'Es necesario disponer del DNI'}"
     )
-    private final String[] requirements;
+    private final List<String> requirements;
 
     @Schema(
             description = "Extra information for the volunteers",

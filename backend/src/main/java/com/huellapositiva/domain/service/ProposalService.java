@@ -30,15 +30,19 @@ import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 
 @Slf4j
 @Service
 @Transactional
 @AllArgsConstructor
 public class ProposalService {
+
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
 
     private final ProposalRepository proposalRepository;
 
@@ -127,8 +131,6 @@ public class ProposalService {
                 .orElseThrow(() -> new UserNotFoundException("Contact person not found. Account ID: " + accountId));
         validationsOfUpdateProposal(updateProposalRequestDto, jpaCredential, proposal.getEsal().getContactPersonEmail().toString());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyy");
-
         if (FINISHED.toString().equals(proposal.getStatus().toString()) ||
                 CANCELLED.toString().equals(proposal.getStatus().toString()) ||
                 INADEQUATE.toString().equals(proposal.getStatus().toString())) {
@@ -172,7 +174,6 @@ public class ProposalService {
         addNewSkills(updateProposalRequestDto, proposal);
         addNewRequeriments(updateProposalRequestDto, proposal);
 
-
         proposalRepository.update(proposal);
     }
 
@@ -184,7 +185,7 @@ public class ProposalService {
      * @param email The email of the Contact Person for to check if the proposal has the same email
      */
     private void validationsOfUpdateProposal(UpdateProposalRequestDto updateProposalRequestDto, JpaCredential jpaCredential, String email) {
-        if(!(jpaCredential.getEmail().equals(email))){
+        if(!(jpaCredential.getEmail().equals(email))) {
             throw new ProposalNotLinkedWithContactPersonException("This proposal not linked with your account");
         }
         if(Location.isNotIsland(updateProposalRequestDto.getIsland())) {
@@ -193,20 +194,16 @@ public class ProposalService {
         if(Location.isNotZipCode(updateProposalRequestDto.getZipCode())) {
             throw new InvalidFieldException("The zip code field is invalid");
         }
-        if (updateProposalRequestDto.getTitle() != null &&
-                updateProposalRequestDto.getTitle().length() > 75) {
+        if (updateProposalRequestDto.getTitle().length() > 75) {
             throw new InvalidFieldException("The additional information field is invalid");
         }
-        if (updateProposalRequestDto.getDescription() != null &&
-                updateProposalRequestDto.getDescription().length() > 200) {
+        if (updateProposalRequestDto.getDescription().length() > 200) {
             throw new InvalidFieldException("The description field is invalid");
         }
-        if (updateProposalRequestDto.getExtraInfo() != null &&
-                updateProposalRequestDto.getExtraInfo().length() > 200) {
+        if (updateProposalRequestDto.getExtraInfo() != null && updateProposalRequestDto.getExtraInfo().length() > 200) {
             throw new InvalidFieldException("The extra info field is invalid");
         }
-        if (updateProposalRequestDto.getInstructions() != null &&
-                updateProposalRequestDto.getInstructions().length() > 200) {
+        if (updateProposalRequestDto.getInstructions() != null && updateProposalRequestDto.getInstructions().length() > 200) {
             throw new InvalidFieldException("The instruction field is invalid");
         }
         if (updateProposalRequestDto.getStartingProposalDate() != null &&
@@ -214,7 +211,7 @@ public class ProposalService {
             throw new InvalidFieldException("The closing recruitment can not before of the starting proposal");
         }
         if (updateProposalRequestDto.getStartingVolunteeringDate().isBefore(updateProposalRequestDto.getClosingProposalDate())) {
-            throw new InvalidFieldException("The starting voluntering can not before of the closing recruitment");
+            throw new InvalidFieldException("The starting volunteering can not before of the closing recruitment");
         }
     }
 
@@ -232,10 +229,9 @@ public class ProposalService {
             proposal.deleteRequirement(requirement);
         }
         if (updateProposalRequestDto.getRequirements() != null) {
-            for (String requirement : updateProposalRequestDto.getRequirements()) {
-                Requirement newRequirement = new Requirement(requirement);
-                proposal.addRequirement(newRequirement);
-            }
+            updateProposalRequestDto.getRequirements().stream()
+                    .map(Requirement::new)
+                    .forEach(proposal::addRequirement);
         }
     }
 
@@ -252,13 +248,12 @@ public class ProposalService {
         for (Skill skill : deleteSkills) {
             proposal.deleteSkill(skill);
         }
-        if (updateProposalRequestDto.getSkills() != null) {
-            for (String[] skill : updateProposalRequestDto.getSkills()) {
-                Skill newSkill = new Skill(skill[0], skill[1]);
-                proposal.addSkill(newSkill);
-            }
-        }
-    }
+        Optional.ofNullable(updateProposalRequestDto.getSkills())
+                .orElse(emptyList())
+                .stream()
+                .map(skillDto -> new Skill(skillDto.getName(), skillDto.getDescription()))
+                .forEach(proposal::addSkill);
+    } // TODO Set orphanChild when cascading *ToMany relation
 
     /**
      * Check for feedback message

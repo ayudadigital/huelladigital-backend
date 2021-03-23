@@ -48,6 +48,9 @@ public class ProposalDate {
     public long getBusinessDaysFrom(Date targetDate){
         LocalDate proposalLocalDate = LocalDate.ofInstant(this.date.toInstant(), ZoneId.systemDefault());
         LocalDate targetLocalDate = LocalDate.ofInstant(targetDate.toInstant(), ZoneId.systemDefault());
+        if (proposalLocalDate.isBefore(targetLocalDate)) {
+            return 0;
+        }
         Predicate<LocalDate> isWeekend = d -> d.getDayOfWeek() == DayOfWeek.SATURDAY
                 || d.getDayOfWeek() == DayOfWeek.SUNDAY;
         long daysBetween = ChronoUnit.DAYS.between(targetLocalDate,proposalLocalDate);

@@ -29,13 +29,12 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalDate.createClosingProposalDate;
@@ -43,7 +42,6 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static java.lang.String.format;
-import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -139,8 +137,13 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate(invalidStartingDate)
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
@@ -179,8 +182,13 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
@@ -219,8 +227,13 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
@@ -444,8 +457,13 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("20-08-2030")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
@@ -617,9 +635,9 @@ class ProposalControllerShould {
                         .zipCode("12345")
                         .island("Tenerife").build())
                 .esal(different_esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
-                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
+                .startingProposalDate(Date.from(Instant.now().plus(1, DAYS)))
+                .closingProposalDate(Date.from(Instant.now().plus(5, DAYS)))
+                .startingVolunteeringDate(Date.from(Instant.now().plus(6, DAYS)))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -947,10 +965,10 @@ class ProposalControllerShould {
         assertThat(proposalCategory).isEqualTo(updateProposalRequestDto.getCategory());
 
         if (updateProposalRequestDto.getSkills() != null) {
-            assertThat(proposal.getSkills().size()).isEqualTo(updateProposalRequestDto.getSkills().length);
+            assertThat(proposal.getSkills().size()).isEqualTo(updateProposalRequestDto.getSkills().size());
         }
         if (updateProposalRequestDto.getRequirements() != null) {
-            assertThat(proposal.getRequirements().size()).isEqualTo(updateProposalRequestDto.getRequirements().length);
+            assertThat(proposal.getRequirements().size()).isEqualTo(updateProposalRequestDto.getRequirements().size());
         }
         if (updateProposalRequestDto.getExtraInfo() != null) {
             assertThat(proposal.getExtraInfo()).isEqualTo(updateProposalRequestDto.getExtraInfo());
@@ -979,7 +997,7 @@ class ProposalControllerShould {
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
                         .skills(VALID_SKILLS)
-                        .requirements(VALID_REQUERIMENTS)
+                        .requirements(VALID_REQUIREMENTS)
                         .extraInfo(VALID_EXTRA_INFO)
                         .instructions(VALID_INSTRUCTIONS)
                         .build(),
@@ -1181,7 +1199,7 @@ class ProposalControllerShould {
                         .minimumAge(VALID_MINIMUM_AGE)
                         .maximumAge(VALID_MAXIMUM_AGE)
                         .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
-                        .startingVolunteeringDate(LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(-10, DAYS)))))
+                        .startingVolunteeringDate(LocalDate.now().minusDays(10))
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
@@ -1196,7 +1214,7 @@ class ProposalControllerShould {
                         .minimumAge(VALID_MINIMUM_AGE)
                         .maximumAge(VALID_MAXIMUM_AGE)
                         .startingProposalDate(VALID_PROPOSAL_DATE)
-                        .closingProposalDate(LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(-10, DAYS)))))
+                        .closingProposalDate(LocalDate.now().minusDays(10))
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
@@ -1213,7 +1231,7 @@ class ProposalControllerShould {
                         .maximumAge(VALID_MAXIMUM_AGE)
                         .startingProposalDate(VALID_PROPOSAL_DATE)
                         .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
-                        .startingVolunteeringDate(LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(7, DAYS)))))
+                        .startingVolunteeringDate(LocalDate.now().plusDays(7))
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
@@ -1246,7 +1264,7 @@ class ProposalControllerShould {
                         .startingProposalDate(VALID_PROPOSAL_DATE)
                         .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
                         .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
-                        .description(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
+                        .description("a".repeat(201))
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
                         .build(),
@@ -1297,7 +1315,7 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .extraInfo(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
+                        .extraInfo("a".repeat(201))
                         .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
@@ -1314,7 +1332,7 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .instructions(IntStream.range(0, 201).mapToObj(i -> "a").collect(Collectors.joining()))
+                        .instructions("a".repeat(201))
                         .build()
         );
     }
@@ -1389,8 +1407,8 @@ class ProposalControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideIncorrectProposalWithWrongSkillOrRequirements")
-    void return_409_when_tries_update_proposal_with_duplicate_skill_or_requirements(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
+    @MethodSource("provideProposalWithDuplicatedSkillOrRequirements")
+    void should_return_204_ignoring_duplicated_skills_or_requirements(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
         // GIVEN
         JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
@@ -1402,10 +1420,10 @@ class ProposalControllerShould {
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isConflict());
+                .andExpect(status().isNoContent());
     }
 
-    private static Stream<UpdateProposalRequestDto> provideIncorrectProposalWithWrongSkillOrRequirements() {
+    private static Stream<UpdateProposalRequestDto> provideProposalWithDuplicatedSkillOrRequirements() {
         return Stream.of(
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
@@ -1422,7 +1440,9 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .skills(new String[][]{{"SkillRepetida", "descipcion"}, {"SkillRepetida", "descipcion"}})
+                        .skills(List.of(
+                                new SkillDto("SkillRepetida", "descipcion"),
+                                new SkillDto("SkillRepetida", "descipcion")))
                         .build(),
                 UpdateProposalRequestDto.builder()
                         .title(VALID_TITLE)
@@ -1439,7 +1459,9 @@ class ProposalControllerShould {
                         .description(VALID_DESCRIPTION)
                         .durationInDays(VALID_DURATION_IN_DAYS)
                         .category(VALID_CATEGORY)
-                        .requirements(new String[]{"Un requerimiento", "Un requerimiento"})
+                        .requirements(List.of(
+                                "Un requerimiento",
+                                "Un requerimiento"))
                         .build()
         );
     }

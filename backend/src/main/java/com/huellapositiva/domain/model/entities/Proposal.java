@@ -5,15 +5,15 @@ import com.huellapositiva.application.dto.ProposalRequestDto;
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.SneakyThrows;
 
 import javax.validation.constraints.NotEmpty;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Builder
 @Data
@@ -66,9 +66,9 @@ public class Proposal {
 
     private final List<Volunteer> inscribedVolunteers = new ArrayList<>();
 
-    private final List<Skill> skills = new ArrayList<>();
+    private final Set<Skill> skills = new HashSet<>();
 
-    private final List<Requirement> requirements = new ArrayList<>();
+    private final Set<Requirement> requirements = new HashSet<>();
 
     private URL image;
 
@@ -83,19 +83,12 @@ public class Proposal {
     }
 
     /**
-     * This method delete the skills if to find the same
+     * Delete a skill from a proposal if present.
      *
-     * @param skill To check if it is on the list or not
+     * @param skill Skill to delete
      */
     public void deleteSkill(Skill skill) {
-        int positionOfSkill = -1;
-        for (Skill skillProposal : skills) {
-            if (skill.getName().equals(skillProposal.getName())){
-                positionOfSkill = skills.indexOf(skillProposal);
-                break;
-            }
-        }
-        skills.remove(positionOfSkill);
+        skills.remove(skill);
     }
 
     public void addRequirement(Requirement requirement) {
@@ -103,19 +96,12 @@ public class Proposal {
     }
 
     /**
-     * This method delete the requirement if to find the same
+     * Delete a requirement if present.
      *
-     * @param requirement To check if it is on the list or not
+     * @param requirement Requirement to delete
      */
     public void deleteRequirement(Requirement requirement) {
-        int positionOfRequirement = -1;
-        for (Requirement requirementProposal : requirements) {
-            if (requirement.getName().equals(requirementProposal.getName())){
-                positionOfRequirement = requirements.indexOf(requirementProposal);
-                break;
-            }
-        }
-        requirements.remove(positionOfRequirement);
+        requirements.remove(requirement);
     }
 
     public static Proposal parseDto(ProposalRequestDto dto, ESAL joinedESAL) throws ParseException {
@@ -141,17 +127,20 @@ public class Proposal {
                 .instructions(dto.getInstructions())
                 .build();
 
-        Arrays.stream(dto.getSkills())
-                .forEach(s -> proposal.addSkill( new Skill(s[0], s[1])));
-        Arrays.asList(dto.getRequirements())
-                .forEach(r -> proposal.addRequirement(new Requirement(r)));
+        dto.getSkills().stream()
+                .map(skillDto -> new Skill(skillDto.getName(), skillDto.getDescription()))
+                .forEach(proposal::addSkill);
+        dto.getRequirements().stream()
+                .map(Requirement::new)
+                .forEach(proposal::addRequirement);
 
+        proposal.validate();
         return proposal;
     }
 
     @SneakyThrows
     public static Proposal parseJpa(JpaProposal jpaProposal) {
-        return Proposal.builder()
+        Proposal proposal = Proposal.builder()
                 .surrogateKey(jpaProposal.getSurrogateKey())
                 .id(new Id(jpaProposal.getId()))
                 .esal(ESAL.fromJpa(jpaProposal.getEsal()))
@@ -175,18 +164,34 @@ public class Proposal {
                 .instructions(jpaProposal.getInstructions())
                 .image(jpaProposal.getImageUrl() != null ? new URL(jpaProposal.getImageUrl()) : null)
                 .build();
+
+        jpaProposal.getInscribedVolunteers().stream()
+                .map(v -> new Volunteer(new Id(v.getCredential().getId()), EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
+                .forEach(proposal::inscribeVolunteer);
+        jpaProposal.getSkills().stream()
+                .map(jpaSkill -> new Skill(jpaSkill.getName(), jpaSkill.getDescription()))
+                .forEach(proposal::addSkill);
+        jpaProposal.getRequirements().stream()
+                .map(jpaRequirement -> new Requirement(jpaRequirement.getName()))
+                .forEach(proposal::addRequirement);
+
+        return proposal;
     }
 
-    public void validate(){
-        boolean closingBeforeStartingProposal = closingProposalDate.isBefore(startingProposalDate);
-        boolean startingVolunteeringBeforeClosing = startingVolunteeringDate.isBefore(closingProposalDate);
-        if(closingBeforeStartingProposal || startingVolunteeringBeforeClosing){
+    public void validate() {
+        if(permittedAgeRange.getMinimum() < 18 || permittedAgeRange.getMaximum() > 80) {
+            throw new InvalidProposalRequestException("Age is not in a valid range [0,80]");
+        }
+        if (permittedAgeRange.getMinimum() > permittedAgeRange.getMaximum()) {
+            throw new InvalidProposalRequestException("Minimum age cannot be greater than maximum age.");
+        }
+        if(closingProposalDate.isBefore(startingProposalDate) || startingVolunteeringDate.isBefore(closingProposalDate)) {
             throw new InvalidProposalRequestException("Date is not in a valid range.");
         }
-        if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3){
+        if(startingProposalDate.getBusinessDaysFrom(new Date()) < 3) {
             throw new InvalidProposalRequestException("Proposal must start at least within three business days from today.");
         }
-        if(closingProposalDate.isNotBeforeStipulatedDeadline()){
+        if(closingProposalDate.isNotBeforeStipulatedDeadline()) {
             throw new InvalidProposalRequestException("Proposal deadline must be less than six months from now.");
         }
     }

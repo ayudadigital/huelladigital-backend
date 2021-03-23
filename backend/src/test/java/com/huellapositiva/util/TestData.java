@@ -1,6 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.dto.SkillDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
@@ -78,15 +78,16 @@ public class TestData {
     public static final String VALID_REQUIRED_DAYS = "Weekend";
     public static final int VALID_MINIMUM_AGE = 18;
     public static final int VALID_MAXIMUM_AGE = 70;
-    public static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    public static final LocalDate VALID_PROPOSAL_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(5, DAYS))));
-    public static final LocalDate VALID_CLOSING_PROPOSAL_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(10, DAYS))));
-    public static final LocalDate VALID_STARTING_VOLUNTERING_DATE = LocalDate.parse(SIMPLE_DATE_FORMAT.format(Date.from(now().plus(15, DAYS))));
+    public static final LocalDate VALID_PROPOSAL_DATE = LocalDate.now().plusDays(5);
+    public static final LocalDate VALID_CLOSING_PROPOSAL_DATE = LocalDate.now().plusDays(10);
+    public static final LocalDate VALID_STARTING_VOLUNTERING_DATE = LocalDate.now().plusDays(15);
     public static final String VALID_DESCRIPTION = "Una descripcion menor de 200 caracteres";
     public static final String VALID_DURATION_IN_DAYS = "5";
     public static final String VALID_CATEGORY = "MIXED";
-    public static final String[][] VALID_SKILLS = new String[][]{{"Comunicador", "Excelente comunicador"},{"Guapo", "La belleza por delante"}};
-    public static final String[] VALID_REQUERIMENTS = new String[]{"Traer DNI"};
+    public static final List<SkillDto> VALID_SKILLS = List.of(
+            new SkillDto("Comunicador", "Excelente comunicador"),
+            new SkillDto("Guapo", "La belleza por delante"));
+    public static final List<String> VALID_REQUIREMENTS = List.of("Traer DNI");
     public static final String VALID_EXTRA_INFO = "Una extra info menor de 200 caracteres";
     public static final String VALID_INSTRUCTIONS = "Una instructions menor de 200 caracteres";
 
@@ -344,8 +345,13 @@ public class TestData {
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();

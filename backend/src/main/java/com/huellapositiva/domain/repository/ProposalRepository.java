@@ -3,14 +3,8 @@ package com.huellapositiva.domain.repository;
 import com.huellapositiva.application.exception.ESALNotFoundException;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
-import com.huellapositiva.domain.exception.RequirementAlreadyExistsException;
-import com.huellapositiva.domain.exception.SkillAlreadyExistsException;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.Requirement;
-import com.huellapositiva.domain.model.valueobjects.Skill;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -74,31 +68,9 @@ public class ProposalRepository {
         save(proposal);
         jpaProposalSkillsRepository.deleteSkillByProposalId(proposal.getId().getValue());
         jpaProposalRequirementsRepository.deleteRequirementsByProposalId(proposal.getId().getValue());
-        isSkillRepeated(proposal);
-        isRequirementRepeated(proposal);
         insertProposalSkills(proposal);
         insertProposalRequirements(proposal);
         return proposal.getId().toString();
-    }
-
-    private void isRequirementRepeated(Proposal proposal){
-        for (int i = 0; i < proposal.getRequirements().size(); i++) {
-            for (int j = 0; j < proposal.getRequirements().size(); j++) {
-                if (i != j && proposal.getRequirements().get(i).getName().equalsIgnoreCase(proposal.getRequirements().get(j).getName())){
-                    throw new RequirementAlreadyExistsException("The requirement already exists for its proposal");
-                }
-            }
-        }
-    }
-
-    private void isSkillRepeated(Proposal proposal){
-        for (int i = 0; i < proposal.getSkills().size(); i++) {
-            for (int j = 0; j < proposal.getSkills().size(); j++) {
-                if (i != j && proposal.getSkills().get(i).getName().equalsIgnoreCase(proposal.getSkills().get(j).getName())){
-                    throw new SkillAlreadyExistsException("The skill already exists for its proposal");
-                }
-            }
-        }
     }
 
     private void insertProposalSkills(Proposal proposal) {
@@ -112,6 +84,7 @@ public class ProposalRepository {
     }
 
     public void save(Proposal proposal) {
+        proposal.validate();
         JpaLocation jpaLocation = jpaLocationRepository.save(JpaLocation.builder()
                 .id(proposal.getLocation().getId().toString())
                 .province(proposal.getLocation().getProvince())
@@ -172,14 +145,6 @@ public class ProposalRepository {
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(jpaProposal.getEsal().getId())
                 .orElseThrow(ESALNotFoundException::new);
         proposal.getEsal().setContactPersonEmail(EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
-        jpaProposal.getInscribedVolunteers()
-                .stream()
-                .map(v -> new Volunteer(new Id(v.getCredential().getId()), EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
-                .forEach(proposal::inscribeVolunteer);
-        jpaProposal.getSkills()
-                .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));
-        jpaProposal.getRequirements()
-                .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
         return proposal;
     }
 

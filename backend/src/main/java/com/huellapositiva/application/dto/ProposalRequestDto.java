@@ -8,6 +8,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Data
 @Builder
@@ -135,14 +136,14 @@ public class ProposalRequestDto {
             example = "Habilidad, Descripción; Negociación, Saber regatear."
     )
     @NotEmpty
-    private final String[][] skills;
+    private final List<SkillDto> skills;
 
     @Schema(
             description = "What the volunteer needs to perform the volunteering",
             example = "Forma física para cargar con la ropa, Disponibilidad horaria"
     )
     @NotEmpty
-    private final String[] requirements;
+    private final List<String> requirements;
 
     @Schema(
             description = "The proposal's extra information",

@@ -746,9 +746,3 @@ class VolunteerControllerShould {
         assertThat(volunteer.getProfile().isNewsletter()).isFalse();
     }
 }
-
-
-
-
-
-

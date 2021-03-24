@@ -272,9 +272,9 @@ public class VolunteerApiController {
     @PostMapping("/profile")
     @RolesAllowed({"VOLUNTEER", "VOLUNTEER_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateProfileInformation(@Validated @RequestBody UpdateProfileRequestDto updateProfileRequestDto,
+    public void updateProfileInformation(@Validated @RequestBody UpdateVolunteerProfileRequestDto updateVolunteerProfileRequestDto,
                                          @Parameter(hidden = true) @AuthenticationPrincipal String volunteerEmail) {
-        updateVolunteerProfileAction.execute(updateProfileRequestDto, volunteerEmail);
+        updateVolunteerProfileAction.execute(updateVolunteerProfileRequestDto, volunteerEmail);
     }
 
     @Operation(

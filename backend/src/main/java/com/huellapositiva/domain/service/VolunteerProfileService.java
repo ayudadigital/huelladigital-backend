@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.UpdateVolunteerProfileRequestDto;
 import com.huellapositiva.application.exception.EmailAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.UserNotFoundException;
@@ -32,7 +32,7 @@ import static com.huellapositiva.domain.model.valueobjects.Roles.VOLUNTEER_NOT_C
 @Service
 @Transactional
 @AllArgsConstructor
-public class ProfileService {
+public class VolunteerProfileService {
 
     @Autowired
     private final JpaVolunteerRepository jpaVolunteerRepository;
@@ -49,18 +49,18 @@ public class ProfileService {
     /**
      * This method update the user profile information in database
      *
-     * @param updateProfileRequestDto New user profile information to update
+     * @param profileRequestDto New user profile information to update
      * @param accountId Account ID of user logged
      */
-    public UpdateProfileResult updateProfile(UpdateProfileRequestDto updateProfileRequestDto, String accountId) {
+    public UpdateProfileResult updateVolunteerProfileProfile(UpdateVolunteerProfileRequestDto profileRequestDto, String accountId) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
                 .orElseThrow(() -> new UserNotFoundException("Volunteer not found. Account ID: " + accountId));
-        boolean isNewEmail = !jpaVolunteer.getCredential().getEmail().equalsIgnoreCase(updateProfileRequestDto.getEmail());
-        validations(updateProfileRequestDto, isNewEmail);
+        boolean isNewEmail = !jpaVolunteer.getCredential().getEmail().equalsIgnoreCase(profileRequestDto.getEmail());
+        validations(profileRequestDto, isNewEmail);
 
-        upsertLocation(updateProfileRequestDto, jpaVolunteer);
-        upsertProfile(updateProfileRequestDto, jpaVolunteer);
-        jpaVolunteer.getCredential().setEmail(updateProfileRequestDto.getEmail());
+        upsertLocation(profileRequestDto, jpaVolunteer);
+        upsertVolunteerProfile(profileRequestDto, jpaVolunteer);
+        jpaVolunteer.getCredential().setEmail(profileRequestDto.getEmail());
 
         if (isNewEmail) {
             Role newJpaRole = jpaRoleRepository.findByName(VOLUNTEER_NOT_CONFIRMED.toString())
@@ -79,33 +79,33 @@ public class ProfileService {
     /**
      * Validate profile data.
      *
-     * @param updateProfileRequestDto New user profile information to update
+     * @param profileRequestDto New user profile information to update
      * @param   newEmail True if the user is updating the email
      */
-    private void validations(UpdateProfileRequestDto updateProfileRequestDto, boolean newEmail) {
-        if (newEmail && jpaCredentialRepository.findByEmail(updateProfileRequestDto.getEmail()).isPresent()) {
+    private void validations(UpdateVolunteerProfileRequestDto profileRequestDto, boolean newEmail) {
+        if (newEmail && jpaCredentialRepository.findByEmail(profileRequestDto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists in the database.");
         }
-        if (isNotIsland(updateProfileRequestDto.getIsland())) {
+        if (isNotIsland(profileRequestDto.getIsland())) {
             throw new InvalidFieldException("The island field is invalid");
         }
-        if (isNotZipCode(updateProfileRequestDto.getZipCode())) {
+        if (isNotZipCode(profileRequestDto.getZipCode())) {
             throw new InvalidFieldException("The zip code field is invalid");
         }
-        if (isNotPhoneNumber(updateProfileRequestDto.getPhoneNumber())) {
+        if (isNotPhoneNumber(profileRequestDto.getPhoneNumber())) {
             throw new InvalidFieldException("The phone number field is invalid");
         }
-        if (isLengthInvalid(updateProfileRequestDto.getAdditionalInformation())) {
+        if (isLengthInvalid(profileRequestDto.getAdditionalInformation())) {
             throw new InvalidFieldException("The additional information field is invalid");
         }
     }
 
     /**
      * This method update information in location table
-     *  @param updateProfileRequestDto New user credential information to update
+     *  @param profileRequestDto New user credential information to update
      * @param jpaVolunteer JPA representation of the volunteer
      */
-    private void upsertLocation(UpdateProfileRequestDto updateProfileRequestDto, JpaVolunteer jpaVolunteer) {
+    private void upsertLocation(UpdateVolunteerProfileRequestDto profileRequestDto, JpaVolunteer jpaVolunteer) {
         String id;
         Integer surrogateKey = null;
         if (jpaVolunteer.getLocation() == null) {
@@ -117,20 +117,20 @@ public class ProfileService {
         JpaLocation jpaLocation = JpaLocation.builder()
                 .surrogateKey(surrogateKey)
                 .id(id)
-                .province(updateProfileRequestDto.getProvince())
-                .town(updateProfileRequestDto.getTown())
-                .address(updateProfileRequestDto.getAddress())
-                .island(updateProfileRequestDto.getIsland())
-                .zipCode(updateProfileRequestDto.getZipCode()).build();
+                .province(profileRequestDto.getProvince())
+                .town(profileRequestDto.getTown())
+                .address(profileRequestDto.getAddress())
+                .island(profileRequestDto.getIsland())
+                .zipCode(profileRequestDto.getZipCode()).build();
         jpaVolunteer.setLocation(jpaLocation);
     }
 
     /**
      * This method update information in profile table
-     *  @param updateProfileRequestDto New user credential information to update
-     * @param jpaVolunteer      Email of user logged
+     *  @param profileRequestDto New user credential information to update
+     *  @param jpaVolunteer      JPA representation of the volunteer
      */
-    private void upsertProfile(UpdateProfileRequestDto updateProfileRequestDto, JpaVolunteer jpaVolunteer) {
+    private void upsertVolunteerProfile(UpdateVolunteerProfileRequestDto profileRequestDto, JpaVolunteer jpaVolunteer) {
         String id;
         Integer surrogateKey = null;
         if (jpaVolunteer.getProfile() == null) {
@@ -142,14 +142,14 @@ public class ProfileService {
         JpaProfile jpaProfile = JpaProfile.builder()
                 .surrogateKey(surrogateKey)
                 .id(id)
-                .name(updateProfileRequestDto.getName())
-                .surname(updateProfileRequestDto.getSurname())
-                .phoneNumber(updateProfileRequestDto.getPhoneNumber())
-                .birthDate(updateProfileRequestDto.getBirthDate())
-                .twitter(updateProfileRequestDto.getTwitter())
-                .instagram(updateProfileRequestDto.getInstagram())
-                .linkedin(updateProfileRequestDto.getLinkedin())
-                .additionalInformation(updateProfileRequestDto.getAdditionalInformation())
+                .name(profileRequestDto.getName())
+                .surname(profileRequestDto.getSurname())
+                .phoneNumber(profileRequestDto.getPhoneNumber())
+                .birthDate(profileRequestDto.getBirthDate())
+                .twitter(profileRequestDto.getTwitter())
+                .instagram(profileRequestDto.getInstagram())
+                .linkedin(profileRequestDto.getLinkedin())
+                .additionalInformation(profileRequestDto.getAdditionalInformation())
                 .build();
         jpaVolunteer.setProfile(jpaProfile);
     }

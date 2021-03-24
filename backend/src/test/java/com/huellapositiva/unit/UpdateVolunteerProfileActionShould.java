@@ -1,10 +1,10 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.UpdateVolunteerProfileRequestDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import com.huellapositiva.domain.service.ProfileService;
+import com.huellapositiva.domain.service.VolunteerProfileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,16 +28,16 @@ class UpdateVolunteerProfileActionShould {
     private EmailCommunicationService emailCommunicationService;
 
     @Mock
-    private ProfileService profileService;
+    private VolunteerProfileService volunteerProfileService;
 
     @BeforeEach
     void beforeEach(){
-        updateVolunteerProfileAction = new UpdateVolunteerProfileAction(profileService, emailCommunicationService);
+        updateVolunteerProfileAction = new UpdateVolunteerProfileAction(volunteerProfileService, emailCommunicationService);
     }
 
     @Test
     void send_change_email() {
-        UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
+        UpdateVolunteerProfileRequestDto updateVolunteerProfileRequestDto = UpdateVolunteerProfileRequestDto.builder()
                 .name("nombre")
                 .surname("apellido")
                 .email(DEFAULT_EMAIL_2)
@@ -46,9 +46,9 @@ class UpdateVolunteerProfileActionShould {
                 .zipCode("35000")
                 .island("Fuerteventura")
                 .build();
-        when(profileService.updateProfile(updateProfileRequestDto,DEFAULT_ACCOUNT_ID)).thenReturn(new UpdateProfileResult(true));
+        when(volunteerProfileService.updateVolunteerProfileProfile(updateVolunteerProfileRequestDto,DEFAULT_ACCOUNT_ID)).thenReturn(new UpdateProfileResult(true));
 
-        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_ACCOUNT_ID);
+        updateVolunteerProfileAction.execute(updateVolunteerProfileRequestDto, DEFAULT_ACCOUNT_ID);
 
         verify(emailCommunicationService).sendMessageEmailChanged(any());
     }

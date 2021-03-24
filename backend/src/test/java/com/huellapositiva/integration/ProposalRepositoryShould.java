@@ -42,7 +42,7 @@ class ProposalRepositoryShould {
         // WHEN
         ESAL esal = testData.createESAL("Huella Positiva");
         Proposal proposal = testData.buildPublishedProposalWithEsal(esal);
-        String id = proposalRepository.save(proposal);
+        String id = proposalRepository.insert(proposal);
 
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id).get();
         Calendar expirationTimestamp = Calendar.getInstance();

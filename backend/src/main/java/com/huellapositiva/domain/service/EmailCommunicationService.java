@@ -79,8 +79,6 @@ public class EmailCommunicationService {
         emailService.sendEmail(emailMessage);
     }
 
-
-
     public void sendRecoveryPasswordEmail(RecoveryPasswordEmail recoveryPasswordEmail) {
         final String RECOVERY_PASS_SUBJECT = "Cambio de tu contraseña";
         EmailTemplate emailTemplate = templateService.getRecoveryEmailTemplate(recoveryPasswordEmail.getHash());
@@ -99,6 +97,14 @@ public class EmailCommunicationService {
         final String UPDATE_EMAIL_SUBJECT = "Información sobre cambio de email";
         EmailTemplate emailTemplate = templateService.getEmailChangedTemplate(emailConfirmation);
         EmailMessage emailMessage = EmailMessage.createFrom(from, emailConfirmation.getEmailAddress(),
+                UPDATE_EMAIL_SUBJECT, emailTemplate);
+        emailService.sendEmail(emailMessage);
+    }
+
+    public void sendMessageUpdateProposal(ProposalRevisionRequestEmail proposalRevisionRequestEmail) {
+        final String UPDATE_EMAIL_SUBJECT = "Modificaciones en una propuesta de voluntariado";
+        EmailTemplate emailTemplate = templateService.getEmailUpdateProposalTemplate(proposalRevisionRequestEmail);
+        EmailMessage emailMessage = EmailMessage.createFrom(from, proposalRevisionRequestEmail.getEmailAddress(),
                 UPDATE_EMAIL_SUBJECT, emailTemplate);
         emailService.sendEmail(emailMessage);
     }

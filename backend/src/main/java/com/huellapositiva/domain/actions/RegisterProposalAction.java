@@ -82,6 +82,6 @@ public class RegisterProposalAction {
             URL imageUrl = storageService.uploadProposalImage(image, proposal.getId().getValue());
             proposal.setImage(imageUrl);
         }
-        return proposalRepository.save(proposal);
+        return proposalRepository.insert(proposal);
     }
 }

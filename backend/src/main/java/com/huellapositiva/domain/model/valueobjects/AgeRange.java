@@ -1,6 +1,5 @@
 package com.huellapositiva.domain.model.valueobjects;
 
-import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import lombok.Getter;
 
 @Getter
@@ -15,18 +14,11 @@ public class AgeRange {
         this.maximum = maximum;
     }
 
-    public boolean isOnRange(int age){
-        return age > minimum && age < maximum;
+    public static AgeRange create(int minimum, int maximum) {
+        return new AgeRange(minimum, maximum);
     }
 
-    public static AgeRange create(int minimum, int maximum){
-        if(minimum < 18 || maximum > 80){
-            throw new InvalidProposalRequestException("Age is not in a valid range.");
-        }
-        if(minimum > maximum){
-            throw new InvalidProposalRequestException("Minimum age cannot be greater than maximum age.");
-        }
-
-        return new AgeRange(minimum, maximum);
+    public boolean isOnRange(int age) {
+        return age > minimum && age < maximum;
     }
 }

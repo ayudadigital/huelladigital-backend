@@ -4,14 +4,12 @@ import com.huellapositiva.application.exception.ESALNotFoundException;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.Proposal;
-import com.huellapositiva.domain.model.entities.Volunteer;
-import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -52,15 +50,41 @@ public class ProposalRepository {
     private final JpaProposalStatusRepository jpaProposalStatusRepository;
 
     @Autowired
-    private final JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+    private final JpaContactPersonRepository jpaContactPersonRepository;
 
-    @Value("${huellapositiva.proposal.expiration-hour}")
-    private Integer expirationHour;
+    public String insert(Proposal proposal) {
+        save(proposal);
+        insertProposalSkills(proposal);
+        insertProposalRequirements(proposal);
+        return proposal.getId().toString();
+    }
 
-    @Value("${huellapositiva.proposal.expiration-minute}")
-    private Integer expirationMinute;
+    /**
+     * This method update the proposal in database, validate and, add the skills and the requirements
+     *
+     * @param proposal The new proposal to update
+     */
+    public String update(Proposal proposal) {
+        save(proposal);
+        jpaProposalSkillsRepository.deleteSkillByProposalId(proposal.getId().getValue());
+        jpaProposalRequirementsRepository.deleteRequirementsByProposalId(proposal.getId().getValue());
+        insertProposalSkills(proposal);
+        insertProposalRequirements(proposal);
+        return proposal.getId().toString();
+    }
 
-    public String save(Proposal proposal) {
+    private void insertProposalSkills(Proposal proposal) {
+        proposal.getSkills()
+                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
+    }
+
+    private void insertProposalRequirements(Proposal proposal) {
+        proposal.getRequirements()
+                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
+    }
+
+    public void save(Proposal proposal) {
+        proposal.validate();
         JpaLocation jpaLocation = jpaLocationRepository.save(JpaLocation.builder()
                 .id(proposal.getLocation().getId().toString())
                 .province(proposal.getLocation().getProvince())
@@ -101,31 +125,26 @@ public class ProposalRepository {
         if (proposal.getSurrogateKey() != null) {
             jpaProposal.setSurrogateKey(proposal.getSurrogateKey());
         }
-        save(jpaProposal);
-        proposal.getSkills()
-                .forEach(skill -> jpaProposalSkillsRepository.insert(skill.getName(), skill.getDescription(), proposal.getId().toString()));
-        proposal.getRequirements()
-                .forEach(requirement -> jpaProposalRequirementsRepository.insert(requirement.getName(), proposal.getId().toString()));
-        return proposal.getId().toString();
+        insert(jpaProposal);
     }
 
-    public JpaProposal save(JpaProposal proposal) {
+    public JpaProposal insert(JpaProposal proposal) {
         return jpaProposalRepository.save(proposal);
     }
 
+    /**
+     * Format a proposal with all relevant data
+     *
+     * @param id id of the proposal
+     */
     @SneakyThrows
     public Proposal fetch(String id) {
         JpaProposal jpaProposal = jpaProposalRepository.findByNaturalId(id)
                 .orElseThrow(EntityNotFoundException::new);
         Proposal proposal = Proposal.parseJpa(jpaProposal);
-        jpaProposal.getInscribedVolunteers()
-                .stream()
-                .map(v -> new Volunteer(new Id(v.getCredential().getId()), EmailAddress.from(v.getCredential().getEmail()), new Id(v.getId())))
-                .forEach(proposal::inscribeVolunteer);
-        jpaProposal.getSkills()
-                .forEach(s -> proposal.addSkill(new Skill(s.getName(), s.getDescription())));
-        jpaProposal.getRequirements()
-                .forEach(r -> proposal.addRequirement(new Requirement(r.getName())));
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEsalId(jpaProposal.getEsal().getId())
+                .orElseThrow(ESALNotFoundException::new);
+        proposal.getEsal().setContactPersonEmail(EmailAddress.from(jpaContactPerson.getCredential().getEmail()));
         return proposal;
     }
 

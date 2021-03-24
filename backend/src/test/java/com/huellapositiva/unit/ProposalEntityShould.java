@@ -2,6 +2,7 @@ package com.huellapositiva.unit;
 
 import com.huellapositiva.domain.exception.InvalidProposalRequestException;
 import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.AgeRange;
 import com.huellapositiva.domain.model.valueobjects.ProposalDate;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,7 @@ class ProposalEntityShould {
         ProposalDate closingProposalDate = new ProposalDate(Date.from(Instant.now().plus(2, ChronoUnit.DAYS)));
         ProposalDate startingVolunteeringDate = new ProposalDate(Date.from(Instant.now().plus(4, ChronoUnit.DAYS)));
         Proposal proposal = Proposal.builder()
+                .permittedAgeRange(AgeRange.create(18, 80))
                 .closingProposalDate(closingProposalDate)
                 .startingProposalDate(startingProposalDate)
                 .startingVolunteeringDate(startingVolunteeringDate)

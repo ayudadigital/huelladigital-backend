@@ -3,10 +3,9 @@ package com.huellapositiva.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.ProposalCategory;
-import com.huellapositiva.domain.model.valueobjects.ProposalStatus;
-import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.model.entities.Proposal;
+import com.huellapositiva.domain.model.valueobjects.*;
+import com.huellapositiva.domain.repository.ProposalRepository;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -30,7 +29,10 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import javax.persistence.EntityNotFoundException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -40,6 +42,7 @@ import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static com.huellapositiva.util.TestData.*;
 import static com.huellapositiva.util.TestUtils.loginAndGetJwtTokens;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.text.MatchesPattern.matchesPattern;
@@ -56,14 +59,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestData.class)
 class ProposalControllerShould {
 
-    private static final String REGISTER_PROPOSAL_URI = "/api/v1/proposals";
+    private static final String PROPOSALS_BASE_URI = "/api/v1/proposals";
 
     private static final String FETCH_PROPOSAL_URI = "/api/v1/proposals/";
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
     @Autowired
     private TestData testData;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mvc;
@@ -76,6 +80,9 @@ class ProposalControllerShould {
 
     @Autowired
     private JpaVolunteersProposalsRepository jpaVolunteersProposalsRepository;
+
+    @Autowired
+    private ProposalRepository proposalRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -91,7 +98,7 @@ class ProposalControllerShould {
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
-        MockHttpServletResponse response = mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        MockHttpServletResponse response = mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", null, "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -130,15 +137,20 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate(invalidStartingDate)
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -170,15 +182,20 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -210,15 +227,20 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("25-01-2021")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -435,15 +457,20 @@ class ProposalControllerShould {
                 .durationInDays("1 semana")
                 .startingVolunteeringDate("20-08-2030")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN + THEN
-        mvc.perform(multipart(REGISTER_PROPOSAL_URI)
+        mvc.perform(multipart(PROPOSALS_BASE_URI)
                 .file(new MockMultipartFile("file", "fileName", "text/plain", "test data".getBytes()))
                 .file(new MockMultipartFile("dto", "dto", "application/json", objectMapper.writeValueAsString(proposalDto).getBytes()))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -608,9 +635,9 @@ class ProposalControllerShould {
                         .zipCode("12345")
                         .island("Tenerife").build())
                 .esal(different_esal)
-                .startingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"))
-                .closingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("24-12-2020"))
-                .startingVolunteeringDate(new SimpleDateFormat("dd-MM-yyyy").parse("25-12-2020"))
+                .startingProposalDate(Date.from(Instant.now().plus(1, DAYS)))
+                .closingProposalDate(Date.from(Instant.now().plus(5, DAYS)))
+                .startingVolunteeringDate(Date.from(Instant.now().plus(6, DAYS)))
                 .requiredDays("Weekends")
                 .minimumAge(18)
                 .maximumAge(26)
@@ -887,6 +914,555 @@ class ProposalControllerShould {
                 FINISHED,
                 ENROLLMENT_CLOSED,
                 REVIEW_PENDING
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideCorrectProposalInformation")
+    void return_200_when_updates_proposal_and_change_status_to_review_pending(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        Proposal proposal = proposalRepository.fetch(jpaProposal.getId());
+        assertThat(proposal.getStatus()).isEqualTo(REVIEW_PENDING);
+        assertThat(proposal.getTitle()).isEqualTo(updateProposalRequestDto.getTitle());
+        assertThat(proposal.getLocation().getProvince()).isEqualTo(updateProposalRequestDto.getProvince());
+        assertThat(proposal.getLocation().getTown()).isEqualTo(updateProposalRequestDto.getTown());
+        assertThat(proposal.getLocation().getAddress()).isEqualTo(updateProposalRequestDto.getAddress());
+        assertThat(proposal.getLocation().getIsland()).isEqualTo(updateProposalRequestDto.getIsland());
+        assertThat(proposal.getLocation().getZipCode()).isEqualTo(updateProposalRequestDto.getZipCode());
+        assertThat(proposal.getRequiredDays()).isEqualTo(updateProposalRequestDto.getRequiredDays());
+        assertThat(proposal.getPermittedAgeRange().getMinimum()).isEqualTo(updateProposalRequestDto.getMinimumAge());
+        assertThat(proposal.getPermittedAgeRange().getMaximum()).isEqualTo(updateProposalRequestDto.getMaximumAge());
+        if (updateProposalRequestDto.getStartingProposalDate() != null) {
+            String proposalStartingDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingProposalDate().toString())).toString();
+            String proposalStartingDateToCheck = proposal.getStartingProposalDate().toString();
+            assertThat(proposalStartingDateToCheck).isEqualTo(proposalStartingDate);
+        }
+
+        String proposalClosingDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getClosingProposalDate().toString())).toString();
+        String proposalClosingDateToCheck = proposal.getClosingProposalDate().toString();
+        assertThat(proposalClosingDateToCheck).isEqualTo(proposalClosingDate);
+
+        String proposalStartingVolunteringDate = new ProposalDate(new SimpleDateFormat("yyyy-MM-dd").parse(updateProposalRequestDto.getStartingVolunteeringDate().toString())).toString();
+        String proposalStartingVolunteringDateToCheck = proposal.getStartingVolunteeringDate().toString();
+        assertThat(proposalStartingVolunteringDateToCheck).isEqualTo(proposalStartingVolunteringDate);
+
+        assertThat(proposal.getDescription()).isEqualTo(updateProposalRequestDto.getDescription());
+        assertThat(proposal.getDurationInDays()).isEqualTo(updateProposalRequestDto.getDurationInDays());
+
+        String proposalCategory = proposal.getCategory().toString();
+        assertThat(proposalCategory).isEqualTo(updateProposalRequestDto.getCategory());
+
+        if (updateProposalRequestDto.getSkills() != null) {
+            assertThat(proposal.getSkills().size()).isEqualTo(updateProposalRequestDto.getSkills().size());
+        }
+        if (updateProposalRequestDto.getRequirements() != null) {
+            assertThat(proposal.getRequirements().size()).isEqualTo(updateProposalRequestDto.getRequirements().size());
+        }
+        if (updateProposalRequestDto.getExtraInfo() != null) {
+            assertThat(proposal.getExtraInfo()).isEqualTo(updateProposalRequestDto.getExtraInfo());
+        }
+        if (updateProposalRequestDto.getInstructions() != null) {
+            assertThat(proposal.getInstructions()).isEqualTo(updateProposalRequestDto.getInstructions());
+        }
+    }
+
+    private static Stream<UpdateProposalRequestDto> provideCorrectProposalInformation() {
+        return Stream.of(
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .skills(VALID_SKILLS)
+                        .requirements(VALID_REQUIREMENTS)
+                        .extraInfo(VALID_EXTRA_INFO)
+                        .instructions(VALID_INSTRUCTIONS)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectProposalInformation")
+    void return_400_when_tries_update_proposal_with_wrong_fields(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<UpdateProposalRequestDto> provideIncorrectProposalInformation() {
+        return Stream.of(
+                UpdateProposalRequestDto.builder()
+                        .title("Una propo//sal no va~$lida")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title("Titulo mayor a 75 caracteres,  Titulo mayor a 75 caracteres, Titulo mayor a 75 caracteres")
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province("Malaga")
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town("1215125")
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island("Mallorca")
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode("40000")
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays("%&/()")
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(15)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(90)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(70)
+                        .maximumAge(20)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(LocalDate.now().minusDays(10))
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(LocalDate.now().minusDays(10))
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(LocalDate.now().plusDays(7))
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description("")
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description("a".repeat(201))
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays("Campo de letras")
+                        .category(VALID_CATEGORY)
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category("Categoria no valida")
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .extraInfo("a".repeat(201))
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .startingProposalDate(VALID_PROPOSAL_DATE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .instructions("a".repeat(201))
+                        .build()
+        );
+    }
+
+    @Test
+    void return_404_when_tries_update_proposal_with_wrong_proposal_id() throws Exception {
+        // GIVEN
+        testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN
+        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
+                .title(VALID_TITLE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .requiredDays(VALID_REQUIRED_DAYS)
+                .minimumAge(VALID_MINIMUM_AGE)
+                .maximumAge(VALID_MAXIMUM_AGE)
+                .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                .description(VALID_DESCRIPTION)
+                .durationInDays(VALID_DURATION_IN_DAYS)
+                .category(VALID_CATEGORY)
+                .build();
+
+        // THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + "abcd1234-abcd-1234-abcd-abcdef123456")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_403_when_tries_update_proposal_with_wrong_contact_person() throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, "contactPersonHacker@huellapositiva.com", DEFAULT_PASSWORD);
+
+        // WHEN
+        UpdateProposalRequestDto updateProposalRequestDto = UpdateProposalRequestDto.builder()
+                .title(VALID_TITLE)
+                .province(VALID_PROVINCE)
+                .town(VALID_TOWN)
+                .address(VALID_ADDRESS)
+                .island(VALID_ISLAND)
+                .zipCode(VALID_ZIPCODE)
+                .requiredDays(VALID_REQUIRED_DAYS)
+                .minimumAge(VALID_MINIMUM_AGE)
+                .maximumAge(VALID_MAXIMUM_AGE)
+                .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                .description(VALID_DESCRIPTION)
+                .durationInDays(VALID_DURATION_IN_DAYS)
+                .category(VALID_CATEGORY)
+                .build();
+
+        // THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideProposalWithDuplicatedSkillOrRequirements")
+    void should_return_204_ignoring_duplicated_skills_or_requirements(UpdateProposalRequestDto updateProposalRequestDto) throws Exception {
+        // GIVEN
+        JpaProposal jpaProposal = testData.registerESALAndProposal(REVIEW_PENDING);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + jpaProposal.getId())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateProposalRequestDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    private static Stream<UpdateProposalRequestDto> provideProposalWithDuplicatedSkillOrRequirements() {
+        return Stream.of(
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .skills(List.of(
+                                new SkillDto("SkillRepetida", "descipcion"),
+                                new SkillDto("SkillRepetida", "descipcion")))
+                        .build(),
+                UpdateProposalRequestDto.builder()
+                        .title(VALID_TITLE)
+                        .province(VALID_PROVINCE)
+                        .town(VALID_TOWN)
+                        .address(VALID_ADDRESS)
+                        .island(VALID_ISLAND)
+                        .zipCode(VALID_ZIPCODE)
+                        .requiredDays(VALID_REQUIRED_DAYS)
+                        .minimumAge(VALID_MINIMUM_AGE)
+                        .maximumAge(VALID_MAXIMUM_AGE)
+                        .closingProposalDate(VALID_CLOSING_PROPOSAL_DATE)
+                        .startingVolunteeringDate(VALID_STARTING_VOLUNTERING_DATE)
+                        .description(VALID_DESCRIPTION)
+                        .durationInDays(VALID_DURATION_IN_DAYS)
+                        .category(VALID_CATEGORY)
+                        .requirements(List.of(
+                                "Un requerimiento",
+                                "Un requerimiento"))
+                        .build()
         );
     }
 

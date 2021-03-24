@@ -2,14 +2,9 @@ package com.huellapositiva.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
-import com.huellapositiva.application.exception.FailedToPersistProposalException;
-import com.huellapositiva.application.exception.InvalidFieldException;
-import com.huellapositiva.application.exception.ProposalNotPublicException;
-import com.huellapositiva.application.exception.ProposalNotPublishedException;
+import com.huellapositiva.application.exception.*;
 import com.huellapositiva.domain.actions.*;
-import com.huellapositiva.domain.exception.EmptyFileException;
-import com.huellapositiva.domain.exception.InvalidProposalRequestException;
-import com.huellapositiva.domain.exception.InvalidProposalStatusException;
+import com.huellapositiva.domain.exception.*;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -71,6 +67,8 @@ public class ProposalApiController {
     private final CancelProposalAction cancelProposalAction;
 
     private final ChangeStatusVolunteerAction changeStatusVolunteerAction;
+
+    private final UpdateProposalAction updateProposalAction;
 
     private final CloseProposalEnrollmentAction closeProposalEnrollmentAction;
 
@@ -693,6 +691,63 @@ public class ProposalApiController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
         } catch (InvalidProposalStatusException ex) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Update proposal",
+            description = "The contact person can to update the proposal and this change the status to REVIEW_PENDING. Roles allowed CONTACT_PERSON.",
+            tags = {"proposals, contact person"},
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No Content, the proposal has been modified."
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, some field has wrong format."
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Not found, the contact person not found in the database or the proposal not found in the database."
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the proposal is not linked with the contact person, or some skill/requirement is duplicated."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PutMapping("/{id}")
+    @RolesAllowed({"CONTACT_PERSON"})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProposal(@PathVariable("id") String proposalId,
+                               @Validated @RequestBody UpdateProposalRequestDto updateProposalRequestDto,
+                               @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+        try {
+            updateProposalAction.execute(proposalId, updateProposalRequestDto, accountId);
+        } catch (ParseException | InvalidFieldException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (ProposalNotLinkedWithContactPersonException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        } catch (UserNotFoundException | EntityNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (SkillAlreadyExistsException |
+                RequirementAlreadyExistsException |
+                InvalidProposalStatusException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

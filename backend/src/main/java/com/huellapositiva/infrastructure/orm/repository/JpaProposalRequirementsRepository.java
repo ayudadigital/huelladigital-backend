@@ -19,4 +19,8 @@ public interface JpaProposalRequirementsRepository extends JpaRepository<JpaProp
     @Query(value = "INSERT INTO proposal_requirements (name, proposal_id) values (:name, :proposalId)", nativeQuery = true)
     void insert(@Param("name") String name, @Param("proposalId") String proposalId);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM JpaProposalRequirements p WHERE p.proposal.id = :proposalId")
+    void deleteRequirementsByProposalId(@Param("proposalId") String proposalId);
 }

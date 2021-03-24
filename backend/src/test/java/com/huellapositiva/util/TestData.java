@@ -1,6 +1,7 @@
 package com.huellapositiva.util;
 
 import com.huellapositiva.application.dto.ProposalRequestDto;
+import com.huellapositiva.application.dto.SkillDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.exception.InvalidStatusIdException;
 import com.huellapositiva.domain.model.entities.ESAL;
@@ -20,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
@@ -73,6 +73,23 @@ public class TestData {
     public static final String VALID_INSTAGRAM = "https://instagram.com/foo-bar";
     public static final String VALID_LINKEDIN = "https://linkedin.com/in/home";
     public static final String VALID_ADDITIONAL_INFO = "Additional information";
+
+    public static final String VALID_TITLE = "Titulo menor a 75 caracteres";
+    public static final String VALID_REQUIRED_DAYS = "Weekend";
+    public static final int VALID_MINIMUM_AGE = 18;
+    public static final int VALID_MAXIMUM_AGE = 70;
+    public static final LocalDate VALID_PROPOSAL_DATE = LocalDate.now().plusDays(5);
+    public static final LocalDate VALID_CLOSING_PROPOSAL_DATE = LocalDate.now().plusDays(10);
+    public static final LocalDate VALID_STARTING_VOLUNTERING_DATE = LocalDate.now().plusDays(15);
+    public static final String VALID_DESCRIPTION = "Una descripcion menor de 200 caracteres";
+    public static final String VALID_DURATION_IN_DAYS = "5";
+    public static final String VALID_CATEGORY = "MIXED";
+    public static final List<SkillDto> VALID_SKILLS = List.of(
+            new SkillDto("Comunicador", "Excelente comunicador"),
+            new SkillDto("Guapo", "La belleza por delante"));
+    public static final List<String> VALID_REQUIREMENTS = List.of("Traer DNI");
+    public static final String VALID_EXTRA_INFO = "Una extra info menor de 200 caracteres";
+    public static final String VALID_INSTRUCTIONS = "Una instructions menor de 200 caracteres";
 
     public static final Location DEFAULT_LOCATION = Location.builder()
             .island(VALID_ISLAND)
@@ -328,8 +345,13 @@ public class TestData {
                 .description("Recogida de ropa en la laguna")
                 .durationInDays("1 semana")
                 .category(ProposalCategory.ON_SITE.toString())
-                .skills(new String[][]{{"Habilidad", "Descripción"}, {"Negociación", "Saber regatear"}})
-                .requirements(new String[]{"Forma física para cargar con la ropa", "Disponibilidad horaria", "Carnet de conducir"})
+                .skills(List.of(
+                        new SkillDto("Habilidad", "Descripción"),
+                        new SkillDto("Negociación", "Saber regatear")))
+                .requirements(List.of(
+                        "Forma física para cargar con la ropa",
+                        "Disponibilidad horaria",
+                        "Carnet de conducir"))
                 .extraInfo("Es recomendable tener ganas de recoger ropa")
                 .instructions("Se seleccionarán a los primeros 100 voluntarios")
                 .build();
@@ -385,7 +407,7 @@ public class TestData {
         Set<JpaVolunteer> jpaVolunteers = new HashSet<>();
         jpaVolunteers.add(jpaVolunteer);
         jpaVolunteers.add(jpaVolunteer2);
-      
+
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = buildJpaESAL(DEFAULT_ESAL);
         createAndLinkESAL(contactPerson, esal);
@@ -439,7 +461,7 @@ public class TestData {
                         .province("Santa Cruz de Tenerife")
                         .town("Santa Cruz de Tenerife")
                         .address("Avenida Weyler 4")
-                        .zipCode("12345")
+                        .zipCode("38000")
                         .island("Tenerife").build())
                 .esal(esal)
                 .startingProposalDate(Date.from(now().plus(5, DAYS)))
@@ -467,7 +489,7 @@ public class TestData {
         return jpaProposal;
     }
 
-    public String registerESALandPublishedProposalObject() throws ParseException {
+    public String registerESALandPublishedProposalObject() {
         JpaContactPerson contactPerson = createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         JpaESAL esal = buildJpaESAL(DEFAULT_ESAL);
         createAndLinkESAL(contactPerson, esal);
@@ -495,7 +517,7 @@ public class TestData {
         Arrays.asList(new Requirement("Forma física para cargar con la ropa"), new Requirement("Disponibilidad horaria"), new Requirement("Carnet de conducir"))
                 .forEach(proposal::addRequirement);
 
-        return proposalRepository.save(proposal);
+        return proposalRepository.insert(proposal);
     }
 
     @SneakyThrows

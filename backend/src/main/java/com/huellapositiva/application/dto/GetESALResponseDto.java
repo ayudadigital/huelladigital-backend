@@ -7,25 +7,23 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
 @Builder
 @AllArgsConstructor
-public class UpdateESALDto {
+public class GetESALResponseDto {
 
     @Schema(
             description = "Name of ESAL",
             example = "Canarias para todos"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]+$")
     private final String name;
 
     @Schema(
             description = "ESAL's description",
-            example = "ESAL dedicada a ayudar en la recogida de alimentos."
+            example = "ESAL dedicada a ayudar en la recogida de alimentos y otros productos básicos."
 
     )
     @Size(max = 500)
@@ -54,37 +52,33 @@ public class UpdateESALDto {
 
     @Schema(
             description = "Where the ESAL is located. TIP: Only can be the eight islands of Canary Islands",
-            example = "Gran Canaria"
+            example = "Tenerife"
     )
     @NotBlank
-    @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String island;
 
     @Schema(
-            description = "Where the ESAL is located. TIP: Can be +35xxx or 38xxx",
-            example = "35241"
+            description = "Where the ESAL is located. TIP: Can be +35xxx or +38xxx",
+            example = "35041"
     )
     @NotBlank
-    @Pattern(regexp = "^\\d{5}$")
     private final String zipCode;
 
     @Schema(
             description = "Where the ESAL is located",
             example = "Las Palmas"
     )
-    @Pattern(regexp = "^(Las Palmas|Santa Cruz de Tenerife)$")
     private final String province;
 
     @Schema(
             description = "Where the ESAL is located",
             example = "Agaete"
     )
-    @Pattern(regexp = "^[a-zA-Z ]*$")
     private final String town;
 
     @Schema(
             description = "Where the ESAL is located",
-            example = "Calle Guacimeta N2"
+            example = "Calle Guacimeta N3"
     )
     private final String address;
 }

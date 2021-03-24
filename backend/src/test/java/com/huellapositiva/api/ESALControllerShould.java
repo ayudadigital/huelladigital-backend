@@ -1,9 +1,7 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.ESALRequestDto;
-import com.huellapositiva.application.dto.JwtResponseDto;
-import com.huellapositiva.application.dto.UpdateESALDto;
+import com.huellapositiva.application.dto.*;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -18,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -125,6 +124,33 @@ class ESALControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isOk());
         assertThat(jpaESALRepository.findByName(esalRequestDto.getName())).isPresent();
+    }
+
+    @Test
+    void return_200_when_get_esal_information_successfully() throws Exception {
+        JpaContactPerson contactPerson = testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        String esalId = testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        MockHttpServletResponse response = mvc.perform(get("/api/v1/esal")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn().getResponse();
+
+        GetESALResponseDto esalResponseDto = objectMapper.readValue(response.getContentAsString(), GetESALResponseDto.class);
+        JpaESAL jpaESAL = jpaESALRepository.findByNaturalId(esalId).orElseThrow(EntityNotFoundException::new);
+        assertThat(jpaESAL.getName()).isEqualTo(esalResponseDto.getName());
+        assertThat(jpaESAL.getDescription()).isEqualTo(esalResponseDto.getDescription());
+        assertThat(jpaESAL.getWebsite()).isEqualTo(esalResponseDto.getWebsite());
+        assertThat(jpaESAL.isRegisteredEntity()).isEqualTo(esalResponseDto.isRegisteredEntity());
+        assertThat(jpaESAL.getEntityType()).isEqualTo(esalResponseDto.getEntityType());
+        assertThat(jpaESAL.getLocation().getIsland()).isEqualTo(esalResponseDto.getIsland());
+        assertThat(jpaESAL.getLocation().getZipCode()).isEqualTo(esalResponseDto.getZipCode());
+        assertThat(jpaESAL.getLocation().getProvince()).isEqualTo(esalResponseDto.getProvince());
+        assertThat(jpaESAL.getLocation().getTown()).isEqualTo(esalResponseDto.getTown());
+        assertThat(jpaESAL.getLocation().getAddress()).isEqualTo(esalResponseDto.getAddress());
     }
 
     @Test

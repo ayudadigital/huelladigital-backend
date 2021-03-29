@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 @Data
 @Builder
 @AllArgsConstructor
-public class RegisterESALMemberRequestDto {
+public class RegisterContactPersonDto {
 
     @Schema(
             description = "Name of Contact Person",

@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.service;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.application.exception.ConflictPersistingUserException;
 import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.*;
@@ -33,7 +33,7 @@ public class ESALContactPersonService {
      * @return id of the contactPerson
      * @throws ConflictPersistingUserException when there's a problem with the data to be inserted in the DB
      */
-    public Id registerContactPerson(RegisterESALMemberRequestDto dto, PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
+    public Id registerContactPerson(RegisterContactPersonDto dto, PlainPassword plainPassword, EmailConfirmation emailConfirmation) {
         try {
             PasswordHash hash = new PasswordHash(passwordEncoder.encode(plainPassword.toString()));
             ContactPerson contactPerson = new ContactPerson(Id.newId(), EmailAddress.from(emailConfirmation.getEmailAddress()), hash, Id.newId(), dto);

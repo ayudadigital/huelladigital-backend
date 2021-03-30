@@ -8,6 +8,7 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPersonProfile;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -197,6 +198,23 @@ class ESALContactPersonControllerShould {
         );
     }
 
+    private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationSameEmail() {
+        return Stream.of(
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+4 123456789")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+344 123456789")
+                        .build()
+        );
+    }
+
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
     void return_204_when_updates_profile_information_successfully_without_email(UpdateContactPersonProfileRequestDto UpdateContactPersonProfileRequestDto) throws Exception {
@@ -213,6 +231,8 @@ class ESALContactPersonControllerShould {
 
         JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
                 .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL));
+        Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
+        assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON.name());
         JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
         assertThat(profile.getId()).isNotNull();
         assertThat(profile.getName()).isEqualTo(UpdateContactPersonProfileRequestDto.getName());
@@ -220,21 +240,46 @@ class ESALContactPersonControllerShould {
         assertThat(profile.getPhoneNumber()).isEqualTo(UpdateContactPersonProfileRequestDto.getPhoneNumber());
     }
 
-    private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationSameEmail() {
+    private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationDifferentEmail() {
         return Stream.of(
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
-                        .email(DEFAULT_EMAIL)
+                        .email(DEFAULT_EMAIL_2)
                         .phoneNumber("+4 123456789")
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
-                        .email(DEFAULT_EMAIL)
+                        .email(DEFAULT_EMAIL_2)
                         .phoneNumber("+344 123456789")
                         .build()
         );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideCorrectProfileInformationDifferentEmail")
+    void return_204_when_updates_profile_information_successfully_with_email(UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto) throws Exception {
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/ContactPersons/profile")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateContactPersonProfileRequestDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL));
+        Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
+        assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON_NOT_CONFIRMED.name());
+        JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
+        assertThat(profile.getId()).isNotNull();
+        assertThat(profile.getName()).isEqualTo(updateContactPersonProfileRequestDto.getName());
+        assertThat(profile.getSurname()).isEqualTo(updateContactPersonProfileRequestDto.getSurname());
+        assertThat(profile.getPhoneNumber()).isEqualTo(updateContactPersonProfileRequestDto.getPhoneNumber());
     }
 
     @ParameterizedTest

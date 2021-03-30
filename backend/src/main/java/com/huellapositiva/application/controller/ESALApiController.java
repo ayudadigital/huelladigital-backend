@@ -137,17 +137,27 @@ public class ESALApiController {
                             content = @Content(mediaType = "application/json")
                     ),
                     @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden, logged user has no access to that ESAL",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
                             responseCode = "500",
                             description = "Internal server error, could not fetch the esal data due to a connectivity issue.",
                             content = @Content(mediaType = "application/json")
                     )
             }
     )
-    @GetMapping
+    @GetMapping("/{id}")
     @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
     @ResponseStatus(HttpStatus.OK)
-    public GetESALResponseDto fetchESAL(@Parameter(hidden = true) @AuthenticationPrincipal String accountId){
-        return fetchESALAction.execute(accountId);
+    public GetESALResponseDto fetchESAL(@PathVariable String id,
+                                        @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+        try {
+            return fetchESALAction.executeAsOwner(id, accountId);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 
     @Operation(

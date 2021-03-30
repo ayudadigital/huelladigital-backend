@@ -2,6 +2,7 @@ package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huellapositiva.application.dto.*;
+import com.huellapositiva.domain.model.entities.ESAL;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.entities.JpaESAL;
@@ -132,7 +133,7 @@ class ESALControllerShould {
         String esalId = testData.createAndLinkESAL(contactPerson, testData.buildJpaESAL(DEFAULT_ESAL));
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        MockHttpServletResponse response = mvc.perform(get("/api/v1/esal")
+        MockHttpServletResponse response = mvc.perform(get("/api/v1/esal/"+esalId)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .with(csrf())
                 .accept(APPLICATION_JSON))
@@ -151,6 +152,19 @@ class ESALControllerShould {
         assertThat(jpaESAL.getLocation().getProvince()).isEqualTo(esalResponseDto.getProvince());
         assertThat(jpaESAL.getLocation().getTown()).isEqualTo(esalResponseDto.getTown());
         assertThat(jpaESAL.getLocation().getAddress()).isEqualTo(esalResponseDto.getAddress());
+    }
+
+    @Test
+    void return_403_when_getting_esal_information_the_contact_person_does_not_own() throws Exception {
+        ESAL esal = testData.createESAL(DEFAULT_ESAL);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(get("/api/v1/esal/"+esal.getId().getValue())
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .with(csrf())
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 
     @Test

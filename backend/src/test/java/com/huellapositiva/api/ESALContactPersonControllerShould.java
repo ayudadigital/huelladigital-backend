@@ -217,13 +217,13 @@ class ESALContactPersonControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
-    void return_204_when_updates_profile_information_successfully_without_email(UpdateContactPersonProfileRequestDto UpdateContactPersonProfileRequestDto) throws Exception {
+    void return_204_when_updates_profile_information_successfully_without_email(UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto) throws Exception {
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/ContactPersons/profile")
+        mvc.perform(post("/api/v1/contactperson/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(UpdateContactPersonProfileRequestDto))
+                .content(objectMapper.writeValueAsString(updateContactPersonProfileRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -235,9 +235,9 @@ class ESALContactPersonControllerShould {
         assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON.name());
         JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
         assertThat(profile.getId()).isNotNull();
-        assertThat(profile.getName()).isEqualTo(UpdateContactPersonProfileRequestDto.getName());
-        assertThat(profile.getSurname()).isEqualTo(UpdateContactPersonProfileRequestDto.getSurname());
-        assertThat(profile.getPhoneNumber()).isEqualTo(UpdateContactPersonProfileRequestDto.getPhoneNumber());
+        assertThat(profile.getName()).isEqualTo(updateContactPersonProfileRequestDto.getName());
+        assertThat(profile.getSurname()).isEqualTo(updateContactPersonProfileRequestDto.getSurname());
+        assertThat(profile.getPhoneNumber()).isEqualTo(updateContactPersonProfileRequestDto.getPhoneNumber());
     }
 
     private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationDifferentEmail() {
@@ -261,9 +261,9 @@ class ESALContactPersonControllerShould {
     @MethodSource("provideCorrectProfileInformationDifferentEmail")
     void return_204_when_updates_profile_information_successfully_with_email(UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto) throws Exception {
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
-        mvc.perform(post("/api/v1/ContactPersons/profile")
+        mvc.perform(post("/api/v1/contactperson/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(updateContactPersonProfileRequestDto))
                 .with(csrf())
@@ -286,7 +286,7 @@ class ESALContactPersonControllerShould {
     @MethodSource("provideIncorrectUpdateInformation")
     void return_400_when_not_provided_correct_information_for_updating_profile(UpdateContactPersonProfileRequestDto profileDto) throws Exception {
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/contactperson/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
@@ -366,7 +366,7 @@ class ESALContactPersonControllerShould {
     void return_409_when_provided_new_email_already_bound_to_a_different_account() throws Exception {
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
         testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
-        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
         UpdateContactPersonProfileRequestDto profileDto = UpdateContactPersonProfileRequestDto.builder()
                 .name(VALID_NAME)
@@ -375,7 +375,7 @@ class ESALContactPersonControllerShould {
                 .phoneNumber(VALID_PHONE)
                 .build();
 
-        mvc.perform(post("/api/v1/ContactPersons/profile")
+        mvc.perform(post("/api/v1/contactperson/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .content(objectMapper.writeValueAsString(profileDto))
                 .with(csrf())

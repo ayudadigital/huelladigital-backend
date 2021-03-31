@@ -42,7 +42,7 @@ public class ContactPersonProfileService {
     private final JwtService jwtService;
 
     /**
-     * This method update the contact person profile information in database
+     * Update the contact person profile information in database
      *
      * @param profileRequestDto New contact person profile information to update
      * @param accountId Account ID of user logged
@@ -87,7 +87,8 @@ public class ContactPersonProfileService {
     }
 
     /**
-     * This method update information in profile table
+     *  Update information in profile table
+     *
      *  @param profileRequestDto New contact person credential information to update
      *  @param jpaContactPerson  JPA representation of the contact person
      */

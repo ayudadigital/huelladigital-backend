@@ -5,12 +5,12 @@ import com.huellapositiva.domain.dto.UpdateProfileResult;
 import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
 import com.huellapositiva.domain.service.ContactPersonProfileService;
 import com.huellapositiva.domain.service.EmailCommunicationService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UpdateContactPersonProfileAction {
 
     private final ContactPersonProfileService profileService;

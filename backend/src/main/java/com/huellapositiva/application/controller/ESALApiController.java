@@ -1,20 +1,19 @@
 package com.huellapositiva.application.controller;
 
 import com.huellapositiva.application.dto.ESALRequestDto;
+import com.huellapositiva.application.dto.GetESALResponseDto;
 import com.huellapositiva.application.dto.UpdateESALDto;
 import com.huellapositiva.application.exception.ESALAlreadyExistsException;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.actions.DeleteESALAction;
-import com.huellapositiva.domain.actions.RegisterESALAction;
-import com.huellapositiva.domain.actions.UpdateESALAction;
-import com.huellapositiva.domain.actions.UploadLogoAction;
+import com.huellapositiva.domain.actions.*;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.exception.UserAlreadyHasESALException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -47,6 +46,8 @@ public class ESALApiController {
     private final DeleteESALAction deleteESALAction;
 
     private final UpdateESALAction updateESALAction;
+
+    private final FetchESALAction fetchESALAction;
 
     @Operation(
             summary = "Register a new ESAL",
@@ -101,6 +102,61 @@ public class ESALApiController {
             throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "The user attempting to create the ESAL has already registered another one.");
         } catch (UserNotFoundException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not register the user caused by a connectivity issue");
+        }
+    }
+
+
+
+    @Operation(
+            summary = "Return esal information",
+            description = "Return esal profile information",
+            tags = "ESAL",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Ok, return full esal information",
+                            content = {
+                                    @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetESALResponseDto.class)
+                                    )
+                            }
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "403",
+                            description = "Forbidden, logged user has no access to that ESAL",
+                            content = @Content(mediaType = "application/json")
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the esal data due to a connectivity issue.",
+                            content = @Content(mediaType = "application/json")
+                    )
+            }
+    )
+    @GetMapping("/{id}")
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
+    @ResponseStatus(HttpStatus.OK)
+    public GetESALResponseDto fetchESAL(@PathVariable String id,
+                                        @Parameter(hidden = true) @AuthenticationPrincipal String accountId){
+        try {
+            return fetchESALAction.executeAsOwner(id, accountId);
+        } catch (IllegalAccessException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
     }
 

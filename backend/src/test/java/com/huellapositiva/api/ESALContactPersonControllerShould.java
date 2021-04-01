@@ -337,27 +337,27 @@ class ESALContactPersonControllerShould {
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
-                        .name(VALID_SURNAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("+34 12345d789")
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
-                        .name(VALID_SURNAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("34 123456789")
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
-                        .name(VALID_SURNAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber("34 12345789101112")
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
-                        .name(VALID_SURNAME)
+                        .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
-                        .phoneNumber("+344 123456789")
+                        .phoneNumber("+3444 123456789")
                         .build()
         );
     }

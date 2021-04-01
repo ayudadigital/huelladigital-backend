@@ -54,9 +54,6 @@ public class ContactPersonProfileService {
         boolean isNewEmail = !jpaContactPerson.getCredential().getEmail().equalsIgnoreCase(profileRequestDto.getEmail());
         validations(profileRequestDto, isNewEmail);
 
-        updateContactPersonProfile(profileRequestDto, jpaContactPerson);
-        jpaContactPerson.getCredential().setEmail(profileRequestDto.getEmail());
-
         if (isNewEmail) {
             Role newJpaRole = jpaRoleRepository.findByName(CONTACT_PERSON_NOT_CONFIRMED.toString())
                     .orElseThrow(() -> new RoleNotFoundException("Role " + CONTACT_PERSON_NOT_CONFIRMED.toString() + "not found."));
@@ -65,6 +62,9 @@ public class ContactPersonProfileService {
             jpaContactPerson.getCredential().setRoles(newUserRoles);
             jwtService.revokeAccessTokens(jpaContactPerson.getCredential().getId());
         }
+
+        updateContactPersonProfile(profileRequestDto, jpaContactPerson);
+        jpaContactPerson.getCredential().setEmail(profileRequestDto.getEmail());
 
         jpaContactPersonRepository.save(jpaContactPerson);
 

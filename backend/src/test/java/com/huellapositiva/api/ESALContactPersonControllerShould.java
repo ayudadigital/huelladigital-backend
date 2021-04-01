@@ -203,13 +203,13 @@ class ESALContactPersonControllerShould {
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
-                        .email(DEFAULT_EMAIL)
+                        .email(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
                         .phoneNumber("+4 123456789")
                         .build(),
                 UpdateContactPersonProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
-                        .email(DEFAULT_EMAIL)
+                        .email(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
                         .phoneNumber("+344 123456789")
                         .build()
         );
@@ -229,8 +229,8 @@ class ESALContactPersonControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
-                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL));
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_ESAL_CONTACT_PERSON_EMAIL));
         Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
         assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON.name());
         JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
@@ -271,8 +271,8 @@ class ESALContactPersonControllerShould {
                 .accept(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL)
-                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL));
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL_2)
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL_2));
         Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
         assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON_NOT_CONFIRMED.name());
         JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
@@ -420,8 +420,7 @@ class ESALContactPersonControllerShould {
                 jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
         String updatedPhotoUrl = updatedContactPerson.getContactPersonProfile().getPhotoUrl();
 
-        assertThat(updatedPhotoUrl).isNotNull();
-        assertThat(updatedPhotoUrl).isNotEqualTo(originalPhotoUrl);
+        assertThat(updatedPhotoUrl).isNotNull().isNotEqualTo(originalPhotoUrl);
     }
 
     @Test

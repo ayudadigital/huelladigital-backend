@@ -58,8 +58,10 @@ jobs:
           context: backend
           push: true
 
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Log
+        run: |
+          pwd
+          ls -la
 
       - name: Deploy AWS
         uses: ./github/actions/deploy-aws/

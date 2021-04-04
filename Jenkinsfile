@@ -133,25 +133,25 @@ pipeline {
                 }
             }
         }
-        stage("AWS deploy") {
-            agent {
-                dockerfile {
-                    filename 'Dockerfile'
-                    dir 'backend/docker/build/aws'
-                }
-            }
-            when { branch 'develop' }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    sh """
-                        echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
-                        echo 'Deploying ... ======================================================='
-                        export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-                        bin/deploy-aws.sh dev ${env.DOCKER_TAG}
-                    """
-                }
-            }
-        }
+//        stage("AWS deploy") {
+//            agent {
+//                dockerfile {
+//                    filename 'Dockerfile'
+//                    dir 'backend/docker/build/aws'
+//                }
+//            }
+//            when { branch 'develop' }
+//            steps {
+//                withCredentials([usernamePassword(credentialsId: 'aws-huellapositiva', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+//                    sh """
+//                        echo 'Deploying to AWS -> Docker tag: ${env.DOCKER_TAG}'
+//                        echo 'Deploying ... ======================================================='
+//                        export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+//                        bin/deploy-aws.sh dev ${env.DOCKER_TAG}
+//                    """
+//                }
+//            }
+//        }
         // Close release
         stage ('Make release') {
             agent { label 'docker' }

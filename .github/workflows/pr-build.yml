@@ -59,9 +59,11 @@ jobs:
 #          push: true
 
       - name: Log
+        if: github.ref == ‘refs/heads/develop’ && github.event_name == ‘push’
         run: |
           pwd
           ls -la
+          echo "${GITHUB_REF}"
 
       - name: Deploy AWS
         uses: ./.github/actions/deploy-aws/

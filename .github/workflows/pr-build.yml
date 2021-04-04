@@ -68,7 +68,7 @@ jobs:
         id: deploy-aws
         with:
           cluster-name: 'dev-ecs-cluster'
-          service-name: huellapositiva-backend-ecs-service
+          service-name: 'huellapositiva-backend-ecs-service'
           task-family: 'dev-huellapositiva-backend-td'
           docker-image: 'ayudadigital/huelladigital-backend:${{ github.sha }}'
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

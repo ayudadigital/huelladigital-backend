@@ -44,19 +44,19 @@ jobs:
       - name: Package
         run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_PASS }}
-
-      - name: Docker Publish
-        uses: docker/build-push-action@v2
-        with:
-          # TODO add beta and latest tags
-          tags: ayudadigital/huelladigital-backend:${{ github.sha }}
-          context: backend
-          push: true
+#      - name: Login to DockerHub
+#        uses: docker/login-action@v1
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USER }}
+#          password: ${{ secrets.DOCKER_HUB_PASS }}
+#
+#      - name: Docker Publish
+#        uses: docker/build-push-action@v2
+#        with:
+#          # TODO add beta and latest tags
+#          tags: ayudadigital/huelladigital-backend:${{ github.sha }}
+#          context: backend
+#          push: true
 
       - name: Log
         run: |

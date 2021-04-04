@@ -21,7 +21,7 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: 'backend/docker/build/aws/Dockerfile'
+  image: '.github/actions/deploy-aws/Dockerfile'
   args:
     - ${{ inputs.cluster-name }}
     - ${{ inputs.task-family }}

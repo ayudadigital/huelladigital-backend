@@ -24,7 +24,8 @@ runs:
   image: 'Dockerfile'
   args:
     - ${{ inputs.cluster-name }}
+    - ${{ inputs.service-name }}
     - ${{ inputs.task-family }}
-    - ${{ inputs.docker-tag }}
+    - ${{ inputs.docker-image }}
     - ${{ inputs.aws-access-key-id }}
     - ${{ inputs.aws-access-key-secret }}

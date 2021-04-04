@@ -64,7 +64,7 @@ jobs:
           ls -la
 
       - name: Deploy AWS
-        uses: ./github/actions/deploy-aws/
+        uses: ./.github/actions/deploy-aws/
         id: deploy-aws
         with:
           cluster-name: 'dev-ecs-cluster'

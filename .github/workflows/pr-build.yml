@@ -58,6 +58,9 @@ jobs:
           context: backend
           push: true
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Deploy AWS
         uses: ./github/actions/deploy-aws/
         id: deploy-aws

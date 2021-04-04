@@ -53,6 +53,18 @@ jobs:
       - name: Docker Publish
         uses: docker/build-push-action@v2
         with:
+          # TODO add beta and latest tags
           tags: ayudadigital/huelladigital-backend:${{ github.sha }}
           context: backend
           push: true
+
+      - name: Deploy AWS
+        uses: ./github/actions/
+        id: deploy-aws
+        with:
+          cluster-name: 'dev-ecs-cluster'
+          service-name: huellapositiva-backend-ecs-service
+          task-family: 'dev-huellapositiva-backend-td'
+          docker-image: 'ayudadigital/huelladigital-backend:${{ github.sha }}'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-secret: ${{ secrets.AWS_ACCESS_KEY_SECRET }}

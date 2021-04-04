@@ -1,0 +1,30 @@
+name: 'Deploy AWS'
+description: 'Deploy ECS service'
+inputs:
+  cluster-name:
+    description: 'ECS cluster name'
+    required: true
+  service-name:
+    description: 'ECS service name'
+    required: true
+  task-family:
+    description: 'ECS task family name'
+    required: true
+  docker-tag:
+    description: 'Tag to deploy
+    required: true
+  aws-access-key-id:
+    description: 'AWS access key ID'
+    required: true
+  aws-access-key-secret:
+    description: 'AWS access key secret'
+    required: true
+runs:
+  using: 'docker'
+  image: 'backend/docker/build/aws/Dockerfile'
+  args:
+    - ${{ inputs.cluster-name }}
+    - ${{ inputs.task-family }}
+    - ${{ inputs.docker-tag }}
+    - ${{ inputs.aws-access-key-id }}
+    - ${{ inputs.aws-access-key-secret }}

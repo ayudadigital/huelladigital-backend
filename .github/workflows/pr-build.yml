@@ -55,8 +55,7 @@ jobs:
         env:
           IMAGE_NAME: ayudadigital/huelladigital-backend
         with:
-          # TODO add beta and latest tags
-          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.IMAGE_NAME }}:beta,${{ env.IMAGE_NAME }}:latest
           context: backend
           push: true
 

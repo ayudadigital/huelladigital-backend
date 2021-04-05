@@ -44,26 +44,34 @@ jobs:
       - name: Package
         run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml
 
-#      - name: Login to DockerHub
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKER_HUB_USER }}
-#          password: ${{ secrets.DOCKER_HUB_PASS }}
-#
-#      - name: Docker Publish
-#        uses: docker/build-push-action@v2
-#        with:
-#          # TODO add beta and latest tags
-#          tags: ayudadigital/huelladigital-backend:${{ github.sha }}
-#          context: backend
-#          push: true
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
 
-      - name: Log
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+      - name: Docker Publish
+        uses: docker/build-push-action@v2
+        env:
+          IMAGE_NAME: ayudadigital/huelladigital-backend
+        with:
+          # TODO add beta and latest tags
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          context: backend
+          push: true
+
+      - name: Deploy
+#        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
-          pwd
-          ls -la
-          echo "${GITHUB_REF}"
+          mkdir -p ~/.ssh/
+          SSH_KEY_PATH=~/.ssh/peter.key
+          echo "$SSH_KEY" > "$SSH_KEY_PATH"
+          chmod 600 "$SSH_KEY_PATH"
+          .github/actions/deploy/deploy.sh ${SSH_USER} ${SSH_HOST} ${SSH_KEY_PATH}
 
       - name: Deploy AWS
         uses: ./.github/actions/deploy-aws/

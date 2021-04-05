@@ -1,18 +1,12 @@
 #!/bin/bash
 
-CLUSTER_NAME=$1
-SERVICE_NAME=$2
-TASK_FAMILY=$3
-DOCKER_IMAGE=$4
-AWS_ACCESS_KEY_ID=$5
-AWS_ACCESS_KEY_SECRET=$6
-export AWS_ACCESS_KEY_ID AWS_ACCESS_KEY_SECRET
+env=$1
+DOCKER_TAG=$2
 
-echo "Cluster name: $CLUSTER_NAME"
-echo "Service name: $SERVICE_NAME"
-echo "Task family: $TASK_FAMILY"
-echo "Docker image: $DOCKER_IMAGE"
-aws --version
+DOCKER_IMAGE=ayudadigital/huelladigital-backend:${DOCKER_TAG}
+CLUSTER_NAME="${env}-ecs-cluster"
+TASK_FAMILY="${env}-huellapositiva-backend-td"
+SERVICE_NAME=huellapositiva-backend-ecs-service
 
 TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "${TASK_FAMILY}" --region "us-east-1")
 echo "======================================"

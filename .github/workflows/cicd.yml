@@ -63,7 +63,7 @@ jobs:
           context: backend
           push: true
 
-      - name: Deploy
+      - name: Deploy (dev)
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
@@ -76,7 +76,7 @@ jobs:
           chmod 600 "$SSH_KEY_PATH"
           .github/actions/deploy/deploy.sh ${SSH_USER} ${SSH_HOST} ${SSH_KEY_PATH}
 
-      - name: Deploy AWS
+      - name: Deploy AWS (dev)
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         uses: ./.github/actions/deploy-aws/
         id: deploy-aws
@@ -87,3 +87,8 @@ jobs:
           docker-image: 'ayudadigital/huelladigital-backend:${{ github.sha }}'
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-access-key-secret: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+
+# TODO
+# Show JUnit reports through actions
+# Send email alerts if failure
+# Release pipeline

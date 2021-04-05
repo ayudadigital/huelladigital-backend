@@ -113,26 +113,26 @@ pipeline {
                 sh 'bin/devcontrol.sh backend package'
             }
         }
-        stage("Docker Publish") {
-            agent { label 'docker' }
-            when { branch 'develop' }
-            steps {
-                script {
-                    env.DOCKER_TAG = "${GIT_COMMIT}"
-                }
-                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
-                buildAndPublishDockerImages("${env.DOCKER_TAG}")
-            }
-        }
-        stage("Remote deploy") {
-            agent { label 'docker' }
-            when { branch 'develop' }
-            steps {
-                sshagent (credentials: ['jpl-ssh-credentials']) {
-                    sh "bin/deploy.sh dev"
-                }
-            }
-        }
+//        stage("Docker Publish") {
+//            agent { label 'docker' }
+//            when { branch 'develop' }
+//            steps {
+//                script {
+//                    env.DOCKER_TAG = "${GIT_COMMIT}"
+//                }
+//                sh "echo \"Building tag: ${env.DOCKER_TAG}\""
+//                buildAndPublishDockerImages("${env.DOCKER_TAG}")
+//            }
+//        }
+//        stage("Remote deploy") {
+//            agent { label 'docker' }
+//            when { branch 'develop' }
+//            steps {
+//                sshagent (credentials: ['jpl-ssh-credentials']) {
+//                    sh "bin/deploy.sh dev"
+//                }
+//            }
+//        }
 //        stage("AWS deploy") {
 //            agent {
 //                dockerfile {

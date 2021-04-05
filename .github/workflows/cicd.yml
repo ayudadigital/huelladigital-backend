@@ -1,0 +1,94 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [ develop ]
+  push:
+    branches: [ develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Compile
+        run: mvn compile --file backend/pom.xml
+
+      - name: Unit tests
+        run: mvn test --file backend/pom.xml
+
+      - name: Integration tests
+        run: mvn verify -P integration-test -Dtest=BlakenTest -DfailIfNoTests=false --file backend/pom.xml
+
+      - name: Accceptance tests
+        run: mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false --file backend/pom.xml
+
+      - name: Sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR }}
+        run: mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}  -Dsonar.branch.name=${GITHUB_REF} --file backend/pom.xml
+
+      - name: Package
+        run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml
+
+      - name: Login to DockerHub
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASS }}
+
+      - name: Docker Publish
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        uses: docker/build-push-action@v2
+        env:
+          IMAGE_NAME: ayudadigital/huelladigital-backend
+        with:
+          tags: ${{ env.IMAGE_NAME }}:${{ github.sha }},${{ env.IMAGE_NAME }}:beta,${{ env.IMAGE_NAME }}:latest
+          context: backend
+          push: true
+
+      - name: Deploy (dev)
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh/
+          SSH_KEY_PATH=~/.ssh/peter.key
+          echo "$SSH_KEY" > "$SSH_KEY_PATH"
+          chmod 600 "$SSH_KEY_PATH"
+          .github/actions/deploy/deploy.sh ${SSH_USER} ${SSH_HOST} ${SSH_KEY_PATH}
+
+      - name: Deploy AWS (dev)
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        uses: ./.github/actions/deploy-aws/
+        id: deploy-aws
+        with:
+          cluster-name: 'dev-ecs-cluster'
+          service-name: 'huellapositiva-backend-ecs-service'
+          task-family: 'dev-huellapositiva-backend-td'
+          docker-image: 'ayudadigital/huelladigital-backend:${{ github.sha }}'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-secret: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
+
+# TODO
+# Show JUnit reports through actions
+# Send email alerts if failure
+# Release pipeline

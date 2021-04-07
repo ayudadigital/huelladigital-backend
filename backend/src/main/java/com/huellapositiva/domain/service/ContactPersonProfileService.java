@@ -77,7 +77,7 @@ public class ContactPersonProfileService {
      * @param profileRequestDto New contact person profile information to update
      * @param isNewEmail True if the contact person is updating the email
      */
-    public void validations(UpdateContactPersonProfileRequestDto profileRequestDto, boolean isNewEmail){
+    private void validations(UpdateContactPersonProfileRequestDto profileRequestDto, boolean isNewEmail){
         if (isNewEmail && jpaCredentialRepository.findByEmail(profileRequestDto.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists in the database.");
         }
@@ -94,16 +94,9 @@ public class ContactPersonProfileService {
      */
     private void updateContactPersonProfile(UpdateContactPersonProfileRequestDto profileRequestDto,
                                             JpaContactPerson jpaContactPerson) {
-        String id = jpaContactPerson.getContactPersonProfile().getId();
-        Integer surrogateKey = jpaContactPerson.getContactPersonProfile().getSurrogateKey();
-
-        JpaContactPersonProfile jpaProfile = JpaContactPersonProfile.builder()
-                .surrogateKey(surrogateKey)
-                .id(id)
-                .name(profileRequestDto.getName())
-                .surname(profileRequestDto.getSurname())
-                .phoneNumber(profileRequestDto.getPhoneNumber())
-                .build();
-        jpaContactPerson.setContactPersonProfile(jpaProfile);
+        JpaContactPersonProfile contactPersonProfile = jpaContactPerson.getContactPersonProfile();
+        contactPersonProfile.setName(profileRequestDto.getName());
+        contactPersonProfile.setSurname(profileRequestDto.getSurname());
+        contactPersonProfile.setPhoneNumber(profileRequestDto.getPhoneNumber());
     }
 }

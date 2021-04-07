@@ -50,7 +50,7 @@ public class VolunteerProfileService {
      * This method update the user profile information in database
      *
      * @param profileRequestDto New user profile information to update
-     * @param accountId Account ID of user logged
+     * @param accountId         Account ID of user logged
      */
     public UpdateProfileResult updateVolunteerProfileProfile(UpdateVolunteerProfileRequestDto profileRequestDto, String accountId) {
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByAccountIdWithCredentialAndLocationAndProfile(accountId)
@@ -80,7 +80,7 @@ public class VolunteerProfileService {
      * Validate profile data.
      *
      * @param profileRequestDto New user profile information to update
-     * @param   newEmail True if the user is updating the email
+     * @param newEmail          True if the user is updating the email
      */
     private void validations(UpdateVolunteerProfileRequestDto profileRequestDto, boolean newEmail) {
         if (newEmail && jpaCredentialRepository.findByEmail(profileRequestDto.getEmail()).isPresent()) {
@@ -102,55 +102,46 @@ public class VolunteerProfileService {
 
     /**
      * This method update information in location table
-     *  @param profileRequestDto New user credential information to update
-     * @param jpaVolunteer JPA representation of the volunteer
+     *
+     * @param profileRequestDto New user credential information to update
+     * @param jpaVolunteer      JPA representation of the volunteer
      */
     private void upsertLocation(UpdateVolunteerProfileRequestDto profileRequestDto, JpaVolunteer jpaVolunteer) {
-        String id;
-        Integer surrogateKey = null;
-        if (jpaVolunteer.getLocation() == null) {
-            id = Id.newId().toString();
-        } else {
-            id = jpaVolunteer.getLocation().getId();
-            surrogateKey = jpaVolunteer.getLocation().getSurrogateKey();
+        JpaLocation location = jpaVolunteer.getLocation();
+        if (location == null) {
+            location = JpaLocation.builder()
+                    .id(Id.newId().toString())
+                    .build();
+            jpaVolunteer.setLocation(location);
         }
-        JpaLocation jpaLocation = JpaLocation.builder()
-                .surrogateKey(surrogateKey)
-                .id(id)
-                .province(profileRequestDto.getProvince())
-                .town(profileRequestDto.getTown())
-                .address(profileRequestDto.getAddress())
-                .island(profileRequestDto.getIsland())
-                .zipCode(profileRequestDto.getZipCode()).build();
-        jpaVolunteer.setLocation(jpaLocation);
+        location.setProvince(profileRequestDto.getProvince());
+        location.setTown(profileRequestDto.getTown());
+        location.setAddress(profileRequestDto.getAddress());
+        location.setIsland(profileRequestDto.getIsland());
+        location.setZipCode(profileRequestDto.getZipCode());
     }
 
     /**
      * This method update information in profile table
-     *  @param profileRequestDto New user credential information to update
-     *  @param jpaVolunteer      JPA representation of the volunteer
+     *
+     * @param profileRequestDto New user credential information to update
+     * @param jpaVolunteer      JPA representation of the volunteer
      */
     private void upsertVolunteerProfile(UpdateVolunteerProfileRequestDto profileRequestDto, JpaVolunteer jpaVolunteer) {
-        String id;
-        Integer surrogateKey = null;
-        if (jpaVolunteer.getProfile() == null) {
-            id = Id.newId().toString();
-        } else {
-            id = jpaVolunteer.getProfile().getId();
-            surrogateKey = jpaVolunteer.getProfile().getSurrogateKey();
+        JpaProfile profile = jpaVolunteer.getProfile();
+        if (profile == null) {
+            profile = JpaProfile.builder()
+                    .id(Id.newId().toString())
+                    .build();
+            jpaVolunteer.setProfile(profile);
         }
-        JpaProfile jpaProfile = JpaProfile.builder()
-                .surrogateKey(surrogateKey)
-                .id(id)
-                .name(profileRequestDto.getName())
-                .surname(profileRequestDto.getSurname())
-                .phoneNumber(profileRequestDto.getPhoneNumber())
-                .birthDate(profileRequestDto.getBirthDate())
-                .twitter(profileRequestDto.getTwitter())
-                .instagram(profileRequestDto.getInstagram())
-                .linkedin(profileRequestDto.getLinkedin())
-                .additionalInformation(profileRequestDto.getAdditionalInformation())
-                .build();
-        jpaVolunteer.setProfile(jpaProfile);
+        profile.setName(profileRequestDto.getName());
+        profile.setSurname(profileRequestDto.getSurname());
+        profile.setPhoneNumber(profileRequestDto.getPhoneNumber());
+        profile.setBirthDate(profileRequestDto.getBirthDate());
+        profile.setTwitter(profileRequestDto.getTwitter());
+        profile.setInstagram(profileRequestDto.getInstagram());
+        profile.setLinkedin(profileRequestDto.getLinkedin());
+        profile.setAdditionalInformation(profileRequestDto.getAdditionalInformation());
     }
 }

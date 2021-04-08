@@ -1,6 +1,8 @@
 name: Healthcheck
 
 on:
+  pull_request:
+    branches: [ develop ]
   schedule:
     - cron:  '*/5 * * * *'
   workflow_dispatch:

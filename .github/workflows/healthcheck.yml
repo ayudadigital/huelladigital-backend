@@ -1,0 +1,19 @@
+name: CI/CD
+
+on:
+  schedule:
+    - cron:  '*/1 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Healthcheck (dev)
+        env:
+          HEALTH_URL_DEV: ${{ secrets.HEALTH_URL_DEV }}
+        run: |
+          echo "Run ID: ${GITHUB_RUN_ID}"
+          echo "Run Nb: ${GITHUB_RUN_NUMBER}"
+          curl ${HEALTH_URL_DEV} -f

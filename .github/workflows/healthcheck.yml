@@ -18,7 +18,7 @@ jobs:
         run: |
           echo "Run ID: ${GITHUB_RUN_ID}"
           echo "Run Nb: ${GITHUB_RUN_NUMBER}"
-          curl -IL -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > latest
+          curl -IL -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > current
       - name: Get previous state
         uses: actions/download-artifact@v2
         continue-on-error: true
@@ -30,6 +30,11 @@ jobs:
         run: |
           mkdir -p health/status
           test -f health/status/dev || echo "Unknown" > health/status/dev
-          echo "Previous status: $(cat health/status/dev)"
-          echo "Latest status: $(cat latest)"
+          current=$(cat current)
+          previous=$(cat health/status/dev)
+          echo "Previous status: $previous"
+          echo "Latest status: $current"
+          if [ "$current" != "$previous" ]; then
+            echo "Send alert."
+          fi
 

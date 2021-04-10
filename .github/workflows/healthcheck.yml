@@ -18,4 +18,15 @@ jobs:
         run: |
           echo "Run ID: ${GITHUB_RUN_ID}"
           echo "Run Nb: ${GITHUB_RUN_NUMBER}"
-          curl ${HEALTH_URL_DEV} -f
+          curl -IL -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > latest
+      - name: Get previous state
+        uses: actions/download-artifact@v2
+        with:
+          name: dev
+          path: health/status
+      - name: Compare status
+        run: |
+          test -f health/status/dev || echo "Unknown" > health/status/dev
+          echo "Previous status: $(cat health/status/dev)"
+          echo "Latest status: $(cat latest)"
+

@@ -26,6 +26,7 @@ jobs:
           path: health/status
           if-no-files-found: warn
       - name: Compare status
+        if: always()
         run: |
           test -f health/status/dev || echo "Unknown" > health/status/dev
           echo "Previous status: $(cat health/status/dev)"

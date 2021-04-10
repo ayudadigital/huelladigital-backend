@@ -21,6 +21,7 @@ jobs:
           curl -IL -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > latest
       - name: Get previous state
         uses: actions/download-artifact@v2
+        continue-on-error: true
         with:
           name: dev
           path: health/status
@@ -28,7 +29,6 @@ jobs:
         if: always()
         run: |
           mkdir -p health/status
-          touch health/status/dev
           test -f health/status/dev || echo "Unknown" > health/status/dev
           echo "Previous status: $(cat health/status/dev)"
           echo "Latest status: $(cat latest)"

@@ -24,7 +24,6 @@ jobs:
         with:
           name: dev
           path: health/status
-          if-no-files-found: warn
       - name: Compare status
         if: always()
         run: |

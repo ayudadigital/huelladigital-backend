@@ -27,6 +27,7 @@ jobs:
       - name: Compare status
         if: always()
         run: |
+          touch health/status/dev
           test -f health/status/dev || echo "Unknown" > health/status/dev
           echo "Previous status: $(cat health/status/dev)"
           echo "Latest status: $(cat latest)"

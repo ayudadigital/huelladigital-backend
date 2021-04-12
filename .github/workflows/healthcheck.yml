@@ -41,6 +41,3 @@ jobs:
           if [ "$current" != "$previous" ]; then
             echo "Send alert."
           fi
-      - name: Notify
-
-

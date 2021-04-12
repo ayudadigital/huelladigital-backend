@@ -16,8 +16,8 @@ jobs:
         id: cache-state
         uses: actions/cache@v2
         with:
-          path: health
-          key: ${{ runner.os }}
+          path: health/status
+          key: ${{ runner.os }}-test
       - name: Healthcheck (dev)
         id: healthcheck
         env:

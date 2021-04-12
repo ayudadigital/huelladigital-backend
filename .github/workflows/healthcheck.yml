@@ -23,8 +23,8 @@ jobs:
         env:
           HEALTH_URL_DEV: ${{ secrets.HEALTH_URL_DEV }}
         run: |
-          ls -l health/status || true
-          cat health/status/dev || true
+          #ls -l health/status || true
+          #cat health/status/dev || true
           mkdir -p health/status
           test -f health/status/dev || echo "UNKNOWN" > health/status/dev
           echo "::set-output name=previous::$(cat health/status/dev)"

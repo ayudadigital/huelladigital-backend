@@ -31,6 +31,7 @@ jobs:
           echo $CURRENT > health/status/dev
           echo "::set-output name=current::$(cat health/status/dev)"
       - name: Compare status
+        id: comparison
         env:
           PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
           CURRENT: ${{ steps.healthcheck.outputs.current }}
@@ -42,7 +43,7 @@ jobs:
             echo "::set-output name=notify::$CURRENT"
           fi
       - name: Notify
-        if: steps.foo.outputs.notify
+        if: steps.comparison.outputs.notify
         env:
           CURRENT: ${{ steps.healthcheck.outputs.current }}
         run: |

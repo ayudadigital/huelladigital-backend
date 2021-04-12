@@ -12,21 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get previous state
+        id: cache-state
+        uses: actions/cache@v2
+        with:
+          path: health
+          key: ${{ runner.os }}
       - name: Healthcheck (dev)
+        id: healthcheck
         env:
           HEALTH_URL_DEV: ${{ secrets.HEALTH_URL_DEV }}
         run: |
-          echo "Run ID: ${GITHUB_RUN_ID}"
-          echo "Run Nb: ${GITHUB_RUN_NUMBER}"
-          curl -IL -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > current
-      - name: Get previous state
-        uses: actions/download-artifact@v2
-        continue-on-error: true
-        with:
-          name: dev
-          path: health/status
+          ls -l
+          mkdir -p health/status
+          test -f health/status/dev || echo "UNKNOWN" > health/status/dev
+          echo "::set-output name=previous::$(cat health/status/dev)\n"
+          curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > health/status/dev
+          echo "::set-output name=current::$(cat health/status/dev)\n"
+          echo "::set-output name=mix-test::$(mix test)\n"
       - name: Compare status
-        if: always()
         run: |
           mkdir -p health/status
           test -f health/status/dev || echo "Unknown" > health/status/dev
@@ -37,4 +41,6 @@ jobs:
           if [ "$current" != "$previous" ]; then
             echo "Send alert."
           fi
+      - name: Notify
+
 

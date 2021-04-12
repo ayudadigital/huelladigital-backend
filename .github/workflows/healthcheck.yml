@@ -27,9 +27,9 @@ jobs:
           cat health/status/dev || true
           mkdir -p health/status
           test -f health/status/dev || echo "UNKNOWN" > health/status/dev
-          echo "::set-output name=previous::$(cat health/status/dev)\n"
+          echo "::set-output name=previous::$(cat health/status/dev)"
           curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > health/status/dev
-          echo "::set-output name=current::$(cat health/status/dev)\n"
+          echo "::set-output name=current::$(cat health/status/dev)"
       - name: Compare status
         env:
           PREVIOUS: ${{ steps.healthcheck.outputs.previous }}

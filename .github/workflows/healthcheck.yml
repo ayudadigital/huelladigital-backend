@@ -17,7 +17,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: health/status
-          key: ${{ runner.os }}-test
+          key: ${{ runner.os }}-healthcheck-dev
       - name: Healthcheck (dev)
         id: healthcheck
         env:
@@ -26,8 +26,8 @@ jobs:
           #ls -l health/status || true
           #cat health/status/dev || true
           mkdir -p health/status
-          test -f health/status/dev || echo "UNKNOWN" > previous
-          echo "::set-output name=previous::$(cat previous)"
+          test -f health/status/dev || echo "UNKNOWN" > health/status/dev
+          echo "::set-output name=previous::$(cat health/status/dev)"
           curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > health/status/dev
           echo "::set-output name=current::$(cat health/status/dev)"
       - name: Compare status

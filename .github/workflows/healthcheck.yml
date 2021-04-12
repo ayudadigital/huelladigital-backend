@@ -30,14 +30,15 @@ jobs:
           curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > health/status/dev
           echo "::set-output name=current::$(cat health/status/dev)\n"
       - name: Compare status
+        env:
+          PREVIOUS: ${{ steps.healthchek.outputs.previous }}
+          CURRENT: ${{ steps.healthchek.outputs.current }}
         run: |
           #mkdir -p health/status
           #test -f health/status/dev || echo "Unknown" > health/status/dev
           #current=$(cat current)
-          current=${{ steps.healthchek.outputs.current }}
-          previous=${{ steps.healthchek.outputs.previous }}
-          echo "Previous status: $previous"
-          echo "Latest status: $current"
-          if [ "$current" != "$previous" ]; then
+          echo "Previous status: $PREVIOUS"
+          echo "Latest status: $CURRENT"
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
             echo "Send alert."
           fi

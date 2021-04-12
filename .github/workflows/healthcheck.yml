@@ -37,4 +37,11 @@ jobs:
           echo "Latest status: $CURRENT"
           if [ "$CURRENT" != "$PREVIOUS" ]; then
             echo "Send alert."
+            echo "::set-output name=notify::$CURRENT"
           fi
+      - name: Notify
+        if: steps.foo.outputs.notify
+        env:
+          CURRENT: ${{ steps.healthcheck.outputs.current }}
+        run: |
+          echo "Notify: $CURRENT"

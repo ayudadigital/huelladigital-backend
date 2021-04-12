@@ -23,7 +23,8 @@ jobs:
         env:
           HEALTH_URL_DEV: ${{ secrets.HEALTH_URL_DEV }}
         run: |
-          ls -l
+          ls -l health/status || true
+          cat health/status/dev || true
           mkdir -p health/status
           test -f health/status/dev || echo "UNKNOWN" > health/status/dev
           echo "::set-output name=previous::$(cat health/status/dev)\n"
@@ -31,8 +32,8 @@ jobs:
           echo "::set-output name=current::$(cat health/status/dev)\n"
       - name: Compare status
         env:
-          PREVIOUS: ${{ steps.healthchek.outputs.previous }}
-          CURRENT: ${{ steps.healthchek.outputs.current }}
+          PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
+          CURRENT: ${{ steps.healthcheck.outputs.current }}
         run: |
           #mkdir -p health/status
           #test -f health/status/dev || echo "Unknown" > health/status/dev

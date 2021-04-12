@@ -26,7 +26,9 @@ jobs:
           mkdir -p health/status
           test -f health/status/dev || echo "UNKNOWN" > health/status/dev
           echo "::set-output name=previous::$(cat health/status/dev)"
-          curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV} > health/status/dev
+          HTTP_STATUS=$(curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV})
+          [[ $HTTP_STATUS = 200 ]] && CURRENT="UP" || CURRENT="DOWN"
+          echo $CURRENT > health/status/dev
           echo "::set-output name=current::$(cat health/status/dev)"
       - name: Compare status
         env:

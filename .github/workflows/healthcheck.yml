@@ -23,8 +23,6 @@ jobs:
         env:
           HEALTH_URL_DEV: ${{ secrets.HEALTH_URL_DEV }}
         run: |
-          #ls -l health/status || true
-          #cat health/status/dev || true
           mkdir -p health/status
           test -f health/status/dev || echo "UNKNOWN" > health/status/dev
           echo "::set-output name=previous::$(cat health/status/dev)"
@@ -35,9 +33,6 @@ jobs:
           PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
           CURRENT: ${{ steps.healthcheck.outputs.current }}
         run: |
-          #mkdir -p health/status
-          #test -f health/status/dev || echo "Unknown" > health/status/dev
-          #current=$(cat current)
           echo "Previous status: $PREVIOUS"
           echo "Latest status: $CURRENT"
           if [ "$CURRENT" != "$PREVIOUS" ]; then

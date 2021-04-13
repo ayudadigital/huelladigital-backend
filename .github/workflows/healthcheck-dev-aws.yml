@@ -1,0 +1,62 @@
+name: Healthcheck DEV (AWS)
+
+on:
+  pull_request:
+    branches: [ develop ]
+  schedule:
+    - cron:  '* * * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d%S")"
+      - name: Get previous state
+        id: cache-state
+        uses: actions/cache@v2
+        with:
+          path: health/status
+          key: healthcheck-dev-aws-${{ steps.get-date.outputs.date }}
+          restore-keys: |
+            healthcheck-dev-aws-
+      - name: Healthcheck
+        id: healthcheck
+        env:
+          HEALTH_URL: ${{ secrets.HEALTH_URL_DEV_AWS }}
+        run: |
+          mkdir -p health/status
+          test -f health/status/dev-aws || echo "UNKNOWN" > health/status/dev-aws
+          echo "::set-output name=previous::$(cat health/status/dev-aws)"
+          HTTP_STATUS=$(curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL})
+          [[ $HTTP_STATUS = 200 ]] && CURRENT="UP" || CURRENT="DOWN"
+          #CURRENT="DOWN"
+          echo "$CURRENT" > health/status/dev-aws
+          echo "::set-output name=current::$(cat health/status/dev-aws)"
+      - name: Compare status
+        id: comparison
+        env:
+          PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
+          CURRENT: ${{ steps.healthcheck.outputs.current }}
+        run: |
+          [[ -f lockfile ]] && rm -f lockfile || touch lockfile
+          echo "Previous status: $PREVIOUS"
+          echo "Latest status: $CURRENT"
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "Send alert."
+            echo "::set-output name=notify::$CURRENT"
+          fi
+      - name: Notify
+        if: steps.comparison.outputs.notify
+        env:
+          CURRENT: ${{ steps.healthcheck.outputs.current }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          echo "Notify: $CURRENT"
+          TEXT="Backend DEV environment is $CURRENT. (AWS)"
+          #curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage

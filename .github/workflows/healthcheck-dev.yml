@@ -1,4 +1,4 @@
-name: Healthcheck
+name: Healthcheck DEV
 
 on:
   pull_request:
@@ -58,5 +58,5 @@ jobs:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           echo "Notify: $CURRENT"
-          TEXT="Github: Backend DEV environment is $CURRENT. (AWS)"
+          TEXT="Backend DEV environment is $CURRENT."
           #curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage

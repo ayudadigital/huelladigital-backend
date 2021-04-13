@@ -1,6 +1,8 @@
 name: Healthcheck DEV (AWS)
 
 on:
+  pull_request:
+    branches: [ develop ]
   schedule:
     - cron:  '* * * * *'
   workflow_dispatch:
@@ -41,7 +43,6 @@ jobs:
           PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
           CURRENT: ${{ steps.healthcheck.outputs.current }}
         run: |
-          [[ -f lockfile ]] && rm -f lockfile || touch lockfile
           echo "Previous status: $PREVIOUS"
           echo "Latest status: $CURRENT"
           if [ "$CURRENT" != "$PREVIOUS" ]; then
@@ -57,4 +58,4 @@ jobs:
         run: |
           echo "Notify: $CURRENT"
           TEXT="Backend DEV environment is $CURRENT. (AWS)"
-          curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage
+          #curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage

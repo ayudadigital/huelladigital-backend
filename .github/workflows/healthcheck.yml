@@ -61,4 +61,3 @@ jobs:
           TEXT="Github: Backend DEV environment is $CURRENT. (AWS)"
           #curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage
 
-

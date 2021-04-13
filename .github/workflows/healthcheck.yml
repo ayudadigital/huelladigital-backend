@@ -22,7 +22,6 @@ jobs:
         with:
           path: health/status
           key: ${{ runner.os }}-${{ hashFiles('**/lockfile') }}
-          restore-keys: [ ${{ runner.os }}- ]
       - name: Healthcheck (dev)
         id: healthcheck
         env:

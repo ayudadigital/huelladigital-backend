@@ -12,39 +12,54 @@ The backend is being developed with:
 * Spring Boot 2.2.5
 * Maven 3.6.0
 
-## Setup the local development environment
-
 We are using mostly IntelliJ IDE to develop the project. Currently, using
 **IntelliJ 2019.3.** 
 
-First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version. This is not necessarily a project.
+## Setup the local development environment
 
-Open up IntelliJ and select `Import Project`, then choose `Maven` and then
-choose the `backend` folder in this repository. The project should be imported correctly but the Maven window will probably display this failure:
+First make sure you have the correct versions of Java and Maven installed on your machine. Notice that IntelliJ bundles a version of Maven that might be different from your local version.
+
+Clone the repo:
+```sh
+git clone https://github.com/ayudadigital/huelladigital-backend.git
+```
+
+Inside **IntelliJ** `New Project > Import Project From External Sources` (as Maven) and choose the `backend` folder in this repo.
+
+Maven might complain with:
 
     Failure to find junit:junit:pom:5.5.2 in https://repo.maven.apache.org/maven2 was cached in the local repository, resolution will not be reattempted until the update interval of central has elapsed or updates are forced
 
-Don't worry the project should build, and the tests run. It's complaining because of the dependency tree but it's working.
+The project should build anyway, and the tests run. It's complaining because of the dependency tree but it works.
+
+Make sure to set the Java compiler to v11: `Settings > Build, Execution, Deployment > Compiler > Java Compiler > Target bytecode version`
 
 ### Plugins
 
-In order to install plugins, go to `Settings > Build, Execution, Deployment > Compiler > Annotation Processors` and select `Enable annotation processing`.
-
 We are using:
- * **[Lombok](https://projectlombok.org/)** project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin.
+ * **[Lombok](https://projectlombok.org/)** project for code generation. In order for the IDE to recognize the annotations we need to enable the annotations preprocessor and the Lombok plugin. (Included with newer versions od IntelliJ)
  * **[SonarLint](https://www.sonarlint.org/)** highlights Bugs and Security Vulnerabilities as you write code. Before pushing the code into the repository, it's recommended to run SonarLint to solve possible issues.
 
-Then go to `Settings > Plugins` and search for `Lombok` and `SonarLint` in the Marketplace tab. Install them and restart the IDE.
+Go to `Settings > Plugins` and search for `Lombok` and `SonarLint` in the Marketplace tab. Install them and restart the IDE.
 
-From now, no more warnings should be displayed in the `Project` window.
-
-⚠️ **Before running the backend locally, the docker-compose file under backend/docker/local directory must be up to provide the database/localstack dependencies** 
-
-You can run the docker compose file from the IDE or from the terminal with `docker-compose up -d` but you must be in the directory of docker-compose file.
+From now on, no more warnings should be displayed in the `Project` window.
 
 ## Build the project
 
-From the terminal you can build the project with `mvn package`.
+* Terminal: `cd` into the project directory (backend dir within huelladigital-backend) and run `mvn package`.
+
+or
+
+* IntelliJ: in the Maven tab, `platform > Lifecycle > package`
+
+## Run the project locally
+
+⚠️ **Before running the backend locally** ⚠️
+
+* Make sure that docker is enabled and started
+* Run `docker-compose up -d` from console in `backend/docker/local` to provide the database/localstack dependencies
+
+Just run the project from within IntelliJ
 
 ## Run the API
 

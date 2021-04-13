@@ -13,7 +13,7 @@ jobs:
       - name: Get Date
         id: get-date
         run: |
-          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d%S")"
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d%H%M%S")"
       - name: Get previous state
         id: cache-state
         uses: actions/cache@v2

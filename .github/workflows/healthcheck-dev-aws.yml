@@ -1,8 +1,6 @@
 name: Healthcheck DEV (AWS)
 
 on:
-  pull_request:
-    branches: [ develop ]
   schedule:
     - cron:  '* * * * *'
   workflow_dispatch:

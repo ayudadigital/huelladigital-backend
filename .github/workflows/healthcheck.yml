@@ -12,12 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d%S")"
       - name: Get previous state
         id: cache-state
         uses: actions/cache@v2
         with:
           path: health/status
-          key: ${{ runner.os }}-${{ hashFiles('**/dev') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfile') }}
+          restore-keys: [ ${{ runner.os }}- ]
       - name: Healthcheck (dev)
         id: healthcheck
         env:
@@ -37,6 +42,7 @@ jobs:
           PREVIOUS: ${{ steps.healthcheck.outputs.previous }}
           CURRENT: ${{ steps.healthcheck.outputs.current }}
         run: |
+          [[ -f lockfile ]] && rm -f lockfile || touch lockfile
           echo "Previous status: $PREVIOUS"
           echo "Latest status: $CURRENT"
           if [ "$CURRENT" != "$PREVIOUS" ]; then

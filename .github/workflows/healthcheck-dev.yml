@@ -23,7 +23,7 @@ jobs:
           path: health/status
           key: healthcheck-dev-pedro-${{ steps.get-date.outputs.date }}
           restore-keys: |
-            healthcheck-dev-
+            healthcheck-dev-pedro
       - name: Healthcheck (dev)
         id: healthcheck
         env:

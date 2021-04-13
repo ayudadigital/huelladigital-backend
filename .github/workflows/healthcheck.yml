@@ -17,7 +17,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: health/status
-          key: ${{ runner.os }}-healthcheck-dev
+          key: ${{ runner.os }}-${{ hashFiles('**/dev') }}
       - name: Healthcheck (dev)
         id: healthcheck
         env:
@@ -51,4 +51,4 @@ jobs:
         run: |
           echo "Notify: $CURRENT"
           TEXT="Github: Backend DEV environment is $CURRENT. (AWS)"
-          curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage
+          #curl -H 'Content-Type: application/json' -d '{"chat_id":"'"$CHAT_ID"'","text":"'"$TEXT"'"}' https://api.telegram.org/bot$BOT_TOKEN/sendMessage

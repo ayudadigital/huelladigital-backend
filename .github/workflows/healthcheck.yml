@@ -21,7 +21,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: health/status
-          key: ${{ runner.os }}-${{ hashFiles('lockfile') }}
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}
+          restore-keys: [ ${{ runner.os }}- ]
       - name: Healthcheck (dev)
         id: healthcheck
         env:

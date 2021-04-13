@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: health/status
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfile') }}
+          key: ${{ runner.os }}-${{ hashFiles('lockfile') }}
       - name: Healthcheck (dev)
         id: healthcheck
         env:
@@ -33,7 +33,7 @@ jobs:
           HTTP_STATUS=$(curl -L -w "%{http_code}" -o /dev/null -s ${HEALTH_URL_DEV})
           [[ $HTTP_STATUS = 200 ]] && CURRENT="UP" || CURRENT="DOWN"
           CURRENT="DOWN"
-          echo $CURRENT > health/status/dev
+          echo "$CURRENT" > health/status/dev
           echo "::set-output name=current::$(cat health/status/dev)"
       - name: Compare status
         id: comparison

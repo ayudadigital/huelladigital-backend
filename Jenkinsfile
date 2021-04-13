@@ -37,65 +37,65 @@ pipeline {
                 sh 'rm -rf backend/target'
             }
         }
-//        stage('Build') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend build'
-//            }
-//        }
-//        stage('Unit tests') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend unit-tests'
-//            }
-//        }
-//        stage('Integration tests') {
-//            agent { label 'docker'}
-//            steps {
-//                script {
-//                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
-//                        sh """
-//                        sleep 5
-//                        docker exec ${c.id} apk add openjdk11-jdk maven bash
-//                        docker exec ${c.id} chmod 777 /var/run/docker.sock
-//                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
-//                        """
-//                    }
-//                }
-//            }
-//        }
-//        stage('Acceptance Tests') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend acceptance-tests'
-//            }
-//        }
-//        stage('Package JAR') {
-//            agent {
-//                docker {
-//                    image 'maven:3.6.3-jdk-11'
-//                    label 'docker'
-//                }
-//            }
-//            steps {
-//                sh 'bin/devcontrol.sh backend package'
-//            }
-//        }
+        stage('Build') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend build'
+            }
+        }
+        stage('Unit tests') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend unit-tests'
+            }
+        }
+        stage('Integration tests') {
+            agent { label 'docker'}
+            steps {
+                script {
+                    docker.image('docker:dind').withRun('--privileged -v "$WORKSPACE":"$WORKSPACE" --workdir "$WORKSPACE"') { c ->
+                        sh """
+                        sleep 5
+                        docker exec ${c.id} apk add openjdk11-jdk maven bash
+                        docker exec ${c.id} chmod 777 /var/run/docker.sock
+                        docker exec -u \$(id -u):\$(id -g) ${c.id} bin/devcontrol.sh backend integration-tests
+                        """
+                    }
+                }
+            }
+        }
+        stage('Acceptance Tests') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend acceptance-tests'
+            }
+        }
+        stage('Package JAR') {
+            agent {
+                docker {
+                    image 'maven:3.6.3-jdk-11'
+                    label 'docker'
+                }
+            }
+            steps {
+                sh 'bin/devcontrol.sh backend package'
+            }
+        }
         // Close release
         stage ('Make release') {
             agent { label 'docker' }

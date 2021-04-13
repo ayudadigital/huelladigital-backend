@@ -21,7 +21,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: health/status
-          key: healthcheck-dev-${{ steps.get-date.outputs.date }}
+          key: healthcheck-dev-pedro-${{ steps.get-date.outputs.date }}
           restore-keys: |
             healthcheck-dev-
       - name: Healthcheck (dev)

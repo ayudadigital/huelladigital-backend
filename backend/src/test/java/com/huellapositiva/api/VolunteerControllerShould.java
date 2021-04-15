@@ -307,13 +307,13 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideCorrectProfileInformationSameEmail")
-    void return_204_when_updates_profile_information_successfully_without_email(UpdateProfileRequestDto UpdateProfileRequestDto) throws Exception {
+    void return_204_when_updates_profile_information_successfully_without_email(UpdateVolunteerProfileRequestDto UpdateVolunteerProfileRequestDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         mvc.perform(post("/api/v1/volunteers/profile")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
-                .content(objectMapper.writeValueAsString(UpdateProfileRequestDto))
+                .content(objectMapper.writeValueAsString(UpdateVolunteerProfileRequestDto))
                 .with(csrf())
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON))
@@ -321,24 +321,24 @@ class VolunteerControllerShould {
 
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL);
         assertThat(jpaVolunteer.getProfile().getId()).isNotNull();
-        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(UpdateProfileRequestDto.getName());
-        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(UpdateProfileRequestDto.getSurname());
-        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(UpdateProfileRequestDto.getBirthDate());
-        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(UpdateProfileRequestDto.getPhoneNumber());
-        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(UpdateProfileRequestDto.getProvince());
-        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(UpdateProfileRequestDto.getZipCode());
-        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(UpdateProfileRequestDto.getIsland());
-        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(UpdateProfileRequestDto.getTown());
-        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(UpdateProfileRequestDto.getAddress());
-        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(UpdateProfileRequestDto.getTwitter());
-        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(UpdateProfileRequestDto.getLinkedin());
-        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(UpdateProfileRequestDto.getInstagram());
-        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(UpdateProfileRequestDto.getAdditionalInformation());
+        assertThat(jpaVolunteer.getProfile().getName()).isEqualTo(UpdateVolunteerProfileRequestDto.getName());
+        assertThat(jpaVolunteer.getProfile().getSurname()).isEqualTo(UpdateVolunteerProfileRequestDto.getSurname());
+        assertThat(jpaVolunteer.getProfile().getBirthDate()).isEqualTo(UpdateVolunteerProfileRequestDto.getBirthDate());
+        assertThat(jpaVolunteer.getProfile().getPhoneNumber()).isEqualTo(UpdateVolunteerProfileRequestDto.getPhoneNumber());
+        assertThat(jpaVolunteer.getLocation().getProvince()).isEqualTo(UpdateVolunteerProfileRequestDto.getProvince());
+        assertThat(jpaVolunteer.getLocation().getZipCode()).isEqualTo(UpdateVolunteerProfileRequestDto.getZipCode());
+        assertThat(jpaVolunteer.getLocation().getIsland()).isEqualTo(UpdateVolunteerProfileRequestDto.getIsland());
+        assertThat(jpaVolunteer.getLocation().getTown()).isEqualTo(UpdateVolunteerProfileRequestDto.getTown());
+        assertThat(jpaVolunteer.getLocation().getAddress()).isEqualTo(UpdateVolunteerProfileRequestDto.getAddress());
+        assertThat(jpaVolunteer.getProfile().getTwitter()).isEqualTo(UpdateVolunteerProfileRequestDto.getTwitter());
+        assertThat(jpaVolunteer.getProfile().getLinkedin()).isEqualTo(UpdateVolunteerProfileRequestDto.getLinkedin());
+        assertThat(jpaVolunteer.getProfile().getInstagram()).isEqualTo(UpdateVolunteerProfileRequestDto.getInstagram());
+        assertThat(jpaVolunteer.getProfile().getAdditionalInformation()).isEqualTo(UpdateVolunteerProfileRequestDto.getAdditionalInformation());
     }
 
-    private static Stream<UpdateProfileRequestDto> provideCorrectProfileInformationSameEmail() {
+    private static Stream<UpdateVolunteerProfileRequestDto> provideCorrectProfileInformationSameEmail() {
         return Stream.of(
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -353,7 +353,7 @@ class VolunteerControllerShould {
                         .linkedin(VALID_LINKEDIN)
                         .additionalInformation(VALID_ADDITIONAL_INFO)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -372,7 +372,7 @@ class VolunteerControllerShould {
     void return_204_when_updates_profile_previously_created() throws Exception {
         testData.createVolunteerWithProfile(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
-        UpdateProfileRequestDto updateProfileDto = UpdateProfileRequestDto.builder()
+        UpdateVolunteerProfileRequestDto updateProfileDto = UpdateVolunteerProfileRequestDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
                 .email(DEFAULT_EMAIL)
@@ -409,7 +409,7 @@ class VolunteerControllerShould {
 
     @ParameterizedTest
     @MethodSource("provideIncorrectProfileInformation")
-    void return_400_when_not_provided_correct_information_for_updating_profile(UpdateProfileRequestDto profileDto) throws Exception {
+    void return_400_when_not_provided_correct_information_for_updating_profile(UpdateVolunteerProfileRequestDto profileDto) throws Exception {
         testData.createVolunteer(DEFAULT_EMAIL, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
@@ -422,9 +422,9 @@ class VolunteerControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<UpdateProfileRequestDto> provideIncorrectProfileInformation() {
+    private static Stream<UpdateVolunteerProfileRequestDto> provideIncorrectProfileInformation() {
         return Stream.of(
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -439,7 +439,7 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -451,7 +451,7 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -466,14 +466,14 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
                         .phoneNumber(VALID_PHONE)
                         .birthDate(VALID_BIRTHDAY)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
@@ -481,7 +481,7 @@ class VolunteerControllerShould {
                         .zipCode("35100")
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -490,7 +490,7 @@ class VolunteerControllerShould {
                         .zipCode("35100")
                         .island("Islandia")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -499,7 +499,7 @@ class VolunteerControllerShould {
                         .zipCode("3510055")
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -515,7 +515,7 @@ class VolunteerControllerShould {
                         .linkedin("linkedin")
                         .additionalInformation("add")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -524,7 +524,7 @@ class VolunteerControllerShould {
                         .zipCode(VALID_ZIPCODE)
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -533,7 +533,7 @@ class VolunteerControllerShould {
                         .zipCode(VALID_ZIPCODE)
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -542,7 +542,7 @@ class VolunteerControllerShould {
                         .zipCode(VALID_ZIPCODE)
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -551,7 +551,7 @@ class VolunteerControllerShould {
                         .zipCode(VALID_ZIPCODE)
                         .island(VALID_ISLAND)
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -570,7 +570,7 @@ class VolunteerControllerShould {
                                 "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456" +
                                 "7890123456789")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL)
@@ -582,7 +582,7 @@ class VolunteerControllerShould {
                         .instagram("https://www.instagram.com/home")
                         .additionalInformation("0123456s")
                         .build(),
-                UpdateProfileRequestDto.builder()
+                UpdateVolunteerProfileRequestDto.builder()
                         .name(VALID_NAME)
                         .name(VALID_SURNAME)
                         .email(DEFAULT_EMAIL_2)
@@ -600,7 +600,7 @@ class VolunteerControllerShould {
         testData.createVolunteer("22222222-2222-2222-2222-222222222222", DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
-        UpdateProfileRequestDto profileDto = UpdateProfileRequestDto.builder()
+        UpdateVolunteerProfileRequestDto profileDto = UpdateVolunteerProfileRequestDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
                 .email(DEFAULT_EMAIL_2)

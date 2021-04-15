@@ -1,10 +1,12 @@
 package com.huellapositiva.application.controller;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
 import com.huellapositiva.application.dto.ProposalResponseDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
+import com.huellapositiva.application.dto.UpdateContactPersonProfileRequestDto;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
+import com.huellapositiva.domain.actions.UpdateContactPersonProfileAction;
 import com.huellapositiva.domain.actions.UploadPhotoAction;
 import com.huellapositiva.domain.exception.EmptyFileException;
 import com.huellapositiva.domain.model.valueobjects.Id;
@@ -51,6 +53,8 @@ public class ESALContactPersonApiController {
 
     private final UploadPhotoAction uploadPhotoAction;
 
+    private final UpdateContactPersonProfileAction updateContactPersonProfileAction;
+
     @Operation(
             summary = "Register a new ESAL employee",
             description = "Register a new ESAL employee",
@@ -81,7 +85,7 @@ public class ESALContactPersonApiController {
     @PostMapping
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
-    public JwtResponseDto registerContactPerson(@Validated @RequestBody RegisterESALMemberRequestDto dto, HttpServletResponse res) {
+    public JwtResponseDto registerContactPerson(@Validated @RequestBody RegisterContactPersonDto dto, HttpServletResponse res) {
         Id contactPersonId = registerESALContactPersonAction.execute(dto);
         String username = dto.getEmail();
         List<String> roles = jpaRoleRepository.findAllByEmailAddress(username).stream().map(Role::getName).collect(Collectors.toList());
@@ -96,6 +100,46 @@ public class ESALContactPersonApiController {
     @ResponseStatus(HttpStatus.OK)
     public ProposalResponseDto getMember(@PathVariable Integer id) {
         throw new UnsupportedOperationException();
+    }
+
+    @Operation(
+            summary = "Update contact person profile information",
+            description = "Update contact person profile information",
+            tags = "user",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.QUERY, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "For take this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "a6f5086d-af6b-464f-988b-7a604e46062b", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No content, update information user profile"
+                    ),
+                    @ApiResponse(
+                            responseCode = "400",
+                            description = "Bad request, credentials are not valid or some field is mandatory"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Conflict, the new email already match with other email in db"
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    )
+            }
+    )
+    @PostMapping("/profile")
+    @RolesAllowed({"CONTACT_PERSON", "CONTACT_PERSON_NOT_CONFIRMED"})
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfileInformation(@Validated @RequestBody UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto,
+                                         @Parameter(hidden = true) @AuthenticationPrincipal String accountId) {
+        updateContactPersonProfileAction.execute(updateContactPersonProfileRequestDto, accountId);
     }
 
     @Operation(

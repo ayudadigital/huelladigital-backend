@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.infrastructure.EmailService;
 import com.huellapositiva.util.TestData;
@@ -35,7 +35,7 @@ class RegisterESALContactPersonActionShould {
     @Test
     void send_email_to_confirm_a_new_organization_member(){
         //GIVEN
-        RegisterESALMemberRequestDto dto = new RegisterESALMemberRequestDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        RegisterContactPersonDto dto = new RegisterContactPersonDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         //WHEN
         organizationMemberAction.execute(dto);

@@ -1,7 +1,7 @@
 package com.huellapositiva.domain.actions;
 
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.application.exception.InvalidFieldException;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -31,7 +31,7 @@ public class RegisterESALContactPersonAction {
      * @param dto contains email and password of the ContactPerson
      * @return id of the ContactPerson created
      */
-    public Id execute(RegisterESALMemberRequestDto dto){
+    public Id execute(RegisterContactPersonDto dto){
         validatePhoneNumber(dto.getPhoneNumber());
         EmailConfirmation emailConfirmation = EmailConfirmation.from(dto.getEmail(), emailConfirmationBaseUrl);
         Id id = esalContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), emailConfirmation);

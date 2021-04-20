@@ -21,6 +21,7 @@ import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -324,5 +325,10 @@ public class ProposalService {
                 .id(ProposalStatus.PUBLISHED.getId())
                 .name("PUBLISHED").build();
         jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
+    }
+
+    @Scheduled(cron = "0 0 * * *")
+    protected void finishPendingProposal(){
+//        List <Proposal> expiredProposals = jpaProposalRepository.findExpiredOpenProposal();
     }
 }

@@ -28,13 +28,16 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static java.lang.String.format;
+import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Collections.emptyList;
 
 @Slf4j
@@ -327,8 +330,40 @@ public class ProposalService {
         jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
     }
 
-    @Scheduled(cron = "0 0 * * *")
-    protected void finishPendingProposal(){
-//        List <Proposal> expiredProposals = jpaProposalRepository.findExpiredOpenProposal();
+    @Scheduled(cron = "0 0 * * * * ")
+    public void changeExpiredProposalStatusToFinished() throws ParseException {
+
+        JpaProposalStatus jpaProposalStatusFinished =  JpaProposalStatus.builder()
+                .id(FINISHED.getId())
+                .name("FINISHED")
+                .build();
+
+        Calendar now = Calendar.getInstance();
+        String currentDate = String.format("%d-%d-%d", now.get(DAY_OF_MONTH), now.get(Calendar.MONTH), now.get(Calendar.YEAR));
+
+        List<JpaProposal> expiredProposals = jpaProposalRepository
+                .findExpiredProposals( new SimpleDateFormat("dd-MM-yyyy").parse(currentDate), jpaProposalStatusFinished);
+
+        expiredProposals.forEach(
+                jpaProposal -> jpaProposalRepository.updateStatusById(jpaProposal.getId(), jpaProposalStatusFinished));
     }
+
+    public void changeStatusToFinished(String proposalId) {
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(proposalId)
+                .orElseThrow(EntityNotFoundException::new);
+        String status = proposal.getStatus().getName().toUpperCase();
+
+        if (!(PUBLISHED.toString().equals(status) || ENROLLMENT_CLOSED.toString().equals(status))) {
+            throw new InvalidProposalStatusException("Proposal must be either PUBLISHED or ENROLLMENT_CLOSED");
+        }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(FINISHED.getId())
+                .name("FINISHED")
+                .build();
+
+        jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
+    }
+
 }

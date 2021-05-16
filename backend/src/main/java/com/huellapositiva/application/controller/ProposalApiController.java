@@ -76,9 +76,56 @@ public class ProposalApiController {
 
     private final UpdateProposalImageAction updateProposalImageAction;
 
+    private final ChangeProposalStatusToFinishedAction changeProposalStatusToFinishedAction;
+
     private ChangeStatusToInadequateAction changeStatusToInadequateAction;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Operation(
+            summary = "Change proposal status to FINISHED",
+            description = "Changes ProposalStatus to FINISHED only if current status is PUBLISHED or ENROLMENT_CLOSED. Only Contact_Person is allowed to do it. Roles allowed CONTACT_PERSON.",
+            tags = "proposals",
+            parameters = {
+                    @Parameter(name = "X-XSRF-TOKEN", in = ParameterIn.HEADER, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "For taking this value, open your inspector code on your browser, and take the value of the cookie with the name 'XSRF-TOKEN'. Example: a6f5086d-af6b-464f-988b-7a604e46062b"),
+                    @Parameter(name = "XSRF-TOKEN", in = ParameterIn.COOKIE, required = true, example = "ff79038b-3fec-41f0-bab8-6e0d11db986e", description = "Same value of X-XSRF-TOKEN")
+            },
+            security = {
+                    @SecurityRequirement(name = "accessToken")
+            }
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Proposal status changed to FINISHED"
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Requested proposal not found"
+                    ),
+                    @ApiResponse(
+                            responseCode = "409",
+                            description = "Precondition failed, illegal status."
+                    ),
+                    @ApiResponse(
+                            responseCode = "500",
+                            description = "Internal server error, could not fetch the user data due to a connectivity issue."
+                    ),
+            }
+    )
+    @PostMapping("/{id}/status/toFinished")
+    @RolesAllowed("CONTACT_PERSON")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeProposalStatusToFinishedAction(@PathVariable("id") String proposalId){
+        try{
+            changeProposalStatusToFinishedAction.execute(proposalId);
+        }catch (EntityNotFoundException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, PROPOSAL_DOESNT_EXIST);
+        }catch (InvalidProposalStatusException e){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Unable to set proposal status to Finished due to current status");
+        }
+    }
 
     @Operation(
             summary = "Register a new proposal",

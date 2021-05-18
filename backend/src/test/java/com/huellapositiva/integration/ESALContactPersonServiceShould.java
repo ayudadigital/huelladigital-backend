@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.domain.service.ESALContactPersonService;
@@ -52,7 +52,7 @@ class ESALContactPersonServiceShould {
     @Test
     void register_a_new_member() {
         // GIVEN
-        RegisterESALMemberRequestDto dto = RegisterESALMemberRequestDto.builder()
+        RegisterContactPersonDto dto = RegisterContactPersonDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
                 .phoneNumber(VALID_PHONE)

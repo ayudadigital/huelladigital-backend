@@ -1,12 +1,14 @@
 package com.huellapositiva.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.application.dto.JwtResponseDto;
+import com.huellapositiva.application.dto.UpdateContactPersonProfileRequestDto;
 import com.huellapositiva.application.exception.UserNotFoundException;
-import com.huellapositiva.domain.model.entities.ContactPerson;
 import com.huellapositiva.domain.model.valueobjects.Roles;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
+import com.huellapositiva.infrastructure.orm.entities.JpaContactPersonProfile;
+import com.huellapositiva.infrastructure.orm.entities.Role;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonRepository;
 import com.huellapositiva.infrastructure.security.JwtService;
@@ -27,8 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.huellapositiva.util.TestData.*;
@@ -73,7 +73,7 @@ class ESALContactPersonControllerShould {
     @Test
     void register_member_and_return_201_and_tokens() throws Exception {
         // GIVEN
-        RegisterESALMemberRequestDto dto = new RegisterESALMemberRequestDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        RegisterContactPersonDto dto = new RegisterContactPersonDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
 
         // WHEN
         MockHttpServletResponse response = mvc.perform(post("/api/v1/contactperson")
@@ -104,10 +104,10 @@ class ESALContactPersonControllerShould {
     }
 
     @ParameterizedTest
-    @MethodSource("provideIncorrectProfileInformation")
-    void return_400_when_register_contact_person_with_malformed_data_request(RegisterESALMemberRequestDto registerESALMemberRequestDto) throws Exception {
+    @MethodSource("provideIncorrectRegisterInformation")
+    void return_400_when_register_contact_person_with_malformed_data_request(RegisterContactPersonDto registerContactPersonDto) throws Exception {
         // GIVEN
-        RegisterESALMemberRequestDto dto = registerESALMemberRequestDto;
+        RegisterContactPersonDto dto = registerContactPersonDto;
         // WHEN + THEN
         mvc.perform(post("/api/v1/contactperson")
                 .content(objectMapper.writeValueAsString(dto))
@@ -116,79 +116,79 @@ class ESALContactPersonControllerShould {
                 .andExpect(status().isBadRequest());
     }
 
-    private static Stream<RegisterESALMemberRequestDto> provideIncorrectProfileInformation() {
+    private static Stream<RegisterContactPersonDto> provideIncorrectRegisterInformation() {
         return Stream.of(
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name("ABCD2345")
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name("")
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname("abcd1234")
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname("")
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber("123987231589")
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber("")
                         .email(DEFAULT_EMAIL)
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email("foo@@@huellapositiva.com")
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email("   ")
                         .password(DEFAULT_PASSWORD)
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password("asfas`´^][{}~~")
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
                         .email(DEFAULT_EMAIL)
                         .password("asfa")
                         .build(),
-                RegisterESALMemberRequestDto.builder()
+                RegisterContactPersonDto.builder()
                         .name(VALID_NAME)
                         .surname(VALID_SURNAME)
                         .phoneNumber(VALID_PHONE)
@@ -196,6 +196,192 @@ class ESALContactPersonControllerShould {
                         .password("           ")
                         .build()
         );
+    }
+
+    private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationSameEmail() {
+        return Stream.of(
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
+                        .phoneNumber("+4 123456789")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
+                        .phoneNumber("+344 123456789")
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideCorrectProfileInformationSameEmail")
+    void return_204_when_updates_profile_information_successfully_without_email(UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto) throws Exception {
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/contactperson/profile")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateContactPersonProfileRequestDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_ESAL_CONTACT_PERSON_EMAIL)
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_ESAL_CONTACT_PERSON_EMAIL));
+        Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
+        assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON.name());
+        JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
+        assertThat(profile.getId()).isNotNull();
+        assertThat(profile.getName()).isEqualTo(updateContactPersonProfileRequestDto.getName());
+        assertThat(profile.getSurname()).isEqualTo(updateContactPersonProfileRequestDto.getSurname());
+        assertThat(profile.getPhoneNumber()).isEqualTo(updateContactPersonProfileRequestDto.getPhoneNumber());
+    }
+
+    private static Stream<UpdateContactPersonProfileRequestDto> provideCorrectProfileInformationDifferentEmail() {
+        return Stream.of(
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL_2)
+                        .phoneNumber("+4 123456789")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL_2)
+                        .phoneNumber("+344 123456789")
+                        .build()
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideCorrectProfileInformationDifferentEmail")
+    void return_204_when_updates_profile_information_successfully_with_email(UpdateContactPersonProfileRequestDto updateContactPersonProfileRequestDto) throws Exception {
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/contactperson/profile")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(updateContactPersonProfileRequestDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        JpaContactPerson jpaContactPerson = jpaContactPersonRepository.findByEmail(DEFAULT_EMAIL_2)
+                .orElseThrow(() -> new UserNotFoundException("Contact person not found. Email: " + DEFAULT_EMAIL_2));
+        Role role = jpaContactPerson.getCredential().getRoles().stream().findFirst().get();
+        assertThat(role.getName()).isEqualTo(Roles.CONTACT_PERSON_NOT_CONFIRMED.name());
+        JpaContactPersonProfile profile = jpaContactPerson.getContactPersonProfile();
+        assertThat(profile.getId()).isNotNull();
+        assertThat(profile.getName()).isEqualTo(updateContactPersonProfileRequestDto.getName());
+        assertThat(profile.getSurname()).isEqualTo(updateContactPersonProfileRequestDto.getSurname());
+        assertThat(profile.getPhoneNumber()).isEqualTo(updateContactPersonProfileRequestDto.getPhoneNumber());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideIncorrectUpdateInformation")
+    void return_400_when_not_provided_correct_information_for_updating_profile(UpdateContactPersonProfileRequestDto profileDto) throws Exception {
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        mvc.perform(post("/api/v1/contactperson/profile")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(profileDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    private static Stream<UpdateContactPersonProfileRequestDto> provideIncorrectUpdateInformation() {
+        return Stream.of(
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name("abcd1234")
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name("")
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname("abcd1234")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname("")
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email("   ")
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email("foo@@@huellapositiva.com")
+                        .phoneNumber(VALID_PHONE)
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+34 12345d789")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("34 123456789")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("34 12345789101112")
+                        .build(),
+                UpdateContactPersonProfileRequestDto.builder()
+                        .name(VALID_NAME)
+                        .surname(VALID_SURNAME)
+                        .email(DEFAULT_EMAIL)
+                        .phoneNumber("+3444 123456789")
+                        .build()
+        );
+    }
+
+    @Test
+    void return_409_when_provided_new_email_already_bound_to_a_different_account() throws Exception {
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+        testData.createESALJpaContactPerson(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL_2, DEFAULT_PASSWORD);
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+        UpdateContactPersonProfileRequestDto profileDto = UpdateContactPersonProfileRequestDto.builder()
+                .name(VALID_NAME)
+                .surname(VALID_SURNAME)
+                .email(DEFAULT_EMAIL_2)
+                .phoneNumber(VALID_PHONE)
+                .build();
+
+        mvc.perform(post("/api/v1/contactperson/profile")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .content(objectMapper.writeValueAsString(profileDto))
+                .with(csrf())
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -234,8 +420,7 @@ class ESALContactPersonControllerShould {
                 jpaContactPersonRepository.findByAccountIdWithProfile(contactPerson.getCredential().getId()).orElseThrow(UserNotFoundException::new);
         String updatedPhotoUrl = updatedContactPerson.getContactPersonProfile().getPhotoUrl();
 
-        assertThat(updatedPhotoUrl).isNotNull();
-        assertThat(updatedPhotoUrl).isNotEqualTo(originalPhotoUrl);
+        assertThat(updatedPhotoUrl).isNotNull().isNotEqualTo(originalPhotoUrl);
     }
 
     @Test

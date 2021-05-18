@@ -1,6 +1,6 @@
 package com.huellapositiva.unit;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.domain.actions.RegisterESALContactPersonAction;
 import com.huellapositiva.domain.service.ESALContactPersonService;
 import com.huellapositiva.domain.service.EmailCommunicationService;
@@ -32,7 +32,7 @@ class RegisterContactPersonShould {
 
     @Test
     void send_confirmation_email() {
-        registerESALContactPersonAction.execute(RegisterESALMemberRequestDto.builder()
+        registerESALContactPersonAction.execute(RegisterContactPersonDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
                 .phoneNumber(VALID_PHONE)

@@ -1,6 +1,6 @@
 package com.huellapositiva.integration;
 
-import com.huellapositiva.application.dto.UpdateProfileRequestDto;
+import com.huellapositiva.application.dto.UpdateVolunteerProfileRequestDto;
 import com.huellapositiva.domain.actions.UpdateVolunteerProfileAction;
 import com.huellapositiva.infrastructure.orm.entities.JpaVolunteer;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -37,7 +37,7 @@ class UpdateVolunteerProfileActionIT {
     @Test
     void should_change_role_when_updating_email_address() {
         testData.createVolunteer(DEFAULT_ACCOUNT_ID, DEFAULT_EMAIL, DEFAULT_PASSWORD, VOLUNTEER);
-        UpdateProfileRequestDto updateProfileRequestDto = UpdateProfileRequestDto.builder()
+        UpdateVolunteerProfileRequestDto updateVolunteerProfileRequestDto = UpdateVolunteerProfileRequestDto.builder()
                 .name(VALID_NAME)
                 .surname(VALID_SURNAME)
                 .email(DEFAULT_EMAIL_2)
@@ -47,7 +47,7 @@ class UpdateVolunteerProfileActionIT {
                 .island(VALID_ISLAND)
                 .build();
 
-        updateVolunteerProfileAction.execute(updateProfileRequestDto, DEFAULT_ACCOUNT_ID);
+        updateVolunteerProfileAction.execute(updateVolunteerProfileRequestDto, DEFAULT_ACCOUNT_ID);
 
         assertThat(jpaVolunteerRepository.findByAccountIdWithCredentials(DEFAULT_EMAIL)).isEmpty();
         JpaVolunteer jpaVolunteer = jpaVolunteerRepository.findByEmailWithCredentialAndLocation(DEFAULT_EMAIL_2);

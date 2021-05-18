@@ -1,6 +1,6 @@
 package com.huellapositiva.domain.model.entities;
 
-import com.huellapositiva.application.dto.RegisterESALMemberRequestDto;
+import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
@@ -27,7 +27,7 @@ public class ContactPerson extends User {
         super(accountId, emailAddress, passwordHash, contactPersonId);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId, RegisterESALMemberRequestDto dto) {
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId, RegisterContactPersonDto dto) {
         super(accountId, emailAddress, passwordHash, contactPersonId);
         this.name = dto.getName();
         this.surname = dto.getSurname();

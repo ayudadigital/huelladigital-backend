@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 @AllArgsConstructor
-public class UpdateProfileRequestDto {
+public class UpdateVolunteerProfileRequestDto {
     @Schema(
             description = "Name of volunteer",
             example = "Fernando Arnaldo"

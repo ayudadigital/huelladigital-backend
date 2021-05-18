@@ -38,8 +38,9 @@ jobs:
       - name: Accceptance tests
         run: mvn verify -P acceptance-test -Dtest=BlakenTest -DfailIfNoTests=false --file backend/pom.xml
 
-#      - name: Release version
-#        run: mvn versions:set -DnewVersion=1.0.1-SNAPSHOT --file backend/pom.xml
+      - name: Release version
+        if: github.event_name == 'pull_request'
+        run: mvn versions:set -DnewVersion=1.0.1-SNAPSHOT --file backend/pom.xml
 
       - name: Sonar
         env:

@@ -44,7 +44,7 @@ jobs:
       - name: Sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR }}
-        run: mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}  -Dsonar.branch.name=${GITHUB_REF} --file backend/pom.xml
+        run: mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}  -Dsonar.branch.name=${GITHUB_REF} -Dsonar.projectVersion=1.0-$(git rev-parse HEAD) --file backend/pom.xml
 
       - name: Package
         run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml

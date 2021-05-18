@@ -1,6 +1,7 @@
 node_modules
 .idea
 *.lock
+pom.xml.versionsBackup
 /platform/products/backend/.env
 /platform/config.ini
 /platform/products/backend/data/db/*

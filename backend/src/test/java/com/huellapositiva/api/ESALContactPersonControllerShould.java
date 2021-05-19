@@ -73,7 +73,7 @@ class ESALContactPersonControllerShould {
     @Test
     void register_member_and_return_201_and_tokens() throws Exception {
         // GIVEN
-        RegisterContactPersonDto dto = new RegisterContactPersonDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        RegisterContactPersonDto dto = RegisterContactPersonDto.builder().name(VALID_NAME).surname(VALID_SURNAME).phoneNumber(VALID_PHONE).email(DEFAULT_EMAIL).password(DEFAULT_PASSWORD).build();
 
         // WHEN
         MockHttpServletResponse response = mvc.perform(post("/api/v1/contactperson")

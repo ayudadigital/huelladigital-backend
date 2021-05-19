@@ -35,7 +35,7 @@ class RegisterESALContactPersonActionShould {
     @Test
     void send_email_to_confirm_a_new_organization_member(){
         //GIVEN
-        RegisterContactPersonDto dto = new RegisterContactPersonDto(VALID_NAME, VALID_SURNAME, VALID_PHONE, DEFAULT_EMAIL, DEFAULT_PASSWORD);
+        RegisterContactPersonDto dto = RegisterContactPersonDto.builder().name(VALID_NAME).surname(VALID_SURNAME).phoneNumber(VALID_PHONE).email(DEFAULT_EMAIL).password(DEFAULT_PASSWORD).build();
 
         //WHEN
         organizationMemberAction.execute(dto);
@@ -44,4 +44,3 @@ class RegisterESALContactPersonActionShould {
         verify(emailService, times(1)).sendEmail(any());
     }
 }
-

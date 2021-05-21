@@ -16,8 +16,6 @@ public class ChangeProposalStatusToFinishedAction {
      * @param proposalId Id of the proposal
      */
     public void execute(String proposalId){
-
         proposalService.changeStatusToFinished(proposalId);
-
     }
 }

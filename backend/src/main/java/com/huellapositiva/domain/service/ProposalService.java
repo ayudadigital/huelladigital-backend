@@ -27,16 +27,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.net.URI;
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static java.lang.String.format;
+import static java.time.temporal.ChronoUnit.*;
 import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Collections.emptyList;
 
@@ -338,8 +340,8 @@ public class ProposalService {
                 .name("FINISHED")
                 .build();
 
-        Calendar now = Calendar.getInstance();
-        String currentDate = String.format("%d-%d-%d", now.get(DAY_OF_MONTH), now.get(Calendar.MONTH), now.get(Calendar.YEAR));
+        LocalDate now = LocalDate.now();
+        String currentDate = String.format("%d-%d-%d", now.getDayOfMonth(), now.getMonthValue(), now.getYear());
 
         List<JpaProposal> expiredProposals = jpaProposalRepository
                 .findExpiredProposals( new SimpleDateFormat("dd-MM-yyyy").parse(currentDate), jpaProposalStatusFinished);

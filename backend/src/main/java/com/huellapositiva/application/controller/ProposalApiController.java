@@ -97,7 +97,7 @@ public class ProposalApiController {
     @ApiResponses(
             value = {
                     @ApiResponse(
-                            responseCode = "200",
+                            responseCode = "204",
                             description = "Proposal status changed to FINISHED"
                     ),
                     @ApiResponse(
@@ -106,7 +106,7 @@ public class ProposalApiController {
                     ),
                     @ApiResponse(
                             responseCode = "409",
-                            description = "Precondition failed, illegal status."
+                            description = "Conflict, current status is illegal."
                     ),
                     @ApiResponse(
                             responseCode = "500",
@@ -114,7 +114,7 @@ public class ProposalApiController {
                     ),
             }
     )
-    @PostMapping("/{id}/status/toFinished")
+    @PutMapping("/{id}/status/finished")
     @RolesAllowed("CONTACT_PERSON")
     @ResponseStatus(HttpStatus.OK)
     public void changeProposalStatusToFinishedAction(@PathVariable("id") String proposalId){

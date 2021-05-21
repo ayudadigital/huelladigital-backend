@@ -97,33 +97,33 @@ class ProposalControllerShould {
     @Test
     void change_status_to_finished() throws Exception {
         // GIVEN
-        JpaProposal publishedProp= testData.registerESALAndProposal(PUBLISHED);
-        publishedProp.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
+        JpaProposal publishedProposal= testData.registerESALAndProposal(PUBLISHED);
+        publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
 
         // WHEN
-        proposalService.changeStatusToFinished(publishedProp.getId());
+        proposalService.changeStatusToFinished(publishedProposal.getId());
 
         // THEN
-        assertThat(jpaProposalRepository.findByNaturalId(publishedProp.getId()).get().getStatus().getName()).isEqualTo("finished");
+        assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished");
     }
 
     @Test
     void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception{
         // GIVEN
-        JpaProposal publishedProp= testData.registerESALAndProposal(CANCELLED);
-        publishedProp.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
+        JpaProposal publishedProposal= testData.registerESALAndProposal(CANCELLED);
+        publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
 
         // WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProp.getId() + "/status/toFinished")
+        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProposal.getId() + "/status/finished")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProp.getId()).get().getStatus().getName()).isEqualTo("cancelled"));
+                .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("cancelled"));
 
     }
 
@@ -137,7 +137,7 @@ class ProposalControllerShould {
 
 
         // WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProp.getId() + "/status/toFinished")
+        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProp.getId() + "/status/finished")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())

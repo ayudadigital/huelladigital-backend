@@ -41,9 +41,7 @@ jobs:
       - name: Sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR }}
-        run: |
-          BRANCH_NAME=$(echo ${GITHUB_REF} | sed 's/refs\///g' | sed 's/heads\///g' | sed 's/\/merge//g' | sed 's/pull\//PR-/g')
-          mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}  -Dsonar.branch.name=${BRANCH_NAME} --file backend/pom.xml
+        run: mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}  -Dsonar.branch.name=${GITHUB_REF} --file backend/pom.xml
 
       - name: Package
         run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml

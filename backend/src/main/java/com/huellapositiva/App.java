@@ -19,6 +19,9 @@ public class App implements CommandLineRunner {
     @Value("${spring.datasource.url}")
     private String datasourceUrl;
 
+    @Value("${spring.datasource.username}")
+    private String username;
+
     @Autowired
     private ReviserService reviserService;
 
@@ -28,7 +31,7 @@ public class App implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        log.info("===== SSM properties: {} -> {}", env.getActiveProfiles(), datasourceUrl);
+        log.info("===== SSM properties: {} -> {} -> {}", env.getActiveProfiles(), datasourceUrl, username);
         reviserService.createDefaultReviser();
     }
 }

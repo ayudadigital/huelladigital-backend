@@ -116,7 +116,7 @@ class ProposalControllerShould {
 
 
         // WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProposal.getId() + "/status/finished")
+        mvc.perform(put(FETCH_PROPOSAL_URI + publishedProposal.getId() + "/status/finished")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
@@ -136,12 +136,12 @@ class ProposalControllerShould {
 
 
         // WHEN + THEN
-        mvc.perform(post(FETCH_PROPOSAL_URI + publishedProp.getId() + "/status/finished")
+        mvc.perform(put(FETCH_PROPOSAL_URI + publishedProp.getId() + "/status/finished")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProp.getId()).get().getStatus().getName()).isEqualTo("finished"));
 
     }

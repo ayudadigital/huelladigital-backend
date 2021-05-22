@@ -116,7 +116,7 @@ public class ProposalApiController {
     )
     @PutMapping("/{id}/status/finished")
     @RolesAllowed("CONTACT_PERSON")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changeProposalStatusToFinishedAction(@PathVariable("id") String proposalId){
         try{
             changeProposalStatusToFinishedAction.execute(proposalId);

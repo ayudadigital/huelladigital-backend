@@ -1,5 +1,6 @@
 package com.huellapositiva.domain.model.valueobjects;
 
+import com.huellapositiva.application.exception.InvalidFieldException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,5 +38,12 @@ public class PhoneNumber {
 
     private static boolean isNumeric(String s) {
         return s.matches("\\d*");
+    }
+
+    public static PhoneNumber from(String phoneNumber) {
+        if (isNotPhoneNumber(phoneNumber)){
+            throw new InvalidFieldException("The phone number field is invalid");
+        }
+        return new PhoneNumber(phoneNumber);
     }
 }

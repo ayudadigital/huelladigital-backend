@@ -1,9 +1,9 @@
 package com.huellapositiva.domain.model.entities;
 
-import com.huellapositiva.application.dto.RegisterContactPersonDto;
 import com.huellapositiva.domain.model.valueobjects.EmailAddress;
 import com.huellapositiva.domain.model.valueobjects.Id;
 import com.huellapositiva.domain.model.valueobjects.PasswordHash;
+import com.huellapositiva.domain.model.valueobjects.PhoneNumber;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +17,7 @@ public class ContactPerson extends User {
 
     private String surname;
 
-    private String phoneNumber;
+    private PhoneNumber phoneNumber;
 
     public ContactPerson(Id accountId, EmailAddress emailAddress, Id contactPersonId) {
         super(accountId, emailAddress, contactPersonId);
@@ -27,11 +27,11 @@ public class ContactPerson extends User {
         super(accountId, emailAddress, passwordHash, contactPersonId);
     }
 
-    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId, RegisterContactPersonDto dto) {
+    public ContactPerson(Id accountId, EmailAddress emailAddress, PasswordHash passwordHash, Id contactPersonId, String name, String surname, PhoneNumber phoneNumber) {
         super(accountId, emailAddress, passwordHash, contactPersonId);
-        this.name = dto.getName();
-        this.surname = dto.getSurname();
-        this.phoneNumber = dto.getPhoneNumber();
+        this.name = name;
+        this.surname = surname;
+        this.phoneNumber = phoneNumber;
     }
 
     public boolean hasESAL() {

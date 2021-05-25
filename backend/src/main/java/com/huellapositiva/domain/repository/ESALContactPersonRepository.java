@@ -62,7 +62,7 @@ public class ESALContactPersonRepository {
                 .id(Id.newId().getValue())
                 .name(contactPerson.getName())
                 .surname(contactPerson.getSurname())
-                .phoneNumber(contactPerson.getPhoneNumber())
+                .phoneNumber(contactPerson.getPhoneNumber().getPhone())
                 .build();
         jpaContactPersonProfileRepository.save(jpaContactPersonProfile);
         JpaContactPerson jpaContactPerson = JpaContactPerson.builder()

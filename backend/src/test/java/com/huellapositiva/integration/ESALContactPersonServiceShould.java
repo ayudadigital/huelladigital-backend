@@ -1,11 +1,8 @@
 package com.huellapositiva.integration;
 
 import com.huellapositiva.application.dto.RegisterContactPersonDto;
-import com.huellapositiva.domain.model.valueobjects.Id;
-import com.huellapositiva.domain.model.valueobjects.Roles;
+import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.service.ESALContactPersonService;
-import com.huellapositiva.domain.model.valueobjects.EmailConfirmation;
-import com.huellapositiva.domain.model.valueobjects.PlainPassword;
 import com.huellapositiva.infrastructure.orm.entities.JpaCredential;
 import com.huellapositiva.infrastructure.orm.entities.JpaContactPerson;
 import com.huellapositiva.infrastructure.orm.repository.JpaContactPersonProfileRepository;
@@ -61,7 +58,7 @@ class ESALContactPersonServiceShould {
                 .build();
 
         // WHEN
-        Id contactPersonId = ESALContactPersonService.registerContactPerson(dto, PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""));
+        Id contactPersonId = ESALContactPersonService.registerContactPerson(PlainPassword.from(dto.getPassword()), EmailConfirmation.from(dto.getEmail(), ""), dto.getName(), dto.getSurname(), PhoneNumber.from(dto.getPhoneNumber()));
 
         // THEN
         Optional<JpaContactPerson> employeeOptional = organizationMemberRepository.findByIdWithCredentialsAndRoles(contactPersonId.toString());

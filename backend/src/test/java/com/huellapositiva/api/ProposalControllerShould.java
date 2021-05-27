@@ -107,9 +107,9 @@ class ProposalControllerShould {
     }
 
     @Test
-    void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception{
+    void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
-        JpaProposal publishedProposal= testData.registerESALAndProposal(CANCELLED);
+        JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);
         publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
@@ -123,13 +123,12 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
                 .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("cancelled"));
-
     }
 
     @Test
-    void return_200_when_adequate_criteria_to_change_proposal_status_to_finished() throws Exception{
+    void return_200_when_adequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
-        JpaProposal publishedProposal= testData.registerESALAndProposal(PUBLISHED);
+        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
         publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
@@ -143,37 +142,34 @@ class ProposalControllerShould {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
                 .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished"));
-
     }
 
     @Test
-    void trigger_bulk_status_change_to_finished() throws Exception {
+    void finish_proposal_using_trigger_if_criteria_is_met() throws Exception {
+        //GIVEN
+        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        testData.createProposal(publishedProposal);
 
-        // GIVEN
-        JpaProposal finishedProp= testData.registerESALAndProposal(FINISHED);
-        finishedProp.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
-
-        testData.resetData();
-
-        JpaProposal publishedProp= testData.registerESALAndProposal(PUBLISHED);
-        publishedProp.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2099"));
-
-        testData.resetData();
-
-        JpaProposal enrollClosedProp= testData.registerESALAndProposal(ENROLLMENT_CLOSED);
-        publishedProp.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
-
-        testData.resetData();
-
-        // WHEN
+        //WHEN
         proposalService.changeExpiredProposalStatusToFinished();
 
-        // THEN
-        assertAll(
-                ()-> assertThat(finishedProp.getStatus().getName()).isEqualTo("finished"),
-                ()-> assertThat(publishedProp.getStatus().getName()).isEqualTo("published"),
-                ()-> assertThat(enrollClosedProp.getStatus().getName()).isEqualTo("enrollment_closed")
-        );
+        //THEN
+        assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished");
+    }
+
+    @Test
+    void not_finish_proposal_using_trigger_if_criteria_is_not_met() throws Exception {
+        //GIVEN
+        JpaProposal enrollmentClosedProposal = testData.registerESALAndProposal(ENROLLMENT_CLOSED);
+        enrollmentClosedProposal.setClosingProposalDate(Date.from(Instant.now().plus(1, DAYS)));
+        jpaProposalRepository.save(enrollmentClosedProposal);
+
+        //WHEN
+        proposalService.changeExpiredProposalStatusToFinished();
+
+        //THEN
+        assertThat(jpaProposalRepository.findByNaturalId(enrollmentClosedProposal.getId()).get().getStatus().getName()).isEqualTo("enrollment_closed");
     }
 
 

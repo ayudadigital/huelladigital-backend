@@ -110,7 +110,7 @@ class ProposalControllerShould {
     void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);
-        publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
@@ -129,7 +129,7 @@ class ProposalControllerShould {
     void return_200_when_adequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
-        publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 

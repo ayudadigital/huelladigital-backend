@@ -27,19 +27,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.net.URI;
-import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import static com.huellapositiva.domain.model.valueobjects.ProposalStatus.*;
 import static java.lang.String.format;
-import static java.time.temporal.ChronoUnit.*;
-import static java.util.Calendar.DAY_OF_MONTH;
 import static java.util.Collections.emptyList;
 
 @Slf4j
@@ -332,19 +329,16 @@ public class ProposalService {
         jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
     }
 
-    @Scheduled(cron="0 ${random.int[0,59]} 0 * * ?")
+    @Scheduled(cron = "0 ${random.int[0,59]} 0 * * ?")
     public void changeExpiredProposalStatusToFinished() throws ParseException {
 
-        JpaProposalStatus jpaProposalStatusFinished =  JpaProposalStatus.builder()
+        JpaProposalStatus jpaProposalStatusFinished = JpaProposalStatus.builder()
                 .id(FINISHED.getId())
                 .name("FINISHED")
                 .build();
 
-        LocalDate now = LocalDate.now();
-        String currentDate = String.format("%d-%d-%d", now.getDayOfMonth(), now.getMonthValue(), now.getYear());
-
         List<JpaProposal> expiredProposals = jpaProposalRepository
-                .findExpiredProposals( new SimpleDateFormat("dd-MM-yyyy").parse(currentDate), jpaProposalStatusFinished);
+                .findExpiredProposals(Date.from(Instant.now()), jpaProposalStatusFinished);
 
         expiredProposals.forEach(
                 jpaProposal -> jpaProposalRepository.updateStatusById(jpaProposal.getId(), jpaProposalStatusFinished));

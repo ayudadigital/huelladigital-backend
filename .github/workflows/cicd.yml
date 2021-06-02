@@ -49,14 +49,14 @@ jobs:
         run: mvn package spring-boot:repackage -DskipTests --file backend/pom.xml
 
       - name: Login to DockerHub
-#        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USER }}
           password: ${{ secrets.DOCKER_HUB_PASS }}
 
       - name: Docker Publish
-#        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         uses: docker/build-push-action@v2
         env:
           IMAGE_NAME: ayudadigital/huelladigital-backend

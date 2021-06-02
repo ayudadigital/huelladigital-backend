@@ -94,19 +94,6 @@ class ProposalControllerShould {
     }
 
     @Test
-    void change_status_to_finished() throws Exception {
-        // GIVEN
-        JpaProposal publishedProposal= testData.registerESALAndProposal(PUBLISHED);
-        publishedProposal.setClosingProposalDate(new SimpleDateFormat("dd-MM-yyyy").parse("20-12-2020"));
-
-        // WHEN
-        proposalService.changeStatusToFinished(publishedProposal.getId());
-
-        // THEN
-        assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished");
-    }
-
-    @Test
     void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);
@@ -122,7 +109,10 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict())
-                .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("cancelled"));
+                .andExpect(mvcResult -> {
+                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("cancelled");
+                });
     }
 
     @Test
@@ -141,37 +131,11 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent())
-                .andExpect(mvcResult -> assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished"));
+                .andExpect(mvcResult -> {
+                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
+                });
     }
-
-    @Test
-    void finish_proposal_using_trigger_if_criteria_is_met() throws Exception {
-        //GIVEN
-        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
-        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
-        testData.createProposal(publishedProposal);
-
-        //WHEN
-        proposalService.changeExpiredProposalStatusToFinished();
-
-        //THEN
-        assertThat(jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get().getStatus().getName()).isEqualTo("finished");
-    }
-
-    @Test
-    void not_finish_proposal_using_trigger_if_criteria_is_not_met() throws Exception {
-        //GIVEN
-        JpaProposal enrollmentClosedProposal = testData.registerESALAndProposal(ENROLLMENT_CLOSED);
-        enrollmentClosedProposal.setClosingProposalDate(Date.from(Instant.now().plus(1, DAYS)));
-        jpaProposalRepository.save(enrollmentClosedProposal);
-
-        //WHEN
-        proposalService.changeExpiredProposalStatusToFinished();
-
-        //THEN
-        assertThat(jpaProposalRepository.findByNaturalId(enrollmentClosedProposal.getId()).get().getStatus().getName()).isEqualTo("enrollment_closed");
-    }
-
 
     @Test
     void persist_a_proposal() throws Exception {

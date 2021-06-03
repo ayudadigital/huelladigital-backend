@@ -94,6 +94,28 @@ class ProposalControllerShould {
     }
 
     @Test
+    void return_404_when_finishing_a_non_existing_proposal() throws Exception {
+        // GIVEN
+        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + (int)(Math.random()*5) + "/status/finished")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+//                .andExpect(mvcResult -> {
+//                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(String.valueOf((int)Math.random())).get();
+//                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
+//                });
+    }
+
+    @Test
     void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);

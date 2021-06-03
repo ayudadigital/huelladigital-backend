@@ -330,7 +330,7 @@ public class ProposalService {
     }
 
     @Scheduled(cron = "0 ${random.int[0,59]} 0 * * ?")
-    public void changeExpiredProposalStatusToFinished() throws ParseException {
+    public void changeExpiredProposalStatusToFinished() {
 
         JpaProposalStatus jpaProposalStatusFinished = JpaProposalStatus.builder()
                 .id(FINISHED.getId())

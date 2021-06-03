@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Import(TestData.class)
-public class ProposalServiceShould {
+ class ProposalServiceShould {
 
     @Autowired
     private TestData testData;
@@ -46,8 +46,8 @@ public class ProposalServiceShould {
         proposalService.changeStatusToFinished(publishedProposal.getId());
 
         // THEN
-        publishedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
-        assertThat(publishedProposal.getStatus().getName()).isEqualTo("finished");
+        JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+        assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
     }
 
     @Test
@@ -61,8 +61,8 @@ public class ProposalServiceShould {
         proposalService.changeExpiredProposalStatusToFinished();
 
         //THEN
-        publishedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
-        assertThat(publishedProposal.getStatus().getName()).isEqualTo("finished");
+        JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+        assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ProposalServiceShould {
         proposalService.changeExpiredProposalStatusToFinished();
 
         //THEN
-        enrollmentClosedProposal = jpaProposalRepository.findByNaturalId(enrollmentClosedProposal.getId()).get();
-        assertThat(enrollmentClosedProposal.getStatus().getName()).isEqualTo("enrollment_closed");
+        JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(enrollmentClosedProposal.getId()).get();
+        assertThat(fetchedProposal.getStatus().getName()).isEqualTo("enrollment_closed");
     }
 }

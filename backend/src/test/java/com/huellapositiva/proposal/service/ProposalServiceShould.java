@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Import(TestData.class)
- class ProposalServiceShould {
+class ProposalServiceShould {
 
     @Autowired
     private TestData testData;

@@ -98,6 +98,7 @@ class ProposalControllerShould {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
         publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
@@ -109,10 +110,6 @@ class ProposalControllerShould {
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-//                .andExpect(mvcResult -> {
-//                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(String.valueOf((int)Math.random())).get();
-//                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
-//                });
     }
 
     @Test
@@ -120,6 +117,7 @@ class ProposalControllerShould {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);
         publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 
@@ -142,6 +140,7 @@ class ProposalControllerShould {
         // GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
         publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
 
         JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
 

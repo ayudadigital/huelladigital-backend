@@ -55,7 +55,7 @@ class ProposalServiceShould {
         //GIVEN
         JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
         publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
-        testData.createProposal(publishedProposal);
+        jpaProposalRepository.save(publishedProposal);
 
         //WHEN
         proposalService.changeExpiredProposalStatusToFinished();

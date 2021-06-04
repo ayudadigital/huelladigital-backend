@@ -329,6 +329,7 @@ public class ProposalService {
         jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
     }
 
+    @Scheduled(cron = "0 ${random.int[0,59]} 0 * * ?")
     public void changeExpiredProposalStatusToFinished() {
 
         JpaProposalStatus jpaProposalStatusFinished = JpaProposalStatus.builder()
@@ -341,11 +342,6 @@ public class ProposalService {
 
         expiredProposals.forEach(
                 jpaProposal -> jpaProposalRepository.updateStatusById(jpaProposal.getId(), jpaProposalStatusFinished));
-    }
-
-    @Scheduled(cron = "0 ${random.int[0,59]} 0 * * ?")
-    public void triggerChangeExpiredProposalStatusToFinished() {
-        changeExpiredProposalStatusToFinished();
     }
 
     public void changeStatusToFinished(String proposalId) {

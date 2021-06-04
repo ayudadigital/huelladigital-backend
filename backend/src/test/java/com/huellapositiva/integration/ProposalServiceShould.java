@@ -1,4 +1,4 @@
-package com.huellapositiva.proposal.service;
+package com.huellapositiva.integration;
 
 import com.huellapositiva.domain.service.ProposalService;
 import com.huellapositiva.infrastructure.orm.entities.JpaProposal;

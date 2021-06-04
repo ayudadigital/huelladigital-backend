@@ -21,7 +21,7 @@
         <h2.version>1.4.200</h2.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hibernate.version>5.4.12.Final</hibernate.version>
-        <hibernate-validator.version>6.1.4.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <jackson.version>2.10.3</jackson.version>
         <jacoco.version>0.8.5</jacoco.version>
         <java.version>11</java.version>

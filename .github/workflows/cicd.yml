@@ -89,7 +89,6 @@ jobs:
           docker-image: 'ayudadigital/huelladigital-backend:${{ github.sha }}'
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-access-key-secret: ${{ secrets.AWS_ACCESS_KEY_SECRET }}
-
 # TODO
 # Show JUnit reports through actions
 # Send email alerts if failure

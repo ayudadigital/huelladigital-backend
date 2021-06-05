@@ -21,14 +21,17 @@ import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalStatusRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.net.URI;
 import java.text.ParseException;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -325,4 +328,38 @@ public class ProposalService {
                 .name("PUBLISHED").build();
         jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
     }
+
+    @Scheduled(cron = "0 ${random.int[0,59]} 0 * * ?")
+    public void changeExpiredProposalStatusToFinished() {
+
+        JpaProposalStatus jpaProposalStatusFinished = JpaProposalStatus.builder()
+                .id(FINISHED.getId())
+                .name("FINISHED")
+                .build();
+
+        List<JpaProposal> expiredProposals = jpaProposalRepository
+                .findExpiredProposals(Date.from(Instant.now()), jpaProposalStatusFinished);
+
+        expiredProposals.forEach(
+                jpaProposal -> jpaProposalRepository.updateStatusById(jpaProposal.getId(), jpaProposalStatusFinished));
+    }
+
+    public void changeStatusToFinished(String proposalId) {
+
+        JpaProposal proposal = jpaProposalRepository.findByNaturalId(proposalId)
+                .orElseThrow(EntityNotFoundException::new);
+        String status = proposal.getStatus().getName().toUpperCase();
+
+        if (!(PUBLISHED.toString().equals(status) || ENROLLMENT_CLOSED.toString().equals(status))) {
+            throw new InvalidProposalStatusException("Proposal must be either PUBLISHED or ENROLLMENT_CLOSED");
+        }
+
+        JpaProposalStatus jpaProposalStatus = JpaProposalStatus.builder()
+                .id(FINISHED.getId())
+                .name("FINISHED")
+                .build();
+
+        jpaProposalRepository.updateStatusById(proposalId, jpaProposalStatus);
+    }
+
 }

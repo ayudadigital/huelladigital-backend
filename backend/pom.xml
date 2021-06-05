@@ -21,9 +21,9 @@
         <h2.version>1.4.200</h2.version>
         <hamcrest.version>2.2</hamcrest.version>
         <hibernate.version>5.4.12.Final</hibernate.version>
-        <hibernate-validator.version>6.1.4.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <jackson.version>2.10.3</jackson.version>
-        <jacoco.version>0.8.5</jacoco.version>
+        <jacoco.version>0.8.7</jacoco.version>
         <java.version>11</java.version>
         <json.path>2.4.0</json.path>
         <junit5.version>5.5.2</junit5.version>
@@ -47,10 +47,9 @@
         <rest.assured.version>4.2.0</rest.assured.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/merged.exec</sonar.jacoco.reportPath>
         <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco-merged/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
-        <sonar.version>3.7.0.1746</sonar.version>
+        <sonar.version>3.9.0.2155</sonar.version>
         <sonar.projectKey>ayudadigital_huelladigital</sonar.projectKey>
         <sonar.organization>ayudadigital</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>

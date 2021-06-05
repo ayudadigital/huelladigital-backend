@@ -6,6 +6,7 @@ import com.huellapositiva.application.exception.UserNotFoundException;
 import com.huellapositiva.domain.model.entities.Proposal;
 import com.huellapositiva.domain.model.valueobjects.*;
 import com.huellapositiva.domain.repository.ProposalRepository;
+import com.huellapositiva.domain.service.ProposalService;
 import com.huellapositiva.infrastructure.orm.entities.*;
 import com.huellapositiva.infrastructure.orm.repository.JpaProposalRepository;
 import com.huellapositiva.infrastructure.orm.repository.JpaVolunteerRepository;
@@ -84,9 +85,77 @@ class ProposalControllerShould {
     @Autowired
     private ProposalRepository proposalRepository;
 
+    @Autowired
+    private ProposalService proposalService;
+
     @BeforeEach
     void beforeEach() {
         testData.resetData();
+    }
+
+    @Test
+    void return_404_when_finishing_a_non_existing_proposal() throws Exception {
+        // GIVEN
+        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + (int)(Math.random()*5) + "/status/finished")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void return_409_when_inadequate_criteria_to_change_proposal_status_to_finished() throws Exception {
+        // GIVEN
+        JpaProposal publishedProposal = testData.registerESALAndProposal(CANCELLED);
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + publishedProposal.getId() + "/status/finished")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(mvcResult -> {
+                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("cancelled");
+                });
+    }
+
+    @Test
+    void return_200_when_adequate_criteria_to_change_proposal_status_to_finished() throws Exception {
+        // GIVEN
+        JpaProposal publishedProposal = testData.registerESALAndProposal(PUBLISHED);
+        publishedProposal.setClosingProposalDate(Date.from(Instant.now().minus(1, DAYS)));
+        jpaProposalRepository.save(publishedProposal);
+
+        JwtResponseDto jwtResponseDto = loginAndGetJwtTokens(mvc, DEFAULT_ESAL_CONTACT_PERSON_EMAIL, DEFAULT_PASSWORD);
+
+
+        // WHEN + THEN
+        mvc.perform(put(FETCH_PROPOSAL_URI + publishedProposal.getId() + "/status/finished")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtResponseDto.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent())
+                .andExpect(mvcResult -> {
+                    JpaProposal fetchedProposal = jpaProposalRepository.findByNaturalId(publishedProposal.getId()).get();
+                    assertThat(fetchedProposal.getStatus().getName()).isEqualTo("finished");
+                });
     }
 
     @Test

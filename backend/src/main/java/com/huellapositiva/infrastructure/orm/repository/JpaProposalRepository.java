@@ -10,6 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface JpaProposalRepository extends JpaRepository<JpaProposal, Integer> {
@@ -23,6 +25,9 @@ public interface JpaProposalRepository extends JpaRepository<JpaProposal, Intege
     Page<JpaProposal> findByStatusIs(JpaProposalStatus status, Pageable pageable);
 
     Page<JpaProposal> findByStatusNot(JpaProposalStatus status, Pageable pageable);
+
+    @Query("FROM JpaProposal p WHERE p.closingProposalDate < :currentDate AND p.status != :status")
+    List<JpaProposal> findExpiredProposals(@Param("currentDate") Date date, @Param("status") JpaProposalStatus status);
 
     @Modifying
     @Transactional

@@ -20,7 +20,7 @@
         <git.commit.id.version>4.0.3</git.commit.id.version>
         <h2.version>1.4.200</h2.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <hibernate.version>5.4.12.Final</hibernate.version>
+        <hibernate.version>5.4.24.Final</hibernate.version>
         <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <jackson.version>2.10.3</jackson.version>
         <jacoco.version>0.8.7</jacoco.version>

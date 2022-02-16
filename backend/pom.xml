@@ -36,7 +36,7 @@
         <maven.project.info.reports.version>3.0.0</maven.project.info.reports.version>
         <mockito.version>3.3.0</mockito.version>
         <nimbus-jose-jwt.version>8.19</nimbus-jose-jwt.version>
-        <postqresql.version>42.2.16</postqresql.version>
+        <postqresql.version>42.3.3</postqresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.version>3.8.1</maven.compiler.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>

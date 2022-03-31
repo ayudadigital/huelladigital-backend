@@ -53,7 +53,7 @@
         <sonar.projectKey>ayudadigital_huelladigital</sonar.projectKey>
         <sonar.organization>ayudadigital</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-        <spring.boot.version>2.2.5.RELEASE</spring.boot.version>
+        <spring.boot.version>2.5.12</spring.boot.version>
         <spring-cloud.version>Hoxton.SR7</spring-cloud.version>
         <springdoc-openapi-ui.version>1.4.3</springdoc-openapi-ui.version>
         <system.rules.version>1.17.2</system.rules.version>
